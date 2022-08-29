@@ -78,7 +78,7 @@ set RELEASE=%SRC%\Release
 goto :makerelease
 
 :netrelease
-set RELEASE="\\vfsstorage10\dropbox\GDPGSD\Builds\%COHORT%\%PROJECT%\Builds"
+set RELEASE="\\vfsstorage10\dropbox\GDPGSD\Builds\%COHORT%\%PROJECT%\Dailies"
 
 :makerelease
 if not exist %RELEASE%\ mkdir %RELEASE%
