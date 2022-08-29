@@ -1,6 +1,6 @@
 @echo off
 ::
-:: Build script for "<insert app name>"
+:: Build script for "Blind Eye"
 ::
 :: Copyright (C)2021 Scott Henshaw, All rights reserved
 :: USAGE:
@@ -51,12 +51,12 @@ if DEFINED OPT-DEBUG (
 ::
 :: set PROJECT to your uproject file name without the .uproject extension
 ::
-set COHORT=<insert cohort name>
-set PROJECT=<project-name>
+set COHORT=GD66PG22
+set PROJECT=BlindEye
 
 :: GIT:  Edit the line below to set your git repo if you use the clone option
 :: edit your URL
-set GIT_REPO="https://github.com/vfs-sct/%COHORT%FP-<repo-name>.git"
+set GIT_REPO="https://github.com/vfs-sct/%COHORT%FP-%PROJECT%.git"
 
 
 ::  DONT TOUCH ANYTHING BELOW HERE
@@ -97,7 +97,7 @@ call :SetNow now
 
 :: Edit these paths to where they exist on your build computer
 set UNITY="C:\Program Files\Unity\Hub\Editor\2021.1.24f1\Editor\Unity.exe"
-set UNREAL="C:\Program Files\Epic Games\UE_4.26\Engine"
+set UNREAL="C:\Program Files\Epic Games\UE_4.27\Engine"
 set UCC=%UNREAL%\Binaries\DotNET\UnrealBuildTool.exe
 set UNREAL_PRE=%UNREAL%\Build\BatchFiles\RunUAT
 
@@ -132,7 +132,7 @@ if DEFINED OPT-CLONE (
 @echo:
 @echo Starting %UCC% at %time:~0,8%:
 :: Build the code with UNREAL, uncomment the lines below
-%UCC% %PROJECT% -ModuleWithSuffix %PROJECT% 5202 Win64 Development -editorrecompile -canskiplink %SRC%\%PROJECT%.uproject >>%LOGFILE%
+%UCC% %PROJECT% -ModuleWithSuffix %PROJECT% 5202 Win64 Development -editorrecompile -canskiplink %SRC%\\%PROJECT%.uproject >>%LOGFILE%
 
 @echo:
 @echo Starting %UNREAL_PRE% at %time:~0,8%
