@@ -5,6 +5,7 @@
 DerivedDataCache/
 Intermediate/
 Plugins/*/Intermediate/
+Plugins/*/Binaries/
 Saved/
 Build/
 Builds/
@@ -15,6 +16,7 @@ lfs/
 hooks/
 /Binaries/
 Content/Python/__pycache__
+
 
 # Wwise Project
 Wwise/IncrementalSoundBankData.xml
