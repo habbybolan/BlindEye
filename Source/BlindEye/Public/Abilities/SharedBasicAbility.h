@@ -6,29 +6,29 @@
 #include "Abilities/AbilityBase.h"
 #include "SharedBasicAbility.generated.h"
 
-class BLINDEYE_API UFirstAttackState : public AbilityState
+class BLINDEYE_API UFirstAttackState : public FAbilityState
 {
 public:
-	UFirstAttackState();
-	virtual bool EnterState() override;
+	UFirstAttackState(UAbilityBase* ability);
+	virtual bool TryEnterState(bool bInputUsed) override;
 	virtual void RunState() override;
 	virtual void ExitState() override;
 };
 
-class BLINDEYE_API USecondAttackState : public AbilityState
+class BLINDEYE_API USecondAttackState : public FAbilityState
 {
 public:
-	USecondAttackState();
-	virtual bool EnterState() override;
+	USecondAttackState(UAbilityBase* ability);
+	virtual bool TryEnterState(bool bInputUsed) override;
 	virtual void RunState() override;
 	virtual void ExitState() override;
 };
 
-class BLINDEYE_API ULastAttackState : public AbilityState
+class BLINDEYE_API ULastAttackState : public FAbilityState
 {
 public:
-	ULastAttackState();
-	virtual bool EnterState() override;
+	ULastAttackState(UAbilityBase* ability);
+	virtual bool TryEnterState(bool bInputUsed) override;
 	virtual void RunState() override;
 	virtual void ExitState() override;
 };
@@ -43,10 +43,9 @@ class BLINDEYE_API USharedBasicAbility : public UAbilityBase
 
 public:
 	USharedBasicAbility();
+	
 protected:
-	UFirstAttackState* FirstAttackState; 
-	USecondAttackState* SecondAttackState; 
-	ULastAttackState* LastAttackState; 
+	bool AbilityTest = true;
 };
 
 

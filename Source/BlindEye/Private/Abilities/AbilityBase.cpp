@@ -24,9 +24,44 @@ void UAbilityBase::SetOffCooldown()
 	bOnCooldown = false;
 }
 
+void UAbilityBase::TryCancelAbility()
+{
+	// TODO: Do functionality later
+	//		Probably add IsCancellable as base state boolean and extra cancel logic in the state (cancel method?)
+}
+
+void UAbilityBase::EndAbilityLogic()
+{
+	CurrState = 0;
+	bIsRunning = false;
+	AbilityEndedDelegate.ExecuteIfBound();
+}
+
+void UAbilityBase::EndCurrState()
+{
+	// TODO: End the current state. If no other inner state, call end state
+	CurrState++;
+	
+	// If finished the last inner state, exit the ability
+	if (CurrState >= AbilityStates.Num())
+	{
+		EndAbilityLogic();
+	}
+}
+
 // Called every frame
 void UAbilityBase::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+}
+
+void UAbilityBase::AbilityCancelInput()
+{
+	TryCancelAbility(); 
+}
+
+void UAbilityBase::AbilityUseInput()
+{
+	AbilityStates[CurrState]->TryEnterState(true);
 }
 

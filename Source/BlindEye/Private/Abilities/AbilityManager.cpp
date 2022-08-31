@@ -10,10 +10,11 @@ UAbilityManager::UAbilityManager()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	UniqueAbilities.SetNum(2);
+	UniqueAbilityTypes.SetNum(2);
+	//BasicAttack = GetOwner()->CreateDefaultSubobject<BasicAttackType>(TEXT("BasicAttack"));
 }
 
-void UAbilityManager::UsedAbility(AbilityTypes, AbilityUsageTypes)
+void UAbilityManager::UsedAbility(EAbilityTypes, AbilityUsageTypes)
 {
 	// TODO: check if ability on cooldown
 	// TODO: Check if curr ability, send input to ability
@@ -54,5 +55,9 @@ void UAbilityManager::BeginPlay()
 void UAbilityManager::InitiateAbilities()
 {
 	// TODO: Create and attach abilities to player
+}
+
+void UAbilityManager::AbilityEnded()
+{
 }
 

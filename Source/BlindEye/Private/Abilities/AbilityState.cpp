@@ -2,6 +2,21 @@
 
 
 #include "Abilities/AbilityState.h"
+#include "Abilities/AbilityBase.h"
 
-AbilityState::AbilityState() {}
+FAbilityState::FAbilityState(UAbilityBase* ability)
+{
+	Ability = ability;
+}
+
+void FAbilityState::ExitState()
+{
+	ResetState();
+	Ability->EndCurrState();
+}
+
+void FAbilityState::ResetState()
+{
+	bStateEntered = false;
+}
 

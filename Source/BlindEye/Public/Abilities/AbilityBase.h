@@ -9,7 +9,7 @@
 
 
 UCLASS(Abstract, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class BLINDEYE_API UAbilityBase : public USceneComponent
+class BLINDEYE_API UAbilityBase : public UActorComponent
 {
 	GENERATED_BODY()
 
@@ -17,12 +17,15 @@ public:
 	// Sets default values for this component's properties
 	UAbilityBase();
 
+	DECLARE_DELEGATE(FAbilityEndedSignature)
+	FAbilityEndedSignature AbilityEndedDelegate;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	// Holds all ability states, state progression goes linearly down the list starting at index 0
-	TArray<AbilityState*> AbilityStates;
+	TArray<FAbilityState*> AbilityStates;
 	uint8 CurrState = 0;
 
 	bool bOnCooldown = false;
@@ -30,14 +33,16 @@ protected:
 
 	void SetOffCooldown();
 
-	void EndAbility();
-	void TryCancelAbility(); 
-	void TryNextState();
+	void TryCancelAbility();
+
+	virtual void EndAbilityLogic();
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	void EndCurrState();
+	
 	void OnPressDown() PURE_VIRTUAL(UAbilityBase::OnPressDown,);
 	void OnReleased() PURE_VIRTUAL(UAbilityBase::OnReleased,);
 	void OnCancelled() PURE_VIRTUAL(UAbilityBase::OnCancelled,);

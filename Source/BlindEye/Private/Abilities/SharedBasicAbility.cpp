@@ -7,34 +7,36 @@
 
 USharedBasicAbility::USharedBasicAbility()
 {
-	FirstAttackState = new UFirstAttackState();
-	SecondAttackState = new USecondAttackState();
-	LastAttackState = new ULastAttackState();
+	AbilityStates.Add(new UFirstAttackState(this));
+	AbilityStates.Add(new USecondAttackState(this));
+	AbilityStates.Add(new ULastAttackState(this));
 }
 
-UFirstAttackState::UFirstAttackState() {}
+UFirstAttackState::UFirstAttackState(UAbilityBase* ability) : FAbilityState(ability) {}
 
-bool UFirstAttackState::EnterState()
+bool UFirstAttackState::TryEnterState(bool bInputUsed)
 {
-	// TODO: No Condition to enter
+	// TODO: No Condition to enter (Enters immediately on ability use)
 	return true;
 }
 
 void UFirstAttackState::RunState()
 {
+	
 	// TODO:
 }
 
 void UFirstAttackState::ExitState()
 {
 	// TODO: Timer that exits the Ability combo
+	FAbilityState::ExitState();
 }
 
 // Second Attack state
 
-USecondAttackState::USecondAttackState() {}
+USecondAttackState::USecondAttackState(UAbilityBase* ability) : FAbilityState(ability) {}
 
-bool USecondAttackState::EnterState()
+bool USecondAttackState::TryEnterState(bool bInputUsed)
 {
 	// TODO: Input Condition ToEnter
 	return true;
@@ -48,13 +50,14 @@ void USecondAttackState::RunState()
 void USecondAttackState::ExitState()
 {
 	// TODO: Timer that exits the Ability combo
+	FAbilityState::ExitState();
 }
 
 // Last Attack state
 
-ULastAttackState::ULastAttackState() {}
+ULastAttackState::ULastAttackState(UAbilityBase* ability) : FAbilityState(ability) {}
 
-bool ULastAttackState::EnterState()
+bool ULastAttackState::TryEnterState(bool bInputUsed)
 {
 	// TODO: Input Condition ToEnter
 	return true;
@@ -68,4 +71,5 @@ void ULastAttackState::RunState()
 void ULastAttackState::ExitState()
 {
 	// TODO: Timer that exits the Ability combo
+	FAbilityState::ExitState();
 }
