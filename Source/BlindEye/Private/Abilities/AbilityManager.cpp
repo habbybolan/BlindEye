@@ -9,6 +9,39 @@ UAbilityManager::UAbilityManager()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+
+	UniqueAbilities.SetNum(2);
+}
+
+void UAbilityManager::UsedAbility(AbilityTypes, AbilityUsageTypes)
+{
+	// TODO: check if ability on cooldown
+	// TODO: Check if curr ability, send input to ability
+	//	otherwise, set new Curr ability
+}
+
+bool UAbilityManager::IsMovementBlocked()
+{
+	// TODO: Check used ability
+	return false;
+}
+
+bool UAbilityManager::IsAbilityBlocked()
+{
+	// TODO: Check used ability
+	return false;
+}
+
+bool UAbilityManager::IsReceiveDamageBlocked()
+{
+	// TODO: Check used ability
+	return false;
+}
+
+bool UAbilityManager::IsDamageFeedbackBlocked()
+{
+	// TODO: Check used ability
+	return false;
 }
 
 
@@ -18,10 +51,8 @@ void UAbilityManager::BeginPlay()
 	Super::BeginPlay();
 }
 
-
-// Called every frame
-void UAbilityManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UAbilityManager::InitiateAbilities()
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	// TODO: Create and attach abilities to player
 }
 
