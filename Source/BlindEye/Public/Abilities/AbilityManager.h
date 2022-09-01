@@ -70,9 +70,7 @@ protected:
 	UPROPERTY()
 	AAbilityBase* CurrUsedAbility;
 
-	// Create the abilities from subclass and attach to player
-	void InitiateAbilities();
-
+	UFUNCTION()
 	void AbilityEnded();
 		
 };

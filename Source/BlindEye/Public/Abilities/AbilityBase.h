@@ -35,21 +35,18 @@ protected:
 
 	void TryCancelAbility();
 
+	// called when all ability inner states finished or ability cancelled
 	virtual void EndAbilityLogic();
 
 public:
 
 	void EndCurrState();
-	
-	void OnPressDown() PURE_VIRTUAL(UAbilityBase::OnPressDown,);
-	void OnReleased() PURE_VIRTUAL(UAbilityBase::OnReleased,);
-	void OnCancelled() PURE_VIRTUAL(UAbilityBase::OnCancelled,);
 
 	// Input for attempting to cancel the ability
 	void AbilityCancelInput();
 
 	// input for attempting to use/trigger ability effects
-	void AbilityUseInput();
+	bool UseAbility(bool bIsInputInitiated);
 
 	bool bIsRunning = false;
 		

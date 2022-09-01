@@ -68,6 +68,9 @@ void ABlindEyeCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 	PlayerInputComponent->BindAxis("TurnRate", this, &ABlindEyeCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &ABlindEyeCharacter::LookUpAtRate);
+
+	// TODO: Player input for Basic attack
+	// TODO: Player input for rest of attacks
 }
 
 void ABlindEyeCharacter::TurnAtRate(float Rate)
@@ -80,6 +83,11 @@ void ABlindEyeCharacter::LookUpAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void ABlindEyeCharacter::UseBasicAttack()
+{
+	AbilityManager->UsedAbility(EAbilityTypes::Basic, AbilityUsageTypes::Pressed);
 }
 
 void ABlindEyeCharacter::MoveForward(float Value)

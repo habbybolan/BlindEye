@@ -16,9 +16,17 @@ UAbilityManager::UAbilityManager()
 
 void UAbilityManager::UsedAbility(EAbilityTypes, AbilityUsageTypes)
 {
-	// TODO: check if ability on cooldown
-	// TODO: Check if curr ability, send input to ability
-	//	otherwise, set new Curr ability
+	// TODO: Hard coded to first ability, check all of them
+
+	// prevent using ability if another one activated
+	// TODO: Check if ability being used is blocking. If not, cancel ability 
+	if (CurrUsedAbility != nullptr && CurrUsedAbility != BasicAttack) return;
+	
+	if (BasicAttack->UseAbility(true))
+	{
+		if (CurrUsedAbility == nullptr)
+			CurrUsedAbility = BasicAttack;
+	}
 }
 
 bool UAbilityManager::IsMovementBlocked()
@@ -61,15 +69,14 @@ void UAbilityManager::BeginPlay()
 	{
 		UniqueAbilities.Add(world->SpawnActor<AAbilityBase>(AbilityType));
 	}
-	
-}
 
-void UAbilityManager::InitiateAbilities()
-{
-	// TODO: Create and attach abilities to player
+	// TODO: Does this work?? 
+	BasicAttack->AbilityEndedDelegate.BindUFunction(this, FName("AbilityEnded"));
 }
 
 void UAbilityManager::AbilityEnded()
 {
+	CurrUsedAbility = nullptr;
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Cyan, "Ability ended");
 }
 

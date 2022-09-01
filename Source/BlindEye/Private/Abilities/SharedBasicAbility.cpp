@@ -17,13 +17,14 @@ UFirstAttackState::UFirstAttackState(AAbilityBase* ability) : FAbilityState(abil
 bool UFirstAttackState::TryEnterState(bool bInputUsed)
 {
 	// TODO: No Condition to enter (Enters immediately on ability use)
+	RunState();
 	return true;
 }
 
 void UFirstAttackState::RunState()
 {
-	
 	// TODO:
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Blue, "Charge: 1");
 }
 
 void UFirstAttackState::ExitState()
@@ -39,12 +40,14 @@ USecondAttackState::USecondAttackState(AAbilityBase* ability) : FAbilityState(ab
 bool USecondAttackState::TryEnterState(bool bInputUsed)
 {
 	// TODO: Input Condition ToEnter
+	RunState();
 	return true;
 }
 
 void USecondAttackState::RunState()
 {
 	// TODO:
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Blue, "Charge: 2");
 }
 
 void USecondAttackState::ExitState()
@@ -60,12 +63,14 @@ ULastAttackState::ULastAttackState(AAbilityBase* ability) : FAbilityState(abilit
 bool ULastAttackState::TryEnterState(bool bInputUsed)
 {
 	// TODO: Input Condition ToEnter
+	RunState();
 	return true;
 }
 
 void ULastAttackState::RunState()
 {
 	// TODO:
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Blue, "Charge: last");
 }
 
 void ULastAttackState::ExitState()
