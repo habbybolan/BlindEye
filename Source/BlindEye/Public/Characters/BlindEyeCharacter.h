@@ -1,3 +1,4 @@
+
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
@@ -7,7 +8,7 @@
 
 #include "BlindEyeCharacter.generated.h"
 
-UCLASS(Abstract, config=Game)
+UCLASS(config=Game)
 class ABlindEyeCharacter : public ACharacter
 {
 	GENERATED_BODY()
