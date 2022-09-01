@@ -53,11 +53,11 @@ protected:
 	virtual void BeginPlay() override;
 
 	// Ability Types
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AAbilityBase> BasicAttackType;
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AAbilityBase> ChargedBasicAttackType;
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TSubclassOf<AAbilityBase>> UniqueAbilityTypes;
 
 	// Created Abilities
