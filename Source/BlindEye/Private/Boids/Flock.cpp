@@ -79,34 +79,35 @@ void AFlock::SpawnBoidRand()
 	// if a target is set, set spawn direction towards target
 	if (Target.IsValid())
 	{
-		FVector directionVec = Target->GetActorLocation() - GetActorLocation();
-		directionVec.Normalize();
-		directionVec *= 100;
-		
-		// Apply arc based on the distance target is from flock spawn location
-		float arcVerticalOffset = 0;
-		float distance = FVector::Distance(Target->GetActorLocation(), GetActorLocation());
-		// Only apply arc for enemies that are far enough away
-		if (distance > BoidMinDistanceToNotApplyArc)
-		{
-			// Get percentage to apply percentage of max vertical offset based on target distance
-			float verticalPercentage = (distance - BoidMinDistanceToNotApplyArc) / (BoidMaxDistanceToApplyFullArc - BoidMinDistanceToNotApplyArc);
-			arcVerticalOffset = verticalPercentage * BoidMaxInitialVertical;
-		}
-			
-		directionVec += FVector::UpVector * arcVerticalOffset;
-		if (const AController* controller = GetInstigatorController())
-		{
-			directionVec += (controller->GetControlRotation()).Vector().RotateAngleAxis(90, FVector::ForwardVector) *
-						UKismetMathLibrary::RandomFloatInRange(BoidInitialHorizontalChangeMin, BoidInitialHorizontalChangeMax) *
-						(UKismetMathLibrary::RandomIntegerInRange(0, 1) == 0 ? -1 : 1);
-		} else
-		{
-			GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Blue, "No Controller?");
-		}
-		
-		
-		direction = directionVec.Rotation();
+		// FVector directionVec = Target->GetActorLocation() - GetActorLocation();
+		// directionVec.Normalize();
+		// directionVec *= 100;
+		//
+		// // Apply arc based on the distance target is from flock spawn location
+		// float arcVerticalOffset = 0;
+		// float distance = FVector::Distance(Target->GetActorLocation(), GetActorLocation());
+		// // Only apply arc for enemies that are far enough away
+		// if (distance > BoidMinDistanceToNotApplyArc)
+		// {
+		// 	// Get percentage to apply percentage of max vertical offset based on target distance
+		// 	float verticalPercentage = (distance - BoidMinDistanceToNotApplyArc) / (BoidMaxDistanceToApplyFullArc - BoidMinDistanceToNotApplyArc);
+		// 	arcVerticalOffset = verticalPercentage * BoidMaxInitialVertical;
+		// }
+		// 	
+		// directionVec += FVector::UpVector * arcVerticalOffset;
+		// if (const AController* controller = GetInstigatorController())
+		// {
+		// 	directionVec += (controller->GetControlRotation()).Vector().RotateAngleAxis(90, FVector::ForwardVector) *
+		// 				UKismetMathLibrary::RandomFloatInRange(BoidInitialHorizontalChangeMin, BoidInitialHorizontalChangeMax) *
+		// 				(UKismetMathLibrary::RandomIntegerInRange(0, 1) == 0 ? -1 : 1);
+		// } else
+		// {
+		// 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Blue, "No Controller?");
+		// }
+		//
+		//
+		// direction = directionVec.Rotation();
+		direction = (Target->GetActorLocation() - GetActorLocation()).Rotation(); 
 	} else
 	{
 		direction = GetActorRotation();
