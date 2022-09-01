@@ -9,7 +9,6 @@ AAbilityBase::AAbilityBase()
 	bReplicates = true;
 }
 
-
 // Called when the game starts
 void AAbilityBase::BeginPlay()
 {

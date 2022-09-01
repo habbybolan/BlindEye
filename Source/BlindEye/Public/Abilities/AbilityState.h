@@ -14,7 +14,9 @@ public:
 	FAbilityState(AAbilityBase* ability);
 
 	/** @return True if the enter state conditions were satisfied */
+	// State checks for condition and goes to running state if passed
 	virtual bool TryEnterState(bool bInputUsed = false) = 0;
+	// calls any transition logic that must occur before going to next state
 	virtual void ExitState();
 	virtual void RunState();
 	// Children can add functionality for cleaning up the state
