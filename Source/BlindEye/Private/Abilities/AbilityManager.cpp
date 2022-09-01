@@ -62,12 +62,16 @@ void UAbilityManager::BeginPlay()
 	UWorld* world = GetWorld();
 	if (!world) return;
 
+	FActorSpawnParameters params;
+	params.Instigator = Cast<APawn>(GetOwner());
+	params.Owner = GetOwner();
+
 	// Create Ability actors
-	BasicAttack = world->SpawnActor<AAbilityBase>(BasicAttackType);
-	ChargedBasicAttack = world->SpawnActor<AAbilityBase>(ChargedBasicAttackType);
+	BasicAttack = world->SpawnActor<AAbilityBase>(BasicAttackType, params);
+	ChargedBasicAttack = world->SpawnActor<AAbilityBase>(ChargedBasicAttackType, params);
 	for (TSubclassOf<AAbilityBase> AbilityType : UniqueAbilityTypes)
 	{
-		UniqueAbilities.Add(world->SpawnActor<AAbilityBase>(AbilityType));
+		UniqueAbilities.Add(world->SpawnActor<AAbilityBase>(AbilityType, params));
 	}
 
 	// TODO: Does this work?? 
