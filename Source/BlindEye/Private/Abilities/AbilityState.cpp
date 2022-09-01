@@ -11,8 +11,16 @@ FAbilityState::FAbilityState(AAbilityBase* ability)
 
 void FAbilityState::ExitState()
 {
+}
+
+void FAbilityState::RunState()
+{
+	bStateEntered = true;
+}
+
+void FAbilityState::CancelState()
+{
 	ResetState();
-	Ability->EndCurrState();
 }
 
 void FAbilityState::ResetState()

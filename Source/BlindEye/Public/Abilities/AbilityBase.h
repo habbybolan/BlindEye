@@ -20,6 +20,12 @@ public:
 	DECLARE_DELEGATE(FAbilityEndedSignature)
 	FAbilityEndedSignature AbilityEndedDelegate;
 
+	// Try to cancel the abilities execution
+	UFUNCTION()
+	virtual void TryCancelAbility();
+
+	void DelayToNextState(float delay);
+	
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -33,13 +39,14 @@ protected:
 
 	void SetOffCooldown();
 
-	void TryCancelAbility();
-
 	// called when all ability inner states finished or ability cancelled
 	virtual void EndAbilityLogic();
 
+	FTimerHandle NextStateDelayTimerHandle;
+
 public:
 
+	// called from state to signal state ended
 	void EndCurrState();
 
 	// Input for attempting to cancel the ability

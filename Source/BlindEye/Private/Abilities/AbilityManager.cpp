@@ -77,6 +77,5 @@ void UAbilityManager::BeginPlay()
 void UAbilityManager::AbilityEnded()
 {
 	CurrUsedAbility = nullptr;
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Cyan, "Ability ended");
 }
 

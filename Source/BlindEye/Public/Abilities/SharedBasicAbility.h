@@ -33,9 +33,6 @@ public:
 	virtual void ExitState() override;
 };
 
-/**
- * 
- */
 UCLASS()
 class BLINDEYE_API ASharedBasicAbility : public AAbilityBase
 {
@@ -43,9 +40,16 @@ class BLINDEYE_API ASharedBasicAbility : public AAbilityBase
 
 public:
 	ASharedBasicAbility();
+
+	void SetLeaveAbilityTimer();
+	void ClearLeaveAbilityTimer();
 	
 protected:
 	bool AbilityTest = true;
+	FTimerHandle ResetAbilityTimerHandle;
+
+	virtual void TryCancelAbility() override;
+	virtual void EndAbilityLogic() override;
 };
 
 

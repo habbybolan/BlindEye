@@ -13,12 +13,12 @@ class BLINDEYE_API FAbilityState
 public:
 	FAbilityState(AAbilityBase* ability);
 
-	/**
-	 * @return True if the enter state conditions were satisfied
-	 */
+	/** @return True if the enter state conditions were satisfied */
 	virtual bool TryEnterState(bool bInputUsed = false) = 0;
 	virtual void ExitState();
-	virtual void RunState() = 0;
+	virtual void RunState();
+	// Children can add functionality for cleaning up the state
+	virtual void CancelState();
 
 	// reset the state after leaving it for entering again in the future
 	virtual void ResetState();

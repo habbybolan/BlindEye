@@ -12,24 +12,65 @@ ASharedBasicAbility::ASharedBasicAbility() : AAbilityBase()
 	AbilityStates.Add(new ULastAttackState(this));
 }
 
+void ASharedBasicAbility::SetLeaveAbilityTimer()
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	world->GetTimerManager().SetTimer(ResetAbilityTimerHandle, this, &AAbilityBase::TryCancelAbility, 2, false);
+}
+
+void ASharedBasicAbility::ClearLeaveAbilityTimer()
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	world->GetTimerManager().ClearTimer(ResetAbilityTimerHandle);
+}
+
+void ASharedBasicAbility::TryCancelAbility()
+{
+	ClearLeaveAbilityTimer();
+	Super::TryCancelAbility();
+}
+
+void ASharedBasicAbility::EndAbilityLogic()
+{
+	Super::EndAbilityLogic();
+	UWorld* world = GetWorld();
+	if (world)
+	{
+		world->GetTimerManager().ClearTimer(ResetAbilityTimerHandle);
+	}
+}
+
 UFirstAttackState::UFirstAttackState(AAbilityBase* ability) : FAbilityState(ability) {}
 
 bool UFirstAttackState::TryEnterState(bool bInputUsed)
 {
-	// TODO: No Condition to enter (Enters immediately on ability use)
+	if (bStateEntered) return false;
 	RunState();
 	return true;
 }
 
 void UFirstAttackState::RunState()
 {
+	FAbilityState::RunState();
 	// TODO:
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Blue, "Charge: 1");
+	ExitState();
 }
 
 void UFirstAttackState::ExitState()
 {
-	// TODO: Timer that exits the Ability combo
+	// Exits the ability if no input in time
+	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
+	if (SharedAbility)
+	{
+		SharedAbility->SetLeaveAbilityTimer();
+		SharedAbility->DelayToNextState(.2f);
+	}
+	
 	FAbilityState::ExitState();
 }
 
@@ -39,6 +80,7 @@ USecondAttackState::USecondAttackState(AAbilityBase* ability) : FAbilityState(ab
 
 bool USecondAttackState::TryEnterState(bool bInputUsed)
 {
+	if (bStateEntered) return false;
 	// TODO: Input Condition ToEnter
 	RunState();
 	return true;
@@ -46,14 +88,24 @@ bool USecondAttackState::TryEnterState(bool bInputUsed)
 
 void USecondAttackState::RunState()
 {
+	FAbilityState::RunState();
 	// TODO:
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Blue, "Charge: 2");
+	ExitState();
 }
 
 void USecondAttackState::ExitState()
 {
-	// TODO: Timer that exits the Ability combo
+	// Exits the ability if no input in time
+	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
+	if (SharedAbility)
+	{
+		SharedAbility->SetLeaveAbilityTimer();
+		SharedAbility->DelayToNextState(.2f);
+	}
+	
 	FAbilityState::ExitState();
+	
 }
 
 // Last Attack state
@@ -62,6 +114,7 @@ ULastAttackState::ULastAttackState(AAbilityBase* ability) : FAbilityState(abilit
 
 bool ULastAttackState::TryEnterState(bool bInputUsed)
 {
+	if (bStateEntered) return false;
 	// TODO: Input Condition ToEnter
 	RunState();
 	return true;
@@ -69,12 +122,14 @@ bool ULastAttackState::TryEnterState(bool bInputUsed)
 
 void ULastAttackState::RunState()
 {
+	FAbilityState::RunState();
 	// TODO:
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Blue, "Charge: last");
+	ExitState();
 }
 
 void ULastAttackState::ExitState()
 {
-	// TODO: Timer that exits the Ability combo
+	Ability->EndCurrState();
 	FAbilityState::ExitState();
 }
