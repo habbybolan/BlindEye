@@ -28,9 +28,6 @@ void AFlock::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TArray<AActor*> outActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), outActors);
-
 	// used for testing boid flocking movement
 	if (bSpawnOnBegin)
 	{

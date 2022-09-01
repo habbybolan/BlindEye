@@ -3,6 +3,7 @@
 
 #include "Abilities/AbilityManager.h"
 #include "Abilities/AbilityBase.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
 UAbilityManager::UAbilityManager()
@@ -13,8 +14,8 @@ UAbilityManager::UAbilityManager()
 
 	UniqueAbilityTypes.SetNum(2);
 }
-
-void UAbilityManager::UsedAbility(EAbilityTypes, AbilityUsageTypes)
+ 
+void UAbilityManager::UsedAbility_Implementation(EAbilityTypes abilityType, AbilityUsageTypes abilityUsageType)
 {
 	// TODO: Hard coded to first ability, check all of them
 
@@ -74,11 +75,20 @@ void UAbilityManager::BeginPlay()
 		UniqueAbilities.Add(world->SpawnActor<AAbilityBase>(AbilityType, params));
 	}
 	
-	BasicAttack->AbilityEndedDelegate.BindUFunction(this, FName("AbilityEnded"));
+	//BasicAttack->AbilityEndedDelegate.BindUFunction(this, FName("AbilityEnded"));
 }
 
 void UAbilityManager::AbilityEnded()
 {
 	CurrUsedAbility = nullptr;
+}
+
+void UAbilityManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UAbilityManager, BasicAttack);
+	DOREPLIFETIME(UAbilityManager, ChargedBasicAttack);
+	DOREPLIFETIME(UAbilityManager, UniqueAbilities);
+	DOREPLIFETIME(UAbilityManager, CurrUsedAbility);
 }
 

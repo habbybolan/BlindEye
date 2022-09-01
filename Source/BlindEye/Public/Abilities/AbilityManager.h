@@ -6,6 +6,7 @@
 #include "AbilityManager.generated.h"
 
 // represents what type of actions the current ability's state is blocking
+UENUM()
 enum class EAbilityBlockers
 {
 	IsBlockMovement = 0,
@@ -15,6 +16,7 @@ enum class EAbilityBlockers
 };
 
 // Used for easily identifying which ability was used
+UENUM()
 enum class EAbilityTypes
 {
 	Basic = 0,
@@ -23,6 +25,7 @@ enum class EAbilityTypes
 	Unique2 = 3,
 };
 
+UENUM()
 enum class AbilityUsageTypes
 {
 	Pressed = 0,
@@ -41,7 +44,8 @@ public:
 	UAbilityManager();
 
 	// Entrance point for using a specific ability and what input called it
-	void UsedAbility(EAbilityTypes, AbilityUsageTypes);
+	UFUNCTION(Server, Reliable)
+	void UsedAbility(EAbilityTypes abilityType, AbilityUsageTypes abilityUsageType);
 
 	bool IsMovementBlocked();
 	bool IsAbilityBlocked();
@@ -52,6 +56,8 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	// Ability Types
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AAbilityBase> BasicAttackType;
@@ -61,13 +67,13 @@ protected:
 	TArray<TSubclassOf<AAbilityBase>> UniqueAbilityTypes;
 
 	// Created Abilities
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	AAbilityBase* BasicAttack;
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	AAbilityBase* ChargedBasicAttack;
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TArray<AAbilityBase*> UniqueAbilities;
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	AAbilityBase* CurrUsedAbility;
 
 	UFUNCTION()
