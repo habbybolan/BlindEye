@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/AbilityBase.h"
+#include "Boids/BasicAttackSmallFlock.h"
 #include "SharedBasicAbility.generated.h"
 
 class BLINDEYE_API UFirstAttackState : public FAbilityState
@@ -43,6 +44,18 @@ public:
 
 	void SetLeaveAbilityTimer();
 	void ClearLeaveAbilityTimer();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<ABasicAttackSmallFlock> FirstChargeFlockType;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<ABasicAttackSmallFlock> SecondChargeFlockType;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<ABasicAttackSmallFlock> LastChargeFlockType;
+
+	UFUNCTION(Server, Reliable)
+	void SpawnFlock(uint8 comboNum);
 	
 protected:
 	bool AbilityTest = true;
@@ -50,6 +63,8 @@ protected:
 
 	virtual void TryCancelAbility() override;
 	virtual void EndAbilityLogic() override;
+
+	
 };
 
 

@@ -3,6 +3,47 @@
 
 #include "Abilities/SharedBasicAbility.h"
 
+void ASharedBasicAbility::TryCancelAbility()
+{
+	ClearLeaveAbilityTimer();
+	Super::TryCancelAbility();
+}
+
+void ASharedBasicAbility::EndAbilityLogic()
+{
+	Super::EndAbilityLogic();
+	UWorld* world = GetWorld();
+	if (world)
+	{
+		world->GetTimerManager().ClearTimer(ResetAbilityTimerHandle);
+	}
+}
+
+void ASharedBasicAbility::SpawnFlock_Implementation(uint8 comboNum)
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	FActorSpawnParameters params;
+	params.Instigator = GetInstigator();
+	params.Owner = GetInstigator();
+
+	AFlock* flock;
+	switch (comboNum)
+	{
+	case 0:
+		flock = world->SpawnActor<ABasicAttackSmallFlock>(FirstChargeFlockType, GetOwner()->GetActorLocation(), FRotator::ZeroRotator, params);
+	case 1:
+		flock = world->SpawnActor<ABasicAttackSmallFlock>(SecondChargeFlockType, params);
+	case 2:
+		flock = world->SpawnActor<ABasicAttackSmallFlock>(LastChargeFlockType, params);
+	default:
+		flock = world->SpawnActor<ABasicAttackSmallFlock>(LastChargeFlockType, params);
+	}
+}
+
+// **** States *******
+
 // First Attack state
 
 ASharedBasicAbility::ASharedBasicAbility() : AAbilityBase()
@@ -28,22 +69,6 @@ void ASharedBasicAbility::ClearLeaveAbilityTimer()
 	world->GetTimerManager().ClearTimer(ResetAbilityTimerHandle);
 }
 
-void ASharedBasicAbility::TryCancelAbility()
-{
-	ClearLeaveAbilityTimer();
-	Super::TryCancelAbility();
-}
-
-void ASharedBasicAbility::EndAbilityLogic()
-{
-	Super::EndAbilityLogic();
-	UWorld* world = GetWorld();
-	if (world)
-	{
-		world->GetTimerManager().ClearTimer(ResetAbilityTimerHandle);
-	}
-}
-
 UFirstAttackState::UFirstAttackState(AAbilityBase* ability) : FAbilityState(ability) {}
 
 bool UFirstAttackState::TryEnterState(bool bInputUsed)
@@ -56,7 +81,11 @@ bool UFirstAttackState::TryEnterState(bool bInputUsed)
 void UFirstAttackState::RunState()
 {
 	FAbilityState::RunState();
-	// TODO:
+	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
+	if (SharedAbility)
+	{
+		SharedAbility->SpawnFlock(0);
+	}
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Blue, "Charge: 1");
 	ExitState();
 }
@@ -89,7 +118,11 @@ bool USecondAttackState::TryEnterState(bool bInputUsed)
 void USecondAttackState::RunState()
 {
 	FAbilityState::RunState();
-	// TODO:
+	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
+	if (SharedAbility)
+	{
+		SharedAbility->SpawnFlock(1);
+	}
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Blue, "Charge: 2");
 	ExitState();
 }
@@ -123,7 +156,11 @@ bool ULastAttackState::TryEnterState(bool bInputUsed)
 void ULastAttackState::RunState()
 {
 	FAbilityState::RunState();
-	// TODO:
+	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
+	if (SharedAbility)
+	{
+		SharedAbility->SpawnFlock(2);
+	}
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Blue, "Charge: last");
 	ExitState();
 }
