@@ -28,17 +28,16 @@ void ASharedBasicAbility::SpawnFlock_Implementation(uint8 comboNum)
 	params.Instigator = GetInstigator();
 	params.Owner = GetInstigator();
 
-	AFlock* flock;
 	switch (comboNum)
 	{
 	case 0:
-		flock = world->SpawnActor<ABasicAttackSmallFlock>(FirstChargeFlockType, GetOwner()->GetActorLocation(), FRotator::ZeroRotator, params);
+		world->SpawnActor<ABasicAttackSmallFlock>(FirstChargeFlockType, GetOwner()->GetActorLocation(), FRotator::ZeroRotator, params);
 	case 1:
-		flock = world->SpawnActor<ABasicAttackSmallFlock>(SecondChargeFlockType, params);
+		world->SpawnActor<ABasicAttackSmallFlock>(SecondChargeFlockType, GetOwner()->GetActorLocation(), FRotator::ZeroRotator, params);
 	case 2:
-		flock = world->SpawnActor<ABasicAttackSmallFlock>(LastChargeFlockType, params);
+		world->SpawnActor<ABasicAttackSmallFlock>(LastChargeFlockType, GetOwner()->GetActorLocation(), FRotator::ZeroRotator, params);
 	default:
-		flock = world->SpawnActor<ABasicAttackSmallFlock>(LastChargeFlockType, params);
+		world->SpawnActor<ABasicAttackSmallFlock>(LastChargeFlockType, GetOwner()->GetActorLocation(), FRotator::ZeroRotator, params);
 	}
 }
 
