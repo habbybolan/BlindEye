@@ -8,7 +8,7 @@
 
 class UAbilityManager;
 
-UCLASS(Abstract, config=Game)
+UCLASS(config=Game)
 class ABlindEyeCharacter : public ACharacter
 {
 	GENERATED_BODY()
