@@ -59,8 +59,6 @@ protected:
 	TSubclassOf<AAbilityBase> ChargedBasicAttackType;
 	UPROPERTY()
 	TArray<TSubclassOf<AAbilityBase>> UniqueAbilityTypes;
-	UPROPERTY()
-	TSubclassOf<AAbilityBase> CurrUsedAbilityType;
 
 	// Created Abilities
 	UPROPERTY()

@@ -12,7 +12,6 @@ UAbilityManager::UAbilityManager()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	UniqueAbilityTypes.SetNum(2);
-	BasicAttack = GetOwner()->CreateDefaultSubobject<AAbilityBase>(TEXT("BasicAttack"));
 }
 
 void UAbilityManager::UsedAbility(EAbilityTypes, AbilityUsageTypes)
@@ -51,6 +50,18 @@ bool UAbilityManager::IsDamageFeedbackBlocked()
 void UAbilityManager::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	// Create Ability actors
+	BasicAttack = world->SpawnActor<AAbilityBase>(BasicAttackType);
+	ChargedBasicAttack = world->SpawnActor<AAbilityBase>(ChargedBasicAttackType);
+	for (TSubclassOf<AAbilityBase> AbilityType : UniqueAbilityTypes)
+	{
+		UniqueAbilities.Add(world->SpawnActor<AAbilityBase>(AbilityType));
+	}
+	
 }
 
 void UAbilityManager::InitiateAbilities()
