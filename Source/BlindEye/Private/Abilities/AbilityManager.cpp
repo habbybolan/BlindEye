@@ -73,8 +73,7 @@ void UAbilityManager::BeginPlay()
 	{
 		UniqueAbilities.Add(world->SpawnActor<AAbilityBase>(AbilityType, params));
 	}
-
-	// TODO: Does this work?? 
+	
 	BasicAttack->AbilityEndedDelegate.BindUFunction(this, FName("AbilityEnded"));
 }
 

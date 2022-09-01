@@ -217,16 +217,11 @@ bool AFlock::CheckInRangeOfTarget()
 	TArray<TEnumAsByte<EObjectTypeQuery> > ObjectTypes;
 	TArray<AActor*> ActorsToIgnore;
 	TArray<AActor*> OutActors;
-	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), CalcAveragePosition(), DamageRadius, ObjectTypes, AActor::StaticClass(), ActorsToIgnore, OutActors);
-	for (AActor* actor : OutActors)
+
+	FVector distVector = Target->GetActorLocation() - CalcAveragePosition();
+	if (distVector.Size() <= DamageRadius)
 	{
-		if (Target.IsValid())
-		{
-			if (Target == actor)
-			{
-				return true;
-			}
-		}
+		return true;
 	}
 	return false;
 }
