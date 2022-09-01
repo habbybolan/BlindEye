@@ -2,6 +2,7 @@
 
 
 #include "Abilities/AbilityManager.h"
+#include "Abilities/AbilityBase.h"
 
 // Sets default values for this component's properties
 UAbilityManager::UAbilityManager()
@@ -11,7 +12,7 @@ UAbilityManager::UAbilityManager()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	UniqueAbilityTypes.SetNum(2);
-	//BasicAttack = GetOwner()->CreateDefaultSubobject<BasicAttackType>(TEXT("BasicAttack"));
+	BasicAttack = GetOwner()->CreateDefaultSubobject<AAbilityBase>(TEXT("BasicAttack"));
 }
 
 void UAbilityManager::UsedAbility(EAbilityTypes, AbilityUsageTypes)

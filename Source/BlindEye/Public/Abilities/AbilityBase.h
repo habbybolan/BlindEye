@@ -9,13 +9,13 @@
 
 
 UCLASS(Abstract, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class BLINDEYE_API UAbilityBase : public UActorComponent
+class BLINDEYE_API AAbilityBase : public AActor
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UAbilityBase();
+	AAbilityBase();
 
 	DECLARE_DELEGATE(FAbilityEndedSignature)
 	FAbilityEndedSignature AbilityEndedDelegate;
@@ -37,9 +37,7 @@ protected:
 
 	virtual void EndAbilityLogic();
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+public:
 
 	void EndCurrState();
 	

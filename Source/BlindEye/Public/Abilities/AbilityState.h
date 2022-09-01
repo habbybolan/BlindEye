@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 
-class UAbilityBase;
+class AAbilityBase;
 /**
  * 
  */
 class BLINDEYE_API FAbilityState 
 {
 public:
-	FAbilityState(UAbilityBase* ability);
+	FAbilityState(AAbilityBase* ability);
 
 	/**
 	 * @return True if the enter state conditions were satisfied
@@ -28,5 +28,5 @@ public:
 	bool bEntersWithInput = true;
 
 protected:
-	UAbilityBase* Ability;
+	AAbilityBase* Ability;
 };

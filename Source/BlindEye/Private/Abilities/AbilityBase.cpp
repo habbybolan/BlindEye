@@ -4,40 +4,37 @@
 #include "Abilities/AbilityBase.h"
 
 // Sets default values for this component's properties
-UAbilityBase::UAbilityBase()
+AAbilityBase::AAbilityBase()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
 }
 
 
 // Called when the game starts
-void UAbilityBase::BeginPlay()
+void AAbilityBase::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
 
-void UAbilityBase::SetOffCooldown()
+void AAbilityBase::SetOffCooldown()
 {
 	bOnCooldown = false;
 }
 
-void UAbilityBase::TryCancelAbility()
+void AAbilityBase::TryCancelAbility()
 {
 	// TODO: Do functionality later
 	//		Probably add IsCancellable as base state boolean and extra cancel logic in the state (cancel method?)
 }
 
-void UAbilityBase::EndAbilityLogic()
+void AAbilityBase::EndAbilityLogic()
 {
 	CurrState = 0;
 	bIsRunning = false;
 	AbilityEndedDelegate.ExecuteIfBound();
 }
 
-void UAbilityBase::EndCurrState()
+void AAbilityBase::EndCurrState()
 {
 	// TODO: End the current state. If no other inner state, call end state
 	CurrState++;
@@ -49,18 +46,12 @@ void UAbilityBase::EndCurrState()
 	}
 }
 
-// Called every frame
-void UAbilityBase::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
-
-void UAbilityBase::AbilityCancelInput()
+void AAbilityBase::AbilityCancelInput()
 {
 	TryCancelAbility(); 
 }
 
-void UAbilityBase::AbilityUseInput()
+void AAbilityBase::AbilityUseInput()
 {
 	AbilityStates[CurrState]->TryEnterState(true);
 }

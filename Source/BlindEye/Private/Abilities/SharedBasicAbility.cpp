@@ -5,14 +5,14 @@
 
 // First Attack state
 
-USharedBasicAbility::USharedBasicAbility()
+ASharedBasicAbility::ASharedBasicAbility()
 {
 	AbilityStates.Add(new UFirstAttackState(this));
 	AbilityStates.Add(new USecondAttackState(this));
 	AbilityStates.Add(new ULastAttackState(this));
 }
 
-UFirstAttackState::UFirstAttackState(UAbilityBase* ability) : FAbilityState(ability) {}
+UFirstAttackState::UFirstAttackState(AAbilityBase* ability) : FAbilityState(ability) {}
 
 bool UFirstAttackState::TryEnterState(bool bInputUsed)
 {
@@ -34,7 +34,7 @@ void UFirstAttackState::ExitState()
 
 // Second Attack state
 
-USecondAttackState::USecondAttackState(UAbilityBase* ability) : FAbilityState(ability) {}
+USecondAttackState::USecondAttackState(AAbilityBase* ability) : FAbilityState(ability) {}
 
 bool USecondAttackState::TryEnterState(bool bInputUsed)
 {
@@ -55,7 +55,7 @@ void USecondAttackState::ExitState()
 
 // Last Attack state
 
-ULastAttackState::ULastAttackState(UAbilityBase* ability) : FAbilityState(ability) {}
+ULastAttackState::ULastAttackState(AAbilityBase* ability) : FAbilityState(ability) {}
 
 bool ULastAttackState::TryEnterState(bool bInputUsed)
 {

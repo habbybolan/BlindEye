@@ -3,8 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilityBase.h"
-#include "Components/SceneComponent.h"
 #include "AbilityManager.generated.h"
 
 // represents what type of actions the current ability's state is blocking
@@ -31,6 +29,8 @@ enum class AbilityUsageTypes
 	Released = 1
 };
 
+class AAbilityBase;
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BLINDEYE_API UAbilityManager : public UActorComponent
 {
@@ -54,23 +54,23 @@ protected:
 
 	// Ability Types
 	UPROPERTY()
-	TSubclassOf<UAbilityBase> BasicAttackType;
+	TSubclassOf<AAbilityBase> BasicAttackType;
 	UPROPERTY()
-	TSubclassOf<UAbilityBase> ChargedBasicAttackType;
+	TSubclassOf<AAbilityBase> ChargedBasicAttackType;
 	UPROPERTY()
-	TArray<TSubclassOf<UAbilityBase>> UniqueAbilityTypes;
+	TArray<TSubclassOf<AAbilityBase>> UniqueAbilityTypes;
 	UPROPERTY()
-	TSubclassOf<UAbilityBase> CurrUsedAbilityType;
+	TSubclassOf<AAbilityBase> CurrUsedAbilityType;
 
 	// Created Abilities
 	UPROPERTY()
-	UAbilityBase* BasicAttack;
+	AAbilityBase* BasicAttack;
 	UPROPERTY()
-	UAbilityBase* ChargedBasicAttack;
+	AAbilityBase* ChargedBasicAttack;
 	UPROPERTY()
-	TArray<UAbilityBase*> UniqueAbilities;
+	TArray<AAbilityBase*> UniqueAbilities;
 	UPROPERTY()
-	UAbilityBase* CurrUsedAbility;
+	AAbilityBase* CurrUsedAbility;
 
 	// Create the abilities from subclass and attach to player
 	void InitiateAbilities();

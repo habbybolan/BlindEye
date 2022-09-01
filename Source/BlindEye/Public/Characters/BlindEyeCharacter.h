@@ -4,8 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-
 #include "BlindEyeCharacter.generated.h"
+
+class UAbilityManager;
 
 UCLASS(Abstract, config=Game)
 class ABlindEyeCharacter : public ACharacter
@@ -29,6 +30,9 @@ public:
 	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UAbilityManager* AbilityManager;
 
 protected:
 

@@ -9,7 +9,7 @@
 class BLINDEYE_API UFirstAttackState : public FAbilityState
 {
 public:
-	UFirstAttackState(UAbilityBase* ability);
+	UFirstAttackState(AAbilityBase* ability);
 	virtual bool TryEnterState(bool bInputUsed) override;
 	virtual void RunState() override;
 	virtual void ExitState() override;
@@ -18,7 +18,7 @@ public:
 class BLINDEYE_API USecondAttackState : public FAbilityState
 {
 public:
-	USecondAttackState(UAbilityBase* ability);
+	USecondAttackState(AAbilityBase* ability);
 	virtual bool TryEnterState(bool bInputUsed) override;
 	virtual void RunState() override;
 	virtual void ExitState() override;
@@ -27,7 +27,7 @@ public:
 class BLINDEYE_API ULastAttackState : public FAbilityState
 {
 public:
-	ULastAttackState(UAbilityBase* ability);
+	ULastAttackState(AAbilityBase* ability);
 	virtual bool TryEnterState(bool bInputUsed) override;
 	virtual void RunState() override;
 	virtual void ExitState() override;
@@ -37,12 +37,12 @@ public:
  * 
  */
 UCLASS()
-class BLINDEYE_API USharedBasicAbility : public UAbilityBase
+class BLINDEYE_API ASharedBasicAbility : public AAbilityBase
 {
 	GENERATED_BODY()
 
 public:
-	USharedBasicAbility();
+	ASharedBasicAbility();
 	
 protected:
 	bool AbilityTest = true;

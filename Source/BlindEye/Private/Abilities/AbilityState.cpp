@@ -4,7 +4,7 @@
 #include "Abilities/AbilityState.h"
 #include "Abilities/AbilityBase.h"
 
-FAbilityState::FAbilityState(UAbilityBase* ability)
+FAbilityState::FAbilityState(AAbilityBase* ability)
 {
 	Ability = ability;
 }
