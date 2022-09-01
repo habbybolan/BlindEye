@@ -56,8 +56,11 @@ void ABasicAttackSmallFlock::CheckRemoveTarget()
 {
 	if (CheckInRangeOfTarget())
 	{
-		Target = nullptr;
 		Target->Destroy();
+		Target = nullptr;
+		
+		// TODO: Temp destroy, remove later
+		Destroy();
 	}
 }
 			
