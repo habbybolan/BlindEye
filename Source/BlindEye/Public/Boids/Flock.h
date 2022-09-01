@@ -7,6 +7,7 @@
 #include "Flock.generated.h"
 
 class ABoid;
+class UBaseDamageType;
 
 UCLASS()
 class BLINDEYE_API AFlock : public AActor
@@ -81,7 +82,7 @@ public:
 	float DamageAmount = 10.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage")
-	TSubclassOf<class UBaseDamageType> DamageType;
+	TSubclassOf<UBaseDamageType> DamageType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Damage")
 	float DamageCooldown = 0.2f;
