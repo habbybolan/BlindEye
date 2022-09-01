@@ -5,7 +5,7 @@
 
 // First Attack state
 
-ASharedBasicAbility::ASharedBasicAbility()
+ASharedBasicAbility::ASharedBasicAbility() : AAbilityBase()
 {
 	AbilityStates.Add(new UFirstAttackState(this));
 	AbilityStates.Add(new USecondAttackState(this));

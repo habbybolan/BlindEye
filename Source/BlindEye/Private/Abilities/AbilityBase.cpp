@@ -6,6 +6,7 @@
 // Sets default values for this component's properties
 AAbilityBase::AAbilityBase()
 {
+	bReplicates = true;
 }
 
 
