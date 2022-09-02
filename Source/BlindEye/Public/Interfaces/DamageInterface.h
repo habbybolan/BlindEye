@@ -24,13 +24,13 @@ class BLINDEYE_API IDamageInterface
 public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void Stun();
+	void Stun(float StunDuration);
  
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void KnockBack();
+	void KnockBack(FVector KnockBackForce);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void Burn();
+	void Burn(float DamagePerSec, float Duration);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Stagger();

@@ -48,7 +48,7 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 		APawn* pawn = Cast<APawn>(GetOwner());
 		if (!pawn) return;
 		
-		float damageMultiplier = baseDamageType->ProcessDamage(DamageCauser, pawn, HitLocation);
+		float damageMultiplier = baseDamageType->ProcessDamage(DamageCauser, pawn, HitLocation, this);
 		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Emerald, "Damaged for: " + FString::SanitizeFloat(damageMultiplier));
 		OwnerHealth->SetHealth(OwnerHealth->GetHealth() - (Damage * damageMultiplier));
 
@@ -61,13 +61,13 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 }
 
 
-void UHealthComponent::Stun_Implementation()
+void UHealthComponent::Stun_Implementation(float StunDuration)
 {
 	// TODO: Only applies to enemy
 	//		Pause brain logic and play animation?
 }
 
-void UHealthComponent::KnockBack_Implementation()
+void UHealthComponent::KnockBack_Implementation(FVector KnockBackForce)
 {
 	/* TODO:
 	* If player
@@ -77,7 +77,7 @@ void UHealthComponent::KnockBack_Implementation()
 	*/
 }
 
-void UHealthComponent::Burn_Implementation()
+void UHealthComponent::Burn_Implementation(float DamagePerSec, float Duration)
 {
 	// TODO:
 	// only effects enemy, damage over time

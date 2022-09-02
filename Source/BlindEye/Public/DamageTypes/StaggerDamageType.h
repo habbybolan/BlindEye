@@ -15,6 +15,6 @@ class BLINDEYE_API UStaggerDamageType : public UBaseDamageType
 	GENERATED_BODY()
 
 public:
-	virtual float ProcessDamage(AActor* Owner, APawn* HitCharacter, FVector HitLocation) const override;
+	virtual float ProcessDamage(AActor* Owner, APawn* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const override;
 	
 };

@@ -33,11 +33,11 @@ protected:
 
 	void SetDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
 
-	virtual void Stun_Implementation() override;
+	virtual void Stun_Implementation(float StunDuration) override;
 
-	virtual void KnockBack_Implementation() override;
+	virtual void KnockBack_Implementation(FVector KnockBackForce) override;
 
-	virtual void Burn_Implementation() override;
+	virtual void Burn_Implementation(float DamagePerSec, float Duration) override;
 
 	virtual void Stagger_Implementation() override;
 		

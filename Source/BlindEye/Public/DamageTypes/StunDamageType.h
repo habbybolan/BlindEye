@@ -15,5 +15,9 @@ class BLINDEYE_API UStunDamageType : public UBaseDamageType
 	GENERATED_BODY()
 
 public:
-	virtual float ProcessDamage(AActor* Owner, APawn* HitCharacter, FVector HitLocation) const override;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float StunDuration;
+	
+	virtual float ProcessDamage(AActor* Owner, APawn* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const override;
 };
