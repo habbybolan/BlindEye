@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Interfaces/DamageInterface.h"
+#include "Interfaces/HealthInterface.h"
 #include "HealthComponent.generated.h"
-
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BLINDEYE_API UHealthComponent : public UActorComponent, public IDamageInterface
@@ -18,8 +18,20 @@ public:
 	UHealthComponent();
 
 protected:
-	// Called when the game starts
+
+	// cache owners health interface
+	IHealthInterface* OwnerHealth;
+
 	virtual void BeginPlay() override;
+
+	void SetPointDamage(AActor* DamagedActor, float Damage,
+	AController* InstigatedBy, FVector HitLocation, UPrimitiveComponent* FHitComponent, FName BoneName,
+	FVector ShotFromDirection, const UDamageType* DamageType, AActor* DamageCauser);
+	
+	void SetRadialDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
+	FVector Origin, FHitResult HitInfo, AController* InstigatedBy, AActor* DamageCauser);
+
+	void SetDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
 
 	virtual void Stun_Implementation() override;
 
