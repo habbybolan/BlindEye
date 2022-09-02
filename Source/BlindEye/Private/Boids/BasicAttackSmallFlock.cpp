@@ -25,14 +25,18 @@ void ABasicAttackSmallFlock::BeginPlay()
 	
 	Super::BeginPlay();
 	// TODO: Spawn Target point distance from Instigator, using their forward position
-	FVector InstigatorFwd =  GetInstigator()->GetActorForwardVector() * TargetDistanceFromInstigator;
+	FVector InstigatorFwd =  GetInstigator()->GetControlRotation().Vector() * TargetDistanceFromInstigator;
 	FVector SpawnLocation = GetInstigator()->GetActorLocation() + InstigatorFwd;
 
 	UWorld* world = GetWorld();
 	if (!world) return;
 	
 	Target = world->SpawnActor<AActor>(TargetType, SpawnLocation, FRotator::ZeroRotator);
-	InitializeFlock();
+	// manually call initialize flock if server, client calls once target is replicated
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		InitializeFlock();
+	}
 }
 
 void ABasicAttackSmallFlock::CheckForDamage()

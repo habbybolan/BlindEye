@@ -57,8 +57,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float ObstacleRadius = 1000.f;
 
-	UPROPERTY(replicated, EditInstanceOnly)
+	UPROPERTY(replicated, EditInstanceOnly, ReplicatedUsing = OnRep_Target)
 	TWeakObjectPtr<AActor> Target;
+
+	UFUNCTION()
+	void OnRep_Target();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float BoidMaxInitialVertical = 1000.f;
@@ -109,7 +112,7 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(NetMulticast, Reliable)
+
 	void InitializeFlock();
 	
 	void AddBoid(ABoid* newBoid);

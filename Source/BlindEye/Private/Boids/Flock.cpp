@@ -18,9 +18,9 @@ AFlock::AFlock()
 	bReplicates = true;
 }
 
-void AFlock::GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const
+void AFlock::OnRep_Target()
 {
-	DOREPLIFETIME( AFlock, Target );
+	InitializeFlock();
 }
 
 // Called when the game starts or when spawned
@@ -43,8 +43,8 @@ void AFlock::Tick(float DeltaTime)
 	PerformFlock();
 }
 
-void AFlock::InitializeFlock_Implementation()
-{
+void AFlock::InitializeFlock()
+{ 
 	SpawnFlockWave();
 }
 
@@ -104,11 +104,20 @@ void AFlock::SpawnBoidRand()
 		//
 		//
 		// direction = directionVec.Rotation();
-		direction = (Target->GetActorLocation() - GetActorLocation()).Rotation(); 
+	} else
+	{
+		//direction = GetActorRotation();
+	}
+
+	if (Target.IsValid())
+	{
+		direction = (Target->GetActorLocation() - GetActorLocation()).Rotation();
 	} else
 	{
 		direction = GetActorRotation();
 	}
+	
+	
 	ABoid* newBoid = Cast<ABoid>(GetWorld()->SpawnActor<ABoid>(BoidType, location, direction));
 	AddBoid(newBoid);
 }
@@ -226,6 +235,11 @@ void AFlock::Destroyed()
 {
 	Super::Destroyed();
 	RemoveBoids();
+}
+
+void AFlock::GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const
+{
+	DOREPLIFETIME( AFlock, Target );
 }
 
 
