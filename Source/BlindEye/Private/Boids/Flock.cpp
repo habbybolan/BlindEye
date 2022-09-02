@@ -57,7 +57,7 @@ void AFlock::SpawnFlockWave()
 	}
 	currFlocksSpawned++;
 	if (currFlocksSpawned < FlockWaveCount)
-		GetWorld()->GetTimerManager().SetTimer(FlockSpawnTimerHandle, this, &AFlock::SpawnFlockWave, .1f, false, .1f);
+		GetWorld()->GetTimerManager().SetTimer(FlockSpawnTimerHandle, this, &AFlock::SpawnFlockWave, .1f, false);
 }
 
 void AFlock::AddBoid(ABoid* newBoid)
@@ -123,7 +123,6 @@ void AFlock::RemoveBoids()
 
 FVector AFlock::Separation(ABoid* boid)
 {
-	
 	FVector newVelocity = FVector::ZeroVector;
 	for (ABoid* neighborBoid : BoidsInFlock)
 	{
