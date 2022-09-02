@@ -1,12 +1,12 @@
-
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-
 #include "BlindEyeCharacter.generated.h"
+
+class UAbilityManager;
 
 UCLASS(config=Game)
 class ABlindEyeCharacter : public ACharacter
@@ -31,6 +31,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UAbilityManager* AbilityManager;
+
 protected:
 
 	/** Called for forwards/backward input */
@@ -50,6 +53,8 @@ protected:
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	 */
 	void LookUpAtRate(float Rate);
+
+	void BasicAttackPressed();
 
 protected:
 	// APawn interface
