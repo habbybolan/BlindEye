@@ -12,6 +12,13 @@ class UHealthInterface : public UInterface
 	GENERATED_BODY()
 };
 
+UENUM()
+enum class TEAMS
+{
+	Player = 0,
+	Enemy = 1
+};
+
 /**
  * Health interface for any actor with the HealthComponent
  */
@@ -25,4 +32,7 @@ public:
 	float GetHealth();
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
 	void SetHealth(float NewHealth);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	TEAMS GetTeam();
 };

@@ -47,6 +47,8 @@ ABlindEyeCharacter::ABlindEyeCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 	AbilityManager = CreateDefaultSubobject<UAbilityManager>(TEXT("AbilityManager"));
+
+	Team = TEAMS::Player;
 }
 
 void ABlindEyeCharacter::BeginPlay()
@@ -96,6 +98,11 @@ void ABlindEyeCharacter::SetHealth_Implementation(float NewHealth)
 {
 	if (BlindEyePlayerState)
 		return BlindEyePlayerState->SetHealth(NewHealth);
+}
+
+TEAMS ABlindEyeCharacter::GetTeam_Implementation()
+{
+	return Team;
 }
 
 void ABlindEyeCharacter::MoveForward(float Value)

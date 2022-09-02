@@ -8,6 +8,7 @@
 #include "Interfaces/HealthInterface.h"
 #include "BlindEyeCharacter.generated.h"
 
+enum class TEAMS;
 class UAbilityManager;
 
 UCLASS(config=Game)
@@ -44,6 +45,10 @@ public:
 
 	virtual float GetHealth_Implementation() override;
 	virtual void SetHealth_Implementation(float NewHealth) override;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TEAMS Team;
+	virtual TEAMS GetTeam_Implementation() override;
 
 protected:
 

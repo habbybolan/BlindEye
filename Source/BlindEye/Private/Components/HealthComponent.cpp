@@ -48,9 +48,9 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 		APawn* pawn = Cast<APawn>(GetOwner());
 		if (!pawn) return;
 		
-		float damageMultiplier = baseDamageType->ProcessDamage(DamageCauser, pawn, HitLocation, this);
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Emerald, "Damaged for: " + FString::SanitizeFloat(damageMultiplier));
-		OwnerHealth->SetHealth(OwnerHealth->GetHealth() - (Damage * damageMultiplier));
+		float damageMultiplied = Damage * baseDamageType->ProcessDamage(DamageCauser, pawn, HitLocation, this);
+		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Emerald, "Damaged for: " + FString::SanitizeFloat(damageMultiplied));
+		OwnerHealth->SetHealth(OwnerHealth->GetHealth() - damageMultiplied);
 
 		if (OwnerHealth->GetHealth() <= 0)
 		{
