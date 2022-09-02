@@ -9,8 +9,6 @@ UHealthComponent::UHealthComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 
@@ -18,17 +16,20 @@ UHealthComponent::UHealthComponent()
 void UHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
-	
 }
 
-
-// Called every frame
-void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UHealthComponent::Stun_Implementation()
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	// TODO:
+}
 
-	// ...
+void UHealthComponent::KnockBack_Implementation()
+{
+	// TODO:
+}
+
+void UHealthComponent::Burn_Implementation()
+{
+	// TODO:
 }
 
