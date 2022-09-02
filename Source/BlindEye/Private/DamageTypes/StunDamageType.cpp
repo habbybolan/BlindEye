@@ -5,6 +5,6 @@
 
 float UStunDamageType::ProcessDamage(AActor* Owner, APawn* HitCharacter, FVector HitLocation) const
 {
-	return Super::ProcessDamage(Owner, HitCharacter, HitLocation);
 	// TODO:
+	return 1;
 }

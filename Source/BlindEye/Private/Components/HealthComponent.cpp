@@ -76,3 +76,8 @@ void UHealthComponent::Burn_Implementation()
 	// TODO:
 }
 
+void UHealthComponent::Stagger_Implementation()
+{
+	// TODO: probably call stun?
+}
+

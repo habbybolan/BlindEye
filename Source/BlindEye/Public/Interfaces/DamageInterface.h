@@ -31,4 +31,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Burn();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void Stagger();
 };

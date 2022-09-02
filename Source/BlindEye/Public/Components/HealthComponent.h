@@ -38,5 +38,7 @@ protected:
 	virtual void KnockBack_Implementation() override;
 
 	virtual void Burn_Implementation() override;
+
+	virtual void Stagger_Implementation() override;
 		
 };
