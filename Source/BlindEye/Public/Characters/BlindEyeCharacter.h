@@ -4,12 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Gameplay/BlindEyePlayerState.h"
+#include "Interfaces/HealthInterface.h"
 #include "BlindEyeCharacter.generated.h"
 
 class UAbilityManager;
 
 UCLASS(config=Game)
-class ABlindEyeCharacter : public ACharacter
+class ABlindEyeCharacter : public ACharacter, public IHealthInterface
 {
 	GENERATED_BODY()
 
@@ -20,8 +22,14 @@ class ABlindEyeCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+	
 public:
 	ABlindEyeCharacter();
+
+	virtual void OnRep_PlayerState() override;
+	virtual void PossessedBy(AController* NewController) override;
+
+	virtual void BeginPlay() override;
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
@@ -33,6 +41,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UAbilityManager* AbilityManager;
+
+	virtual float GetHealth_Implementation() override;
+	virtual void SetHealth_Implementation(float NewHealth) override;
 
 protected:
 
@@ -60,6 +71,9 @@ protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
+
+	UPROPERTY()
+	ABlindEyePlayerState* BlindEyePlayerState;
 
 public:
 	/** Returns CameraBoom subobject **/
