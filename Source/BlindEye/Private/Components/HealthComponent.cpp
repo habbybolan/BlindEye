@@ -63,21 +63,29 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 
 void UHealthComponent::Stun_Implementation()
 {
-	// TODO:
+	// TODO: Only applies to enemy
+	//		Pause brain logic and play animation?
 }
 
 void UHealthComponent::KnockBack_Implementation()
 {
-	// TODO:
+	/* TODO:
+	* If player
+	*	set player state as stunned and knock away from HitPoint
+	* if enemy
+	*	...
+	*/
 }
 
 void UHealthComponent::Burn_Implementation()
 {
 	// TODO:
+	// only effects enemy, damage over time
 }
 
 void UHealthComponent::Stagger_Implementation()
 {
 	// TODO: probably call stun?
+	// ...
 }
 
