@@ -74,8 +74,9 @@ void UAbilityManager::BeginPlay()
 	{
 		UniqueAbilities.Add(world->SpawnActor<AAbilityBase>(AbilityType, params));
 	}
-	
-	//BasicAttack->AbilityEndedDelegate.BindUFunction(this, FName("AbilityEnded"));
+
+	if (GetOwnerRole() == ROLE_Authority)
+		BasicAttack->AbilityEndedDelegate.BindUFunction(this, FName("AbilityEnded"));
 }
 
 void UAbilityManager::AbilityEnded()
