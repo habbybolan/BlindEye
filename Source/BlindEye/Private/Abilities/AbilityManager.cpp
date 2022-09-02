@@ -76,7 +76,11 @@ void UAbilityManager::BeginPlay()
 	}
 
 	if (GetOwnerRole() == ROLE_Authority)
+	{
 		BasicAttack->AbilityEndedDelegate.BindUFunction(this, FName("AbilityEnded"));
+		// TODO: Setup delegates for rest of abilities
+	}
+		
 }
 
 void UAbilityManager::AbilityEnded()
