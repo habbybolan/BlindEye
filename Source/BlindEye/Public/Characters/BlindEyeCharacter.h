@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/HealthComponent.h"
 #include "GameFramework/Character.h"
 #include "Gameplay/BlindEyePlayerState.h"
 #include "Interfaces/HealthInterface.h"
@@ -42,6 +43,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UAbilityManager* AbilityManager;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UHealthComponent* HealthComponent;
 
 	virtual float GetHealth_Implementation() override;
 	virtual void SetHealth_Implementation(float NewHealth) override;

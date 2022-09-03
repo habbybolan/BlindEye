@@ -19,15 +19,17 @@ public:
 
 protected:
 
-	// cache owners health interface
+	// cached owners health interface
 	IHealthInterface* OwnerHealth;
 
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
 	void SetPointDamage(AActor* DamagedActor, float Damage,
 	AController* InstigatedBy, FVector HitLocation, UPrimitiveComponent* FHitComponent, FName BoneName,
 	FVector ShotFromDirection, const UDamageType* DamageType, AActor* DamageCauser);
-	
+
+	UFUNCTION()
 	void SetRadialDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
 	FVector Origin, FHitResult HitInfo, AController* InstigatedBy, AActor* DamageCauser);
 

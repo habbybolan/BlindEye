@@ -49,10 +49,9 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 		if (!pawn) return;
 		
 		float damageMultiplied = Damage * baseDamageType->ProcessDamage(DamageCauser, pawn, HitLocation, this);
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Emerald, "Damaged for: " + FString::SanitizeFloat(damageMultiplied));
-		OwnerHealth->SetHealth(OwnerHealth->GetHealth() - damageMultiplied);
+		OwnerHealth->Execute_SetHealth(GetOwner(), OwnerHealth->Execute_GetHealth(GetOwner()) - damageMultiplied);
 
-		if (OwnerHealth->GetHealth() <= 0)
+		if (OwnerHealth->Execute_GetHealth(GetOwner()) <= 0)
 		{
 			// TODO: Check if player character or enemy
 			// TODO: If enemy delete, if player, do extra work on player and send to GameMode for any state change

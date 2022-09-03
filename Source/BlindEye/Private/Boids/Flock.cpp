@@ -40,6 +40,7 @@ void AFlock::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// TODO: Put on Timer
 	PerformFlock();
 }
 

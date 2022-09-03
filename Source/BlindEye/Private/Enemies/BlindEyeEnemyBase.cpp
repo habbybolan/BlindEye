@@ -1,6 +1,7 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
+#include "Components/HealthComponent.h"
 #include "Enemies/BlindEyeEnemybase.h"
 #include "Net/UnrealNetwork.h"
 
@@ -9,6 +10,8 @@ ABlindEyeEnemyBase::ABlindEyeEnemyBase()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 
 	CurrHealth = MaxHealth;
 	Team = TEAMS::Enemy;

@@ -48,6 +48,8 @@ ABlindEyeCharacter::ABlindEyeCharacter()
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 	AbilityManager = CreateDefaultSubobject<UAbilityManager>(TEXT("AbilityManager"));
 
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+
 	Team = TEAMS::Player;
 }
 

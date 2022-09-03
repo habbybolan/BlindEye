@@ -7,6 +7,8 @@
 #include "Interfaces/HealthInterface.h"
 #include "BlindEyeEnemyBase.generated.h"
 
+class UHealthComponent;
+
 UCLASS()
 class BLINDEYE_API ABlindEyeEnemyBase : public ACharacter, public IHealthInterface
 {
@@ -15,6 +17,9 @@ class BLINDEYE_API ABlindEyeEnemyBase : public ACharacter, public IHealthInterfa
 public:
 	// Sets default values for this character's properties
 	ABlindEyeEnemyBase();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UHealthComponent* HealthComponent;
 
 protected:
 	// Called when the game starts or when spawned

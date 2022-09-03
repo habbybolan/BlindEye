@@ -77,6 +77,7 @@ void ABoid::BeginPlay()
 void ABoid::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	// TODO: Put on timer
 	HorizontalRotation();
 
 	// store curr velocity to calculate movement difference next frame
