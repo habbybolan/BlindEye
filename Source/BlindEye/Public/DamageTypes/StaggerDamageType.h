@@ -4,20 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "DamageTypes/BaseDamageType.h"
-#include "StunDamageType.generated.h"
+#include "StaggerDamageType.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class BLINDEYE_API UStunDamageType : public UBaseDamageType
+class BLINDEYE_API UStaggerDamageType : public UBaseDamageType
 {
 	GENERATED_BODY()
 
 public:
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float StunDuration;
-	
 	virtual float ProcessDamage(AActor* Owner, APawn* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const override;
+	
 };

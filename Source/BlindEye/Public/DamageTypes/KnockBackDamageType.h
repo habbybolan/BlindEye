@@ -15,5 +15,11 @@ class BLINDEYE_API UKnockBackDamageType : public UBaseDamageType
 	GENERATED_BODY()
 
 public:
-	virtual float ProcessDamage(AActor* Owner, APawn* HitCharacter, FVector HitLocation) const override;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float KnockBackForce = 500.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float KnockUpForce = 200.f;
+	
+	virtual float ProcessDamage(AActor* Owner, APawn* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const override;
 };

@@ -8,6 +8,7 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Abilities/AbilityManager.h"
+#include "Gameplay/BlindEyePlayerState.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ATP_ThirdPersonCharacter
@@ -46,29 +47,29 @@ ABlindEyeCharacter::ABlindEyeCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 	AbilityManager = CreateDefaultSubobject<UAbilityManager>(TEXT("AbilityManager"));
+
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+
+	Team = TEAMS::Player;
 }
 
-//////////////////////////////////////////////////////////////////////////
-// Input
-
-void ABlindEyeCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
+void ABlindEyeCharacter::BeginPlay()
 {
-	// Set up gameplay key bindings
-	check(PlayerInputComponent);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	Super::BeginPlay();
+}
 
-	PlayerInputComponent->BindAxis("MoveForward", this, &ABlindEyeCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &ABlindEyeCharacter::MoveRight);
-	
-	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("TurnRate", this, &ABlindEyeCharacter::TurnAtRate);
-	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis("LookUpRate", this, &ABlindEyeCharacter::LookUpAtRate);
+void ABlindEyeCharacter::OnRep_PlayerState()
+{
 
-	// TODO: Player input for Basic attack
-	PlayerInputComponent->BindAction("BasicAttack", IE_Pressed, this, &ABlindEyeCharacter::BasicAttackPressed);
-	// TODO: Player input for rest of attacks
+	Super::OnRep_PlayerState();
+	BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState());
+}
+
+void ABlindEyeCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	// Note: Only called from server
+	BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState());
 }
 
 void ABlindEyeCharacter::TurnAtRate(float Rate)
@@ -86,6 +87,24 @@ void ABlindEyeCharacter::LookUpAtRate(float Rate)
 void ABlindEyeCharacter::BasicAttackPressed() 
 {
 	AbilityManager->UsedAbility(EAbilityTypes::Basic, AbilityUsageTypes::Pressed);
+}
+
+float ABlindEyeCharacter::GetHealth_Implementation()
+{
+	if (BlindEyePlayerState)
+		return BlindEyePlayerState->GetHealth();
+	return 0;
+}
+
+void ABlindEyeCharacter::SetHealth_Implementation(float NewHealth)
+{
+	if (BlindEyePlayerState)
+		return BlindEyePlayerState->SetHealth(NewHealth);
+}
+
+TEAMS ABlindEyeCharacter::GetTeam_Implementation()
+{
+	return Team;
 }
 
 void ABlindEyeCharacter::MoveForward(float Value)
@@ -115,4 +134,27 @@ void ABlindEyeCharacter::MoveRight(float Value)
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Input
+
+void ABlindEyeCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
+{
+	// Set up gameplay key bindings
+	check(PlayerInputComponent);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+
+	PlayerInputComponent->BindAxis("MoveForward", this, &ABlindEyeCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &ABlindEyeCharacter::MoveRight);
+	
+	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("TurnRate", this, &ABlindEyeCharacter::TurnAtRate);
+	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+	PlayerInputComponent->BindAxis("LookUpRate", this, &ABlindEyeCharacter::LookUpAtRate);
+
+	// TODO: Player input for Basic attack
+	PlayerInputComponent->BindAction("BasicAttack", IE_Pressed, this, &ABlindEyeCharacter::BasicAttackPressed);
+	// TODO: Player input for rest of attacks
 }

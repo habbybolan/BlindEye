@@ -2,8 +2,9 @@
 
 
 #include "DamageTypes/BaseDamageType.h"
+#include "Components/HealthComponent.h"
 
-float UBaseDamageType::ProcessDamage(AActor* Owner, APawn* HitCharacter, FVector HitLocation) const
+float UBaseDamageType::ProcessDamage(AActor* Owner, APawn* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const
 {
 	return DamageMultiplier;
 	
