@@ -240,6 +240,7 @@ void AFlock::Destroyed()
 
 void AFlock::GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const
 {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME( AFlock, Target );
 }
 
