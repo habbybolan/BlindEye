@@ -1,8 +1,7 @@
 // Copyright (C) Nicholas Johnson 2022
 
-
-#include "Components/HealthComponent.h"
 #include "Enemies/BlindEyeEnemybase.h"
+#include "Components/HealthComponent.h"
 #include "Net/UnrealNetwork.h"
 
 // Sets default values
