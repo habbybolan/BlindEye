@@ -45,7 +45,7 @@ public:
 
 	// Entrance point for using a specific ability and what input called it
 	UFUNCTION(Server, Reliable)
-	void UsedAbility(EAbilityTypes abilityType, AbilityUsageTypes abilityUsageType);
+	void SER_UsedAbility(EAbilityTypes abilityType, AbilityUsageTypes abilityUsageType);
 
 	bool IsMovementBlocked();
 	bool IsAbilityBlocked();

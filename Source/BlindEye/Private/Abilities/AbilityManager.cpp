@@ -15,7 +15,7 @@ UAbilityManager::UAbilityManager()
 	UniqueAbilityTypes.SetNum(2);
 }
  
-void UAbilityManager::UsedAbility_Implementation(EAbilityTypes abilityType, AbilityUsageTypes abilityUsageType)
+void UAbilityManager::SER_UsedAbility_Implementation(EAbilityTypes abilityType, AbilityUsageTypes abilityUsageType)
 {
 	// TODO: Hard coded to first ability, check all of them
 
