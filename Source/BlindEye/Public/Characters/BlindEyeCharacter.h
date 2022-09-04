@@ -12,6 +12,13 @@
 enum class TEAMS;
 class UAbilityManager;
 
+UENUM()
+enum class PlayerType
+{
+	CrowPlayer = 0,
+	PhoenixPlayer = 1
+};
+
 UCLASS(config=Game)
 class ABlindEyeCharacter : public ACharacter, public IHealthInterface
 {
@@ -53,6 +60,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TEAMS Team;
 	virtual TEAMS GetTeam_Implementation() override;
+
+	PlayerType PlayerType;
 
 protected:
 

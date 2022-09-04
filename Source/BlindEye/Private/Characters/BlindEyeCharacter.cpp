@@ -49,7 +49,8 @@ ABlindEyeCharacter::ABlindEyeCharacter()
 	AbilityManager = CreateDefaultSubobject<UAbilityManager>(TEXT("AbilityManager"));
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
-
+	
+	PlayerType = PlayerType::CrowPlayer;
 	Team = TEAMS::Player;
 }
 
