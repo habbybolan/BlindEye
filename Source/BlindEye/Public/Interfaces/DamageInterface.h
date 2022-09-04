@@ -38,8 +38,8 @@ public:
 	void Stagger();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void TryApplyMarker(PlayerType Player, uint8 UniqueAbilityIndexMarker);
+	void TryApplyMarker(PlayerType Player);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void TryDetonation(PlayerType Player, uint8 UniqueAbilityIndexMarker);
+	void TryDetonation(PlayerType Player);
 };

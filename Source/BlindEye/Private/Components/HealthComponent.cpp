@@ -89,14 +89,14 @@ void UHealthComponent::Stagger_Implementation()
 	// ...
 }
 
-void UHealthComponent::TryApplyMarker_Implementation(PlayerType Player, uint8 UniqueAbilityIndexMarker)
+void UHealthComponent::TryApplyMarker_Implementation(PlayerType Player)
 {
 	// TODO: Add Mark visual
 	CurrMark = new FMarkData();
-	CurrMark->InitializeData(Player, UniqueAbilityIndexMarker);
+	CurrMark->InitializeData(Player);
 }
 
-void UHealthComponent::TryDetonation_Implementation(PlayerType Player, uint8 UniqueAbilityIndexMarker)
+void UHealthComponent::TryDetonation_Implementation(PlayerType Player)
 {
 	if (CurrMark != nullptr)
 	{

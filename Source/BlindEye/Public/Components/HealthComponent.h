@@ -48,9 +48,9 @@ protected:
 
 	virtual void Stagger_Implementation() override;
 
-	virtual void TryApplyMarker_Implementation(PlayerType Player, uint8 UniqueAbilityIndexMarker) override;
+	virtual void TryApplyMarker_Implementation(PlayerType Player) override;
 
-	virtual void TryDetonation_Implementation(PlayerType Player, uint8 UniqueAbilityIndexMarker) override;
+	virtual void TryDetonation_Implementation(PlayerType Player) override;
 
 	void RemoveMark();
 		

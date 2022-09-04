@@ -8,11 +8,9 @@
 FMarkData::FMarkData()
 {
 	MarkPlayerType = PlayerType::CrowPlayer;
-	UniqueAbilityMarkerIndex = 0;
 }
 
-void FMarkData::InitializeData(PlayerType markPlayerType, uint8 uniqueAbilityMarkerIndex)
+void FMarkData::InitializeData(PlayerType markPlayerType)
 {
 	this->MarkPlayerType = markPlayerType;
-	this->UniqueAbilityMarkerIndex = uniqueAbilityMarkerIndex;
 }

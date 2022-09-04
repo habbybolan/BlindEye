@@ -18,7 +18,7 @@ struct BLINDEYE_API FMarkData
 
 	FMarkData();
 
-	void InitializeData(PlayerType markPlayerType, uint8 uniqueAbilityMarkerIndex);
+	void InitializeData(PlayerType markPlayerType);
 	
 	PlayerType MarkPlayerType;
 	uint8 UniqueAbilityMarkerIndex;
