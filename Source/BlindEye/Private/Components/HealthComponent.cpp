@@ -4,6 +4,7 @@
 #include "Components/HealthComponent.h"
 
 #include "DamageTypes/BaseDamageType.h"
+#include "Interfaces/HealthInterface.h"
 
 // Sets default values for this component's properties
 UHealthComponent::UHealthComponent()
@@ -86,5 +87,28 @@ void UHealthComponent::Stagger_Implementation()
 {
 	// TODO: probably call stun?
 	// ...
+}
+
+void UHealthComponent::TryApplyMarker_Implementation(PlayerType Player, uint8 UniqueAbilityIndexMarker)
+{
+	// TODO: Add Mark visual
+	CurrMark = new FMarkData();
+	CurrMark->InitializeData(Player, UniqueAbilityIndexMarker);
+}
+
+void UHealthComponent::TryDetonation_Implementation(PlayerType Player, uint8 UniqueAbilityIndexMarker)
+{
+	if (CurrMark != nullptr)
+	{
+		// TODO: perform marker effect and remove marker
+		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Orange, "Marker detonated on: " + GetOwner()->GetName());
+		RemoveMark();
+	}
+}
+
+void UHealthComponent::RemoveMark()
+{
+	// TODO: Remove Mark visual
+	CurrMark = nullptr;
 }
 

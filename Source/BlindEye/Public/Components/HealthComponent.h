@@ -4,9 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "DamageTypes/MarkData.h"
 #include "Interfaces/DamageInterface.h"
-#include "Interfaces/HealthInterface.h"
 #include "HealthComponent.generated.h"
+
+enum class PlayerType : uint8;
+class IHealthInterface;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BLINDEYE_API UHealthComponent : public UActorComponent, public IDamageInterface
@@ -23,6 +26,8 @@ protected:
 	IHealthInterface* OwnerHealth;
 
 	virtual void BeginPlay() override;
+	
+	FMarkData* CurrMark;
 
 	UFUNCTION()
 	void SetPointDamage(AActor* DamagedActor, float Damage,
@@ -42,5 +47,11 @@ protected:
 	virtual void Burn_Implementation(float DamagePerSec, float Duration) override;
 
 	virtual void Stagger_Implementation() override;
+
+	virtual void TryApplyMarker_Implementation(PlayerType Player, uint8 UniqueAbilityIndexMarker) override;
+
+	virtual void TryDetonation_Implementation(PlayerType Player, uint8 UniqueAbilityIndexMarker) override;
+
+	void RemoveMark();
 		
 };

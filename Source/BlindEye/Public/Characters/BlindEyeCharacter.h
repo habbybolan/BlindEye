@@ -3,20 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/HealthComponent.h"
 #include "GameFramework/Character.h"
-#include "Gameplay/BlindEyePlayerState.h"
 #include "Interfaces/HealthInterface.h"
 #include "BlindEyeCharacter.generated.h"
 
 enum class TEAMS;
 class UAbilityManager;
+class UHealthComponent;
+class ABlindEyePlayerState;
 
-UENUM()
-enum class PlayerType
+UENUM(BlueprintType)
+enum class PlayerType : uint8
 {
-	CrowPlayer = 0,
-	PhoenixPlayer = 1
+	CrowPlayer,
+	PhoenixPlayer
 };
 
 UCLASS(config=Game)

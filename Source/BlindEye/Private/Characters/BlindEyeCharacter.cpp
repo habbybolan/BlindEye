@@ -8,6 +8,7 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Abilities/AbilityManager.h"
+#include "Components/HealthComponent.h"
 #include "Gameplay/BlindEyePlayerState.h"
 
 //////////////////////////////////////////////////////////////////////////
