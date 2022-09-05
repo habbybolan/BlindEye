@@ -23,19 +23,18 @@ void UAbilityManager::SER_UsedAbility_Implementation(EAbilityTypes abilityType, 
 
 	if (abilityType == EAbilityTypes::Basic)
 	{
-		if (CurrUsedAbility != nullptr && CurrUsedAbility != BasicAttack) return;
+		if (IsAbilityBlocked(BasicAttack)) return;
 		BasicAttack->UseAbility(abilityUsageType);
 	} else if (abilityType == EAbilityTypes::Unique1)
 	{
 		if (UniqueAbilities[0])
 		{
-			if (CurrUsedAbility != nullptr && CurrUsedAbility != UniqueAbilities[0]) return;
+			if (IsAbilityBlocked(UniqueAbilities[0])) return;
 			UniqueAbilities[0]->UseAbility(abilityUsageType);
 		}
 			
 	}
 	// TODO: Rest of abilities
-	
 }
 
 bool UAbilityManager::IsMovementBlocked()
@@ -117,7 +116,6 @@ void UAbilityManager::BeginPlay()
 			uniqueAbility->AbilityEnteredRunState.BindUObject(this, &UAbilityManager::SetAbilityInUse);
 		}
 	}
-		
 }
 
 void UAbilityManager::AbilityEnded()
@@ -132,5 +130,10 @@ void UAbilityManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME(UAbilityManager, ChargedBasicAttack);
 	DOREPLIFETIME(UAbilityManager, UniqueAbilities);
 	DOREPLIFETIME(UAbilityManager, CurrUsedAbility);
+}
+
+bool UAbilityManager::IsAbilityBlocked(AAbilityBase* AbilityToUse)
+{
+	return CurrUsedAbility != nullptr && CurrUsedAbility->Blockers.Contains(EBlockers::OtherAbilities) && CurrUsedAbility != AbilityToUse;
 }
 
