@@ -3,6 +3,7 @@
 
 #include "Abilities/CrowFlurry.h"
 
+#include "Interfaces/HealthInterface.h"
 #include "Kismet/GameplayStatics.h"
 
 ACrowFlurry::ACrowFlurry()
@@ -30,6 +31,22 @@ void ACrowFlurry::PerformCrowFlurry()
 	UKismetSystemLibrary::BoxTraceMultiForObjects(world, GetInstigator()->GetActorLocation(), TargetLocation, FVector(0, Width / 2, Height / 2),
 		GetInstigator()->GetControlRotation(), ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, OutHits, true,
 		FLinearColor::Red, FLinearColor::Green, 0.2f);
+
+	const IHealthInterface* InstigatorHealthInterface = Cast<IHealthInterface>(GetInstigator());
+	TEAMS InstigatorTeam = InstigatorHealthInterface->Execute_GetTeam(GetInstigator());
+	
+	for (FHitResult Hit : OutHits)
+	{
+		if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(Hit.GetActor()))
+		{
+			if (HealthInterface->Execute_GetTeam(Hit.GetActor()) != InstigatorTeam)
+			{
+				UGameplayStatics::ApplyPointDamage(Hit.GetActor(), DamagePerSec * 0.2f, FVector::ZeroVector,
+					FHitResult(), GetInstigator()->Controller, this, DamageType);
+			}
+		}
+	}
+	
 	// TODO: BoxTrace to damage any enemy inside
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0.2f, FColor::Silver, "Crow Flurry Performing");
 }
