@@ -21,20 +21,25 @@ void ABlindEyePlayerController::SER_SpawnPlayer_Implementation()
 
 	FTransform spawnTransform = BlindEyeGameMode->GetSpawnPoint();
 	TSubclassOf<ABlindEyeCharacter> PlayerClassType;
+	PlayerType playerType;
 
 	// TODO: Temporary for test spawning
 	if (IsServer)
 	{
 		PlayerClassType = BlindEyeGameMode->PlayerClassTypes[0];
+		playerType = PlayerType::CrowPlayer;
 		IsServer = !IsServer;
 	} else
 	{
 		PlayerClassType = BlindEyeGameMode->PlayerClassTypes[1];
+		playerType = PlayerType::PhoenixPlayer;
+		IsServer = !IsServer;
 	}
 		
 	OwningCharacter = Cast<ABlindEyeCharacter>(world->SpawnActor<ABlindEyeCharacter>(PlayerClassType, spawnTransform, spawnParams));
 	if (OwningCharacter)
 	{
+		OwningCharacter->PlayerType = playerType;
 		APawn* CachedPawn = GetPawn();
 		Possess(OwningCharacter);
 

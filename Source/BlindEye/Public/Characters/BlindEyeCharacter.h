@@ -3,14 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/HealthComponent.h"
 #include "GameFramework/Character.h"
-#include "Gameplay/BlindEyePlayerState.h"
 #include "Interfaces/HealthInterface.h"
 #include "BlindEyeCharacter.generated.h"
 
 enum class TEAMS;
 class UAbilityManager;
+class UHealthComponent;
+class ABlindEyePlayerState;
+
+UENUM(BlueprintType)
+enum class PlayerType : uint8
+{
+	CrowPlayer,
+	PhoenixPlayer
+};
 
 UCLASS(config=Game)
 class ABlindEyeCharacter : public ACharacter, public IHealthInterface
@@ -53,6 +60,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TEAMS Team;
 	virtual TEAMS GetTeam_Implementation() override;
+
+	PlayerType PlayerType;
 
 protected:
 

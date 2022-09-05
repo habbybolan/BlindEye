@@ -8,6 +8,7 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Abilities/AbilityManager.h"
+#include "Components/HealthComponent.h"
 #include "Gameplay/BlindEyePlayerState.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -49,7 +50,8 @@ ABlindEyeCharacter::ABlindEyeCharacter()
 	AbilityManager = CreateDefaultSubobject<UAbilityManager>(TEXT("AbilityManager"));
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
-
+	
+	PlayerType = PlayerType::CrowPlayer;
 	Team = TEAMS::Player;
 }
 

@@ -6,6 +6,8 @@
 #include "UObject/Interface.h"
 #include "DamageInterface.generated.h"
 
+enum class PlayerType : uint8;
+
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class UDamageInterface : public UInterface
@@ -34,4 +36,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Stagger();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void TryApplyMarker(PlayerType Player);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void TryDetonation(PlayerType Player);
 };

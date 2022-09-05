@@ -6,6 +6,7 @@
 #include "GameFramework/DamageType.h"
 #include "BaseDamageType.generated.h"
 
+class UBaseStatusEffect;
 class UHealthComponent;
 /**
  * 
@@ -17,6 +18,12 @@ class BLINDEYE_API UBaseDamageType : public UDamageType
 
 public:
 
+	UBaseDamageType();
+	~UBaseDamageType() override;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<TSubclassOf<UBaseStatusEffect>> StatusEffects;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=( ClampMin=0 ))
 	float DamageMultiplier = 1;
 	

@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DamageTypes/BaseDamageType.h"
-#include "KnockBackDamageType.generated.h"
+#include "BaseStatusEffect.h"
+#include "KnockBackStatusEffect.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class BLINDEYE_API UKnockBackDamageType : public UBaseDamageType
+class BLINDEYE_API UKnockBackStatusEffect : public UBaseStatusEffect
 {
 	GENERATED_BODY()
 
@@ -21,5 +21,5 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float KnockUpForce = 200.f;
 	
-	virtual float ProcessDamage(AActor* Owner, APawn* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const override;
+	virtual void ProcessEffect(AActor* Owner, APawn* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const override;
 };
