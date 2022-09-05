@@ -5,6 +5,9 @@
 
 #include "Interfaces/HealthInterface.h"
 #include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 
 ACrowFlurry::ACrowFlurry()
 {
@@ -15,6 +18,12 @@ void ACrowFlurry::StartCrowFlurry()
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
+
+	ParticleActor = world->SpawnActor<AActor>(AActor::StaticClass(), GetInstigator()->GetActorLocation(), GetInstigator()->GetControlRotation());
+	
+	SpawnedCrowFlurryParticle = UNiagaraFunctionLibrary::SpawnSystemAttached(CrowFlurryParticle, GetInstigator()->GetRootComponent(), NAME_None,
+		GetInstigator()->GetActorLocation(), GetInstigator()->GetControlRotation(), FVector::OneVector,
+		EAttachLocation::KeepWorldPosition, false, ENCPoolMethod::AutoRelease);
 
 	world->GetTimerManager().SetTimer(CrowFlurryTimerHandle, this, &ACrowFlurry::PerformCrowFlurry, 0.2f, true);
 }
@@ -46,9 +55,6 @@ void ACrowFlurry::PerformCrowFlurry()
 			}
 		}
 	}
-	
-	// TODO: BoxTrace to damage any enemy inside
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0.2f, FColor::Silver, "Crow Flurry Performing");
 }
 
 void ACrowFlurry::StopCrowFlurry()
@@ -56,10 +62,23 @@ void ACrowFlurry::StopCrowFlurry()
 	UWorld* world = GetWorld();
 	if (!world) return;
 
+	if (SpawnedCrowFlurryParticle)
+	{
+		SpawnedCrowFlurryParticle->Deactivate();
+	}
+	
+	world->GetTimerManager().SetTimer(CrowFlurryParticleDestroyTimerHandle, this, &ACrowFlurry::DestroyParticles, 1.f, false);
 	world->GetTimerManager().ClearTimer(CrowFlurryTimerHandle);
 	// TODO: Stop particles/sound...
 }
 
+void ACrowFlurry::DestroyParticles()
+{
+	if (SpawnedCrowFlurryParticle)
+	{
+		SpawnedCrowFlurryParticle->DestroyComponent();
+	}
+}
 
 // **** States *******
 
@@ -81,13 +100,16 @@ void UFirstCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
 	if (!Ability) return;
 	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);
 	if (!CrowFlurry) return;
-	CrowFlurry->StartCrowFlurry();
+	
 
 	// leave running state on ability released
 	if (abilityUsageType == EAbilityInputTypes::Released)
 	{
 		CrowFlurry->StopCrowFlurry();
 		ExitState();
+	} else
+	{
+		CrowFlurry->StartCrowFlurry();
 	}
 }
 

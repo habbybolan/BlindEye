@@ -7,6 +7,9 @@
 #include "DamageTypes/BaseDamageType.h"
 #include "CrowFlurry.generated.h"
 
+class UNiagaraComponent;
+class UNiagaraSystem;
+
 class BLINDEYE_API UFirstCrowFlurryState : public FAbilityState
 {
 public:  
@@ -48,6 +51,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UBaseDamageType> DamageType;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraSystem* CrowFlurryParticle;
+
 	void StartCrowFlurry();
 	void StopCrowFlurry();
 
@@ -57,4 +63,13 @@ protected:
 
 	UFUNCTION()
 	void PerformCrowFlurry();
+
+	UPROPERTY()
+	UNiagaraComponent* SpawnedCrowFlurryParticle;
+
+	UPROPERTY()
+	AActor* ParticleActor;
+
+	FTimerHandle CrowFlurryParticleDestroyTimerHandle;
+	void DestroyParticles();
 };
