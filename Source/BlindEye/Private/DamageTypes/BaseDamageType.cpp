@@ -6,7 +6,6 @@
 
 float UBaseDamageType::ProcessDamage(AActor* Owner, APawn* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const
 {
+	// TODO: Apply effects
 	return DamageMultiplier;
-	
-	// TODO: Check for mark-able interface and add extra mark damage?
 }

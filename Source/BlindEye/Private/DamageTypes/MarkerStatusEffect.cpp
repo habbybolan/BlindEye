@@ -1,13 +1,13 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
-#include "DamageTypes/MarkerDamageType.h"
+#include "DamageTypes/MarkerStatusEffect.h"
 
 #include "Components/HealthComponent.h"
 #include "Characters/BlindEyeCharacter.h"
 #include "Interfaces/DamageInterface.h"
 
-float UMarkerDamageType::ProcessDamage(AActor* Owner, APawn* HitCharacter, FVector HitLocation,
+void UMarkerStatusEffect::ProcessEffect(AActor* Owner, APawn* HitCharacter, FVector HitLocation,
                                        UHealthComponent* HealthComponent) const
 {
 	if (const IDamageInterface* DamageInterface = Cast<IDamageInterface>(HealthComponent))
@@ -17,5 +17,4 @@ float UMarkerDamageType::ProcessDamage(AActor* Owner, APawn* HitCharacter, FVect
 			DamageInterface->Execute_TryApplyMarker(HealthComponent, Player->PlayerType);
 		}
 	}
-	return 0;
 }

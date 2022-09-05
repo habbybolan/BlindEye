@@ -1,11 +1,11 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
-#include "DamageTypes/KnockBackDamageType.h"
+#include "DamageTypes/KnockBackStatusEffect.h"
 #include "Components/HealthComponent.h"
 #include "Interfaces/DamageInterface.h"
 
-float UKnockBackDamageType::ProcessDamage(AActor* Owner, APawn* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const
+void UKnockBackStatusEffect::ProcessEffect(AActor* Owner, APawn* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const
 {
 	if (const IDamageInterface* DamageInterface = Cast<IDamageInterface>(HealthComponent))
 	{
@@ -15,5 +15,4 @@ float UKnockBackDamageType::ProcessDamage(AActor* Owner, APawn* HitCharacter, FV
 		direction.Z = KnockUpForce;
 		DamageInterface->Execute_KnockBack(HealthComponent, direction);
 	}
-	return DamageMultiplier;
 }
