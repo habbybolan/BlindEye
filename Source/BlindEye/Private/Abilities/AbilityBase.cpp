@@ -73,8 +73,8 @@ void AAbilityBase::AbilityCancelInput()
 	TryCancelAbility(); 
 }
 
-bool AAbilityBase::UseAbility(bool bIsInputInitiated)
+void AAbilityBase::UseAbility(EAbilityInputTypes abilityUsageType)
 {
-	return AbilityStates[CurrState]->TryEnterState(bIsInputInitiated);
+	AbilityStates[CurrState]->HandleInput(abilityUsageType);
 }
 

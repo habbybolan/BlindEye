@@ -21,15 +21,16 @@ enum class EAbilityTypes
 {
 	Basic = 0,
 	ChargedBasic = 1,
-	Unique1 = 2,
+	Unique1 = 2, 
 	Unique2 = 3,
 };
-
+ 
 UENUM()
-enum class AbilityUsageTypes
+enum class EAbilityInputTypes
 {
-	Pressed = 0,
-	Released = 1
+	None,
+	Pressed,
+	Released
 };
 
 class AAbilityBase;
@@ -45,12 +46,15 @@ public:
 
 	// Entrance point for using a specific ability and what input called it
 	UFUNCTION(Server, Reliable)
-	void SER_UsedAbility(EAbilityTypes abilityType, AbilityUsageTypes abilityUsageType);
+	void SER_UsedAbility(EAbilityTypes abilityType, EAbilityInputTypes abilityUsageType);
 
 	bool IsMovementBlocked();
 	bool IsAbilityBlocked();
 	bool IsReceiveDamageBlocked();
 	bool IsDamageFeedbackBlocked();
+
+	// Called from ability to signal ability in use
+	void SetAbilityInUse(AAbilityBase* abilityInUse);
 
 protected:
 	// Called when the game starts

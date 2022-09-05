@@ -11,8 +11,8 @@ class BLINDEYE_API UFirstAttackState : public FAbilityState
 {
 public:
 	UFirstAttackState(AAbilityBase* ability);
-	virtual bool TryEnterState(bool bInputUsed) override;
-	virtual void RunState() override;
+	virtual bool TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
 };
 
@@ -20,8 +20,8 @@ class BLINDEYE_API USecondAttackState : public FAbilityState
 {
 public:
 	USecondAttackState(AAbilityBase* ability);
-	virtual bool TryEnterState(bool bInputUsed) override;
-	virtual void RunState() override;
+	virtual bool TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
 };
 
@@ -29,8 +29,8 @@ class BLINDEYE_API ULastAttackState : public FAbilityState
 {
 public:
 	ULastAttackState(AAbilityBase* ability);
-	virtual bool TryEnterState(bool bInputUsed) override;
-	virtual void RunState() override;
+	virtual bool TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
 };
 

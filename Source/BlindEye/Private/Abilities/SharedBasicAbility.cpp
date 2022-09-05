@@ -3,6 +3,13 @@
 
 #include "Abilities/SharedBasicAbility.h"
 
+ASharedBasicAbility::ASharedBasicAbility() : AAbilityBase()
+{
+	AbilityStates.Add(new UFirstAttackState(this));
+	AbilityStates.Add(new USecondAttackState(this));
+	AbilityStates.Add(new ULastAttackState(this));
+}
+
 void ASharedBasicAbility::TryCancelAbility()
 {
 	ClearLeaveAbilityTimer();
@@ -45,24 +52,13 @@ void ASharedBasicAbility::SpawnFlock_Implementation(uint8 comboNum)
 	}
 }
 
-// **** States *******
-
-// First Attack state
-
-ASharedBasicAbility::ASharedBasicAbility() : AAbilityBase()
-{
-	AbilityStates.Add(new UFirstAttackState(this));
-	AbilityStates.Add(new USecondAttackState(this));
-	AbilityStates.Add(new ULastAttackState(this));
-}
-
 void ASharedBasicAbility::SetLeaveAbilityTimer()
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
 
 	world->GetTimerManager().SetTimer(ResetAbilityTimerHandle, this, &AAbilityBase::TryCancelAbility, 2, false);
-}
+} 
 
 void ASharedBasicAbility::ClearLeaveAbilityTimer()
 {
@@ -72,16 +68,20 @@ void ASharedBasicAbility::ClearLeaveAbilityTimer()
 	world->GetTimerManager().ClearTimer(ResetAbilityTimerHandle);
 }
 
+// **** States *******
+
+// First Attack state *********************
+
 UFirstAttackState::UFirstAttackState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-bool UFirstAttackState::TryEnterState(bool bInputUsed)
+bool UFirstAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
-	if (bStateEntered) return false;
+	if (CurrInnerState > EInnerState::None) return false;
 	RunState();
 	return true;
 }
 
-void UFirstAttackState::RunState()
+void UFirstAttackState::RunState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::RunState();
 	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
@@ -106,19 +106,18 @@ void UFirstAttackState::ExitState()
 	FAbilityState::ExitState();
 }
 
-// Second Attack state
+// Second Attack state *********************
 
 USecondAttackState::USecondAttackState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-bool USecondAttackState::TryEnterState(bool bInputUsed)
-{
-	if (bStateEntered) return false;
-	// TODO: Input Condition ToEnter
+bool USecondAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
+{ 
+	if (CurrInnerState > EInnerState::None) return false;
 	RunState();
 	return true;
 }
 
-void USecondAttackState::RunState()
+void USecondAttackState::RunState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::RunState();
 	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
@@ -144,19 +143,18 @@ void USecondAttackState::ExitState()
 	
 }
 
-// Last Attack state
+// Last Attack state *********************
 
 ULastAttackState::ULastAttackState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-bool ULastAttackState::TryEnterState(bool bInputUsed)
+bool ULastAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
-	if (bStateEntered) return false;
-	// TODO: Input Condition ToEnter
+	if (CurrInnerState > EInnerState::None) return false;
 	RunState();
 	return true;
 }
 
-void ULastAttackState::RunState()
+void ULastAttackState::RunState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::RunState();
 	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);

@@ -3,6 +3,7 @@
 
 #include "Abilities/AbilityState.h"
 #include "Abilities/AbilityBase.h"
+#include "Abilities/AbilityManager.h"
 
 FAbilityState::FAbilityState(AAbilityBase* ability)
 {
@@ -13,9 +14,13 @@ void FAbilityState::ExitState()
 {
 }
 
-void FAbilityState::RunState()
+void FAbilityState::RunState(EAbilityInputTypes abilityUsageType)
 {
-	bStateEntered = true;
+	CurrInnerState = EInnerState::Running;
+	if (Ability)
+	{
+		Ability->AbilityEnteredRunState.ExecuteIfBound(Ability);
+	}
 }
 
 void FAbilityState::CancelState()
@@ -23,8 +28,19 @@ void FAbilityState::CancelState()
 	ResetState();
 }
 
+void FAbilityState::HandleInput(EAbilityInputTypes abilityUsageType)
+{ 
+	if (CurrInnerState == EInnerState::None)
+	{
+		TryEnterState(abilityUsageType);
+	} else if (CurrInnerState == EInnerState::Running)
+	{
+		RunState(abilityUsageType);
+	}
+}
+
 void FAbilityState::ResetState()
 {
-	bStateEntered = false;
+	CurrInnerState = EInnerState::None;
 }
 

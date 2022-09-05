@@ -15,7 +15,7 @@ UAbilityManager::UAbilityManager()
 	UniqueAbilityTypes.SetNum(2);
 }
  
-void UAbilityManager::SER_UsedAbility_Implementation(EAbilityTypes abilityType, AbilityUsageTypes abilityUsageType)
+void UAbilityManager::SER_UsedAbility_Implementation(EAbilityTypes abilityType, EAbilityInputTypes abilityUsageType)
 {
 	// TODO: Hard coded to first ability, check all of them
 
@@ -23,11 +23,7 @@ void UAbilityManager::SER_UsedAbility_Implementation(EAbilityTypes abilityType, 
 	// TODO: Check if ability being used is blocking. If not, cancel ability 
 	if (CurrUsedAbility != nullptr && CurrUsedAbility != BasicAttack) return;
 	
-	if (BasicAttack->UseAbility(true))
-	{
-		if (CurrUsedAbility == nullptr)
-			CurrUsedAbility = BasicAttack;
-	}
+	BasicAttack->UseAbility(abilityUsageType);
 }
 
 bool UAbilityManager::IsMovementBlocked()
@@ -54,6 +50,15 @@ bool UAbilityManager::IsDamageFeedbackBlocked()
 	return false;
 }
 
+void UAbilityManager::SetAbilityInUse(AAbilityBase* abilityInUse)
+{
+	if (CurrUsedAbility == nullptr)
+	{
+		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Purple, "Ability in use: " + abilityInUse->GetName());
+		CurrUsedAbility = abilityInUse;
+	}
+}
+
 
 // Called when the game starts
 void UAbilityManager::BeginPlay()
@@ -77,7 +82,9 @@ void UAbilityManager::BeginPlay()
 
 	if (GetOwnerRole() == ROLE_Authority)
 	{
-		BasicAttack->AbilityEndedDelegate.BindUFunction(this, FName("AbilityEnded"));
+		BasicAttack->AbilityEndedDelegate.BindUObject(this, &UAbilityManager::AbilityEnded);
+		BasicAttack->AbilityEnteredRunState.BindUObject(this, &UAbilityManager::SetAbilityInUse);
+		
 		// TODO: Setup delegates for rest of abilities
 	}
 		

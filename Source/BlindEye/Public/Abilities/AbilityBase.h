@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "AbilityState.h"
-#include "Components/SceneComponent.h"
 #include "AbilityBase.generated.h"
 
 
@@ -19,6 +18,9 @@ public:
 
 	DECLARE_DELEGATE(FAbilityEndedSignature)
 	FAbilityEndedSignature AbilityEndedDelegate;
+
+	DECLARE_DELEGATE_OneParam(FAbilityEnteredRunStateSignature, AAbilityBase* AbilityUsed)
+	FAbilityEnteredRunStateSignature AbilityEnteredRunState;
 
 	// Try to cancel the abilities execution
 	UFUNCTION()
@@ -53,7 +55,7 @@ public:
 	void AbilityCancelInput();
 
 	// input for attempting to use/trigger ability effects
-	bool UseAbility(bool bIsInputInitiated);
+	void UseAbility(EAbilityInputTypes abilityUsageType);
 
 	bool bIsRunning = false;
 		

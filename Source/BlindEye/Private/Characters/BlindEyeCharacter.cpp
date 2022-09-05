@@ -88,7 +88,7 @@ void ABlindEyeCharacter::LookUpAtRate(float Rate)
 
 void ABlindEyeCharacter::BasicAttackPressed() 
 {
-	AbilityManager->SER_UsedAbility(EAbilityTypes::Basic, AbilityUsageTypes::Pressed);
+	AbilityManager->SER_UsedAbility(EAbilityTypes::Basic, EAbilityInputTypes::Pressed);
 }
 
 float ABlindEyeCharacter::GetHealth_Implementation()
