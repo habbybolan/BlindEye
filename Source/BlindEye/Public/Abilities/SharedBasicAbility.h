@@ -7,6 +7,7 @@
 #include "Boids/BasicAttackSmallFlock.h"
 #include "SharedBasicAbility.generated.h"
 
+// Send out first flock
 class BLINDEYE_API UFirstAttackState : public FAbilityState
 {
 public:
@@ -16,6 +17,7 @@ public:
 	virtual void ExitState() override;
 };
 
+// Sends out second flock
 class BLINDEYE_API USecondAttackState : public FAbilityState
 {
 public:
@@ -25,6 +27,7 @@ public:
 	virtual void ExitState() override;
 };
 
+// Sends out last flock
 class BLINDEYE_API ULastAttackState : public FAbilityState
 {
 public:
