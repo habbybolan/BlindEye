@@ -12,6 +12,7 @@ FAbilityState::FAbilityState(AAbilityBase* ability)
 
 void FAbilityState::ExitState()
 {
+	CurrInnerState = EInnerState::Exit;
 }
 
 void FAbilityState::RunState(EAbilityInputTypes abilityUsageType)
