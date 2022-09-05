@@ -12,7 +12,7 @@ void UDetonatorStatusEffect::ProcessEffect(AActor* Owner, APawn* HitCharacter, F
 {
 	if (const IDamageInterface* DamageInterface = Cast<IDamageInterface>(HealthComponent))
 	{
-		if (const ABlindEyeCharacter* Player = Cast<ABlindEyeCharacter>(Owner))
+		if (const ABlindEyeCharacter* Player = Cast<ABlindEyeCharacter>(Owner->GetInstigator()))
 		{
 			DamageInterface->Execute_TryDetonation(HealthComponent, Player->PlayerType);
 		}

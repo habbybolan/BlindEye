@@ -92,8 +92,16 @@ void UHealthComponent::Stagger_Implementation()
 void UHealthComponent::TryApplyMarker_Implementation(PlayerType Player)
 {
 	// TODO: Add Mark visual
-	CurrMark = new FMarkData();
-	CurrMark->InitializeData(Player);
+	if (CurrMark != nullptr)
+	{
+		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Purple, "Already Marked");
+		// TODO: Refresh Mark timer
+	} else
+	{
+		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Purple, "Mark Applied");
+		CurrMark = new FMarkData();
+		CurrMark->InitializeData(Player);
+	}
 }
 
 void UHealthComponent::TryDetonation_Implementation(PlayerType Player)
@@ -101,8 +109,13 @@ void UHealthComponent::TryDetonation_Implementation(PlayerType Player)
 	if (CurrMark != nullptr)
 	{
 		// TODO: perform marker effect and remove marker
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Orange, "Marker detonated on: " + GetOwner()->GetName());
-		RemoveMark();
+
+		// can only detonate marks of different type
+		if (CurrMark->MarkPlayerType != Player)
+		{
+			GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Purple, "Marker detonated on: " + GetOwner()->GetName());
+			RemoveMark();
+		}
 	}
 }
 
