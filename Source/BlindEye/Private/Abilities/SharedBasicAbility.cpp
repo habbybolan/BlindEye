@@ -74,11 +74,11 @@ void ASharedBasicAbility::ClearLeaveAbilityTimer()
 
 UFirstAttackState::UFirstAttackState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-bool UFirstAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
+void UFirstAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
-	if (CurrInnerState > EInnerState::None) return false;
+	FAbilityState::TryEnterState();
+	if (CurrInnerState > EInnerState::None) return;
 	RunState();
-	return true;
 }
 
 void UFirstAttackState::RunState(EAbilityInputTypes abilityUsageType)
@@ -95,6 +95,7 @@ void UFirstAttackState::RunState(EAbilityInputTypes abilityUsageType)
 
 void UFirstAttackState::ExitState()
 {
+	FAbilityState::ExitState();
 	// Exits the ability if no input in time
 	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
 	if (SharedAbility)
@@ -102,19 +103,17 @@ void UFirstAttackState::ExitState()
 		SharedAbility->SetLeaveAbilityTimer();
 		SharedAbility->DelayToNextState(.2f);
 	}
-	
-	FAbilityState::ExitState();
 }
 
 // Second Attack state *********************
 
 USecondAttackState::USecondAttackState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-bool USecondAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
-{ 
-	if (CurrInnerState > EInnerState::None) return false;
+void USecondAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
+{
+	FAbilityState::TryEnterState();
+	if (CurrInnerState > EInnerState::None) return;
 	RunState();
-	return true;
 }
 
 void USecondAttackState::RunState(EAbilityInputTypes abilityUsageType)
@@ -147,11 +146,11 @@ void USecondAttackState::ExitState()
 
 ULastAttackState::ULastAttackState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-bool ULastAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
+void ULastAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
-	if (CurrInnerState > EInnerState::None) return false;
+	FAbilityState::TryEnterState();
+	if (CurrInnerState > EInnerState::None) return;
 	RunState();
-	return true;
 }
 
 void ULastAttackState::RunState(EAbilityInputTypes abilityUsageType)

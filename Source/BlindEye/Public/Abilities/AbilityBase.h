@@ -6,6 +6,15 @@
 #include "AbilityState.h"
 #include "AbilityBase.generated.h"
 
+UENUM()
+enum class EBlockers
+{
+	Movement,
+	DamageReceived,
+	DamageFeedback,
+	OtherAbilities
+};  
+
 
 UCLASS(Abstract, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BLINDEYE_API AAbilityBase : public AActor
@@ -64,5 +73,7 @@ public:
 	void UseAbility(EAbilityInputTypes abilityUsageType);
 
 	bool bIsRunning = false;
+
+	TSet<EBlockers> Blockers;
 		
 };

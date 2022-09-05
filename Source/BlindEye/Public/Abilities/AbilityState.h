@@ -26,7 +26,7 @@ public:
 
 	/** @return True if the enter state conditions were satisfied */
 	// State checks for condition and goes to running state if passed. Called from either an event or Input
-	virtual bool TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) = 0;
+	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None);
 
 	// Single use logic to start ability logic, or timer that continuously calls Run State logic until run state left
 	// Leaving run state either on a timer based, outside event or Input (ex) Bird meter, Input, Status effect)
@@ -43,6 +43,10 @@ public:
 
 	// reset the state after leaving it for entering again in the future
 	virtual void ResetState();
+
+	// Removes all blockers applied to the ability
+	// Called on inner state change, or on ability leaving
+	virtual void RemoveBlockers();
  
 	// False for states not yet reached or has attempted and failed to pass entry state
 	EInnerState CurrInnerState = EInnerState::None;

@@ -40,25 +40,37 @@ void UAbilityManager::SER_UsedAbility_Implementation(EAbilityTypes abilityType, 
 
 bool UAbilityManager::IsMovementBlocked()
 {
-	// TODO: Check used ability
+	if (CurrUsedAbility)
+	{
+		return CurrUsedAbility->Blockers.Contains(EBlockers::Movement);
+	}
 	return false;
 }
 
 bool UAbilityManager::IsAbilityBlocked()
 {
-	// TODO: Check used ability
+	if (CurrUsedAbility)
+	{
+		return CurrUsedAbility->Blockers.Contains(EBlockers::OtherAbilities);
+	}
 	return false;
 }
 
 bool UAbilityManager::IsReceiveDamageBlocked()
 {
-	// TODO: Check used ability
+	if (CurrUsedAbility)
+	{
+		return CurrUsedAbility->Blockers.Contains(EBlockers::DamageReceived);
+	}
 	return false;
 }
 
 bool UAbilityManager::IsDamageFeedbackBlocked()
 {
-	// TODO: Check used ability
+	if (CurrUsedAbility)
+	{
+		return CurrUsedAbility->Blockers.Contains(EBlockers::DamageFeedback);
+	}
 	return false;
 }
 

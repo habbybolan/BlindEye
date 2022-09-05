@@ -10,14 +10,21 @@ FAbilityState::FAbilityState(AAbilityBase* ability)
 	Ability = ability;
 }
 
+void FAbilityState::TryEnterState(EAbilityInputTypes abilityUsageType)
+{
+	RemoveBlockers();
+}
+
 void FAbilityState::ExitState()
 {
 	CurrInnerState = EInnerState::Exit;
+	RemoveBlockers();
 }
 
 void FAbilityState::RunState(EAbilityInputTypes abilityUsageType)
 {
 	CurrInnerState = EInnerState::Running;
+	RemoveBlockers();
 	if (Ability)
 	{
 		Ability->AbilityEnteredRunState.ExecuteIfBound(Ability);
@@ -43,5 +50,12 @@ void FAbilityState::HandleInput(EAbilityInputTypes abilityUsageType)
 void FAbilityState::ResetState()
 {
 	CurrInnerState = EInnerState::None;
+	RemoveBlockers();
+}
+
+void FAbilityState::RemoveBlockers()
+{
+	if (!Ability) return;
+	Ability->Blockers.Empty();
 }
 
