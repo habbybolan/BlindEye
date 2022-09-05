@@ -5,6 +5,8 @@
 
 #include "DamageTypes/BaseDamageType.h"
 #include "Interfaces/HealthInterface.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values for this component's properties
 UHealthComponent::UHealthComponent()
@@ -91,13 +93,23 @@ void UHealthComponent::Stagger_Implementation()
 
 void UHealthComponent::TryApplyMarker_Implementation(PlayerType Player)
 {
-	// TODO: Add Mark visual
+	UWorld* world = GetWorld();
+	if (!world) return;
+	
 	if (CurrMark != nullptr)
 	{
+		// TODO: Add Mark visual
 		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Purple, "Already Marked");
-		// TODO: Refresh Mark timer
+
+		// Refresh the Mark if same mark used on enemy
+		float TimeRemaining = UKismetSystemLibrary::K2_GetTimerRemainingTimeHandle(world, MarkerDecayTimerHandle);
+		float RefreshedTime = UKismetMathLibrary::Min(TimeRemaining + RefreshMarkerAmount, MarkerDecay);
+		world->GetTimerManager().ClearTimer(MarkerDecayTimerHandle);
+		world->GetTimerManager().SetTimer(MarkerDecayTimerHandle, this, &UHealthComponent::RemoveMark, RefreshedTime, false);
 	} else
 	{
+		// Set the decay timer on marker
+		world->GetTimerManager().SetTimer(MarkerDecayTimerHandle, this, &UHealthComponent::RemoveMark, MarkerDecay, false);
 		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Purple, "Mark Applied");
 		CurrMark = new FMarkData();
 		CurrMark->InitializeData(Player);
@@ -106,13 +118,17 @@ void UHealthComponent::TryApplyMarker_Implementation(PlayerType Player)
 
 void UHealthComponent::TryDetonation_Implementation(PlayerType Player)
 {
+	UWorld* world = GetWorld();
+	if (!world) return;
+	
 	if (CurrMark != nullptr)
 	{
 		// TODO: perform marker effect and remove marker
 
-		// can only detonate marks of different type
+		// Detonate mark if of different type, clear decay timer
 		if (CurrMark->MarkPlayerType != Player)
 		{
+			world->GetTimerManager().ClearTimer(MarkerDecayTimerHandle);
 			GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Purple, "Marker detonated on: " + GetOwner()->GetName());
 			RemoveMark();
 		}
@@ -122,6 +138,7 @@ void UHealthComponent::TryDetonation_Implementation(PlayerType Player)
 void UHealthComponent::RemoveMark()
 {
 	// TODO: Remove Mark visual
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Orange, "Marker removed");
 	CurrMark = nullptr;
 }
 

@@ -19,6 +19,12 @@ class BLINDEYE_API UHealthComponent : public UActorComponent, public IDamageInte
 public:	
 	// Sets default values for this component's properties
 	UHealthComponent();
+ 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float MarkerDecay = 5.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float RefreshMarkerAmount = 2.f;
 
 protected:
 
@@ -51,7 +57,8 @@ protected:
 	virtual void TryApplyMarker_Implementation(PlayerType Player) override;
 
 	virtual void TryDetonation_Implementation(PlayerType Player) override;
-
+		
+	FTimerHandle MarkerDecayTimerHandle;
 	void RemoveMark();
 		
 };
