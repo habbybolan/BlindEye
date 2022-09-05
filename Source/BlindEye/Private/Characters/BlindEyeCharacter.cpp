@@ -91,6 +91,16 @@ void ABlindEyeCharacter::BasicAttackPressed()
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Basic, EAbilityInputTypes::Pressed);
 }
 
+void ABlindEyeCharacter::Unique1Pressed()
+{
+	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Pressed);
+}
+
+void ABlindEyeCharacter::Unique1Released()
+{
+	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Released);
+}
+
 float ABlindEyeCharacter::GetHealth_Implementation()
 {
 	if (BlindEyePlayerState)
@@ -158,5 +168,8 @@ void ABlindEyeCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 
 	// TODO: Player input for Basic attack
 	PlayerInputComponent->BindAction("BasicAttack", IE_Pressed, this, &ABlindEyeCharacter::BasicAttackPressed);
+	
+	PlayerInputComponent->BindAction("Unique1", IE_Pressed, this, &ABlindEyeCharacter::Unique1Pressed);
+	PlayerInputComponent->BindAction("Unique1", IE_Released, this, &ABlindEyeCharacter::Unique1Released);
 	// TODO: Player input for rest of attacks
 }
