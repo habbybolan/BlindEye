@@ -15,6 +15,5 @@ class BLINDEYE_API APhoenixCharacter : public ABlindEyeCharacter
 	GENERATED_BODY()
 
 public:
-	APhoenixCharacter();
 	
 };

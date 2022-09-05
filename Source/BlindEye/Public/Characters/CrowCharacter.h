@@ -15,5 +15,5 @@ class BLINDEYE_API ACrowCharacter : public ABlindEyeCharacter
 	GENERATED_BODY()
 
 public:
-	ACrowCharacter();
+
 };
