@@ -25,11 +25,11 @@ public:
 	FAbilityState(AAbilityBase* ability);
 
 	/** @return True if the enter state conditions were satisfied */
-	// State checks for condition and goes to running state if passed
+	// State checks for condition and goes to running state if passed. Called from either an event or Input
 	virtual bool TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) = 0;
 
-	// Single use logic to start ability logic, or timer that continuously calls Run State until run state left
-	// Leaving run state either on a timer based or outside event (ex) Bird meter, Input, Status effect)
+	// Single use logic to start ability logic, or timer that continuously calls Run State logic until run state left
+	// Leaving run state either on a timer based, outside event or Input (ex) Bird meter, Input, Status effect)
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None);
 	
 	// calls any transition logic that must occur before going to next state

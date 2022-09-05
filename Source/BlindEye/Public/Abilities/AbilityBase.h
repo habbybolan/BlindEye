@@ -27,6 +27,12 @@ public:
 	virtual void TryCancelAbility();
 
 	void DelayToNextState(float delay);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float Cooldown = 2;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float InitialCostPercent = 5;
 	
 protected:
 	// Called when the game starts
