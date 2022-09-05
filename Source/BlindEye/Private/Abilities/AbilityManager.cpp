@@ -17,13 +17,25 @@ UAbilityManager::UAbilityManager()
  
 void UAbilityManager::SER_UsedAbility_Implementation(EAbilityTypes abilityType, EAbilityInputTypes abilityUsageType)
 {
-	// TODO: Hard coded to first ability, check all of them
-
 	// prevent using ability if another one activated
 	// TODO: Check if ability being used is blocking. If not, cancel ability 
-	if (CurrUsedAbility != nullptr && CurrUsedAbility != BasicAttack) return;
 	
-	BasicAttack->UseAbility(abilityUsageType);
+
+	if (abilityType == EAbilityTypes::Basic)
+	{
+		if (CurrUsedAbility != nullptr && CurrUsedAbility != BasicAttack) return;
+		BasicAttack->UseAbility(abilityUsageType);
+	} else if (abilityType == EAbilityTypes::Unique1)
+	{
+		if (UniqueAbilities[0])
+		{
+			if (CurrUsedAbility != nullptr && CurrUsedAbility != UniqueAbilities[0]) return;
+			UniqueAbilities[0]->UseAbility(abilityUsageType);
+		}
+			
+	}
+	// TODO: Rest of abilities
+	
 }
 
 bool UAbilityManager::IsMovementBlocked()
@@ -86,6 +98,12 @@ void UAbilityManager::BeginPlay()
 		BasicAttack->AbilityEnteredRunState.BindUObject(this, &UAbilityManager::SetAbilityInUse);
 		
 		// TODO: Setup delegates for rest of abilities
+		for (AAbilityBase* uniqueAbility : UniqueAbilities)
+		{
+			if (!uniqueAbility) continue;
+			uniqueAbility->AbilityEndedDelegate.BindUObject(this, &UAbilityManager::AbilityEnded);
+			uniqueAbility->AbilityEnteredRunState.BindUObject(this, &UAbilityManager::SetAbilityInUse);
+		}
 	}
 		
 }

@@ -20,7 +20,7 @@ public:
 	FAbilityEndedSignature AbilityEndedDelegate;
 
 	DECLARE_DELEGATE_OneParam(FAbilityEnteredRunStateSignature, AAbilityBase* AbilityUsed)
-	FAbilityEnteredRunStateSignature AbilityEnteredRunState;
+	FAbilityEnteredRunStateSignature AbilityEnteredRunState; 
 
 	// Try to cancel the abilities execution
 	UFUNCTION()

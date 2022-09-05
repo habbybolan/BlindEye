@@ -57,7 +57,6 @@ void AAbilityBase::EndAbilityLogic()
 void AAbilityBase::EndCurrState()
 {
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Cyan, "End curr state");
-	// TODO: End the current state. If no other inner state, call end state
 	AbilityStates[CurrState]->ResetState();
 	CurrState++;
 	
