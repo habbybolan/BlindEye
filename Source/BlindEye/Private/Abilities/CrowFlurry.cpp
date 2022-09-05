@@ -80,24 +80,37 @@ void ACrowFlurry::DestroyParticles()
 	}
 }
 
+void ACrowFlurry::EndAbilityLogic()
+{
+	Super::EndAbilityLogic();
+
+	UWorld* world = GetWorld();
+	if (!world) return;
+	world->GetTimerManager().ClearTimer(CrowFlurryTimerHandle);
+	world->GetTimerManager().ClearTimer(CrowFlurryParticleDestroyTimerHandle);
+}
+
 // **** States *******
 
 // First Crow Flurry state *********************
 
 UFirstCrowFlurryState::UFirstCrowFlurryState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-bool UFirstCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType)
+void UFirstCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
-	if (CurrInnerState > EInnerState::None) return false;
+	FAbilityState::TryEnterState();
+	if (CurrInnerState > EInnerState::None) return;
 	RunState();
-	return true;
 }
 
 void UFirstCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::RunState();
-
+	
 	if (!Ability) return;
+	Ability->Blockers.Add(EBlockers::Movement);
+	Ability->Blockers.Add(EBlockers::OtherAbilities);
+	
 	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);
 	if (!CrowFlurry) return;
 	

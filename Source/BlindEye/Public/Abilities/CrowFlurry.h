@@ -14,7 +14,7 @@ class BLINDEYE_API UFirstCrowFlurryState : public FAbilityState
 {
 public:  
 	UFirstCrowFlurryState(AAbilityBase* ability);
-	virtual bool TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
 };
@@ -72,4 +72,6 @@ protected:
 
 	FTimerHandle CrowFlurryParticleDestroyTimerHandle;
 	void DestroyParticles();
+
+	virtual void EndAbilityLogic() override;
 };

@@ -121,6 +121,7 @@ TEAMS ABlindEyeCharacter::GetTeam_Implementation()
 
 void ABlindEyeCharacter::MoveForward(float Value)
 {
+	if (AbilityManager->IsMovementBlocked()) return;
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
 		// find out which way is forward
@@ -135,6 +136,7 @@ void ABlindEyeCharacter::MoveForward(float Value)
 
 void ABlindEyeCharacter::MoveRight(float Value)
 {
+	if (AbilityManager->IsMovementBlocked()) return;
 	if ( (Controller != nullptr) && (Value != 0.0f) )
 	{
 		// find out which way is right
