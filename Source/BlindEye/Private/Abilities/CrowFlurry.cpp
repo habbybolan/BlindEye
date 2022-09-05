@@ -3,6 +3,8 @@
 
 #include "Abilities/CrowFlurry.h"
 
+#include "Kismet/GameplayStatics.h"
+
 ACrowFlurry::ACrowFlurry()
 {
 	AbilityStates.Add(new UFirstCrowFlurryState(this));
@@ -18,6 +20,16 @@ void ACrowFlurry::StartCrowFlurry()
 
 void ACrowFlurry::PerformCrowFlurry()
 {
+	UWorld* world = GetWorld();
+	if (!world) return;
+ 
+	FVector InstigatorFwd =  GetInstigator()->GetControlRotation().Vector() * Range;
+	FVector TargetLocation = GetInstigator()->GetActorLocation() + InstigatorFwd;
+
+	TArray<FHitResult> OutHits;
+	UKismetSystemLibrary::BoxTraceMultiForObjects(world, GetInstigator()->GetActorLocation(), TargetLocation, FVector(0, Width / 2, Height / 2),
+		GetInstigator()->GetControlRotation(), ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, OutHits, true,
+		FLinearColor::Red, FLinearColor::Green, 0.2f);
 	// TODO: BoxTrace to damage any enemy inside
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0.2f, FColor::Silver, "Crow Flurry Performing");
 }

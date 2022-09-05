@@ -31,6 +31,21 @@ public:
 	float DamagePerSec = 10.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float Width = 400;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float Height = 150;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float Range = 400;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<TEnumAsByte<	EObjectTypeQuery>> ObjectTypes;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float CostPercentPerSec = 20;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UBaseDamageType> DamageType;
 
 	void StartCrowFlurry();
