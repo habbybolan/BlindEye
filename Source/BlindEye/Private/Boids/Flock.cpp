@@ -41,7 +41,7 @@ void AFlock::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	// TODO: Put on Timer
-	PerformFlock();
+	MULT_PerformFlock();
 }
 
 void AFlock::InitializeFlock()
@@ -180,7 +180,7 @@ FVector AFlock::TargetSeeking(ABoid* boid)
 	return FVector::ZeroVector;
 }
 
-void AFlock::PerformFlock_Implementation()
+void AFlock::MULT_PerformFlock_Implementation()
 {
 	for (ABoid* boid : BoidsInFlock)
 	{

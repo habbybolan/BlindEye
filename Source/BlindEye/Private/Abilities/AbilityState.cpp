@@ -56,6 +56,6 @@ void FAbilityState::ResetState()
 void FAbilityState::RemoveBlockers()
 {
 	if (!Ability) return;
-	Ability->Blockers.Empty();
+	Ability->Blockers.Reset();
 }
 

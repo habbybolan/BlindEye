@@ -6,14 +6,24 @@
 #include "AbilityState.h"
 #include "AbilityBase.generated.h"
 
-UENUM()
-enum class EBlockers
+USTRUCT()
+struct FBlockers
 {
-	Movement,
-	DamageReceived,
-	DamageFeedback,
-	OtherAbilities
-};  
+	GENERATED_BODY()
+	
+	bool IsMovementBlocked = false;
+	bool IsDamageReceivedBlocked = false;
+	bool IsDamageFeedbackBlocked = false;
+	bool IsOtherAbilitiesBlocked = false;
+
+	void Reset()
+	{
+		IsMovementBlocked = false;
+		IsDamageReceivedBlocked = false;
+		IsDamageFeedbackBlocked = false;
+		IsOtherAbilitiesBlocked = false;
+	}
+};
 
 
 UCLASS(Abstract, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -47,6 +57,8 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
+
 	// Holds all ability states, state progression goes linearly down the list starting at index 0
 	TArray<FAbilityState*> AbilityStates;
 	uint8 CurrState = 0;
@@ -74,6 +86,7 @@ public:
 
 	bool bIsRunning = false;
 
-	TSet<EBlockers> Blockers;
+	UPROPERTY(Replicated)
+	FBlockers Blockers;
 		
 };

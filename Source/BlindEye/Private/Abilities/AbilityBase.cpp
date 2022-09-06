@@ -3,6 +3,8 @@
 
 #include "Abilities/AbilityBase.h"
 
+#include "Net/UnrealNetwork.h"
+
 // Sets default values for this component's properties
 AAbilityBase::AAbilityBase()
 {
@@ -14,7 +16,6 @@ void AAbilityBase::BeginPlay()
 {
 	Super::BeginPlay();
 }
-
 
 void AAbilityBase::SetOffCooldown()
 {
@@ -75,5 +76,11 @@ void AAbilityBase::AbilityCancelInput()
 void AAbilityBase::UseAbility(EAbilityInputTypes abilityUsageType)
 {
 	AbilityStates[CurrState]->HandleInput(abilityUsageType);
+}
+
+void AAbilityBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AAbilityBase, Blockers);
 }
 

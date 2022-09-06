@@ -41,7 +41,7 @@ bool UAbilityManager::IsMovementBlocked()
 {
 	if (CurrUsedAbility)
 	{
-		return CurrUsedAbility->Blockers.Contains(EBlockers::Movement);
+		return CurrUsedAbility->Blockers.IsMovementBlocked;
 	}
 	return false;
 }
@@ -50,7 +50,7 @@ bool UAbilityManager::IsAbilityBlocked()
 {
 	if (CurrUsedAbility)
 	{
-		return CurrUsedAbility->Blockers.Contains(EBlockers::OtherAbilities);
+		return CurrUsedAbility->Blockers.IsOtherAbilitiesBlocked;
 	}
 	return false;
 }
@@ -59,7 +59,7 @@ bool UAbilityManager::IsReceiveDamageBlocked()
 {
 	if (CurrUsedAbility)
 	{
-		return CurrUsedAbility->Blockers.Contains(EBlockers::DamageReceived);
+		return CurrUsedAbility->Blockers.IsDamageReceivedBlocked;
 	}
 	return false;
 }
@@ -68,7 +68,7 @@ bool UAbilityManager::IsDamageFeedbackBlocked()
 {
 	if (CurrUsedAbility)
 	{
-		return CurrUsedAbility->Blockers.Contains(EBlockers::DamageFeedback);
+		return CurrUsedAbility->Blockers.IsDamageFeedbackBlocked;
 	}
 	return false;
 }
@@ -134,6 +134,6 @@ void UAbilityManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 bool UAbilityManager::IsAbilityBlocked(AAbilityBase* AbilityToUse)
 {
-	return CurrUsedAbility != nullptr && CurrUsedAbility->Blockers.Contains(EBlockers::OtherAbilities) && CurrUsedAbility != AbilityToUse;
+	return CurrUsedAbility != nullptr && CurrUsedAbility->Blockers.IsOtherAbilitiesBlocked && CurrUsedAbility != AbilityToUse;
 }
 
