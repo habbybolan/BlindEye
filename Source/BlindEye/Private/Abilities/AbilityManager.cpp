@@ -108,9 +108,12 @@ void UAbilityManager::SetupAbilities()
 	{
 		UniqueAbilities.Add(world->SpawnActor<AAbilityBase>(AbilityType, params));
 	}
-	
-	BasicAttack->AbilityEndedDelegate.BindUObject(this, &UAbilityManager::AbilityEnded);
-	BasicAttack->AbilityEnteredRunState.BindUObject(this, &UAbilityManager::SetAbilityInUse);
+
+	if (BasicAttack)
+	{
+		BasicAttack->AbilityEndedDelegate.BindUObject(this, &UAbilityManager::AbilityEnded);
+		BasicAttack->AbilityEnteredRunState.BindUObject(this, &UAbilityManager::SetAbilityInUse);
+	}
 	
 	// TODO: Setup delegates for rest of abilities
 	for (AAbilityBase* uniqueAbility : UniqueAbilities)
