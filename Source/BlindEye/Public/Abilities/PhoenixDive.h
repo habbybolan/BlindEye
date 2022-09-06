@@ -16,21 +16,11 @@ public:
 	virtual void ExitState() override;
 };
  
-// Extended in air state
+// Extended in air state and launching to ground
 class BLINDEYE_API FInAirState : public FAbilityState
 {
 public:
 	FInAirState(AAbilityBase* ability);
-	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
-	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
-	virtual void ExitState() override;
-};
-
-// Launching towards ground state 
-class BLINDEYE_API FLaunchState : public FAbilityState
-{
-public:
-	FLaunchState(AAbilityBase* ability);
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
@@ -50,9 +40,10 @@ public:
 	// launches character upwards and sets transition
 	void LaunchPlayerUpwards();
 	void HangInAir();
+	void HangInAirTimer();
 	void LaunchToGround();
 	
-	FTimerHandle LaunchUpTimerHandle;
+	FTimerHandle HangInAirTimerHandle;
 
 protected:
 

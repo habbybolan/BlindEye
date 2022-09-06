@@ -11,18 +11,13 @@ APhoenixDive::APhoenixDive() : AAbilityBase()
 {
 	AbilityStates.Add(new FJumpState(this));
 	AbilityStates.Add(new FInAirState(this));
-	AbilityStates.Add(new FLaunchState(this));
 }
 
 void APhoenixDive::LaunchPlayerUpwards()
 {
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
+	Character->GetCharacterMovement()->StopMovementImmediately();
 	Character->GetCharacterMovement()->AddImpulse(FVector::UpVector * 100000);
-
-	UWorld* world = GetWorld();
-	if (!world) return;
-
-	world->GetTimerManager().SetTimer(LaunchUpTimerHandle, this, &APhoenixDive::EndLaunchUp, 1.0f, false);
 }
 
 void APhoenixDive::HangInAir()
@@ -32,11 +27,27 @@ void APhoenixDive::HangInAir()
 	Character->GetCharacterMovement()->StopMovementImmediately();
 }
 
+void APhoenixDive::HangInAirTimer()
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	world->GetTimerManager().SetTimer(HangInAirTimerHandle, this, &APhoenixDive::HangInAir, 1.0f, false);
+}
+
 void APhoenixDive::LaunchToGround()
 {
-	// TODO:
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
 	Character->GetCharacterMovement()->GravityScale = 1.f;
+
+	FRotator LaunchRotation = Character->GetControlRotation();
+	Character->GetCharacterMovement()->AddImpulse(LaunchRotation.Vector() * 200000);
+
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	// prevent hanging in air
+	world->GetTimerManager().ClearTimer(HangInAirTimerHandle);
 }
 
 void APhoenixDive::EndLaunchUp()
@@ -44,7 +55,7 @@ void APhoenixDive::EndLaunchUp()
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	world->GetTimerManager().ClearTimer(LaunchUpTimerHandle);
+	world->GetTimerManager().ClearTimer(HangInAirTimerHandle);
 	EndCurrState();
 	// immediately enter new state
 	UseAbility(EAbilityInputTypes::None);
@@ -81,8 +92,8 @@ void FJumpState::ExitState()
 	FAbilityState::ExitState();
 	if (!Ability) return;
 
-	Ability->Blockers.IsMovementBlocked = true;
-	Ability->Blockers.IsOtherAbilitiesBlocked = true;
+	Ability->EndCurrState();
+	Ability->UseAbility(EAbilityInputTypes::None);
 }
 
 // In Air State *********************
@@ -108,44 +119,15 @@ void FInAirState::RunState(EAbilityInputTypes abilityUsageType)
 
 	if (abilityUsageType == EAbilityInputTypes::Released)
 	{
+		PhoenixDive->LaunchToGround();
 		ExitState();
 	} else
 	{
-		PhoenixDive->HangInAir();
+		PhoenixDive->HangInAirTimer();
 	}
 }
 
 void FInAirState::ExitState()
-{
-	FAbilityState::ExitState();
-	if (!Ability) return;
-	Ability->EndCurrState();
-	// goto next state instantly
-	Ability->UseAbility(EAbilityInputTypes::None);
-}
-
-// Launch Towards Ground State *********************
-
-FLaunchState::FLaunchState(AAbilityBase* ability) : FAbilityState(ability) {}
-
-void FLaunchState::TryEnterState(EAbilityInputTypes abilityUsageType)
-{
-	FAbilityState::TryEnterState(abilityUsageType);
-	RunState();
-}
-
-void FLaunchState::RunState(EAbilityInputTypes abilityUsageType)
-{
-	FAbilityState::RunState(abilityUsageType);
-	if (!Ability) return;
-	APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability);
-	if (!PhoenixDive) return;
-
-	PhoenixDive->LaunchToGround();
-	ExitState();
-}
-
-void FLaunchState::ExitState()
 {
 	FAbilityState::ExitState();
 	if (!Ability) return;
