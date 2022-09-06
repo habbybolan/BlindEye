@@ -10,7 +10,7 @@ class UHealthComponent;
 /**
  * Contained in BaseDamageType, deals with any status effects applied to player.
  */
-UCLASS(Abstract)
+UCLASS(Abstract, Blueprintable)
 class BLINDEYE_API UBaseStatusEffect : public UObject
 {
 	GENERATED_BODY()
