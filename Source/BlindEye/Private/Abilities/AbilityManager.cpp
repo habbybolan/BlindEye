@@ -11,7 +11,6 @@ UAbilityManager::UAbilityManager()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
 	UniqueAbilityTypes.SetNum(2);
 }
  
@@ -88,13 +87,20 @@ void UAbilityManager::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SetupAbilities();
+}
+
+void UAbilityManager::SetupAbilities()
+{
+	if (GetOwnerRole() < ROLE_Authority) return;
+
 	UWorld* world = GetWorld();
 	if (!world) return;
 
 	FActorSpawnParameters params;
 	params.Instigator = Cast<APawn>(GetOwner());
 	params.Owner = GetOwner();
-
+	
 	// Create Ability actors
 	BasicAttack = world->SpawnActor<AAbilityBase>(BasicAttackType, params);
 	ChargedBasicAttack = world->SpawnActor<AAbilityBase>(ChargedBasicAttackType, params);
@@ -102,25 +108,27 @@ void UAbilityManager::BeginPlay()
 	{
 		UniqueAbilities.Add(world->SpawnActor<AAbilityBase>(AbilityType, params));
 	}
-
-	if (GetOwnerRole() == ROLE_Authority)
+	
+	BasicAttack->AbilityEndedDelegate.BindUObject(this, &UAbilityManager::AbilityEnded);
+	BasicAttack->AbilityEnteredRunState.BindUObject(this, &UAbilityManager::SetAbilityInUse);
+	
+	// TODO: Setup delegates for rest of abilities
+	for (AAbilityBase* uniqueAbility : UniqueAbilities)
 	{
-		BasicAttack->AbilityEndedDelegate.BindUObject(this, &UAbilityManager::AbilityEnded);
-		BasicAttack->AbilityEnteredRunState.BindUObject(this, &UAbilityManager::SetAbilityInUse);
-		
-		// TODO: Setup delegates for rest of abilities
-		for (AAbilityBase* uniqueAbility : UniqueAbilities)
-		{
-			if (!uniqueAbility) continue;
-			uniqueAbility->AbilityEndedDelegate.BindUObject(this, &UAbilityManager::AbilityEnded);
-			uniqueAbility->AbilityEnteredRunState.BindUObject(this, &UAbilityManager::SetAbilityInUse);
-		}
+		if (!uniqueAbility) continue;
+		uniqueAbility->AbilityEndedDelegate.BindUObject(this, &UAbilityManager::AbilityEnded);
+		uniqueAbility->AbilityEnteredRunState.BindUObject(this, &UAbilityManager::SetAbilityInUse);
 	}
 }
 
 void UAbilityManager::AbilityEnded()
 {
 	CurrUsedAbility = nullptr;
+}
+
+bool UAbilityManager::IsAbilityBlocked(AAbilityBase* AbilityToUse)
+{
+	return CurrUsedAbility != nullptr && CurrUsedAbility->Blockers.IsOtherAbilitiesBlocked && CurrUsedAbility != AbilityToUse;
 }
 
 void UAbilityManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -130,10 +138,5 @@ void UAbilityManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME(UAbilityManager, ChargedBasicAttack);
 	DOREPLIFETIME(UAbilityManager, UniqueAbilities);
 	DOREPLIFETIME(UAbilityManager, CurrUsedAbility);
-}
-
-bool UAbilityManager::IsAbilityBlocked(AAbilityBase* AbilityToUse)
-{
-	return CurrUsedAbility != nullptr && CurrUsedAbility->Blockers.IsOtherAbilitiesBlocked && CurrUsedAbility != AbilityToUse;
 }
 

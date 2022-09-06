@@ -149,7 +149,6 @@ void UFirstCrowFlurryState::ExitState()
 void ACrowFlurry::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	//DOREPLIFETIME(ACrowFlurry, SpawnedCrowFlurryParticle)
 }
 
 

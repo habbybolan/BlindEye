@@ -82,6 +82,9 @@ protected:
 	AAbilityBase* CurrUsedAbility;
 
 	UFUNCTION()
+	void SetupAbilities();
+
+	UFUNCTION()
 	void AbilityEnded();
 		
 };
