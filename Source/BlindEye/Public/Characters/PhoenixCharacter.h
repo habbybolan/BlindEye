@@ -7,11 +7,13 @@
 #include "PhoenixCharacter.generated.h"
 
 /**
- * 
+ * NOT BEING USED ********************
  */
 UCLASS()
 class BLINDEYE_API APhoenixCharacter : public ABlindEyeCharacter
 {
 	GENERATED_BODY()
+
+public:
 	
 };

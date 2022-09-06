@@ -3,9 +3,11 @@
 
 #include "Boids/BasicAttackSmallFlock.h"
 
+#include "Components/HealthComponent.h"
 #include "Enemies/BlindEyeEnemybase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Interfaces/HealthInterface.h"
 #include "DamageTypes/BaseDamageType.h"
 
 void ABasicAttackSmallFlock::Tick(float DeltaSeconds)
@@ -50,9 +52,19 @@ void ABasicAttackSmallFlock::CheckForDamage()
 	TArray<AActor*> OutActors;
 	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), CalcAveragePosition(), DamageRadius, ObjectTypes, ABlindEyeEnemyBase::StaticClass(), ActorsToIgnore, OutActors);
 
+	const IHealthInterface* InstigatorHealthInterface = Cast<IHealthInterface>(GetInstigator());
+	TEAMS InstigatorTeam = InstigatorHealthInterface->Execute_GetTeam(GetInstigator());
+	
 	for (AActor* HitActor : OutActors)
 	{
-		UGameplayStatics::ApplyPointDamage(HitActor, DamageAmount, FVector::ZeroVector, FHitResult(), GetInstigator()->Controller, this, DamageType);
+		if (const IHealthInterface* HitHealthInterface = Cast<IHealthInterface>(HitActor))
+		{
+			TEAMS HitTeam = HitHealthInterface->Execute_GetTeam(HitActor);
+			if (InstigatorTeam != HitTeam)
+			{
+				UGameplayStatics::ApplyPointDamage(HitActor, DamageAmount, FVector::ZeroVector, FHitResult(), GetInstigator()->Controller, this, DamageType);
+			}
+		}
 	}
 }
 

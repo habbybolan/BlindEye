@@ -7,11 +7,13 @@
 #include "CrowCharacter.generated.h"
 
 /**
- * 
+ * NOT BEING USED **********************
  */
 UCLASS()
 class BLINDEYE_API ACrowCharacter : public ABlindEyeCharacter
 {
 	GENERATED_BODY()
-	
+
+public:
+
 };

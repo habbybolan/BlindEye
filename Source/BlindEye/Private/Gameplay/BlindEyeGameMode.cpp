@@ -3,8 +3,30 @@
 
 #include "Gameplay/BlindEyeGameMode.h"
 
+#include "EngineUtils.h"
+#include "Characters/BlindEyePlayerController.h"
+#include "GameFramework/PlayerStart.h"
+
 void ABlindEyeGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
-	// TODO Spawn player by calling controller to spawn proper character player
+
+	if (ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(NewPlayer))
+	{
+		BlindEyeController->SER_SpawnPlayer();
+		// TODO: Any match logic needed
+	}
+}
+
+FTransform ABlindEyeGameMode::GetSpawnPoint() const
+{
+	for (TActorIterator<APlayerStart> playerStart(GetWorld()); playerStart; ++playerStart)
+	{
+		if (playerStart->PlayerStartTag != "Spawned")
+		{
+			playerStart->PlayerStartTag = "Spawned";
+			return playerStart->GetTransform();
+		}
+	}
+	return FTransform();
 }

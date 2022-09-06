@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "BlindEyePlayerController.generated.h"
 
+class ABlindEyeCharacter;
 /**
  * 
  */
@@ -18,5 +19,12 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void SER_SpawnPlayer();
+
+private:
+	UPROPERTY()
+	ABlindEyeCharacter* OwningCharacter;
 	
 };
+
+// TODO: Temporary for test spawning
+static bool IsServer = true;

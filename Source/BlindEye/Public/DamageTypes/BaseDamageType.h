@@ -6,6 +6,8 @@
 #include "GameFramework/DamageType.h"
 #include "BaseDamageType.generated.h"
 
+class UBaseStatusEffect;
+class UHealthComponent;
 /**
  * 
  */
@@ -16,6 +18,12 @@ class BLINDEYE_API UBaseDamageType : public UDamageType
 
 public:
 
+	UBaseDamageType();
+	~UBaseDamageType() override;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<TSubclassOf<UBaseStatusEffect>> StatusEffects;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=( ClampMin=0 ))
 	float DamageMultiplier = 1;
 	
@@ -26,6 +34,6 @@ public:
 	 * @param HitLocation	Location the player was hit
 	 */
 	UFUNCTION()
-	virtual float ProcessDamage(AActor* Owner, APawn* HitCharacter, FVector HitLocation) const;
+	virtual float ProcessDamage(AActor* Owner, APawn* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const;
 	
 };

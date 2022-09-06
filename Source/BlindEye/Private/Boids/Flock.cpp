@@ -40,7 +40,8 @@ void AFlock::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	PerformFlock();
+	// TODO: Put on Timer
+	MULT_PerformFlock();
 }
 
 void AFlock::InitializeFlock()
@@ -179,7 +180,7 @@ FVector AFlock::TargetSeeking(ABoid* boid)
 	return FVector::ZeroVector;
 }
 
-void AFlock::PerformFlock_Implementation()
+void AFlock::MULT_PerformFlock_Implementation()
 {
 	for (ABoid* boid : BoidsInFlock)
 	{
@@ -239,6 +240,7 @@ void AFlock::Destroyed()
 
 void AFlock::GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const
 {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME( AFlock, Target );
 }
 

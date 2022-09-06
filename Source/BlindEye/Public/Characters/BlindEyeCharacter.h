@@ -4,12 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/HealthInterface.h"
 #include "BlindEyeCharacter.generated.h"
 
+enum class TEAMS;
 class UAbilityManager;
+class UHealthComponent;
+class ABlindEyePlayerState;
+
+UENUM(BlueprintType)
+enum class PlayerType : uint8
+{
+	CrowPlayer,
+	PhoenixPlayer
+};
 
 UCLASS(config=Game)
-class ABlindEyeCharacter : public ACharacter
+class ABlindEyeCharacter : public ACharacter, public IHealthInterface
 {
 	GENERATED_BODY()
 
@@ -20,8 +31,14 @@ class ABlindEyeCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+	
 public:
 	ABlindEyeCharacter();
+
+	virtual void OnRep_PlayerState() override;
+	virtual void PossessedBy(AController* NewController) override;
+
+	virtual void BeginPlay() override;
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
@@ -33,6 +50,18 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UAbilityManager* AbilityManager;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UHealthComponent* HealthComponent;
+
+	virtual float GetHealth_Implementation() override;
+	virtual void SetHealth_Implementation(float NewHealth) override;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TEAMS Team;
+	virtual TEAMS GetTeam_Implementation() override;
+
+	PlayerType PlayerType;
 
 protected:
 
@@ -55,11 +84,16 @@ protected:
 	void LookUpAtRate(float Rate);
 
 	void BasicAttackPressed();
+	void Unique1Pressed(); 
+	void Unique1Released();
 
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
+
+	UPROPERTY()
+	ABlindEyePlayerState* BlindEyePlayerState;
 
 public:
 	/** Returns CameraBoom subobject **/

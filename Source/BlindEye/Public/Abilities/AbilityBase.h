@@ -4,8 +4,30 @@
 
 #include "CoreMinimal.h"
 #include "AbilityState.h"
-#include "Components/SceneComponent.h"
 #include "AbilityBase.generated.h"
+
+USTRUCT()
+struct FBlockers
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	bool IsMovementBlocked = false;
+	UPROPERTY()
+	bool IsDamageReceivedBlocked = false;
+	UPROPERTY()
+	bool IsDamageFeedbackBlocked = false;
+	UPROPERTY()
+	bool IsOtherAbilitiesBlocked = false;
+
+	void Reset()
+	{
+		IsMovementBlocked = false;
+		IsDamageReceivedBlocked = false;
+		IsDamageFeedbackBlocked = false;
+		IsOtherAbilitiesBlocked = false;
+	}
+};
 
 
 UCLASS(Abstract, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -20,15 +42,26 @@ public:
 	DECLARE_DELEGATE(FAbilityEndedSignature)
 	FAbilityEndedSignature AbilityEndedDelegate;
 
+	DECLARE_DELEGATE_OneParam(FAbilityEnteredRunStateSignature, AAbilityBase* AbilityUsed)
+	FAbilityEnteredRunStateSignature AbilityEnteredRunState; 
+
 	// Try to cancel the abilities execution
 	UFUNCTION()
 	virtual void TryCancelAbility();
 
 	void DelayToNextState(float delay);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float Cooldown = 2;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float InitialCostPercent = 5;
 	
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
 
 	// Holds all ability states, state progression goes linearly down the list starting at index 0
 	TArray<FAbilityState*> AbilityStates;
@@ -53,8 +86,11 @@ public:
 	void AbilityCancelInput();
 
 	// input for attempting to use/trigger ability effects
-	bool UseAbility(bool bIsInputInitiated);
+	void UseAbility(EAbilityInputTypes abilityUsageType);
 
 	bool bIsRunning = false;
+
+	UPROPERTY(Replicated)
+	FBlockers Blockers;
 		
 };

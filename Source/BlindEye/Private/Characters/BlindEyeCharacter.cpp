@@ -8,6 +8,8 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Abilities/AbilityManager.h"
+#include "Components/HealthComponent.h"
+#include "Gameplay/BlindEyePlayerState.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ATP_ThirdPersonCharacter
@@ -46,6 +48,107 @@ ABlindEyeCharacter::ABlindEyeCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 	AbilityManager = CreateDefaultSubobject<UAbilityManager>(TEXT("AbilityManager"));
+
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+	
+	PlayerType = PlayerType::CrowPlayer;
+	Team = TEAMS::Player;
+}
+
+void ABlindEyeCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
+void ABlindEyeCharacter::OnRep_PlayerState()
+{
+
+	Super::OnRep_PlayerState();
+	BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState());
+}
+
+void ABlindEyeCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	// Note: Only called from server
+	BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState());
+}
+
+void ABlindEyeCharacter::TurnAtRate(float Rate)
+{
+	// calculate delta for this frame from the rate information
+	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+}
+
+void ABlindEyeCharacter::LookUpAtRate(float Rate)
+{
+	// calculate delta for this frame from the rate information
+	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void ABlindEyeCharacter::BasicAttackPressed() 
+{
+	AbilityManager->SER_UsedAbility(EAbilityTypes::Basic, EAbilityInputTypes::Pressed);
+}
+
+void ABlindEyeCharacter::Unique1Pressed()
+{
+	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Pressed);
+}
+
+void ABlindEyeCharacter::Unique1Released()
+{
+	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Released);
+}
+
+float ABlindEyeCharacter::GetHealth_Implementation()
+{
+	if (BlindEyePlayerState)
+		return BlindEyePlayerState->GetHealth();
+	return 0;
+}
+
+void ABlindEyeCharacter::SetHealth_Implementation(float NewHealth)
+{
+	if (BlindEyePlayerState)
+		return BlindEyePlayerState->SetHealth(NewHealth);
+}
+
+TEAMS ABlindEyeCharacter::GetTeam_Implementation()
+{
+	return Team;
+}
+
+void ABlindEyeCharacter::MoveForward(float Value)
+{
+	if (AbilityManager->IsMovementBlocked()) return;
+	
+	if ((Controller != nullptr) && (Value != 0.0f))
+	{
+		// find out which way is forward
+		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+		// get forward vector
+		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		AddMovementInput(Direction, Value);
+	}
+}
+
+void ABlindEyeCharacter::MoveRight(float Value)
+{
+	if (AbilityManager->IsMovementBlocked()) return;
+	if ( (Controller != nullptr) && (Value != 0.0f) )
+	{
+		// find out which way is right
+		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
+	
+		// get right vector 
+		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		// add movement in that direction
+		AddMovementInput(Direction, Value);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -68,51 +171,8 @@ void ABlindEyeCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 
 	// TODO: Player input for Basic attack
 	PlayerInputComponent->BindAction("BasicAttack", IE_Pressed, this, &ABlindEyeCharacter::BasicAttackPressed);
-	// TODO: Player input for rest of attacks
-}
-
-void ABlindEyeCharacter::TurnAtRate(float Rate)
-{
-	// calculate delta for this frame from the rate information
-	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
-}
-
-void ABlindEyeCharacter::LookUpAtRate(float Rate)
-{
-	// calculate delta for this frame from the rate information
-	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
-}
-
-void ABlindEyeCharacter::BasicAttackPressed() 
-{
-	AbilityManager->UsedAbility(EAbilityTypes::Basic, AbilityUsageTypes::Pressed);
-}
-
-void ABlindEyeCharacter::MoveForward(float Value)
-{
-	if ((Controller != nullptr) && (Value != 0.0f))
-	{
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get forward vector
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value);
-	}
-}
-
-void ABlindEyeCharacter::MoveRight(float Value)
-{
-	if ( (Controller != nullptr) && (Value != 0.0f) )
-	{
-		// find out which way is right
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
 	
-		// get right vector 
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		// add movement in that direction
-		AddMovementInput(Direction, Value);
-	}
+	PlayerInputComponent->BindAction("Unique1", IE_Pressed, this, &ABlindEyeCharacter::Unique1Pressed);
+	PlayerInputComponent->BindAction("Unique1", IE_Released, this, &ABlindEyeCharacter::Unique1Released);
+	// TODO: Player input for rest of attacks
 }

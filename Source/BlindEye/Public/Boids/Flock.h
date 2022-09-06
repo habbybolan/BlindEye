@@ -137,5 +137,5 @@ private:
 	FVector TargetSeeking(ABoid* boid);
 
 	UFUNCTION(NetMulticast, Unreliable)
-	void PerformFlock();
+	void MULT_PerformFlock();
 };
