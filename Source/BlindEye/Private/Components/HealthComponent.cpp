@@ -53,7 +53,7 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 		
 		float damageMultiplied = Damage * baseDamageType->ProcessDamage(DamageCauser, pawn, HitLocation, this);
 		OwnerHealth->Execute_SetHealth(GetOwner(), OwnerHealth->Execute_GetHealth(GetOwner()) - damageMultiplied);
-
+		
 		if (OwnerHealth->Execute_GetHealth(GetOwner()) <= 0)
 		{
 			// TODO: Check if player character or enemy
