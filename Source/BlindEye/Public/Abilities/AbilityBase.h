@@ -10,10 +10,14 @@ USTRUCT()
 struct FBlockers
 {
 	GENERATED_BODY()
-	
+
+	UPROPERTY()
 	bool IsMovementBlocked = false;
+	UPROPERTY()
 	bool IsDamageReceivedBlocked = false;
+	UPROPERTY()
 	bool IsDamageFeedbackBlocked = false;
+	UPROPERTY()
 	bool IsOtherAbilitiesBlocked = false;
 
 	void Reset()

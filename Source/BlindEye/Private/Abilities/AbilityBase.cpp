@@ -9,6 +9,7 @@
 AAbilityBase::AAbilityBase()
 {
 	bReplicates = true;
+	bAlwaysRelevant = true;
 }
 
 // Called when the game starts
