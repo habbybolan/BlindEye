@@ -17,6 +17,11 @@ UHealthComponent::UHealthComponent()
 }
 
 
+const FAppliedStatusEffects& UHealthComponent::GetAppliedStatusEffect()
+{
+	return AppliedStatusEffects;
+}
+
 // Called when the game starts
 void UHealthComponent::BeginPlay()
 {

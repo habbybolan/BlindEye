@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/HealthComponent.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/HealthInterface.h"
 #include "BlindEyeEnemyBase.generated.h"
@@ -17,6 +18,10 @@ class BLINDEYE_API ABlindEyeEnemyBase : public ACharacter, public IHealthInterfa
 public:
 	// Sets default values for this character's properties
 	ABlindEyeEnemyBase();
+
+	// helper to get status effects from health component
+	UFUNCTION(BlueprintCallable)
+	const FAppliedStatusEffects& GetAppliedStatusEffects(); 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UHealthComponent* HealthComponent;
@@ -43,4 +48,5 @@ public:
 	TEAMS Team;
 	virtual TEAMS GetTeam_Implementation() override;
 
+	
 };

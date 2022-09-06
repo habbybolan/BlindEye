@@ -8,6 +8,21 @@
 #include "Interfaces/DamageInterface.h"
 #include "HealthComponent.generated.h"
 
+USTRUCT(BlueprintType)
+struct FAppliedStatusEffects 
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool IsStun = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool IsBurn = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool IsMarked = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool IsStaggered = false;
+};
+
 enum class PlayerType : uint8;
 class IHealthInterface;
 
@@ -26,6 +41,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float RefreshMarkerAmount = 2.f;
 
+	UFUNCTION(BlueprintCallable)
+	const FAppliedStatusEffects& GetAppliedStatusEffect();
+
 protected:
 
 	// cached owners health interface
@@ -34,6 +52,7 @@ protected:
 	virtual void BeginPlay() override;
 	
 	FMarkData* CurrMark;
+	FAppliedStatusEffects AppliedStatusEffects;
 
 	UFUNCTION()
 	void SetPointDamage(AActor* DamagedActor, float Damage,

@@ -16,6 +16,11 @@ ABlindEyeEnemyBase::ABlindEyeEnemyBase()
 	Team = TEAMS::Enemy;
 }
 
+const FAppliedStatusEffects& ABlindEyeEnemyBase::GetAppliedStatusEffects()
+{
+	return HealthComponent->GetAppliedStatusEffect();
+}
+
 // Called when the game starts or when spawned
 void ABlindEyeEnemyBase::BeginPlay()
 {
