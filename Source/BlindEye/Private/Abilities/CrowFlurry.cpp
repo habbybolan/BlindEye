@@ -8,6 +8,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
+#include "Net/UnrealNetwork.h"
 
 ACrowFlurry::ACrowFlurry()
 {
@@ -18,14 +19,19 @@ void ACrowFlurry::StartCrowFlurry()
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
+	world->GetTimerManager().SetTimer(CrowFlurryTimerHandle, this, &ACrowFlurry::PerformCrowFlurry, 0.2f, true);
+	
+	MULT_SpawnCrowFlurry(GetInstigator()->GetControlRotation());
+}
 
-	ParticleActor = world->SpawnActor<AActor>(AActor::StaticClass(), GetInstigator()->GetActorLocation(), GetInstigator()->GetControlRotation());
+void ACrowFlurry::MULT_SpawnCrowFlurry_Implementation(FRotator rotation)
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
 	
 	SpawnedCrowFlurryParticle = UNiagaraFunctionLibrary::SpawnSystemAttached(CrowFlurryParticle, GetInstigator()->GetRootComponent(), NAME_None,
-		GetInstigator()->GetActorLocation(), GetInstigator()->GetControlRotation(), FVector::OneVector,
+		GetInstigator()->GetActorLocation(), rotation, FVector::OneVector,
 		EAttachLocation::KeepWorldPosition, false, ENCPoolMethod::AutoRelease);
-
-	world->GetTimerManager().SetTimer(CrowFlurryTimerHandle, this, &ACrowFlurry::PerformCrowFlurry, 0.2f, true);
 }
 
 void ACrowFlurry::PerformCrowFlurry()
@@ -57,7 +63,7 @@ void ACrowFlurry::PerformCrowFlurry()
 	}
 }
 
-void ACrowFlurry::StopCrowFlurry()
+void ACrowFlurry::MULT_DestroyCrowFlurry_Implementation()
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
@@ -66,6 +72,14 @@ void ACrowFlurry::StopCrowFlurry()
 	{
 		SpawnedCrowFlurryParticle->Deactivate();
 	}
+}
+
+void ACrowFlurry::StopCrowFlurry()
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	MULT_DestroyCrowFlurry();
 	
 	world->GetTimerManager().SetTimer(CrowFlurryParticleDestroyTimerHandle, this, &ACrowFlurry::DestroyParticles, 1.f, false);
 	world->GetTimerManager().ClearTimer(CrowFlurryTimerHandle);
@@ -108,8 +122,8 @@ void UFirstCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
 	FAbilityState::RunState();
 	
 	if (!Ability) return;
-	Ability->Blockers.Add(EBlockers::Movement);
-	Ability->Blockers.Add(EBlockers::OtherAbilities);
+	Ability->Blockers.IsMovementBlocked = true;
+	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 	
 	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);
 	if (!CrowFlurry) return;
@@ -130,6 +144,12 @@ void UFirstCrowFlurryState::ExitState()
 {
 	FAbilityState::ExitState();
 	Ability->EndCurrState();
+}
+
+void ACrowFlurry::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	//DOREPLIFETIME(ACrowFlurry, SpawnedCrowFlurryParticle)
 }
 
 

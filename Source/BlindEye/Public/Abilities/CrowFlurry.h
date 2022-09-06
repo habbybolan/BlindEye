@@ -59,16 +59,21 @@ public:
 
 protected:
 
+	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
+
 	FTimerHandle CrowFlurryTimerHandle;
 
 	UFUNCTION()
 	void PerformCrowFlurry();
 
-	UPROPERTY()
-	UNiagaraComponent* SpawnedCrowFlurryParticle;
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_SpawnCrowFlurry(FRotator FlurryRotation);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_DestroyCrowFlurry(); 
 
 	UPROPERTY()
-	AActor* ParticleActor;
+	UNiagaraComponent* SpawnedCrowFlurryParticle;
 
 	FTimerHandle CrowFlurryParticleDestroyTimerHandle;
 	void DestroyParticles();
