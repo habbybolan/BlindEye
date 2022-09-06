@@ -26,6 +26,8 @@ public:
 	virtual void ExitState() override;
 };
 
+class UBaseDamageType;
+
 /**
  * 
  */
@@ -36,6 +38,13 @@ class BLINDEYE_API APhoenixDive : public AAbilityBase
 
 public:
 	APhoenixDive();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float Damage = 50;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float Radius = 450;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UDamageType> DamageType;
 
 	// launches character upwards and sets transition
 	void LaunchPlayerUpwards();
@@ -48,5 +57,7 @@ public:
 protected:
 
 	void EndLaunchUp();
-	
+	UFUNCTION()
+	void CollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	void UnsubscribeToGroundCollision();
 };

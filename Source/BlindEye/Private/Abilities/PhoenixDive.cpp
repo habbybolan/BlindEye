@@ -3,9 +3,11 @@
 
 #include "Abilities/PhoenixDive.h"
 
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 APhoenixDive::APhoenixDive() : AAbilityBase()
 {
@@ -48,6 +50,8 @@ void APhoenixDive::LaunchToGround()
 
 	// prevent hanging in air
 	world->GetTimerManager().ClearTimer(HangInAirTimerHandle);
+
+	Character->GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &APhoenixDive::CollisionWithGround);
 }
 
 void APhoenixDive::EndLaunchUp()
@@ -59,6 +63,25 @@ void APhoenixDive::EndLaunchUp()
 	EndCurrState();
 	// immediately enter new state
 	UseAbility(EAbilityInputTypes::None);
+}
+
+void APhoenixDive::CollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
+	
+	
+	UGameplayStatics::ApplyRadialDamage(world, Damage, Hit.Location, Radius, DamageType, TArray<AActor*>(), GetInstigator());
+	UnsubscribeToGroundCollision();
+}
+
+void APhoenixDive::UnsubscribeToGroundCollision()
+{
+	ACharacter* Character = Cast<ACharacter>(GetInstigator());
+	if (!Character) return;
+	
+	// unbind delegate
+	Character->GetCapsuleComponent()->OnComponentHit.Remove(this, FName("CollisionWithGround"));
 }
 
 // **** States *******
