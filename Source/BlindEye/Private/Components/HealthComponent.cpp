@@ -65,12 +65,14 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 
 void UHealthComponent::Stun_Implementation(float StunDuration)
 {
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Silver, "Stunned");
 	// TODO: Only applies to enemy
 	//		Pause brain logic and play animation?
 }
 
 void UHealthComponent::KnockBack_Implementation(FVector KnockBackForce)
 {
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Silver, "Knockback");
 	/* TODO:
 	* If player
 	*	set player state as stunned and knock away from HitPoint
@@ -81,12 +83,14 @@ void UHealthComponent::KnockBack_Implementation(FVector KnockBackForce)
 
 void UHealthComponent::Burn_Implementation(float DamagePerSec, float Duration)
 {
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Silver, "Burn");
 	// TODO:
 	// only effects enemy, damage over time
 }
 
 void UHealthComponent::Stagger_Implementation()
 {
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Silver, "Stagger");
 	// TODO: probably call stun?
 	// ...
 }
