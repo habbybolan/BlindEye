@@ -34,15 +34,16 @@ float UBaseDamageType::ProcessDamage(AActor* Owner, APawn* HitCharacter, FVector
 	
 	for (TSubclassOf<UBaseStatusEffect> statusEffectType : StatusEffects)
 	{
+		UBaseStatusEffect* statusEffect = NewObject<UBaseStatusEffect>(GetTransientPackage(), statusEffectType);
 		// only allow Marker or detonator status effect if applied to same team (Players can mark/detonate each other)
-		if (!Cast<UMarkerStatusEffect>(statusEffectType) && !Cast<UDetonatorStatusEffect>(statusEffectType))
+		if (!Cast<UMarkerStatusEffect>(statusEffect) &&
+			!Cast<UDetonatorStatusEffect>(statusEffect))
 		{
 			if (HitTeam == InstigatorTeam) continue;
 		}
 
 		// apply status effect
 		// TODO: Delete pointer?
-		UBaseStatusEffect* statusEffect = NewObject<UBaseStatusEffect>(GetTransientPackage(), statusEffectType);
 		//TUniquePtr<UBaseStatusEffect> statusEffect = TUniquePtr<UBaseStatusEffect>(NewObject<UBaseStatusEffect>(GetTransientPackage(), statusEffectType));
 		statusEffect->ProcessEffect(Owner, HitCharacter, HitLocation, HealthComponent);
 		//delete statusEffect;
