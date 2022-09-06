@@ -46,20 +46,11 @@ void ACrowFlurry::PerformCrowFlurry()
 	UKismetSystemLibrary::BoxTraceMultiForObjects(world, GetInstigator()->GetActorLocation(), TargetLocation, FVector(0, Width / 2, Height / 2),
 		GetInstigator()->GetControlRotation(), ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, OutHits, true,
 		FLinearColor::Red, FLinearColor::Green, 0.2f);
-
-	const IHealthInterface* InstigatorHealthInterface = Cast<IHealthInterface>(GetInstigator());
-	TEAMS InstigatorTeam = InstigatorHealthInterface->Execute_GetTeam(GetInstigator());
 	
 	for (FHitResult Hit : OutHits)
 	{
-		if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(Hit.GetActor()))
-		{
-			if (HealthInterface->Execute_GetTeam(Hit.GetActor()) != InstigatorTeam)
-			{
-				UGameplayStatics::ApplyPointDamage(Hit.GetActor(), DamagePerSec * 0.2f, FVector::ZeroVector,
+		UGameplayStatics::ApplyPointDamage(Hit.GetActor(), DamagePerSec * 0.2f, FVector::ZeroVector,
 					FHitResult(), GetInstigator()->Controller, this, DamageType);
-			}
-		}
 	}
 }
 
