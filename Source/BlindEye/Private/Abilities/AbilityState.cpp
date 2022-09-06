@@ -3,19 +3,32 @@
 
 #include "Abilities/AbilityState.h"
 #include "Abilities/AbilityBase.h"
+#include "Abilities/AbilityManager.h"
 
 FAbilityState::FAbilityState(AAbilityBase* ability)
 {
 	Ability = ability;
 }
 
-void FAbilityState::ExitState()
+void FAbilityState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
+	RemoveBlockers();
 }
 
-void FAbilityState::RunState()
+void FAbilityState::ExitState()
 {
-	bStateEntered = true;
+	CurrInnerState = EInnerState::Exit;
+	RemoveBlockers();
+}
+
+void FAbilityState::RunState(EAbilityInputTypes abilityUsageType)
+{
+	CurrInnerState = EInnerState::Running;
+	RemoveBlockers();
+	if (Ability)
+	{
+		Ability->AbilityEnteredRunState.ExecuteIfBound(Ability);
+	}
 }
 
 void FAbilityState::CancelState()
@@ -23,8 +36,26 @@ void FAbilityState::CancelState()
 	ResetState();
 }
 
+void FAbilityState::HandleInput(EAbilityInputTypes abilityUsageType)
+{ 
+	if (CurrInnerState == EInnerState::None)
+	{
+		TryEnterState(abilityUsageType);
+	} else if (CurrInnerState == EInnerState::Running)
+	{
+		RunState(abilityUsageType);
+	}
+}
+
 void FAbilityState::ResetState()
 {
-	bStateEntered = false;
+	CurrInnerState = EInnerState::None;
+	RemoveBlockers();
+}
+
+void FAbilityState::RemoveBlockers()
+{
+	if (!Ability) return;
+	Ability->Blockers.Reset();
 }
 

@@ -3,10 +3,13 @@
 
 #include "Abilities/AbilityBase.h"
 
+#include "Net/UnrealNetwork.h"
+
 // Sets default values for this component's properties
 AAbilityBase::AAbilityBase()
 {
 	bReplicates = true;
+	bAlwaysRelevant = true;
 }
 
 // Called when the game starts
@@ -14,7 +17,6 @@ void AAbilityBase::BeginPlay()
 {
 	Super::BeginPlay();
 }
-
 
 void AAbilityBase::SetOffCooldown()
 {
@@ -57,7 +59,6 @@ void AAbilityBase::EndAbilityLogic()
 void AAbilityBase::EndCurrState()
 {
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Cyan, "End curr state");
-	// TODO: End the current state. If no other inner state, call end state
 	AbilityStates[CurrState]->ResetState();
 	CurrState++;
 	
@@ -73,8 +74,14 @@ void AAbilityBase::AbilityCancelInput()
 	TryCancelAbility(); 
 }
 
-bool AAbilityBase::UseAbility(bool bIsInputInitiated)
+void AAbilityBase::UseAbility(EAbilityInputTypes abilityUsageType)
 {
-	return AbilityStates[CurrState]->TryEnterState(bIsInputInitiated);
+	AbilityStates[CurrState]->HandleInput(abilityUsageType);
+}
+
+void AAbilityBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AAbilityBase, Blockers);
 }
 

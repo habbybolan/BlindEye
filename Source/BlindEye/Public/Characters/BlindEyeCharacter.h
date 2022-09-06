@@ -84,6 +84,8 @@ protected:
 	void LookUpAtRate(float Rate);
 
 	void BasicAttackPressed();
+	void Unique1Pressed(); 
+	void Unique1Released();
 
 protected:
 	// APawn interface
