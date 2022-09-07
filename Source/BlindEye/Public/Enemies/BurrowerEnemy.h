@@ -10,6 +10,12 @@
 class ASnapperEnemy;
 class UHealthComponent;
 
+enum class EBurrowActionState
+{
+	Spawning,
+	Attacking
+};
+
 /**
  * 
  */
@@ -43,6 +49,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UTimelineComponent* SpawnTimelineComponent;
+
+	EBurrowActionState ActionState;
 
 protected:
 

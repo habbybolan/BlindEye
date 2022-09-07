@@ -17,6 +17,7 @@ void ABurrowerEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
+	ActionState = EBurrowActionState::Spawning;
 	if (SpawnCurve)
 	{
 		SpawnUpdateEvent.BindUFunction(this, FName("TimelineSpawnMovement"));
@@ -97,5 +98,13 @@ void ABurrowerEnemy::TimelineSpawnMovement()
 void ABurrowerEnemy::TimelineSpawnFinished()
 {
 	//GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	// TODO: Spawn snappers
+	// TODO: play particles and delay resurface
+
+	if (ActionState == EBurrowActionState::Attacking)
+	{
+		
+	} else
+	{
+		SpawnSnappers();
+	}
 }
