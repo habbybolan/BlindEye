@@ -114,6 +114,10 @@ void ABlindEyeCharacter::SetHealth_Implementation(float NewHealth)
 		return BlindEyePlayerState->SetHealth(NewHealth);
 }
 
+void ABlindEyeCharacter::OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType,
+	AActor* DamageCauser)
+{}
+
 TEAMS ABlindEyeCharacter::GetTeam_Implementation()
 {
 	return Team;

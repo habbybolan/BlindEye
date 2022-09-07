@@ -1,7 +1,9 @@
 // Copyright (C) Nicholas Johnson 2022
 
 #include "Enemies/BlindEyeEnemybase.h"
+#include "Characters/BlindEyeCharacter.h"
 #include "Components/HealthComponent.h"
+#include "Enemies/BlindEyeEnemyController.h"
 #include "Net/UnrealNetwork.h"
 
 // Sets default values
@@ -25,6 +27,7 @@ const FAppliedStatusEffects& ABlindEyeEnemyBase::GetAppliedStatusEffects()
 void ABlindEyeEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
+	
 }
 
 void ABlindEyeEnemyBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -49,6 +52,19 @@ float ABlindEyeEnemyBase::GetHealth_Implementation()
 void ABlindEyeEnemyBase::SetHealth_Implementation(float NewHealth)
 {
 	CurrHealth = NewHealth;
+}
+
+void ABlindEyeEnemyBase::OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType,
+	AActor* DamageCauser)
+{
+	// If taken damage from player, set Target as player
+	if (ABlindEyeCharacter* BlindEyeCharacter = Cast<ABlindEyeCharacter>(DamageCauser))
+	{
+		if (ABlindEyeEnemyController* EnemyController = Cast<ABlindEyeEnemyController>(GetController()))
+		{
+			EnemyController->SetTargetEnemy(BlindEyeCharacter);
+		}
+	}
 }
 
 TEAMS ABlindEyeEnemyBase::GetTeam_Implementation()

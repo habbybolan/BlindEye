@@ -36,6 +36,7 @@ protected:
 	float CurrHealth;
 
 	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
+	
 
 public:	
 	// Called every frame
@@ -43,6 +44,8 @@ public:
 
 	virtual float GetHealth_Implementation() override;
 	virtual void SetHealth_Implementation(float NewHealth) override;
+
+	virtual void OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TEAMS Team;
