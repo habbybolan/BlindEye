@@ -17,8 +17,6 @@ void ABurrowerEnemy::BeginPlay()
 
 	UWorld* world = GetWorld();
 	if (!world) return;
-
-	world->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ABurrowerEnemy::SpawnSnappers, 10.0f, true);
 }
 
 void ABurrowerEnemy::SpawnSnappers()

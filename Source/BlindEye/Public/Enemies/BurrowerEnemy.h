@@ -20,6 +20,9 @@ class BLINDEYE_API ABurrowerEnemy : public ABlindEyeEnemyBase
 public:
 
 	ABurrowerEnemy();
+
+	UFUNCTION()
+	void SpawnSnappers();
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	uint8 MinSnappersSpawn = 2;
@@ -38,9 +41,8 @@ protected:
 	virtual void BeginPlay() override;
 	
 	TArray<ASnapperEnemy*> SpawnedSnappers;
-
-	void SpawnSnappers();
+	
 	TArray<FVector> GetSnapperSpawnPoints();
 
-	FTimerHandle SpawnTimerHandle;
+	
 };
