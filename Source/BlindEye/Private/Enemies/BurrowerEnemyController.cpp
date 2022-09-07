@@ -20,6 +20,7 @@ void ABurrowerEnemyController::BeginPlay()
 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
 	world->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ABurrowerEnemyController::SpawnLogic, 5.0f, true);
 	CachedBurrower->SetHidden(true);
+	SpawnLogic();
 }
 
 void ABurrowerEnemyController::SpawnLogic()

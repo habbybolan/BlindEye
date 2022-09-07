@@ -19,7 +19,6 @@ void ABurrowerEnemy::BeginPlay()
 
 	if (SpawnCurve)
 	{
-		
 		SpawnUpdateEvent.BindUFunction(this, FName("TimelineSpawnMovement"));
 		SpawnFinishedEvent.BindUFunction(this, FName("TimelineSpawnFinished"));
 		//SpawnTimelineComponent->SetTimelinePostUpdateFunc(SpawnUpdateEvent);
@@ -27,6 +26,9 @@ void ABurrowerEnemy::BeginPlay()
 		
 		SpawnTimelineComponent->AddInterpFloat(SpawnCurve, SpawnUpdateEvent);
 	}
+
+	GetCapsuleComponent()->SetEnableGravity(0);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ABurrowerEnemy::SpawnSnappers()
@@ -53,8 +55,6 @@ void ABurrowerEnemy::SpawnSnappers()
 void ABurrowerEnemy::SpawnAction(FTransform SpawnLocation)
 {
 	// TODO: Find spawnpoint, teleport to below it so not showing, rise up from ground and spawn enemies
-	GetCapsuleComponent()->SetEnableGravity(0);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	CachedSpawnLocation = SpawnLocation.GetLocation() + FVector::DownVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
 	SetActorLocation(CachedSpawnLocation);
 	SpawnTimelineComponent->PlayFromStart();
@@ -96,7 +96,6 @@ void ABurrowerEnemy::TimelineSpawnMovement()
 
 void ABurrowerEnemy::TimelineSpawnFinished()
 {
-	// TODO: Start spawning
-	GetCapsuleComponent()->SetEnableGravity(1.0);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	//GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	// TODO: Spawn snappers
 }
