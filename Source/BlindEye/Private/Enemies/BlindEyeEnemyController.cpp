@@ -10,20 +10,4 @@
 void ABlindEyeEnemyController::BeginPlay()
 {
 	Super::BeginPlay();
-
-	UWorld* world = GetWorld();
-	if (!world) return;
-	
-	AActor* ShrineActor = UGameplayStatics::GetActorOfClass(world, AShrine::StaticClass());
-	
-	if (ShrineActor)
-	{
-		SetTargetEnemy(ShrineActor);
-	}
-}
-
-void ABlindEyeEnemyController::SetTargetEnemy(AActor* target)
-{
-	GetBlackboardComponent()->SetValueAsObject(TEXT("EnemyActor"), target);
-	Target = MakeWeakObjectPtr<AActor>(target);
 }

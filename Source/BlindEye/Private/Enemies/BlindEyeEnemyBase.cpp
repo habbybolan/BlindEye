@@ -56,16 +56,7 @@ void ABlindEyeEnemyBase::SetHealth_Implementation(float NewHealth)
 
 void ABlindEyeEnemyBase::OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType,
 	AActor* DamageCauser)
-{
-	// If taken damage from player, set Target as player
-	if (ABlindEyeCharacter* BlindEyeCharacter = Cast<ABlindEyeCharacter>(DamageCauser))
-	{
-		if (ABlindEyeEnemyController* EnemyController = Cast<ABlindEyeEnemyController>(GetController()))
-		{
-			EnemyController->SetTargetEnemy(BlindEyeCharacter);
-		}
-	}
-}
+{}
 
 TEAMS ABlindEyeEnemyBase::GetTeam_Implementation()
 {

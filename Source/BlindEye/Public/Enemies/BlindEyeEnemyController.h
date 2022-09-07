@@ -15,13 +15,8 @@ class BLINDEYE_API ABlindEyeEnemyController : public AAIController
 	GENERATED_BODY()
 
 public:
-	void SetTargetEnemy(AActor* target);
+
 
 protected:
 	virtual void BeginPlay() override;
-
-	TWeakObjectPtr<AActor> Target;
-
-	
-	
 };
