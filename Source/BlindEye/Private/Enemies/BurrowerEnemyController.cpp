@@ -4,6 +4,9 @@
 #include "Enemies/BurrowerEnemyController.h"
 
 #include "Enemies/BurrowerEnemy.h"
+#include "Enemies/BurrowerSpawnPoint.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void ABurrowerEnemyController::BeginPlay()
 {
@@ -12,8 +15,34 @@ void ABurrowerEnemyController::BeginPlay()
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	if (ABurrowerEnemy* burrower = Cast<ABurrowerEnemy>(GetPawn()))
+	CacheSpawnPoints();
+	
+	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
+	world->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ABurrowerEnemyController::SpawnLogic, 5.0f, true);
+	CachedBurrower->SetHidden(true);
+}
+
+void ABurrowerEnemyController::SpawnLogic()
+{
+	FTransform randSpawn = FindRandSpawnPoint();
+	if (CachedBurrower)
 	{
-		world->GetTimerManager().SetTimer(SpawnTimerHandle, burrower, &ABurrowerEnemy::SpawnSnappers, 10.0f, true);
+		CachedBurrower->SpawnAction(randSpawn);
+		CachedBurrower->SetHidden(false);
 	}
+}
+
+void ABurrowerEnemyController::CacheSpawnPoints()
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
+	
+	UGameplayStatics::GetAllActorsOfClass(world, ABurrowerSpawnPoint::StaticClass(), SpawnLocation);
+}
+
+FTransform ABurrowerEnemyController::FindRandSpawnPoint()
+{
+	if (SpawnLocation.Num() == 0) return FTransform();
+	uint32 randIndex = UKismetMathLibrary::RandomInteger(SpawnLocation.Num());
+	return SpawnLocation[randIndex]->GetTransform();
 }

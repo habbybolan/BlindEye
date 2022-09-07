@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BurrowerEnemy.h"
 #include "Enemies/BlindEyeEnemyController.h"
 #include "BurrowerEnemyController.generated.h"
 
@@ -20,6 +21,14 @@ public:
 protected:
 	FTimerHandle SpawnTimerHandle;
 
-	void SpawnEnemies();
+	void SpawnLogic();
+	void CacheSpawnPoints();
+	FTransform FindRandSpawnPoint();
+
+
+	ABurrowerEnemy* CachedBurrower;
+
+	UPROPERTY()
+	TArray<AActor*> SpawnLocation;
 	
 };

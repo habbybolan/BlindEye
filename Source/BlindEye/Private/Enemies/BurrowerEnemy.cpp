@@ -3,20 +3,30 @@
 
 #include "Enemies/BurrowerEnemy.h"
 
+#include "Components/CapsuleComponent.h"
 #include "Components/HealthComponent.h"
 #include "Enemies/SnapperEnemy.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 ABurrowerEnemy::ABurrowerEnemy()
 {
+	SpawnTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("SpawnTimeline"));
 }
 
 void ABurrowerEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UWorld* world = GetWorld();
-	if (!world) return;
+	if (SpawnCurve)
+	{
+		
+		SpawnUpdateEvent.BindUFunction(this, FName("TimelineSpawnMovement"));
+		SpawnFinishedEvent.BindUFunction(this, FName("TimelineSpawnFinished"));
+		//SpawnTimelineComponent->SetTimelinePostUpdateFunc(SpawnUpdateEvent);
+		SpawnTimelineComponent->SetTimelineFinishedFunc(SpawnFinishedEvent);
+		
+		SpawnTimelineComponent->AddInterpFloat(SpawnCurve, SpawnUpdateEvent);
+	}
 }
 
 void ABurrowerEnemy::SpawnSnappers()
@@ -40,6 +50,21 @@ void ABurrowerEnemy::SpawnSnappers()
 	}
 }
 
+void ABurrowerEnemy::SpawnAction(FTransform SpawnLocation)
+{
+	// TODO: Find spawnpoint, teleport to below it so not showing, rise up from ground and spawn enemies
+	GetCapsuleComponent()->SetEnableGravity(0);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CachedSpawnLocation = SpawnLocation.GetLocation() + FVector::DownVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
+	SetActorLocation(CachedSpawnLocation);
+	SpawnTimelineComponent->PlayFromStart();
+}
+
+void ABurrowerEnemy::AttackAction()
+{
+	// TODO:
+}
+
 TArray<FVector> ABurrowerEnemy::GetSnapperSpawnPoints()
 {
 	TArray<FVector> SpawnPoints;
@@ -61,4 +86,17 @@ TArray<FVector> ABurrowerEnemy::GetSnapperSpawnPoints()
 		}
 	}
 	return SpawnPoints;
+}
+
+void ABurrowerEnemy::TimelineSpawnMovement()
+{
+	float playbackPosition = SpawnTimelineComponent->GetPlaybackPosition();
+	SetActorLocation(FMath::Lerp(CachedSpawnLocation, CachedSpawnLocation + (FVector::UpVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2 + 50), playbackPosition));
+}
+
+void ABurrowerEnemy::TimelineSpawnFinished()
+{
+	// TODO: Start spawning
+	GetCapsuleComponent()->SetEnableGravity(1.0);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
