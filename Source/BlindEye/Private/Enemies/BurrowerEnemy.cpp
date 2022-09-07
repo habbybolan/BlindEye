@@ -61,11 +61,6 @@ void ABurrowerEnemy::SpawnAction(FTransform SpawnLocation)
 	SpawnTimelineComponent->PlayFromStart();
 }
 
-void ABurrowerEnemy::AttackAction()
-{
-	// TODO:
-}
-
 TArray<FVector> ABurrowerEnemy::GetSnapperSpawnPoints()
 {
 	TArray<FVector> SpawnPoints;

@@ -28,9 +28,8 @@ public:
 
 	ABurrowerEnemy();
 
+	// Spawn the burrower at a point, and either attack or spawn snappers depending on action state
 	void SpawnAction(FTransform SpawnLocation);
-
-	void AttackAction();
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	uint8 MinSnappersSpawn = 2;
