@@ -6,6 +6,8 @@
 #include "Enemies/BlindEyeEnemyController.h"
 #include "SnapperEnemyController.generated.h"
 
+class UBehaviorTree;
+
 /**
  * 
  */
@@ -16,10 +18,12 @@ class BLINDEYE_API ASnapperEnemyController : public ABlindEyeEnemyController
 
 public:
 	virtual void BeginPlay() override;
+
+	// Calls blueprint to initialize behavior tree
+	UFUNCTION(BlueprintImplementableEvent)
+	void InitializeBehaviorTree();
 	
 	void SetTargetEnemy(AActor* target);
-
-	
 	
 protected:
 	TWeakObjectPtr<AActor> Target;
