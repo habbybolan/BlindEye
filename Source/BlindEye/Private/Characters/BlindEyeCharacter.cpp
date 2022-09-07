@@ -118,6 +118,11 @@ void ABlindEyeCharacter::OnTakeDamage_Implementation(float Damage, FVector HitLo
 	AActor* DamageCauser)
 {}
 
+UHealthComponent* ABlindEyeCharacter::GetHealthComponent_Implementation()
+{
+	return HealthComponent;
+}
+
 TEAMS ABlindEyeCharacter::GetTeam_Implementation()
 {
 	return Team;

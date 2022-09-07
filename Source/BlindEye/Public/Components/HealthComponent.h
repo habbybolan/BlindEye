@@ -44,6 +44,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	const FAppliedStatusEffects& GetAppliedStatusEffect();
 
+	DECLARE_MULTICAST_DELEGATE(FDeathSignature)
+	FDeathSignature OnDeathDelegate;
+
 protected:
 
 	// cached owners health interface

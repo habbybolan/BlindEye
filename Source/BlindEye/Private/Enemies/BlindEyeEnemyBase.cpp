@@ -3,7 +3,6 @@
 #include "Enemies/BlindEyeEnemybase.h"
 #include "Characters/BlindEyeCharacter.h"
 #include "Components/HealthComponent.h"
-#include "Enemies/BlindEyeEnemyController.h"
 #include "Net/UnrealNetwork.h"
 
 // Sets default values
@@ -57,6 +56,11 @@ void ABlindEyeEnemyBase::SetHealth_Implementation(float NewHealth)
 void ABlindEyeEnemyBase::OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType,
 	AActor* DamageCauser)
 {}
+
+UHealthComponent* ABlindEyeEnemyBase::GetHealthComponent_Implementation()
+{
+	return HealthComponent;
+}
 
 TEAMS ABlindEyeEnemyBase::GetTeam_Implementation()
 {

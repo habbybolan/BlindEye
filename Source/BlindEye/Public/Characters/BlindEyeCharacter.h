@@ -58,6 +58,7 @@ public:
 	virtual void SetHealth_Implementation(float NewHealth) override;
 
 	virtual void OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
+	virtual UHealthComponent* GetHealthComponent_Implementation() override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TEAMS Team;
