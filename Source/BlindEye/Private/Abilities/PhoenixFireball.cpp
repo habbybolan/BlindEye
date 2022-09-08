@@ -38,7 +38,7 @@ void APhoenixFireball::CastFireCone()
 	}
 
 	TArray<FHitResult> OutHits;
-	UKismetSystemLibrary::BoxTraceMultiForObjects(world, ViewportLocation, EndLocation, FVector(0, ConeWidth, ConeLength),
+	UKismetSystemLibrary::BoxTraceMultiForObjects(world, GetInstigator()->GetActorLocation(), EndLocation, FVector(0, ConeWidth / 2, ConeLength / 2),
 		GetInstigator()->GetControlRotation(), ConeTraceObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::ForDuration,
 		OutHits, true);
 
