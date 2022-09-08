@@ -41,6 +41,12 @@ void APhoenixFireballCast::BeginPlay()
 	SphereComponent->OnComponentHit.AddDynamic(this, &APhoenixFireballCast::OnCollision); 
 }
 
+void APhoenixFireballCast::Destroyed()
+{
+	Super::Destroyed();
+	SpawnedGroundBurnParticle->Deactivate();
+}
+
 void APhoenixFireballCast::MULT_SpawnFireballTrail_Implementation()
 {
 	UWorld* world = GetWorld();
@@ -54,12 +60,22 @@ void APhoenixFireballCast::MULT_SpawnFireballTrail_Implementation()
 void APhoenixFireballCast::DelayedDestruction()
 {
 	Destroy();
-	SpawnedGroundBurnParticle->Deactivate();
 }
+
 
 void APhoenixFireballCast::BurnLogic()
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0.2f, FColor::Red, "Burnnn");
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	TArray<FHitResult> OutHits;
+	UKismetSystemLibrary::SphereTraceMultiForObjects(world, BurnLocation, BurnLocation + FVector::UpVector, BurningRadius,
+		BurnObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true);
+	for (FHitResult Hit : OutHits)
+	{
+		UGameplayStatics::ApplyPointDamage(Hit.GetActor(), BurnDamagePerSec * 0.2, FVector::ZeroVector,
+			Hit, GetInstigator()->GetController(),GetInstigator(), BurnDamageType);
+	}
 }
 
 void APhoenixFireballCast::OnCollision(UPrimitiveComponent* HitComponent, AActor* OtherActor,
@@ -77,8 +93,9 @@ void APhoenixFireballCast::OnCollision(UPrimitiveComponent* HitComponent, AActor
 	if (UKismetSystemLibrary::LineTraceSingleForObjects(world, GetActorLocation(), GetActorLocation() + FVector::DownVector * MaxHeightToApplyFire,
 		LineTraceObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, HitResult, true))
 	{
+		BurnLocation = HitResult.Location;
 		SpawnedGroundBurnParticle = UNiagaraFunctionLibrary::SpawnSystemAtLocation(world, GroundBurnParticle,
-			HitResult.Location, FRotator::ZeroRotator, FVector::OneVector, EAttachLocation::KeepWorldPosition,
+			BurnLocation, FRotator::ZeroRotator, FVector::OneVector, EAttachLocation::KeepWorldPosition,
 			true, ENCPoolMethod::AutoRelease);
 		world->GetTimerManager().SetTimer(BurnTimerHandle, this, &APhoenixFireballCast::BurnLogic, 0.2, true);
 	}

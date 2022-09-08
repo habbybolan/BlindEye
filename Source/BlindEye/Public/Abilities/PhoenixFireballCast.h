@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/SphereComponent.h"
+#include "DamageTypes/BaseDamageType.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "PhoenixFireballCast.generated.h"
@@ -37,7 +38,7 @@ public:
 	float Damage = 60;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float BurnDamagePerSec = 0.f;
+	float BurnDamagePerSec = 10.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float BurningDuration = 4.5f;
@@ -47,7 +48,13 @@ public:
 	float MaxHeightToApplyFire = 200.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UBaseDamageType> BurnDamageType;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<EObjectTypeQuery>> LineTraceObjectTypes;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly) 
+	TArray<TEnumAsByte<EObjectTypeQuery>> BurnObjectTypes;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UNiagaraSystem* FireTrailParticle;
@@ -60,6 +67,8 @@ public:
 protected:
 	
 	virtual void BeginPlay() override;
+
+	virtual void Destroyed() override;
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_SpawnFireballTrail(); 
@@ -82,4 +91,6 @@ protected:
 
 	FTimerHandle BurnTimerHandle;
 	FTimerHandle DelayedDestroyTimerHandle;
+
+	FVector BurnLocation;
 };
