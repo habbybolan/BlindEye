@@ -52,7 +52,10 @@ void APhoenixFireballCast::BeginPlay()
 void APhoenixFireballCast::Destroyed()
 {
 	Super::Destroyed();
-	SpawnedGroundBurnParticle->Deactivate();
+	if (SpawnedGroundBurnParticle)
+	{
+		SpawnedGroundBurnParticle->Deactivate();
+	}
 } 
 
 void APhoenixFireballCast::MULT_SpawnFireballTrail_Implementation()
@@ -103,10 +106,12 @@ void APhoenixFireballCast::CollisionLogic()
 	Mesh->SetHiddenInGame(true);
 	SpawnedFireTrailParticle->Deactivate();
 
+	TArray<AActor*> ignoreActors;
+	ignoreActors.Add(this);
 	// Check if close enough to ground to perform burn on ground
 	FHitResult HitResult;
 	if (UKismetSystemLibrary::LineTraceSingleForObjects(world, GetActorLocation(), GetActorLocation() + FVector::DownVector * MaxHeightToApplyFire,
-		LineTraceObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, HitResult, true))
+		LineTraceObjectTypes, false, ignoreActors, EDrawDebugTrace::None, HitResult, true))
 	{
 		BurnLocation = HitResult.Location;
 		SpawnedGroundBurnParticle = UNiagaraFunctionLibrary::SpawnSystemAtLocation(world, GroundBurnParticle,
