@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BurrowerEnemy.h"
+#include "Characters/BlindEyeCharacter.h"
 #include "Enemies/BlindEyeEnemyController.h"
 #include "BurrowerEnemyController.generated.h"
 
@@ -24,15 +25,22 @@ class BLINDEYE_API ABurrowerEnemyController : public ABlindEyeEnemyController
 public:
 
 	virtual void BeginPlay() override;
+
+	
+	EBurrowActionState GetCurrAction();
+	
+	
 protected:
 	FTimerHandle SpawnTimerHandle;
 
-	void SpawnLogic();
+	void SpawnActionStart();
+	void AttackActionStart();
 	void CacheSpawnPoints();
 	FTransform FindRandSpawnPoint();
 
 	void AddNewActionState(EBurrowActionState NewAction);
 
+	ABlindEyeCharacter* GetRandomPlayerForTarget() const;
 
 	UFUNCTION()
 	void ActionStateFinished();

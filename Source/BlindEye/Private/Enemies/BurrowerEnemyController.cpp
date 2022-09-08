@@ -3,6 +3,7 @@
 
 #include "Enemies/BurrowerEnemyController.h"
 
+#include "Characters/BlindEyeCharacter.h"
 #include "Enemies/BurrowerEnemy.h"
 #include "Enemies/BurrowerSpawnPoint.h"
 #include "Kismet/GameplayStatics.h"
@@ -22,19 +23,35 @@ void ABurrowerEnemyController::BeginPlay()
 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
 	//world->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ABurrowerEnemyController::SpawnLogic, 5.0f, true);
 	CachedBurrower->SetHidden(true);
-	SpawnLogic();
+	SpawnActionStart();
 
 	CachedBurrower->ActionStateFinished.BindUFunction(this, FName("ActionStateFinished"));
 }
 
-void ABurrowerEnemyController::SpawnLogic()
+EBurrowActionState ABurrowerEnemyController::GetCurrAction()
 {
+	return CachedPreviousActions[0];
+}
+
+void ABurrowerEnemyController::SpawnActionStart()
+{
+	AddNewActionState(EBurrowActionState::Spawning);
 	FTransform randSpawn = FindRandSpawnPoint();
 	if (CachedBurrower)
 	{
 		CachedBurrower->SpawnAction(randSpawn);
 		CachedBurrower->SetHidden(false);
 	}
+}
+
+void ABurrowerEnemyController::AttackActionStart()
+{
+	AddNewActionState(EBurrowActionState::Attacking);
+	if (CachedBurrower)
+	{
+		CachedBurrower->AttackAction(GetRandomPlayerForTarget());
+		CachedBurrower->SetHidden(false);
+	} 
 }
 
 void ABurrowerEnemyController::CacheSpawnPoints()
@@ -61,7 +78,27 @@ void ABurrowerEnemyController::AddNewActionState(EBurrowActionState NewAction)
 	CachedPreviousActions[0] = NewAction;
 }
 
+ABlindEyeCharacter* ABurrowerEnemyController::GetRandomPlayerForTarget() const
+{
+	UWorld* world = GetWorld();
+	if (!world) return nullptr;
+
+	// TODO: All players should be retrieved from GameState (Store all connected players for easy retrieval)
+	// Get random player character
+	TArray<AActor*> AllPlayers;
+	UGameplayStatics::GetAllActorsOfClass(world, ABlindEyeCharacter::StaticClass(), AllPlayers);
+	uint32 rand = UKismetMathLibrary::RandomIntegerInRange(0, AllPlayers.Num() - 1);
+	return Cast<ABlindEyeCharacter>(AllPlayers[rand]);
+}
+
 void ABurrowerEnemyController::ActionStateFinished()
 {
-	SpawnLogic();
+	// TODO: Change - currently just flip-flopping between states
+	if (CachedPreviousActions[0] == EBurrowActionState::Spawning)
+	{
+		AttackActionStart();
+	} else
+	{
+		SpawnActionStart();
+	}
 }

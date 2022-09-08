@@ -3,10 +3,13 @@
 
 #include "Enemies/BurrowerEnemy.h"
 
+#include "NavigationSystem.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/HealthComponent.h"
 #include "Enemies/SnapperEnemy.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Characters/BlindEyeCharacter.h"
+#include "Enemies/BurrowerEnemyController.h"
 
 ABurrowerEnemy::ABurrowerEnemy()
 {
@@ -71,6 +74,26 @@ void ABurrowerEnemy::SpawnAction(FTransform SpawnLocation)
 	SpawnTimelineComponent->PlayFromStart();
 }
 
+void ABurrowerEnemy::AttackAction(ABlindEyeCharacter* target)
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
+	
+	ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(GetController());
+	if (!BurrowerController) return;
+
+	UNavigationSystemV1* NavSyst = UNavigationSystemV1::GetNavigationSystem(world);
+	FNavLocation NavLocation;
+	NavSyst->GetRandomPointInNavigableRadius(target->GetActorLocation(), 500, NavLocation);
+	SetActorLocation(NavLocation.Location);
+	GetCapsuleComponent()->SetEnableGravity(true);
+	SetHidden(false);
+
+	BurrowerController->MoveToActor(target, 10);
+
+	world->GetTimerManager().SetTimer(AttackTimerHandle, this, &ABurrowerEnemy::StartAttackAppearance, MaxTimerFollowingPlayerInAttack, false);
+}
+
 TArray<FVector> ABurrowerEnemy::GetSnapperSpawnPoints()
 {
 	TArray<FVector> SpawnPoints;
@@ -94,6 +117,22 @@ TArray<FVector> ABurrowerEnemy::GetSnapperSpawnPoints()
 	return SpawnPoints;
 }
 
+void ABurrowerEnemy::StartAttackAppearance()
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	// clear timer for ending attack follow
+	world->GetTimerManager().ClearTimer(AttackTimerHandle);
+	
+	world->GetTimerManager().SetTimer(AttackTimerHandle, this, &ABurrowerEnemy::PerformAttackAppearance, AttackDelayBeforeEmerging, false);
+}
+
+void ABurrowerEnemy::PerformAttackAppearance()
+{
+	SpawnAction(GetActorTransform());
+}
+
 void ABurrowerEnemy::TimelineSpawnMovement()
 {
 	float playbackPosition = SpawnTimelineComponent->GetPlaybackPosition();
@@ -105,7 +144,19 @@ void ABurrowerEnemy::TimelineSpawnFinished()
 {
 	//GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	// TODO: play particles and delay resurface
-	SpawnSnappers();
+	ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(GetController());
+	if (!BurrowerController) return;
+
+	if (BurrowerController->GetCurrAction() == EBurrowActionState::Attacking)
+	{
+		UWorld* world = GetWorld();
+		if (!world) return;
+		
+		world->GetTimerManager().SetTimer(HideTimerHandle, this, &ABurrowerEnemy::StartHideLogic, AttackTimeAppearingLength, false);
+	} else
+	{
+		SpawnSnappers();
+	}
 }
 
 void ABurrowerEnemy::TimelineHideMovement()
@@ -122,7 +173,6 @@ void ABurrowerEnemy::TimelineHideFinished()
 
 void ABurrowerEnemy::StartHideLogic()
 {
-
 	CachedBeforeHidePosition = GetActorLocation();
 	HideTimelineComponent->PlayFromStart();
 }
