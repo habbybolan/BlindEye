@@ -85,8 +85,9 @@ void ABurrowerEnemy::AttackAction(ABlindEyeCharacter* target)
 	UNavigationSystemV1* NavSyst = UNavigationSystemV1::GetNavigationSystem(world);
 	FNavLocation NavLocation;
 	NavSyst->GetRandomPointInNavigableRadius(target->GetActorLocation(), 500, NavLocation);
-	SetActorLocation(NavLocation.Location);
+	SetActorLocation(NavLocation.Location + (FVector::UpVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
 	GetCapsuleComponent()->SetEnableGravity(true);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	SetHidden(false);
 
 	BurrowerController->MoveToActor(target, 10);
