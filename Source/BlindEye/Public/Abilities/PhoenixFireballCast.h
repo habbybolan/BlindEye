@@ -62,6 +62,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UNiagaraSystem* GroundBurnParticle;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float CustomLifespan = 4.0f;
+
 	USphereComponent* GetSphereComponent();
 
 protected:
@@ -88,9 +91,11 @@ protected:
 
 	UFUNCTION()
 	void OnCollision(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	void CollisionLogic();
 
 	FTimerHandle BurnTimerHandle;
 	FTimerHandle DelayedDestroyTimerHandle;
+	FTimerHandle LifespanTimerHandle;
 
 	FVector BurnLocation;
 };

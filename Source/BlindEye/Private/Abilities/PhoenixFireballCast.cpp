@@ -12,6 +12,8 @@ APhoenixFireballCast::APhoenixFireballCast()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	InitialLifeSpan = 0; // infinite lifespan
+	
 	bReplicates = true;
 
 	SphereComponent = CreateDefaultSubobject<USphereComponent>("SphereComponent");
@@ -38,14 +40,20 @@ void APhoenixFireballCast::BeginPlay()
 	Super::BeginPlay();
 	Movement->Velocity = GetActorForwardVector() * FireballSpeed;
 	MULT_SpawnFireballTrail_Implementation();
-	SphereComponent->OnComponentHit.AddDynamic(this, &APhoenixFireballCast::OnCollision); 
+	SphereComponent->OnComponentHit.AddDynamic(this, &APhoenixFireballCast::OnCollision);
+
+	UWorld* world = GetWorld();
+	if (world)
+	{
+		world->GetTimerManager().SetTimer(LifespanTimerHandle, this, &APhoenixFireballCast::CollisionLogic, CustomLifespan, false);
+	}
 }
 
 void APhoenixFireballCast::Destroyed()
 {
 	Super::Destroyed();
 	SpawnedGroundBurnParticle->Deactivate();
-}
+} 
 
 void APhoenixFireballCast::MULT_SpawnFireballTrail_Implementation()
 {
@@ -72,7 +80,7 @@ void APhoenixFireballCast::BurnLogic()
 	UKismetSystemLibrary::SphereTraceMultiForObjects(world, BurnLocation, BurnLocation + FVector::UpVector, BurningRadius,
 		BurnObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true);
 	for (FHitResult Hit : OutHits)
-	{
+	{ 
 		UGameplayStatics::ApplyPointDamage(Hit.GetActor(), BurnDamagePerSec * 0.2, FVector::ZeroVector,
 			Hit, GetInstigator()->GetController(),GetInstigator(), BurnDamageType);
 	}
@@ -81,8 +89,15 @@ void APhoenixFireballCast::BurnLogic()
 void APhoenixFireballCast::OnCollision(UPrimitiveComponent* HitComponent, AActor* OtherActor,
                                        UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	CollisionLogic();
+}
+
+void APhoenixFireballCast::CollisionLogic()
+{
 	UWorld* world = GetWorld();
 	if (!world) return;
+	
+	world->GetTimerManager().ClearTimer(LifespanTimerHandle);
 	
 	SphereComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Mesh->SetHiddenInGame(true);
@@ -102,6 +117,5 @@ void APhoenixFireballCast::OnCollision(UPrimitiveComponent* HitComponent, AActor
 
 	// Destroy after burning finished
 	world->GetTimerManager().SetTimer(DelayedDestroyTimerHandle, this, &APhoenixFireballCast::DelayedDestruction, BurningDuration, false);
-	
 }
 
