@@ -2,7 +2,7 @@
 
 
 #include "Abilities/PhoenixFireball.h"
-
+#include "Kismet/GameplayStatics.h"
 
 
 APhoenixFireball::APhoenixFireball() : AAbilityBase()
@@ -11,9 +11,28 @@ APhoenixFireball::APhoenixFireball() : AAbilityBase()
 }
 
 void APhoenixFireball::DealWithDamage(UPrimitiveComponent* HitComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit, float DamageToApply)
 {
-	// TODO: Deal damage to enemy if it hasn't already been hit with this attack (cone + fireball)
+	// prevent damage on same actor twice
+	if (IDsOfHitActors.Contains(OtherActor->GetUniqueID())) return;
+	
+	IDsOfHitActors.Add(OtherActor->GetUniqueID());
+	UGameplayStatics::ApplyPointDamage(OtherActor, DamageToApply, NormalImpulse, Hit, GetInstigator()->GetController(), GetInstigator(), DamageType);
+}
+
+void APhoenixFireball::CastFireCone()
+{
+	// TODO:
+}
+
+void APhoenixFireball::CastFireball()
+{
+	// TODO:
+}
+
+void APhoenixFireball::EndAbilityLogic()
+{
+	IDsOfHitActors.Empty();
 }
 
 // **** States *******
@@ -31,11 +50,19 @@ void FPhoenixFireballCastState::TryEnterState(EAbilityInputTypes abilityUsageTyp
 void FPhoenixFireballCastState::RunState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::RunState(abilityUsageType);
+	if (!Ability) return;
+	APhoenixFireball* PhoenixFireball = Cast<APhoenixFireball>(Ability);
+	if (!PhoenixFireball) return;
+
+	PhoenixFireball->CastFireball();
+	PhoenixFireball->CastFireCone();
+	ExitState();
 }
 
 void FPhoenixFireballCastState::ExitState()
 {
 	FAbilityState::ExitState();
+	if (Ability) Ability->EndCurrState();
 }
 
 

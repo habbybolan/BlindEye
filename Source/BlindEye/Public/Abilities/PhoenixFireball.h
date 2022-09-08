@@ -53,12 +53,18 @@ public:
 	TSubclassOf<APhoenixFireballCast> FireballCastType;
 
 	// Deals with damage from the cone and the fireball. Fireball sends its damage event to this
-	void DealWithDamage(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	void DealWithDamage(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+		FVector NormalImpulse, const FHitResult& Hit, float Damage);
+
+	void CastFireCone();
+	void CastFireball();
 	
 protected:
 
 	UPROPERTY()
 	UNiagaraComponent* SpawnedFireConeParticle;
-	
-	
+	 
+	TSet<uint32> IDsOfHitActors;
+
+	virtual void EndAbilityLogic() override;
 };
