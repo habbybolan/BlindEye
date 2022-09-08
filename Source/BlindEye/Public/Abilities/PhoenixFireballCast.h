@@ -3,7 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/SphereComponent.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "PhoenixFireballCast.generated.h"
 
 
@@ -18,6 +20,15 @@ class BLINDEYE_API APhoenixFireballCast : public AActor
 public:
 	
 	APhoenixFireballCast();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UProjectileMovementComponent* Movement;
+
+	UPROPERTY(EditDefaultsOnly)
+	UStaticMeshComponent* Mesh;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USphereComponent* SphereComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float FireballSpeed = 100;
@@ -35,9 +46,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UNiagaraSystem* FireTrailParticle;
 
+	USphereComponent* GetSphereComponent();
+
 protected:
 	
 	virtual void BeginPlay() override;
+
+	void MULT_SpawnFireballTrail_Implementation();
 
 	UPROPERTY()
 	UNiagaraComponent* SpawnedFireTrailParticle;

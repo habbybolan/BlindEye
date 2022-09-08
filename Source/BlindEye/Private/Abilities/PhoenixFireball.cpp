@@ -54,15 +54,32 @@ void APhoenixFireball::CastFireCone()
 			DealWithDamage(ConeHit.GetActor(), ConeHit.ImpactNormal, ConeHit, Damage);
 		}
 	}
-	MULT_SpawnFireballTrail(GetInstigator()->GetControlRotation());
+	MULT_SpawnFireballCone(GetInstigator()->GetControlRotation());
 }
 
 void APhoenixFireball::CastFireball()
 {
-	// TODO:
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	FActorSpawnParameters params;
+	params.Instigator = GetInstigator();
+	params.Owner = this;
+
+	FVector spawnLocation = GetInstigator()->GetActorLocation() + GetInstigator()->GetActorForwardVector() * 100;
+	FireballCast = world->SpawnActor<APhoenixFireballCast>(FireballCastType, spawnLocation, GetInstigator()->GetControlRotation(), params);
+	FireballCast->GetSphereComponent()->OnComponentHit.AddDynamic(this, &APhoenixFireball::OnFireballCastHit);
 }
 
-void APhoenixFireball::MULT_SpawnFireballTrail_Implementation(FRotator rotation)
+void APhoenixFireball::OnFireballCastHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (GetLocalRole() < ROLE_Authority) return;
+	if (!FireballCast) return;
+	DealWithDamage(OtherActor, Hit.ImpactNormal, Hit, FireballCast->Damage);
+}
+
+void APhoenixFireball::MULT_SpawnFireballCone_Implementation(FRotator rotation)
 {
 	UWorld* world = GetWorld();
 	if (!world) return;

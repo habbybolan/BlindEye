@@ -64,8 +64,11 @@ public:
 	void CastFireCone();
 	void CastFireball();
 
+	UFUNCTION()
+	void OnFireballCastHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SpawnFireballTrail(FRotator rotator);
+	void MULT_SpawnFireballCone(FRotator rotator);
 	
 	
 protected:
@@ -74,6 +77,8 @@ protected:
 	UNiagaraComponent* SpawnedFireConeParticle;
 	 
 	TSet<uint32> IDsOfHitActors;
+	UPROPERTY()
+	APhoenixFireballCast* FireballCast;
 
 	virtual void EndAbilityLogic() override;
 };
