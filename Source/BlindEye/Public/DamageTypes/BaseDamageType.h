@@ -22,7 +22,7 @@ public:
 	~UBaseDamageType() override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<TSubclassOf<UBaseStatusEffect>> StatusEffects;
+	TArray<TSubclassOf<UBaseStatusEffect>> StatusEffects; 
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=( ClampMin=0 ))
 	float DamageMultiplier = 1;
