@@ -5,6 +5,7 @@
 
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 APhoenixFireballCast::APhoenixFireballCast()
@@ -53,6 +54,12 @@ void APhoenixFireballCast::MULT_SpawnFireballTrail_Implementation()
 void APhoenixFireballCast::DelayedDestruction()
 {
 	Destroy();
+	SpawnedGroundBurnParticle->Deactivate();
+}
+
+void APhoenixFireballCast::BurnLogic()
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0.2f, FColor::Red, "Burnnn");
 }
 
 void APhoenixFireballCast::OnCollision(UPrimitiveComponent* HitComponent, AActor* OtherActor,
@@ -64,7 +71,20 @@ void APhoenixFireballCast::OnCollision(UPrimitiveComponent* HitComponent, AActor
 	SphereComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Mesh->SetHiddenInGame(true);
 	SpawnedFireTrailParticle->Deactivate();
-	world->GetTimerManager().SetTimer(DelayedDestroyTimerHandle, this, &APhoenixFireballCast::DelayedDestruction, 2.0f, false);
+
+	// Check if close enough to ground to perform burn on ground
+	FHitResult HitResult;
+	if (UKismetSystemLibrary::LineTraceSingleForObjects(world, GetActorLocation(), GetActorLocation() + FVector::DownVector * MaxHeightToApplyFire,
+		LineTraceObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, HitResult, true))
+	{
+		SpawnedGroundBurnParticle = UNiagaraFunctionLibrary::SpawnSystemAtLocation(world, GroundBurnParticle,
+			HitResult.Location, FRotator::ZeroRotator, FVector::OneVector, EAttachLocation::KeepWorldPosition,
+			true, ENCPoolMethod::AutoRelease);
+		world->GetTimerManager().SetTimer(BurnTimerHandle, this, &APhoenixFireballCast::BurnLogic, 0.2, true);
+	}
+
+	// Destroy after burning finished
+	world->GetTimerManager().SetTimer(DelayedDestroyTimerHandle, this, &APhoenixFireballCast::DelayedDestruction, BurningDuration, false);
 	
 }
 

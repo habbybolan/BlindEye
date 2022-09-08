@@ -37,14 +37,23 @@ public:
 	float Damage = 60;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float BurnDamagePerSec = 0.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float BurningDuration = 4.5f;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float BurningRadius = 400.f;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float MaxHeightToApplyFire;
+	float MaxHeightToApplyFire = 200.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<TEnumAsByte<EObjectTypeQuery>> LineTraceObjectTypes;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UNiagaraSystem* FireTrailParticle;
+ 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraSystem* GroundBurnParticle;
 
 	USphereComponent* GetSphereComponent();
 
@@ -58,11 +67,19 @@ protected:
 	UFUNCTION()
 	void DelayedDestruction();
 
+	// called continually until actor deleted for applying burn at location
+	UFUNCTION()
+	void BurnLogic();
+
 	UPROPERTY()
 	UNiagaraComponent* SpawnedFireTrailParticle;
+ 
+	UPROPERTY()
+	UNiagaraComponent* SpawnedGroundBurnParticle;
 
 	UFUNCTION()
 	void OnCollision(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
+	FTimerHandle BurnTimerHandle;
 	FTimerHandle DelayedDestroyTimerHandle;
 };
