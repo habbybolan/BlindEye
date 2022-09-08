@@ -66,7 +66,7 @@ void APhoenixFireball::CastFireball()
 	params.Instigator = GetInstigator();
 	params.Owner = this;
 
-	FVector spawnLocation = GetInstigator()->GetActorLocation() + GetInstigator()->GetActorForwardVector() * 100;
+	FVector spawnLocation = GetInstigator()->GetActorLocation() + GetInstigator()->GetControlRotation().Vector() * FVector(100, 100, 0);
 	FireballCast = world->SpawnActor<APhoenixFireballCast>(FireballCastType, spawnLocation, GetInstigator()->GetControlRotation(), params);
 	FireballCast->GetSphereComponent()->OnComponentHit.AddDynamic(this, &APhoenixFireball::OnFireballCastHit);
 }
