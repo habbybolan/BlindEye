@@ -2,6 +2,8 @@
 
 
 #include "Abilities/PhoenixFireball.h"
+
+#include "NiagaraFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -52,11 +54,22 @@ void APhoenixFireball::CastFireCone()
 			DealWithDamage(ConeHit.GetActor(), ConeHit.ImpactNormal, ConeHit, Damage);
 		}
 	}
+	MULT_SpawnFireballTrail(GetInstigator()->GetControlRotation());
 }
 
 void APhoenixFireball::CastFireball()
 {
 	// TODO:
+}
+
+void APhoenixFireball::MULT_SpawnFireballTrail_Implementation(FRotator rotation)
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
+	
+	SpawnedFireConeParticle = UNiagaraFunctionLibrary::SpawnSystemAttached(FireConeParticle, GetInstigator()->GetRootComponent(), NAME_None,
+		GetInstigator()->GetActorLocation(), rotation, FVector::OneVector,
+		EAttachLocation::KeepWorldPosition, false, ENCPoolMethod::AutoRelease);
 }
 
 void APhoenixFireball::EndAbilityLogic()
@@ -73,6 +86,7 @@ FPhoenixFireballCastState::FPhoenixFireballCastState(AAbilityBase* ability) : FA
 
 void FPhoenixFireballCastState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
+	if (abilityUsageType != EAbilityInputTypes::Pressed) return;
 	FAbilityState::TryEnterState(abilityUsageType);
 	RunState();
 }

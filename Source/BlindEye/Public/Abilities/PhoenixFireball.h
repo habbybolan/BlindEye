@@ -63,6 +63,9 @@ public:
 
 	void CastFireCone();
 	void CastFireball();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_SpawnFireballTrail(FRotator rotator);
 	
 	
 protected:
