@@ -52,12 +52,18 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<APhoenixFireballCast> FireballCastType;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<TEnumAsByte<EObjectTypeQuery>> LineTraceObjectTypes;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<TEnumAsByte<EObjectTypeQuery>> ConeTraceObjectTypes;
+
 	// Deals with damage from the cone and the fireball. Fireball sends its damage event to this
-	void DealWithDamage(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-		FVector NormalImpulse, const FHitResult& Hit, float Damage);
+	void DealWithDamage(AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit, float Damage);
 
 	void CastFireCone();
 	void CastFireball();
+	
 	
 protected:
 
