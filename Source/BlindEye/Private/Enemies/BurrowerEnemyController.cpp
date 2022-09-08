@@ -15,12 +15,16 @@ void ABurrowerEnemyController::BeginPlay()
 	UWorld* world = GetWorld();
 	if (!world) return;
 
+	CachedPreviousActions.SetNum(3, false);
+
 	CacheSpawnPoints();
 	
 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
-	world->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ABurrowerEnemyController::SpawnLogic, 5.0f, true);
+	//world->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ABurrowerEnemyController::SpawnLogic, 5.0f, true);
 	CachedBurrower->SetHidden(true);
 	SpawnLogic();
+
+	CachedBurrower->ActionStateFinished.BindUFunction(this, FName("ActionStateFinished"));
 }
 
 void ABurrowerEnemyController::SpawnLogic()
@@ -46,4 +50,18 @@ FTransform ABurrowerEnemyController::FindRandSpawnPoint()
 	if (SpawnLocation.Num() == 0) return FTransform();
 	uint32 randIndex = UKismetMathLibrary::RandomInteger(SpawnLocation.Num());
 	return SpawnLocation[randIndex]->GetTransform();
+}
+
+void ABurrowerEnemyController::AddNewActionState(EBurrowActionState NewAction)
+{
+	for (int i = CachedPreviousActions.Num() - 1; i > 0; i--)
+	{
+		CachedPreviousActions[i] = CachedPreviousActions[i - 1];
+	}
+	CachedPreviousActions[0] = NewAction;
+}
+
+void ABurrowerEnemyController::ActionStateFinished()
+{
+	SpawnLogic();
 }

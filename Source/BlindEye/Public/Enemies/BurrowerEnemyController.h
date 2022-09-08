@@ -7,6 +7,12 @@
 #include "Enemies/BlindEyeEnemyController.h"
 #include "BurrowerEnemyController.generated.h"
 
+enum class EBurrowActionState
+{
+	Spawning,
+	Attacking
+};
+
 /**
  * 
  */
@@ -25,7 +31,15 @@ protected:
 	void CacheSpawnPoints();
 	FTransform FindRandSpawnPoint();
 
+	void AddNewActionState(EBurrowActionState NewAction);
 
+
+	UFUNCTION()
+	void ActionStateFinished();
+
+	TArray<EBurrowActionState> CachedPreviousActions;
+
+	UPROPERTY()
 	ABurrowerEnemy* CachedBurrower;
 
 	UPROPERTY()

@@ -11,24 +11,32 @@
 ABurrowerEnemy::ABurrowerEnemy()
 {
 	SpawnTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("SpawnTimeline"));
+	HideTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("HideTimeline"));
 }
 
 void ABurrowerEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ActionState = EBurrowActionState::Spawning;
+	// Timeline curve for appearing from the ground
 	if (SpawnCurve)
 	{
 		SpawnUpdateEvent.BindUFunction(this, FName("TimelineSpawnMovement"));
 		SpawnFinishedEvent.BindUFunction(this, FName("TimelineSpawnFinished"));
-		//SpawnTimelineComponent->SetTimelinePostUpdateFunc(SpawnUpdateEvent);
 		SpawnTimelineComponent->SetTimelineFinishedFunc(SpawnFinishedEvent);
-		
 		SpawnTimelineComponent->AddInterpFloat(SpawnCurve, SpawnUpdateEvent);
 	}
 
-	GetCapsuleComponent()->SetEnableGravity(0);
+	// Timeline curve for hiding the burrower
+	if (HideCurve)
+	{
+		HideUpdateEvent.BindUFunction(this, FName("TimelineHideMovement"));
+		HideFinishedEvent.BindUFunction(this, FName("TimelineHideFinished"));
+		HideTimelineComponent->SetTimelineFinishedFunc(HideFinishedEvent);
+		HideTimelineComponent->AddInterpFloat(HideCurve, HideUpdateEvent);
+	}
+
+	GetCapsuleComponent()->SetEnableGravity(false);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
@@ -51,6 +59,8 @@ void ABurrowerEnemy::SpawnSnappers()
 		SpawnedSnappers.Add(world->SpawnActor<ASnapperEnemy>(SnapperType, spawnPoints[randSpawnIndex], GetActorRotation(), params));
 		spawnPoints.RemoveAt(randSpawnIndex);
 	}
+
+	world->GetTimerManager().SetTimer(HideTimerHandle, this, &ABurrowerEnemy::StartHideLogic, SpawnTimeAppearingLength, false);
 }
 
 void ABurrowerEnemy::SpawnAction(FTransform SpawnLocation)
@@ -87,19 +97,32 @@ TArray<FVector> ABurrowerEnemy::GetSnapperSpawnPoints()
 void ABurrowerEnemy::TimelineSpawnMovement()
 {
 	float playbackPosition = SpawnTimelineComponent->GetPlaybackPosition();
-	SetActorLocation(FMath::Lerp(CachedSpawnLocation, CachedSpawnLocation + (FVector::UpVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2 + 50), playbackPosition));
+	SetActorLocation(FMath::Lerp(CachedSpawnLocation, CachedSpawnLocation +
+		(FVector::UpVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2 + 50)), playbackPosition));
 }
 
 void ABurrowerEnemy::TimelineSpawnFinished()
 {
 	//GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	// TODO: play particles and delay resurface
+	SpawnSnappers();
+}
 
-	if (ActionState == EBurrowActionState::Attacking)
-	{
-		
-	} else
-	{
-		SpawnSnappers();
-	}
+void ABurrowerEnemy::TimelineHideMovement()
+{
+	float playbackPosition = HideTimelineComponent->GetPlaybackPosition();
+	SetActorLocation(FMath::Lerp(CachedBeforeHidePosition, CachedBeforeHidePosition +
+		(FVector::DownVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2 + 50)), playbackPosition));
+}
+
+void ABurrowerEnemy::TimelineHideFinished()
+{
+	ActionStateFinished.ExecuteIfBound();
+}
+
+void ABurrowerEnemy::StartHideLogic()
+{
+
+	CachedBeforeHidePosition = GetActorLocation();
+	HideTimelineComponent->PlayFromStart();
 }

@@ -10,12 +10,6 @@
 class ASnapperEnemy;
 class UHealthComponent;
 
-enum class EBurrowActionState
-{
-	Spawning,
-	Attacking
-};
-
 /**
  * 
  */
@@ -37,6 +31,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	uint8 MaxSnappersSpawn = 5;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float SpawnTimeAppearingLength = 5;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly) 
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypesTraceSpawner;
 
@@ -46,10 +43,17 @@ public:
 	FOnTimelineFloat SpawnUpdateEvent; 
 	FOnTimelineEvent SpawnFinishedEvent;
 
+	FOnTimelineFloat HideUpdateEvent; 
+	FOnTimelineEvent HideFinishedEvent;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UTimelineComponent* SpawnTimelineComponent;
 
-	EBurrowActionState ActionState;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UTimelineComponent* HideTimelineComponent;
+
+	DECLARE_DELEGATE(FActionStateFinishedSignature)
+	FActionStateFinishedSignature ActionStateFinished;
 
 protected:
 
@@ -59,18 +63,35 @@ protected:
 	
 	TArray<FVector> GetSnapperSpawnPoints();
 
-	// Plays on update on spawning timeline playing
+	// Timeline functions for burrower appearing
+
 	UFUNCTION()
 	void TimelineSpawnMovement();
 
-	// On Spawn timeline finishing
 	UFUNCTION()
 	void TimelineSpawnFinished();
 
+	// Timeline functions for hiding burrower
+
+	UFUNCTION()
+	void TimelineHideMovement();
+
+	UFUNCTION()
+	void TimelineHideFinished();
+
+	UFUNCTION()
+	void StartHideLogic();
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UCurveFloat* SpawnCurve;
+ 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UCurveFloat* HideCurve;
 
+	FTimerHandle HideTimerHandle;
 	FVector CachedSpawnLocation;
+
+	FVector CachedBeforeHidePosition;
 	
 	UFUNCTION()
 	void SpawnSnappers();
