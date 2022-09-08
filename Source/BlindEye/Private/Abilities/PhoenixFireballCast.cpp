@@ -3,6 +3,7 @@
 
 #include "Abilities/PhoenixFireballCast.h"
 
+#include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 
 // Sets default values
@@ -36,6 +37,7 @@ void APhoenixFireballCast::BeginPlay()
 	Super::BeginPlay();
 	Movement->Velocity = GetActorForwardVector() * FireballSpeed;
 	MULT_SpawnFireballTrail_Implementation();
+	SphereComponent->OnComponentHit.AddDynamic(this, &APhoenixFireballCast::OnCollision); 
 }
 
 void APhoenixFireballCast::MULT_SpawnFireballTrail_Implementation()
@@ -46,5 +48,23 @@ void APhoenixFireballCast::MULT_SpawnFireballTrail_Implementation()
 	SpawnedFireTrailParticle = UNiagaraFunctionLibrary::SpawnSystemAttached(FireTrailParticle, GetRootComponent(), NAME_None,
 		GetActorLocation(), GetActorRotation(), FVector::OneVector,
 		EAttachLocation::KeepWorldPosition, false, ENCPoolMethod::AutoRelease);
+}
+
+void APhoenixFireballCast::DelayedDestruction()
+{
+	Destroy();
+}
+
+void APhoenixFireballCast::OnCollision(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+                                       UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
+	
+	SphereComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Mesh->SetHiddenInGame(true);
+	SpawnedFireTrailParticle->Deactivate();
+	world->GetTimerManager().SetTimer(DelayedDestroyTimerHandle, this, &APhoenixFireballCast::DelayedDestruction, 2.0f, false);
+	
 }
 

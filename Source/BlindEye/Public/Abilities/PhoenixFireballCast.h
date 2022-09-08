@@ -52,9 +52,17 @@ protected:
 	
 	virtual void BeginPlay() override;
 
-	void MULT_SpawnFireballTrail_Implementation();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_SpawnFireballTrail(); 
+	
+	UFUNCTION()
+	void DelayedDestruction();
 
 	UPROPERTY()
 	UNiagaraComponent* SpawnedFireTrailParticle;
 
+	UFUNCTION()
+	void OnCollision(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	FTimerHandle DelayedDestroyTimerHandle;
 };
