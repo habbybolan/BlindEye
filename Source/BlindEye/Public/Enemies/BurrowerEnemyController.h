@@ -47,6 +47,8 @@ protected:
 
 	TArray<EBurrowActionState> CachedPreviousActions;
 
+	virtual void OnPossess(APawn* InPawn) override;
+
 	UPROPERTY()
 	ABurrowerEnemy* CachedBurrower;
 

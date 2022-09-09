@@ -13,6 +13,7 @@
 
 ABurrowerEnemy::ABurrowerEnemy()
 {
+	bReplicates = true;
 	SpawnTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("SpawnTimeline"));
 	HideTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("HideTimeline"));
 }
@@ -61,6 +62,7 @@ void ABurrowerEnemy::SpawnSnappers()
 		uint32 randSpawnIndex = FMath::RandRange(0, spawnPoints.Num() - 1);
 		SpawnedSnappers.Add(world->SpawnActor<ASnapperEnemy>(SnapperType, spawnPoints[randSpawnIndex], GetActorRotation(), params));
 		spawnPoints.RemoveAt(randSpawnIndex);
+		// TODO: subscribe to death event on snapper to remove from list
 	}
 
 	world->GetTimerManager().SetTimer(HideTimerHandle, this, &ABurrowerEnemy::StartHideLogic, SpawnTimeAppearingLength, false);
