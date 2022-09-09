@@ -3,3 +3,7 @@
 
 #include "Enemies/BlindEyeEnemyController.h"
 
+void ABlindEyeEnemyController::BeginPlay()
+{
+	Super::BeginPlay();
+}
