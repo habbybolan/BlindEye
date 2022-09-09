@@ -71,7 +71,8 @@ uint8 ACrowCocoon::CalcPulseIndex()
 	float timeBetweenPulses = MaxHoldDuration / MaxNumberPulses;
 	float currHoldTime = GetGameTimeSinceCreation() - TimeHoldStart;
 	uint8 pulseIndex = currHoldTime / timeBetweenPulses;
-	return FMath::Min(pulseIndex, MaxNumberPulses);
+	uint8 LastIndex = MaxNumberPulses - 1;
+	return FMath::Min(pulseIndex, LastIndex);
 }
 
 void ACrowCocoon::MULT_PerformExplosionPulse_Implementation()
