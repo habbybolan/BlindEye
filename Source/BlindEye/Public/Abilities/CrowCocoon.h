@@ -25,6 +25,9 @@ public:
 	virtual void ExitState() override;
 };
 
+class UNiagaraComponent;
+class UNiagaraSystem;
+
 /**
  * 
  */
@@ -53,17 +56,47 @@ public:
 	float BirdMeterPercentLossPerSec = 20; 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float MaxHoldDuration;
+	float MaxHoldDuration = 4.5;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float DelayFirstPulse = 0.2f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UBaseDamageType> DamageType;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<UNiagaraSystem*> PulseParticles;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraSystem* FullyChargedParticle;
+ 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraSystem* ExplosionPulse;
+
 	void StartHoldLogic();
 	void EndHold();
+	virtual void EndAbilityLogic() override;
+	
 	
 protected:
 
-	FTimerHandle HoldTimerHandle;
+	FTimerHandle PulseTimerHandle;
 	float TimeHoldStart;
+	const uint8 MaxNumberPulses = 4;
+ 
+	UPROPERTY()
+	TArray<UNiagaraComponent*> SpawnedPulseParticles;
+
+	UPROPERTY()
+	UNiagaraComponent* SpawnedFullyChargedParticle;
+ 
+	UPROPERTY()
+	UNiagaraComponent* SpawnedExplosionPulse;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_PerformPulse();
+
+	UFUNCTION(NetMulticast, Reliable) 
+	void MULT_PerformExplosionPulse();
 	
 };

@@ -3,14 +3,24 @@
 
 #include "Abilities/CrowCocoon.h"
 
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
+
 ACrowCocoon::ACrowCocoon() : AAbilityBase()
 {
 	AbilityStates.Add(new UCrowCocoonStart(this));
 	AbilityStates.Add(new UCrowPulseState(this));
+	PulseParticles.SetNum(MaxNumberPulses, false);
+	SpawnedPulseParticles.SetNum(MaxNumberPulses, false);
 }
 
 void ACrowCocoon::StartHoldLogic()
 {
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	world->GetTimerManager().SetTimer(PulseTimerHandle, this, &ACrowCocoon::MULT_PerformPulse,
+		MaxHoldDuration / MaxNumberPulses, true, DelayFirstPulse); 
 	TimeHoldStart = GetGameTimeSinceCreation();
 }
 
@@ -18,6 +28,48 @@ void ACrowCocoon::EndHold()
 {
 	float CurrTime = GetGameTimeSinceCreation();
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Emerald, "Held for: " + FString::SanitizeFloat(CurrTime - TimeHoldStart));
+
+	UWorld* world = GetWorld();
+	if (!world) return;
+	world->GetTimerManager().ClearTimer(PulseTimerHandle);
+	MULT_PerformExplosionPulse();
+}
+
+void ACrowCocoon::EndAbilityLogic()
+{
+	Super::EndAbilityLogic();
+	if (SpawnedFullyChargedParticle) SpawnedFullyChargedParticle->Deactivate();
+}
+
+void ACrowCocoon::MULT_PerformExplosionPulse_Implementation()
+{
+	SpawnedExplosionPulse = UNiagaraFunctionLibrary::SpawnSystemAttached(ExplosionPulse, GetInstigator()->GetRootComponent(), NAME_None,
+		GetInstigator()->GetActorLocation(), FRotator::ZeroRotator, FVector::OneVector,
+		EAttachLocation::KeepWorldPosition, false, ENCPoolMethod::AutoRelease);
+}
+
+void ACrowCocoon::MULT_PerformPulse_Implementation() 
+{
+	float timeBetweenPulses = MaxHoldDuration / MaxNumberPulses;
+	float currHoldTime = GetGameTimeSinceCreation() - TimeHoldStart;
+	uint8 pulseIndex = (currHoldTime / timeBetweenPulses);
+	if (pulseIndex >= MaxNumberPulses) return; // Something went wrong
+
+	SpawnedPulseParticles[pulseIndex] = UNiagaraFunctionLibrary::SpawnSystemAttached(PulseParticles[pulseIndex], GetInstigator()->GetRootComponent(), NAME_None,
+		GetInstigator()->GetActorLocation(), FRotator::ZeroRotator, FVector::OneVector,
+		EAttachLocation::KeepWorldPosition, false, ENCPoolMethod::AutoRelease);
+
+	// Play extra particle when last pulse reached
+	if (pulseIndex == MaxNumberPulses - 1)
+	{
+		SpawnedFullyChargedParticle = UNiagaraFunctionLibrary::SpawnSystemAttached(FullyChargedParticle, GetInstigator()->GetRootComponent(), NAME_None,
+		GetInstigator()->GetActorLocation(), FRotator::ZeroRotator, FVector::OneVector,
+		EAttachLocation::KeepWorldPosition, false, ENCPoolMethod::AutoRelease);
+
+		UWorld* world = GetWorld();
+		if (!world) return;
+		world->GetTimerManager().ClearTimer(PulseTimerHandle);
+	}
 }
 
 // **** States *******
