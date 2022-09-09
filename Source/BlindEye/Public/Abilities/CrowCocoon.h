@@ -41,16 +41,7 @@ public:
 	ACrowCocoon();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float DamageTick1 = 5;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float DamageTick2 = 15;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float DamageTick3 = 35;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float DamageTick4 = 50;
+	TArray<float> DamageTicks;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float BirdMeterPercentLossPerSec = 20; 
@@ -62,7 +53,13 @@ public:
 	float DelayFirstPulse = 0.2f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UBaseDamageType> DamageType;
+	float Radius = 500;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UBaseDamageType> MainDamageType;
+ 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly) 
+	TSubclassOf<UBaseDamageType> FirstPulseDamageType; 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<UNiagaraSystem*> PulseParticles;
@@ -93,10 +90,13 @@ protected:
 	UPROPERTY()
 	UNiagaraComponent* SpawnedExplosionPulse;
 
+	void PerformPulse();
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_PerformPulse();
+	void MULT_PerformPulseParticles(uint8 pulseIndex);
 
 	UFUNCTION(NetMulticast, Reliable) 
 	void MULT_PerformExplosionPulse();
+
+	uint8 CalcPulseIndex();
 	
 };
