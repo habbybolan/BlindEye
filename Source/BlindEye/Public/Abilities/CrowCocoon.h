@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/AbilityBase.h"
+#include "DamageTypes/BaseDamageType.h"
 #include "CrowCocoon.generated.h"
 
 class BLINDEYE_API UCrowCocoonStart : public FAbilityState
@@ -43,7 +44,7 @@ public:
 	float DamageTick2 = 15;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float DamageTick3 = 30;
+	float DamageTick3 = 35;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float DamageTick4 = 50;
@@ -53,8 +54,16 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float MaxHoldDuration;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UBaseDamageType> DamageType;
+
+	void StartHoldLogic();
+	void EndHold();
 	
 protected:
-	
+
+	FTimerHandle HoldTimerHandle;
+	float TimeHoldStart;
 	
 };
