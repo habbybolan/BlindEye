@@ -45,4 +45,7 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	UHealthComponent* GetHealthComponent();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void OnDeath();
 };

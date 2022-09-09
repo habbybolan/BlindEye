@@ -123,6 +123,12 @@ UHealthComponent* ABlindEyeCharacter::GetHealthComponent_Implementation()
 	return HealthComponent;
 }
 
+void ABlindEyeCharacter::OnDeath_Implementation()
+{
+	// TODO:
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, "Player Died");
+}
+
 TEAMS ABlindEyeCharacter::GetTeam_Implementation()
 {
 	return Team;

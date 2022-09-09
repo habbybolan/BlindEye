@@ -62,6 +62,12 @@ UHealthComponent* ABlindEyeEnemyBase::GetHealthComponent_Implementation()
 	return HealthComponent;
 }
 
+void ABlindEyeEnemyBase::OnDeath_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, "Enemy Died");
+	// TODO:
+}
+
 TEAMS ABlindEyeEnemyBase::GetTeam_Implementation()
 {
 	return Team;
