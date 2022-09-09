@@ -79,6 +79,8 @@ protected:
 	virtual void TryApplyMarker_Implementation(PlayerType Player) override;
 
 	virtual void TryDetonation_Implementation(PlayerType Player) override;
+
+	virtual void TryTaunt_Implementation(float Duration) override;
 		
 	FTimerHandle MarkerDecayTimerHandle;
 	void RemoveMark();

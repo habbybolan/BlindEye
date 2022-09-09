@@ -147,6 +147,12 @@ void UHealthComponent::TryDetonation_Implementation(PlayerType Player)
 	}
 }
 
+void UHealthComponent::TryTaunt_Implementation(float Duration)
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Silver, "Taunt");
+	// TODO: 
+}
+
 void UHealthComponent::RemoveMark()
 {
 	// TODO: Remove Mark visual
