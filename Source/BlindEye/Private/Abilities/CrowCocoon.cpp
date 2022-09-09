@@ -57,7 +57,7 @@ void ACrowCocoon::PerformPulse()
 	
 	uint8 pulseIndex = CalcPulseIndex();
 	// perform taunt on first pulse index
-	if (pulseIndex == 1)
+	if (pulseIndex == 0)
 	{
 		UGameplayStatics::ApplyRadialDamage(world, DamageTicks[CalcPulseIndex()], GetInstigator()->GetActorLocation(), Radius, FirstPulseDamageType,
 		TArray<AActor*>(), GetInstigator());
