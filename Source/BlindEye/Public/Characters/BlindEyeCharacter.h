@@ -78,6 +78,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetHealthPercent();
 
+	UFUNCTION(BlueprintCallable)
+	float GetAllyHealthPercent(); 
+
 	// Called when playerState replicated on client
 	void UpdateAllClientUI();
 
@@ -111,11 +114,7 @@ protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
-
-	UPROPERTY()
-	ABlindEyePlayerState* BlindEyePlayerState;
-
-	void SetupPlayerState();
+	ABlindEyePlayerState* GetAllyPlayerState();
 
 public:
 	/** Returns CameraBoom subobject **/

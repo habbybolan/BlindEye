@@ -8,8 +8,12 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Abilities/AbilityManager.h"
+#include "Characters/BlindEyePlayerController.h"
 #include "Components/HealthComponent.h"
+#include "Enemies/BlindEyeEnemyController.h"
+#include "Gameplay/BlindEyeGameState.h"
 #include "Gameplay/BlindEyePlayerState.h"
+#include "Kismet/GameplayStatics.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ATP_ThirdPersonCharacter
@@ -58,24 +62,33 @@ ABlindEyeCharacter::ABlindEyeCharacter()
 void ABlindEyeCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		SetupPlayerState();
-	}
 }
 
-void ABlindEyeCharacter::SetupPlayerState()
-{
-	BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState());
-	if (!BlindEyePlayerState) return;
 
-	BlindEyePlayerState->HealthUpdated.AddUFunction(this, TEXT("HealthUpdated"));
+ABlindEyePlayerState* ABlindEyeCharacter::GetAllyPlayerState()
+{
+	ABlindEyeGameState* GameState = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(GetWorld()));
+	if (!GameState) return nullptr;
+
+	// Get other player controller
+	ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GetWorld()->GetGameState());
+	if (BlindEyeGameState == nullptr) return nullptr;
+
+	if (BlindEyeGameState->PlayerArray.Num() < 0) return nullptr;
+	APlayerState* PlayerState1 = BlindEyeGameState->PlayerArray[0];
+	if (PlayerState1 && PlayerState1 != GetPlayerState())
+	{
+		return Cast<ABlindEyePlayerState>(PlayerState1);
+	} else if (APlayerState* PlayerState2 = BlindEyeGameState->PlayerArray[1])
+	{
+		return Cast<ABlindEyePlayerState>(PlayerState2);
+	}
+	return nullptr;
 }
 
 void ABlindEyeCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
-	SetupPlayerState();
 	if (IsLocallyControlled())
 	{
 		UpdateAllClientUI();
@@ -90,8 +103,6 @@ void ABlindEyeCharacter::UpdateAllClientUI()
 void ABlindEyeCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-	// Note: Only called from server
-	BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState());
 }
 
 void ABlindEyeCharacter::TurnAtRate(float Rate)
@@ -123,15 +134,15 @@ void ABlindEyeCharacter::Unique1Released()
 
 float ABlindEyeCharacter::GetHealth_Implementation()
 {
-	if (BlindEyePlayerState)
-		return BlindEyePlayerState->GetHealth();
+	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
+		return BlindEyePS->GetHealth();
 	return 0;
 }
 
 void ABlindEyeCharacter::SetHealth_Implementation(float NewHealth)
 {
-	if (BlindEyePlayerState)
-		return BlindEyePlayerState->SetHealth(NewHealth);
+	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
+		return BlindEyePS->SetHealth(NewHealth);
 }
 
 void ABlindEyeCharacter::OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType,
@@ -158,14 +169,37 @@ void ABlindEyeCharacter::HealthUpdated()
 {
 	if (IsLocallyControlled())
 	{
+		// Update owning health UI
 		UpdatePlayerHealthUI();
-	} 
+	} else
+	{
+		// Update health on owning characters UI
+		ABlindEyePlayerState* BlindEyePlayerState = GetAllyPlayerState();
+		ABlindEyeCharacter* AllyBlindCharacter = Cast<ABlindEyeCharacter>(BlindEyePlayerState->GetPawn());
+		if (AllyBlindCharacter == nullptr) return;
+		AllyBlindCharacter->UpdateAllyHealthUI();
+	}
 }
 
 float ABlindEyeCharacter::GetHealthPercent()
 {
-	if (BlindEyePlayerState == nullptr) return 0;
-	return BlindEyePlayerState->GetHealth() / BlindEyePlayerState->GetMaxHealth();
+	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
+	{
+		return BlindEyePS->GetHealth() / BlindEyePS->GetMaxHealth();
+	}
+	return 0;
+}
+
+float ABlindEyeCharacter::GetAllyHealthPercent()
+{
+	ABlindEyePlayerState* AllyState = GetAllyPlayerState();
+	if (AllyState)
+	{
+		ABlindEyePlayerState* BlindAllyState = Cast<ABlindEyePlayerState>(AllyState);
+		if (BlindAllyState == nullptr) return 0;
+		return BlindAllyState->GetHealth() / BlindAllyState->GetMaxHealth();
+	}
+	return 0;
 }
 
 void ABlindEyeCharacter::MoveForward(float Value)

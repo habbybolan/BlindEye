@@ -3,6 +3,7 @@
 
 #include "Gameplay/BlindEyePlayerState.h"
 
+#include "Characters/BlindEyeCharacter.h"
 #include "Net/UnrealNetwork.h"
 
 ABlindEyePlayerState::ABlindEyePlayerState()
@@ -49,7 +50,11 @@ void ABlindEyePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 
 void ABlindEyePlayerState::OnRep_HealthUpdated()
 {
-	HealthUpdated.Broadcast();
+	ABlindEyeCharacter* BlindEyeCharacter = Cast<ABlindEyeCharacter>(GetPawn());
+	if (BlindEyeCharacter)
+	{
+		BlindEyeCharacter->HealthUpdated();
+	}
 }
 
 void ABlindEyePlayerState::OnRep_BirdMeterUpdated()

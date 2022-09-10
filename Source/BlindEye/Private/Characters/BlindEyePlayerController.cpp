@@ -5,7 +5,10 @@
 
 #include "Characters/BlindEyeCharacter.h"
 #include "Gameplay/BlindEyeGameMode.h"
+#include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
+
+class ABlindEyeGameState;
 
 void ABlindEyePlayerController::SER_SpawnPlayer_Implementation()
 {

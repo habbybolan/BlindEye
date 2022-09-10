@@ -6,6 +6,7 @@
 #include "EngineUtils.h"
 #include "Characters/BlindEyePlayerController.h"
 #include "GameFramework/PlayerStart.h"
+#include "Gameplay/BlindEyeGameState.h"
 
 void ABlindEyeGameMode::PostLogin(APlayerController* NewPlayer)
 {

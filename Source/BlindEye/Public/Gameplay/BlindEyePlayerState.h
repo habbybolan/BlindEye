@@ -24,9 +24,6 @@ public:
 	float GetBirdMeter();
 	void SetBirdMeter(float NewBirdMeter);
 
-	DECLARE_MULTICAST_DELEGATE(FHealthUpdatedSiganture)
-	FHealthUpdatedSiganture HealthUpdated;
-
 protected:
 	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
 	
