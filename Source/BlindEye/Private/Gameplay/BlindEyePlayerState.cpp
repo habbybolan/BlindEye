@@ -19,6 +19,10 @@ float ABlindEyePlayerState::GetHealth()
 void ABlindEyePlayerState::SetHealth(float NewHealth)
 {
 	CurrHealth = NewHealth;
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		OnRep_HealthUpdated();
+	}
 }
 
 float ABlindEyePlayerState::GetBirdMeter()
@@ -36,4 +40,14 @@ void ABlindEyePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ABlindEyePlayerState, CurrHealth);
 	DOREPLIFETIME(ABlindEyePlayerState, CurrBirdMeter);
+}
+
+void ABlindEyePlayerState::OnRep_HealthUpdated()
+{
+	HealthUpdated.Broadcast();
+}
+
+void ABlindEyePlayerState::OnRep_BirdMeterUpdated()
+{
+	// TODO:
 }

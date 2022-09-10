@@ -66,10 +66,13 @@ public:
 	TEAMS Team;
 	virtual TEAMS GetTeam_Implementation() override;
 
+	UFUNCTION(BlueprintNativeEvent)
+	void HealthUpdated(); 
+
 	PlayerType PlayerType;
 
 protected:
-
+	
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
 
@@ -99,6 +102,8 @@ protected:
 
 	UPROPERTY()
 	ABlindEyePlayerState* BlindEyePlayerState;
+
+	void SetupPlayerState();
 
 public:
 	/** Returns CameraBoom subobject **/

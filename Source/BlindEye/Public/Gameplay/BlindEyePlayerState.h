@@ -23,18 +23,27 @@ public:
 	float GetBirdMeter();
 	void SetBirdMeter(float NewBirdMeter);
 
+	DECLARE_MULTICAST_DELEGATE(FHealthUpdatedSiganture)
+	FHealthUpdatedSiganture HealthUpdated;
+
 protected:
 	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float MaxHealth = 100.f;
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, ReplicatedUsing="OnRep_HealthUpdated")
 	float CurrHealth;
+
+	UFUNCTION()
+	void OnRep_HealthUpdated();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float MaxBirdMeter = 100.f;
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, ReplicatedUsing="OnRep_BirdMeterUpdated")
 	float CurrBirdMeter;
+
+	UFUNCTION()
+	void OnRep_BirdMeterUpdated();
 	
 	
 };

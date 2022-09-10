@@ -58,13 +58,24 @@ ABlindEyeCharacter::ABlindEyeCharacter()
 void ABlindEyeCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		SetupPlayerState();
+	}
+}
+
+void ABlindEyeCharacter::SetupPlayerState()
+{
+	BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState());
+	if (!BlindEyePlayerState) return;
+
+	BlindEyePlayerState->HealthUpdated.AddUFunction(this, TEXT("HealthUpdated"));
 }
 
 void ABlindEyeCharacter::OnRep_PlayerState()
 {
-
 	Super::OnRep_PlayerState();
-	BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState());
+	SetupPlayerState();
 }
 
 void ABlindEyeCharacter::PossessedBy(AController* NewController)
@@ -134,6 +145,11 @@ TEAMS ABlindEyeCharacter::GetTeam_Implementation()
 	return Team;
 }
 
+void ABlindEyeCharacter::HealthUpdated_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Blue, "Test Health Update");
+}
+
 void ABlindEyeCharacter::MoveForward(float Value)
 {
 	if (AbilityManager->IsMovementBlocked()) return;
@@ -191,3 +207,5 @@ void ABlindEyeCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 	PlayerInputComponent->BindAction("Unique1", IE_Released, this, &ABlindEyeCharacter::Unique1Released);
 	// TODO: Player input for rest of attacks
 }
+
+
