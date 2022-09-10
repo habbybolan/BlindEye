@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Shrine.h"
 #include "GameFramework/GameState.h"
 #include "BlindEyeGameState.generated.h"
 
@@ -19,6 +20,15 @@ public:
 
 	ABlindEyeGameState();
 
+	virtual void BeginPlay() override;
+
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	AShrine* GetShrine();
+
+protected:
+	TWeakObjectPtr<AShrine> Shrine;
+
+	
 	
 };

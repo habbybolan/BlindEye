@@ -23,8 +23,13 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UHealthComponent* HealthComponent;
-	
 
+	UPROPERTY(EditDefaultsOnly)
+	float MaxShrineHealth = 100.f;
+
+	DECLARE_MULTICAST_DELEGATE(FShrineHealthChangeSignature)
+	FShrineHealthChangeSignature ShrineHealthChange;
+	
 	virtual float GetHealth_Implementation() override;
 	virtual void SetHealth_Implementation(float NewHealth) override;
 	virtual TEAMS GetTeam_Implementation() override;
@@ -32,5 +37,10 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY(Replicated)
+	float CurrShrineHealth;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 };

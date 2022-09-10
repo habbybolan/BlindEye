@@ -4,6 +4,7 @@
 
 #include "Components/HealthComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 AShrine::AShrine()
@@ -15,17 +16,17 @@ AShrine::AShrine()
 	RootComponent = Mesh;
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
+	CurrShrineHealth = MaxShrineHealth;
 }
 
 float AShrine::GetHealth_Implementation()
 {
-	// TODO:
-	return 0;
+	return CurrShrineHealth;
 }
 
 void AShrine::SetHealth_Implementation(float NewHealth)
 {
-	// TODO:
+	CurrShrineHealth = NewHealth;
 }
 
 TEAMS AShrine::GetTeam_Implementation()
@@ -37,5 +38,11 @@ TEAMS AShrine::GetTeam_Implementation()
 void AShrine::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void AShrine::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AShrine, CurrShrineHealth);
 }
 
