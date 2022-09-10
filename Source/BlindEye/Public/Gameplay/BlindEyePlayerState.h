@@ -19,6 +19,7 @@ public:
 
 	float GetHealth();
 	void SetHealth(float NewHealth);
+	float GetMaxHealth();
 
 	float GetBirdMeter();
 	void SetBirdMeter(float NewBirdMeter);

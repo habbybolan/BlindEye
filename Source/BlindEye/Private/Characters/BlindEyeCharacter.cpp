@@ -76,6 +76,15 @@ void ABlindEyeCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 	SetupPlayerState();
+	if (IsLocallyControlled())
+	{
+		UpdateAllClientUI();
+	}
+}
+
+void ABlindEyeCharacter::UpdateAllClientUI()
+{
+	UpdatePlayerHealthUI();
 }
 
 void ABlindEyeCharacter::PossessedBy(AController* NewController)
@@ -145,9 +154,18 @@ TEAMS ABlindEyeCharacter::GetTeam_Implementation()
 	return Team;
 }
 
-void ABlindEyeCharacter::HealthUpdated_Implementation()
+void ABlindEyeCharacter::HealthUpdated()
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Blue, "Test Health Update");
+	if (IsLocallyControlled())
+	{
+		UpdatePlayerHealthUI();
+	} 
+}
+
+float ABlindEyeCharacter::GetHealthPercent()
+{
+	if (BlindEyePlayerState == nullptr) return 0;
+	return BlindEyePlayerState->GetHealth() / BlindEyePlayerState->GetMaxHealth();
 }
 
 void ABlindEyeCharacter::MoveForward(float Value)

@@ -66,8 +66,20 @@ public:
 	TEAMS Team;
 	virtual TEAMS GetTeam_Implementation() override;
 
-	UFUNCTION(BlueprintNativeEvent)
-	void HealthUpdated(); 
+	// Event called after playerState updates health
+	UFUNCTION()
+	void HealthUpdated();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void UpdatePlayerHealthUI();
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void UpdateAllyHealthUI();
+
+	UFUNCTION(BlueprintCallable)
+	float GetHealthPercent();
+
+	// Called when playerState replicated on client
+	void UpdateAllClientUI();
 
 	PlayerType PlayerType;
 

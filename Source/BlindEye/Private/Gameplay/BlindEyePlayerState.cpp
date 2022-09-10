@@ -25,6 +25,11 @@ void ABlindEyePlayerState::SetHealth(float NewHealth)
 	}
 }
 
+float ABlindEyePlayerState::GetMaxHealth()
+{
+	return MaxHealth;
+}
+
 float ABlindEyePlayerState::GetBirdMeter()
 {
 	return CurrBirdMeter;
