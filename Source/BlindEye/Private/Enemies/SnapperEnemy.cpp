@@ -20,3 +20,8 @@ void ASnapperEnemy::OnTakeDamage_Implementation(float Damage, FVector HitLocatio
 		}
 	}
 }
+
+void ASnapperEnemy::PerformBasicAttack()
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Red, "Try Attack");
+}

@@ -45,6 +45,8 @@ public:
 
 	virtual void OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
 	virtual UHealthComponent* GetHealthComponent_Implementation() override;
+
+	virtual void OnDeath_Implementation() override;
 	
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)

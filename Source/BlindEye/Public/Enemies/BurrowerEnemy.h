@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "NiagaraComponent.h"
+#include "Chaos/PhysicalMaterials.h"
 #include "Components/TimelineComponent.h"
 #include "Enemies/BlindEyeEnemyBase.h"
 #include "BurrowerEnemy.generated.h"
@@ -67,6 +69,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float AttackTimeAppearingLength = 2.f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraSystem* WarningParticle;
+ 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraSystem* FollowParticle;
+ 
 protected:
 
 	virtual void BeginPlay() override;
@@ -74,6 +82,11 @@ protected:
 	TArray<ASnapperEnemy*> SpawnedSnappers;
 	
 	TArray<FVector> GetSnapperSpawnPoints();
+
+	UPROPERTY()
+	UNiagaraComponent* SpawnedWarningParticle;
+	UPROPERTY()
+	UNiagaraComponent* SpawnedFollowParticle;
 
 	UFUNCTION()
 	void StartAttackAppearance();
@@ -117,5 +130,28 @@ protected:
 	
 	UFUNCTION()
 	void SpawnSnappers();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_SetAppearingHiding();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_SetDisappeared();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_SetAppeared();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_SetFollowing();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_SpawnWarningParticle();
+	UFUNCTION(NetMulticast, Reliable) 
+	void MULT_DespawnWarningParticle();
+
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_SpawnFollowParticle();
+	UFUNCTION(NetMulticast, Reliable) 
+	void MULT_DespawnFollowParticle(); 
+	
+	virtual void Destroyed() override;
+	
 	
 };

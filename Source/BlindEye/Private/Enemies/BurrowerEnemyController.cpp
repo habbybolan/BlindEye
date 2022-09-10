@@ -33,7 +33,6 @@ void ABurrowerEnemyController::SpawnActionStart()
 	if (CachedBurrower)
 	{
 		CachedBurrower->SpawnAction(randSpawn);
-		CachedBurrower->SetHidden(false);
 	}
 }
 
@@ -43,7 +42,6 @@ void ABurrowerEnemyController::AttackActionStart()
 	if (CachedBurrower)
 	{
 		CachedBurrower->AttackAction(GetRandomPlayerForTarget());
-		CachedBurrower->SetHidden(false);
 	} 
 }
 

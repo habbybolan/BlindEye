@@ -62,6 +62,11 @@ UHealthComponent* ABlindEyeEnemyBase::GetHealthComponent_Implementation()
 	return HealthComponent;
 }
 
+void ABlindEyeEnemyBase::OnDeath_Implementation()
+{
+	Destroy();
+}
+
 TEAMS ABlindEyeEnemyBase::GetTeam_Implementation()
 {
 	return Team;

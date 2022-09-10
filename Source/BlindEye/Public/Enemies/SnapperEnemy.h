@@ -16,5 +16,7 @@ class BLINDEYE_API ASnapperEnemy : public ABlindEyeEnemyBase
 
 public:
 	virtual void OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
+
+	void PerformBasicAttack();
 	
 };

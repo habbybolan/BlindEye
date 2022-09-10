@@ -7,6 +7,7 @@
 #include "SnapperEnemyController.generated.h"
 
 class UBehaviorTree;
+class ASnapperEnemy;
 
 /**
  * 
@@ -19,14 +20,32 @@ class BLINDEYE_API ASnapperEnemyController : public ABlindEyeEnemyController
 public:
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
+	float DistanceToBasicAttack = 200.f;
+ 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
+	float BasicAttackDelay = 3.f;
+
 	// Calls blueprint to initialize behavior tree
 	UFUNCTION(BlueprintImplementableEvent)
 	void InitializeBehaviorTree();
 	
 	void SetTargetEnemy(AActor* target);
+
+	bool CanBasicAttack();
+	bool IsInBasicAttackRange();
+	void PerformBasicAttack();
 	
 protected:
 	TWeakObjectPtr<AActor> Target;
-	
+
+	bool IsBasicAttackOnDelay = false;
+	FTimerHandle BasicAttackDelayTimerHandle;
+
+	UPROPERTY()
+	ASnapperEnemy* Snapper;
+
+	virtual void OnPossess(APawn* InPawn) override;
+	void SetCanBasicAttack();
 	
 };

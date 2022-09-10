@@ -47,6 +47,9 @@ void APhoenixFireball::CastFireCone()
 	FVector UserLocation = GetInstigator()->GetActorLocation();
 	for (FHitResult ConeHit : OutHits)
 	{
+		// some surfaces return null for actor
+		if (ConeHit.GetActor() == nullptr) return;
+		
 		// check if hit result in boxTrace is within the player's cone
 		float AngleToUser = acos(UKismetMathLibrary::Dot_VectorVector(UserLocation, ConeHit.Location) / (UserLocation.Size() * ConeHit.Location.Size()));
 		if (abs(AngleToUser) <= ConeHalfAngleDeg)
@@ -74,6 +77,7 @@ void APhoenixFireball::CastFireball()
 void APhoenixFireball::OnFireballCastHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (!OtherActor) return;
 	if (GetLocalRole() < ROLE_Authority) return;
 	if (!FireballCast) return;
 	DealWithDamage(OtherActor, Hit.ImpactNormal, Hit, FireballCast->Damage);
