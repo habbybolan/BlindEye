@@ -44,10 +44,22 @@ public:
 	UFUNCTION(BlueprintCallable)
 	const FAppliedStatusEffects& GetAppliedStatusEffect();
 
-	DECLARE_MULTICAST_DELEGATE(FDeathSignature)
+	DECLARE_MULTICAST_DELEGATE_OneParam(FDeathSignature, AActor*)
 	FDeathSignature OnDeathDelegate;
+	
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, ReplicatedUsing="OnRep_IsInvincibility")
+	bool IsInvincible = false;
+
+	UFUNCTION()
+	void OnRep_IsInvincibility();
+
+	void Kill();
 
 protected:
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	void OnDeath();
 
 	// cached owners health interface
 	IHealthInterface* OwnerHealth;

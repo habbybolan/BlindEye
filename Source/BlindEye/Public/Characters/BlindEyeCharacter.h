@@ -115,6 +115,15 @@ protected:
 	void Unique1Pressed(); 
 	void Unique1Released();
 
+	UFUNCTION(Server, Reliable)
+	void SER_DebugInvincibility();
+	UFUNCTION(Server, Reliable)
+	void SER_DebugKillAllSnappers();
+	UFUNCTION(Server, Reliable)
+	void SER_DebugKillAllBurrowers();
+	UFUNCTION(Server, Reliable)
+	void SER_DebugKillAllHunters();
+
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

@@ -79,7 +79,10 @@ protected:
 
 	virtual void BeginPlay() override;
 	
-	TArray<ASnapperEnemy*> SpawnedSnappers;
+	TMap<uint32, ASnapperEnemy*> SpawnedSnappers;
+	
+	UFUNCTION()
+	void OnSnapperDeath(AActor* SnapperActor);
 	
 	TArray<FVector> GetSnapperSpawnPoints();
 

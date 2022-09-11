@@ -11,6 +11,8 @@
 #include "Characters/BlindEyePlayerController.h"
 #include "Components/HealthComponent.h"
 #include "Enemies/BlindEyeEnemyController.h"
+#include "Enemies/BurrowerEnemy.h"
+#include "Enemies/SnapperEnemy.h"
 #include "Gameplay/BlindEyeGameState.h"
 #include "Gameplay/BlindEyePlayerState.h"
 #include "Kismet/GameplayStatics.h"
@@ -57,7 +59,7 @@ ABlindEyeCharacter::ABlindEyeCharacter()
 	
 	PlayerType = PlayerType::CrowPlayer;
 	Team = TEAMS::Player;
-}
+} 
 
 void ABlindEyeCharacter::BeginPlay()
 {
@@ -143,6 +145,46 @@ void ABlindEyeCharacter::Unique1Pressed()
 void ABlindEyeCharacter::Unique1Released()
 {
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Released);
+}
+
+void ABlindEyeCharacter::SER_DebugInvincibility_Implementation()
+{
+	HealthComponent->IsInvincible = !HealthComponent->IsInvincible;
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		HealthComponent->OnRep_IsInvincibility();
+	}
+}
+
+void ABlindEyeCharacter::SER_DebugKillAllSnappers_Implementation()
+{
+	TArray<AActor*> SnapperActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASnapperEnemy::StaticClass(), SnapperActors);
+	for (AActor* SnapperActor : SnapperActors)
+	{
+		if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(SnapperActor))
+		{
+			HealthInterface->Execute_GetHealthComponent(SnapperActor)->Kill();
+		}
+	}
+}
+
+void ABlindEyeCharacter::SER_DebugKillAllBurrowers_Implementation()
+{
+	TArray<AActor*> BurrowerActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABurrowerEnemy::StaticClass(), BurrowerActors);
+	for (AActor* BurrowerActor : BurrowerActors)
+	{
+		if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(BurrowerActor))
+		{
+			HealthInterface->Execute_GetHealthComponent(BurrowerActor)->Kill();
+		}
+	}
+}
+
+void ABlindEyeCharacter::SER_DebugKillAllHunters_Implementation()
+{
+	// TODO:
 }
 
 float ABlindEyeCharacter::GetHealth_Implementation()
@@ -283,6 +325,10 @@ void ABlindEyeCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 	PlayerInputComponent->BindAction("Unique1", IE_Pressed, this, &ABlindEyeCharacter::Unique1Pressed);
 	PlayerInputComponent->BindAction("Unique1", IE_Released, this, &ABlindEyeCharacter::Unique1Released);
 	// TODO: Player input for rest of attacks
+
+	PlayerInputComponent->BindAction("Debug1", IE_Released, this, &ABlindEyeCharacter::SER_DebugInvincibility);
+	PlayerInputComponent->BindAction("Debug2", IE_Released, this, &ABlindEyeCharacter::SER_DebugKillAllSnappers);
+	PlayerInputComponent->BindAction("Debug3", IE_Released, this, &ABlindEyeCharacter::SER_DebugKillAllBurrowers);
 }
 
 

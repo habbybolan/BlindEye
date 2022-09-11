@@ -27,6 +27,11 @@ void ABurrowerSpawnManager::BeginPlay()
 	world->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ABurrowerSpawnManager::SpawnBurrower, SpawnDelay, true, 0.1);
 }
 
+void ABurrowerSpawnManager::OnBurrowerDeath(AActor* BurrowerActor)
+{
+	SpawnedBurrowers.Remove(BurrowerActor->GetUniqueID());
+}
+
 void ABurrowerSpawnManager::SpawnBurrower()
 {
 	UWorld* world = GetWorld();
@@ -36,7 +41,11 @@ void ABurrowerSpawnManager::SpawnBurrower()
 	ABurrowerEnemy* SpawnedBurrower = world->SpawnActor<ABurrowerEnemy>(BurrowerType, SpawnPoint.GetLocation(), SpawnPoint.Rotator());
 	if (SpawnedBurrower)
 	{
-		SpawnedBurrowers.Add(MakeWeakObjectPtr(SpawnedBurrower));
+		SpawnedBurrowers.Add(SpawnedBurrower->GetUniqueID(), MakeWeakObjectPtr(SpawnedBurrower));
+		if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(SpawnedBurrower))
+		{
+			HealthInterface->Execute_GetHealthComponent(SpawnedBurrower)->OnDeathDelegate.AddUFunction(this, FName("OnBurrowerDeath"));
+		}
 	}
 }
 
