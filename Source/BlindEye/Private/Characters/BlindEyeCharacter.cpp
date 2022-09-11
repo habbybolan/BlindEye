@@ -11,6 +11,7 @@
 #include "Characters/BlindEyePlayerController.h"
 #include "Components/HealthComponent.h"
 #include "Enemies/BlindEyeEnemyController.h"
+#include "Enemies/SnapperEnemy.h"
 #include "Gameplay/BlindEyeGameState.h"
 #include "Gameplay/BlindEyePlayerState.h"
 #include "Kismet/GameplayStatics.h"
@@ -145,7 +146,7 @@ void ABlindEyeCharacter::Unique1Released()
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Released);
 }
 
-void ABlindEyeCharacter::DebugInvincibility_Implementation()
+void ABlindEyeCharacter::SER_DebugInvincibility_Implementation()
 {
 	HealthComponent->IsInvincible = !HealthComponent->IsInvincible;
 	if (GetLocalRole() == ROLE_Authority)
@@ -154,7 +155,25 @@ void ABlindEyeCharacter::DebugInvincibility_Implementation()
 	}
 }
 
-void ABlindEyeCharacter::DebugKillAllEnemies_Implementation()
+void ABlindEyeCharacter::SER_DebugKillAllSnappers_Implementation()
+{
+	TArray<AActor*> SnapperActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASnapperEnemy::StaticClass(), SnapperActors);
+	for (AActor* SnapperActor : SnapperActors)
+	{
+		if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(SnapperActor))
+		{
+			HealthInterface->Execute_GetHealthComponent(SnapperActor)->Kill();
+		}
+	}
+}
+
+void ABlindEyeCharacter::SER_DebugKillAllBurrowers_Implementation()
+{
+	// TODO:
+}
+
+void ABlindEyeCharacter::SER_DebugKillAllHunters_Implementation()
 {
 	// TODO:
 }
@@ -298,8 +317,8 @@ void ABlindEyeCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 	PlayerInputComponent->BindAction("Unique1", IE_Released, this, &ABlindEyeCharacter::Unique1Released);
 	// TODO: Player input for rest of attacks
 
-	PlayerInputComponent->BindAction("Debug1", IE_Released, this, &ABlindEyeCharacter::DebugInvincibility);
-	PlayerInputComponent->BindAction("Unique1", IE_Released, this, &ABlindEyeCharacter::DebugKillAllEnemies);
+	PlayerInputComponent->BindAction("Debug1", IE_Released, this, &ABlindEyeCharacter::SER_DebugInvincibility);
+	PlayerInputComponent->BindAction("Debug2", IE_Released, this, &ABlindEyeCharacter::SER_DebugKillAllSnappers);
 }
 
 
