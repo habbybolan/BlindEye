@@ -52,6 +52,7 @@ void AAbilityBase::DelayToNextState(float delay)
 	UWorld* world = GetWorld();
 	if (!world) return;
 
+	world->GetTimerManager().ClearTimer(NextStateDelayTimerHandle);
 	world->GetTimerManager().SetTimer(NextStateDelayTimerHandle, this, &AAbilityBase::EndCurrState, delay, false);
 }
 
@@ -65,6 +66,7 @@ void AAbilityBase::EndAbilityLogic()
 	
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, "Ability ended");
 	CurrState = 0;
+	AbilityStates[CurrState]->ResetState();
 	bIsRunning = false;
 	AbilityEndedDelegate.ExecuteIfBound();
 	SetOnCooldown();
