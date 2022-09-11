@@ -29,7 +29,10 @@ protected:
 	FTimerHandle SpawnTimerHandle;
 	
 	UPROPERTY()
-	TArray<TWeakObjectPtr<ABurrowerEnemy>> SpawnedBurrowers;
+	TMap<uint32, TWeakObjectPtr<ABurrowerEnemy>> SpawnedBurrowers;
+
+	UFUNCTION()
+	void OnBurrowerDeath(AActor* BurrowerActor);
 
 	void SpawnBurrower();
 	FTransform FindRandomSpawnPoint();
