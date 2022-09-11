@@ -58,7 +58,10 @@ public:
 	TSubclassOf<ABasicAttackSmallFlock> LastChargeFlockType;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float ChargeDelay = 0.2f;
+	float ChargeDelay1 = 0.2f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float ChargeDelay2 = 0.2f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float AbilityCancelDelay = 2; 

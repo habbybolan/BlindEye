@@ -96,7 +96,7 @@ void UFirstAttackState::ExitState()
 	if (SharedAbility)
 	{
 		SharedAbility->SetLeaveAbilityTimer();
-		SharedAbility->DelayToNextState(SharedAbility->ChargeDelay);
+		SharedAbility->DelayToNextState(SharedAbility->ChargeDelay1);
 	}
 }
 
@@ -130,7 +130,7 @@ void USecondAttackState::ExitState()
 	if (SharedAbility)
 	{
 		SharedAbility->SetLeaveAbilityTimer();
-		SharedAbility->DelayToNextState(SharedAbility->ChargeDelay);
+		SharedAbility->DelayToNextState(SharedAbility->ChargeDelay2);
 	}
 }
 
