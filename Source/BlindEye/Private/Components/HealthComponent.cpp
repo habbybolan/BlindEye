@@ -69,12 +69,16 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 		{
 			// TODO: Check if player character or enemy
 			// TODO: If enemy delete, if player, do extra work on player and send to GameMode for any state change
-			OnDeathDelegate.Broadcast(GetOwner());
-			OwnerHealth->Execute_OnDeath(GetOwner());
+			OnDeath();
 		}
 	}
 }
 
+void UHealthComponent::OnDeath()
+{
+	OnDeathDelegate.Broadcast(GetOwner());
+	OwnerHealth->Execute_OnDeath(GetOwner());
+}
 
 void UHealthComponent::Stun_Implementation(float StunDuration)
 {
@@ -169,6 +173,12 @@ void UHealthComponent::OnRep_IsInvincibility()
 {
 	FString boolString = IsInvincible ? "True" : "False";
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Orange, "Invincibility: " + boolString);
+}
+
+
+void UHealthComponent::Kill()
+{
+	OnDeath();
 }
 
 void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

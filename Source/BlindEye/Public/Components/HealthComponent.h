@@ -53,9 +53,13 @@ public:
 	UFUNCTION()
 	void OnRep_IsInvincibility();
 
+	void Kill();
+
 protected:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	void OnDeath();
 
 	// cached owners health interface
 	IHealthInterface* OwnerHealth;
