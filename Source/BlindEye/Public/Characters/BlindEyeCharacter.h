@@ -111,9 +111,22 @@ protected:
 	 */
 	void LookUpAtRate(float Rate);
 
+	UFUNCTION()
 	void BasicAttackPressed();
-	void Unique1Pressed(); 
+	UFUNCTION()
+	void ChargedAttackPressed();
+	UFUNCTION()
+	void ChargedAttackReleased(); 
+
+	UFUNCTION()
+	void Unique1Pressed();
+	UFUNCTION()
 	void Unique1Released();
+
+	UFUNCTION()
+	void Unique2Pressed();
+	UFUNCTION()
+	void Unique2Released();
 
 	UFUNCTION(Server, Reliable)
 	void SER_DebugInvincibility();

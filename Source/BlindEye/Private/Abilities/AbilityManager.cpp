@@ -23,6 +23,8 @@ void UAbilityManager::SER_UsedAbility_Implementation(EAbilityTypes abilityType, 
 	{
 		if (IsAbilityUnavailable(BasicAttack)) return;
 		BasicAttack->UseAbility(abilityUsageType);
+	} else if (abilityType == EAbilityTypes::ChargedBasic) {
+		// TODO:
 	} else if (abilityType == EAbilityTypes::Unique1)
 	{
 		if (UniqueAbilities[0])
@@ -30,7 +32,13 @@ void UAbilityManager::SER_UsedAbility_Implementation(EAbilityTypes abilityType, 
 			if (IsAbilityUnavailable(UniqueAbilities[0])) return;
 			UniqueAbilities[0]->UseAbility(abilityUsageType);
 		}
-			
+	} else if (abilityType == EAbilityTypes::Unique2)
+	{
+		if (UniqueAbilities[1])
+		{
+			if (IsAbilityUnavailable(UniqueAbilities[1])) return;
+			UniqueAbilities[1]->UseAbility(abilityUsageType);
+		}
 	}
 	// TODO: Rest of abilities
 }
