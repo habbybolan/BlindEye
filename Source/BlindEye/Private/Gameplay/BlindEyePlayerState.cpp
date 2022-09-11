@@ -3,6 +3,7 @@
 
 #include "Gameplay/BlindEyePlayerState.h"
 
+#include "Characters/BlindEyeCharacter.h"
 #include "Net/UnrealNetwork.h"
 
 ABlindEyePlayerState::ABlindEyePlayerState()
@@ -19,6 +20,15 @@ float ABlindEyePlayerState::GetHealth()
 void ABlindEyePlayerState::SetHealth(float NewHealth)
 {
 	CurrHealth = NewHealth;
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		OnRep_HealthUpdated();
+	}
+}
+
+float ABlindEyePlayerState::GetMaxHealth()
+{
+	return MaxHealth;
 }
 
 float ABlindEyePlayerState::GetBirdMeter()
@@ -36,4 +46,18 @@ void ABlindEyePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ABlindEyePlayerState, CurrHealth);
 	DOREPLIFETIME(ABlindEyePlayerState, CurrBirdMeter);
+}
+
+void ABlindEyePlayerState::OnRep_HealthUpdated()
+{
+	ABlindEyeCharacter* BlindEyeCharacter = Cast<ABlindEyeCharacter>(GetPawn());
+	if (BlindEyeCharacter)
+	{
+		BlindEyeCharacter->HealthUpdated();
+	}
+}
+
+void ABlindEyePlayerState::OnRep_BirdMeterUpdated()
+{
+	// TODO:
 }

@@ -66,10 +66,33 @@ public:
 	TEAMS Team;
 	virtual TEAMS GetTeam_Implementation() override;
 
+	// Event called after playerState updates health
+	UFUNCTION()
+	void HealthUpdated();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void UpdatePlayerHealthUI();
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void UpdateAllyHealthUI();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void UpdateShrineHealthUI(); 
+	
+	float GetHealthPercent_Implementation() override; 
+
+	UFUNCTION(BlueprintCallable)
+	float GetAllyHealthPercent();
+
+	UFUNCTION(BlueprintCallable)
+	float GetShrineHealthPercent();  
+
+	// Called when playerState replicated on client
+	void UpdateAllClientUI();
+
 	PlayerType PlayerType;
 
 protected:
-
+	
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
 
@@ -96,9 +119,7 @@ protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
-
-	UPROPERTY()
-	ABlindEyePlayerState* BlindEyePlayerState;
+	ABlindEyePlayerState* GetAllyPlayerState();
 
 public:
 	/** Returns CameraBoom subobject **/

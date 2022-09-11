@@ -35,6 +35,8 @@ public:
 	float GetHealth();
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
 	void SetHealth(float NewHealth);
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	float GetHealthPercent();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	TEAMS GetTeam();

@@ -8,8 +8,12 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Abilities/AbilityManager.h"
+#include "Characters/BlindEyePlayerController.h"
 #include "Components/HealthComponent.h"
+#include "Enemies/BlindEyeEnemyController.h"
+#include "Gameplay/BlindEyeGameState.h"
 #include "Gameplay/BlindEyePlayerState.h"
+#include "Kismet/GameplayStatics.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ATP_ThirdPersonCharacter
@@ -58,20 +62,60 @@ ABlindEyeCharacter::ABlindEyeCharacter()
 void ABlindEyeCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (IsLocallyControlled())
+	{
+		UWorld* world = GetWorld();
+		if (world == nullptr) return;
+
+		AActor* ShrineActor = UGameplayStatics::GetActorOfClass(world, AShrine::StaticClass());
+		if (ShrineActor)
+		{
+			AShrine* Shrine = Cast<AShrine>(ShrineActor);
+			Shrine->ShrineHealthChange.AddUFunction(this, TEXT("UpdateShrineHealthUI"));
+		}
+	}
+}
+
+
+ABlindEyePlayerState* ABlindEyeCharacter::GetAllyPlayerState()
+{
+	ABlindEyeGameState* GameState = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(GetWorld()));
+	if (!GameState) return nullptr;
+
+	// Get other player controller
+	ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GetWorld()->GetGameState());
+	if (BlindEyeGameState == nullptr) return nullptr;
+
+	if (BlindEyeGameState->PlayerArray.Num() < 0) return nullptr;
+	APlayerState* PlayerState1 = BlindEyeGameState->PlayerArray[0];
+	if (PlayerState1 && PlayerState1 != GetPlayerState())
+	{
+		return Cast<ABlindEyePlayerState>(PlayerState1);
+	} else if (APlayerState* PlayerState2 = BlindEyeGameState->PlayerArray[1])
+	{
+		return Cast<ABlindEyePlayerState>(PlayerState2);
+	}
+	return nullptr;
 }
 
 void ABlindEyeCharacter::OnRep_PlayerState()
 {
-
 	Super::OnRep_PlayerState();
-	BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState());
+	if (IsLocallyControlled())
+	{
+		UpdateAllClientUI();
+	}
+}
+
+void ABlindEyeCharacter::UpdateAllClientUI()
+{
+	UpdatePlayerHealthUI();
 }
 
 void ABlindEyeCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-	// Note: Only called from server
-	BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState());
 }
 
 void ABlindEyeCharacter::TurnAtRate(float Rate)
@@ -103,15 +147,15 @@ void ABlindEyeCharacter::Unique1Released()
 
 float ABlindEyeCharacter::GetHealth_Implementation()
 {
-	if (BlindEyePlayerState)
-		return BlindEyePlayerState->GetHealth();
+	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
+		return BlindEyePS->GetHealth();
 	return 0;
 }
 
 void ABlindEyeCharacter::SetHealth_Implementation(float NewHealth)
 {
-	if (BlindEyePlayerState)
-		return BlindEyePlayerState->SetHealth(NewHealth);
+	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
+		return BlindEyePS->SetHealth(NewHealth);
 }
 
 void ABlindEyeCharacter::OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType,
@@ -132,6 +176,55 @@ void ABlindEyeCharacter::OnDeath_Implementation()
 TEAMS ABlindEyeCharacter::GetTeam_Implementation()
 {
 	return Team;
+}
+
+void ABlindEyeCharacter::HealthUpdated()
+{
+	if (IsLocallyControlled())
+	{
+		// Update owning health UI
+		UpdatePlayerHealthUI();
+	} else
+	{
+		// Update health on owning characters UI
+		ABlindEyePlayerState* BlindEyePlayerState = GetAllyPlayerState();
+		ABlindEyeCharacter* AllyBlindCharacter = Cast<ABlindEyeCharacter>(BlindEyePlayerState->GetPawn());
+		if (AllyBlindCharacter == nullptr) return;
+		AllyBlindCharacter->UpdateAllyHealthUI();
+	}
+}
+ 
+float ABlindEyeCharacter::GetHealthPercent_Implementation()
+{
+	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
+	{
+		return BlindEyePS->GetHealth() / BlindEyePS->GetMaxHealth();
+	}
+	return 0;
+}
+
+float ABlindEyeCharacter::GetAllyHealthPercent()
+{
+	ABlindEyePlayerState* AllyState = GetAllyPlayerState();
+	if (AllyState)
+	{
+		ABlindEyePlayerState* BlindAllyState = Cast<ABlindEyePlayerState>(AllyState);
+		if (BlindAllyState == nullptr) return 0;
+		return BlindAllyState->GetHealth() / BlindAllyState->GetMaxHealth();
+	}
+	return 0;
+}
+
+float ABlindEyeCharacter::GetShrineHealthPercent()
+{
+	ABlindEyeGameState* BlindGameState = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(GetWorld()));
+	AShrine* Shrine = BlindGameState->GetShrine();
+	if (Shrine == nullptr) return 0;
+	if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(Shrine))
+	{
+		return HealthInterface->Execute_GetHealthPercent(Shrine);
+	}
+	return 0;
 }
 
 void ABlindEyeCharacter::MoveForward(float Value)
@@ -191,3 +284,5 @@ void ABlindEyeCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 	PlayerInputComponent->BindAction("Unique1", IE_Released, this, &ABlindEyeCharacter::Unique1Released);
 	// TODO: Player input for rest of attacks
 }
+
+

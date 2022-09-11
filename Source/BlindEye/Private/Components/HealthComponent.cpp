@@ -52,11 +52,8 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 	{
 		const UBaseDamageType* baseDamageType = Cast<UBaseDamageType>(DamageType);
 		if (!baseDamageType) return;
-
-		APawn* pawn = Cast<APawn>(GetOwner());
-		if (!pawn) return;
 		
-		float damageMultiplied = Damage * baseDamageType->ProcessDamage(DamageCauser, pawn, HitLocation, this);
+		float damageMultiplied = Damage * baseDamageType->ProcessDamage(DamageCauser, GetOwner(), HitLocation, this);
 		OwnerHealth->Execute_SetHealth(GetOwner(), OwnerHealth->Execute_GetHealth(GetOwner()) - damageMultiplied);
 		// send callback to owning actor for any additional logic
 		OwnerHealth->Execute_OnTakeDamage(GetOwner(), Damage, HitLocation, DamageType, DamageCauser->GetInstigator());

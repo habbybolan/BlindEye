@@ -47,6 +47,7 @@ public:
 	virtual UHealthComponent* GetHealthComponent_Implementation() override;
 
 	virtual void OnDeath_Implementation() override;
+	virtual float GetHealthPercent_Implementation() override;
 	
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)

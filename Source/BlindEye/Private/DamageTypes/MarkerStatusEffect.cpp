@@ -7,7 +7,7 @@
 #include "Characters/BlindEyeCharacter.h"
 #include "Interfaces/DamageInterface.h"
 
-void UMarkerStatusEffect::ProcessEffect(AActor* Owner, APawn* HitCharacter, FVector HitLocation,
+void UMarkerStatusEffect::ProcessEffect(AActor* Owner, AActor* HitCharacter, FVector HitLocation,
                                        UHealthComponent* HealthComponent) const
 {
 	if (const IDamageInterface* DamageInterface = Cast<IDamageInterface>(HealthComponent))

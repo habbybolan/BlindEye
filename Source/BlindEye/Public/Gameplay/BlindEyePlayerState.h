@@ -19,6 +19,7 @@ public:
 
 	float GetHealth();
 	void SetHealth(float NewHealth);
+	float GetMaxHealth();
 
 	float GetBirdMeter();
 	void SetBirdMeter(float NewBirdMeter);
@@ -28,13 +29,19 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float MaxHealth = 100.f;
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, ReplicatedUsing="OnRep_HealthUpdated")
 	float CurrHealth;
+
+	UFUNCTION()
+	void OnRep_HealthUpdated();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float MaxBirdMeter = 100.f;
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, ReplicatedUsing="OnRep_BirdMeterUpdated")
 	float CurrBirdMeter;
+
+	UFUNCTION()
+	void OnRep_BirdMeterUpdated();
 	
 	
 };
