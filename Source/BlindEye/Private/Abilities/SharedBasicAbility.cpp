@@ -73,6 +73,11 @@ UFirstAttackState::UFirstAttackState(AAbilityBase* ability) : FAbilityState(abil
 void UFirstAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState();
+	if (!Ability) return;
+	if (ASharedBasicAbility* SharedBasicAbility = Cast<ASharedBasicAbility>(Ability))
+	{
+		if (!SharedBasicAbility->TryConsumeBirdMeter(SharedBasicAbility->FirstChargeCostPercent)) return;
+	}
 	if (CurrInnerState > EInnerState::None) return;
 	RunState();
 }
@@ -107,6 +112,11 @@ USecondAttackState::USecondAttackState(AAbilityBase* ability) : FAbilityState(ab
 void USecondAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState();
+	if (!Ability) return;
+	if (ASharedBasicAbility* SharedBasicAbility = Cast<ASharedBasicAbility>(Ability))
+	{
+		if (!SharedBasicAbility->TryConsumeBirdMeter(SharedBasicAbility->SecondChargeCostPercent)) return;
+	}
 	if (CurrInnerState > EInnerState::None) return;
 	RunState();
 }
@@ -141,6 +151,11 @@ ULastAttackState::ULastAttackState(AAbilityBase* ability) : FAbilityState(abilit
 void ULastAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState();
+	if (!Ability) return;
+	if (ASharedBasicAbility* SharedBasicAbility = Cast<ASharedBasicAbility>(Ability))
+	{
+		if (!SharedBasicAbility->TryConsumeBirdMeter(SharedBasicAbility->ThirdChargeCostPercent)) return;
+	}
 	if (CurrInnerState > EInnerState::None) return;
 	RunState();
 }

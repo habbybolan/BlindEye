@@ -64,6 +64,15 @@ public:
 	float ChargeDelay2 = 0.2f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float FirstChargeCostPercent = 5;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float SecondChargeCostPercent = 5;
+ 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float ThirdChargeCostPercent = 5;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float AbilityCancelDelay = 2; 
 	
 	UFUNCTION(Server, Reliable)

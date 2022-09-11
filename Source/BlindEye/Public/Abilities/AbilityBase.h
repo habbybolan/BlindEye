@@ -54,10 +54,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Cooldown = 2;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float InitialCostPercent = 5;
-
 	bool GetIsOnCooldown();
+
+	bool TryConsumeBirdMeter(float BirdMeterAmount);
 	
 protected:
 	// Called when the game starts
