@@ -5,7 +5,7 @@
 #include "Components/HealthComponent.h"
 #include "Interfaces/DamageInterface.h"
 
-void UStunStatusEffect::ProcessEffect(AActor* Owner, APawn* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const
+void UStunStatusEffect::ProcessEffect(AActor* Owner, AActor* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const
 {
 	if (const IDamageInterface* DamageInterface = Cast<IDamageInterface>(HealthComponent))
 	{

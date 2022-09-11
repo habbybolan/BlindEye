@@ -16,7 +16,7 @@ UBaseDamageType::~UBaseDamageType()
 {
 }
 
-float UBaseDamageType::ProcessDamage(AActor* Owner, APawn* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const
+float UBaseDamageType::ProcessDamage(AActor* Owner, AActor* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const
 {
 	// Get team of instigator and hit pawn
 	TEAMS HitTeam; 

@@ -6,7 +6,7 @@
 #include "Interfaces/DamageInterface.h"
 
 
-void UBurnStatusEffect::ProcessEffect(AActor* Owner, APawn* HitCharacter, FVector HitLocation,
+void UBurnStatusEffect::ProcessEffect(AActor* Owner, AActor* HitCharacter, FVector HitLocation,
                                      UHealthComponent* HealthComponent) const
 {
 	if (const IDamageInterface* DamageInterface = Cast<IDamageInterface>(HealthComponent))

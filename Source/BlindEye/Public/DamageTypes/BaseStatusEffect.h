@@ -16,6 +16,6 @@ class BLINDEYE_API UBaseStatusEffect : public UObject
 	GENERATED_BODY()
 
 public:
-	virtual void ProcessEffect(AActor* Owner, APawn* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const
+	virtual void ProcessEffect(AActor* Owner, AActor* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const
 	PURE_VIRTUAL(UBaseStatusEffect::ProcessEffect, );
 };

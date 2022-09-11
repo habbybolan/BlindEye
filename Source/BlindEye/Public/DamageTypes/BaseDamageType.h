@@ -30,10 +30,10 @@ public:
 	/**
 	 * Process the damage and return the damage multiplier from the hit
 	 * @param Owner			Character that caused this attack
-	 * @param HitCharacter	Player Character that was hit
+	 * @param HitCharacter	Actor that was hit
 	 * @param HitLocation	Location the player was hit
 	 */
 	UFUNCTION()
-	virtual float ProcessDamage(AActor* Owner, APawn* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const;
+	virtual float ProcessDamage(AActor* Owner, AActor* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const;
 	
 };

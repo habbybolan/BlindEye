@@ -20,6 +20,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	PlayerType MarkerType;
 	
-	virtual void ProcessEffect(AActor* Owner, APawn* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const override;
+	virtual void ProcessEffect(AActor* Owner, AActor* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const override;
 	
 };
