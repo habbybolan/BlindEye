@@ -11,6 +11,8 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Characters/BlindEyeCharacter.h"
 #include "Enemies/BurrowerEnemyController.h"
+#include "Enemies/SnapperEnemyController.h"
+#include "Interfaces/HealthInterface.h"
 #include "Particles/ParticleSystemComponent.h"
 
 ABurrowerEnemy::ABurrowerEnemy()
@@ -62,9 +64,14 @@ void ABurrowerEnemy::SpawnSnappers()
 	for (int i = 0; i < MinSnappersSpawn; i++)
 	{
 		uint32 randSpawnIndex = FMath::RandRange(0, spawnPoints.Num() - 1);
-		SpawnedSnappers.Add(world->SpawnActor<ASnapperEnemy>(SnapperType, spawnPoints[randSpawnIndex], GetActorRotation(), params));
+		ASnapperEnemy* SpawnedSnapper = world->SpawnActor<ASnapperEnemy>(SnapperType, spawnPoints[randSpawnIndex], GetActorRotation(), params);
+		SpawnedSnappers.Add(SpawnedSnapper->GetUniqueID(), SpawnedSnapper);
 		spawnPoints.RemoveAt(randSpawnIndex);
 		// TODO: subscribe to death event on snapper to remove from list
+		if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(SpawnedSnapper))
+		{
+			HealthInterface->Execute_GetHealthComponent(SpawnedSnapper)->OnDeathDelegate.AddUFunction<ABurrowerEnemy>(this, FName("OnSnapperDeath"));
+		}
 	}
 
 	world->GetTimerManager().SetTimer(HideTimerHandle, this, &ABurrowerEnemy::StartHideLogic, SpawnTimeAppearingLength, false);
@@ -78,7 +85,7 @@ void ABurrowerEnemy::Destroyed()
 
 void ABurrowerEnemy::SpawnAction(FTransform SpawnLocation)
 {
-	// TODO: Find spawnpoint, teleport to below it so not showing, rise up from ground and spawn enemies
+	// TODO: Find spawnpoint, teleport to below it so not showing, rise uit so not showing, p from ground and spawn enemies
 	CachedSpawnLocation = SpawnLocation.GetLocation() + FVector::DownVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
 	SetActorLocation(CachedSpawnLocation);
 	MULT_SetAppearingHiding();
@@ -103,6 +110,11 @@ void ABurrowerEnemy::AttackAction(ABlindEyeCharacter* target)
 	BurrowerController->MoveToActor(target, 1);
 	world->GetTimerManager().SetTimer(AttackTimerHandle, this, &ABurrowerEnemy::StartAttackAppearance, MaxTimerFollowingPlayerInAttack, false);
 	MULT_SpawnFollowParticle();
+}
+
+void ABurrowerEnemy::OnSnapperDeath(AActor* SnapperActor)
+{
+	SpawnedSnappers.Remove(SnapperActor->GetUniqueID());
 }
 
 TArray<FVector> ABurrowerEnemy::GetSnapperSpawnPoints()

@@ -69,7 +69,7 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 		{
 			// TODO: Check if player character or enemy
 			// TODO: If enemy delete, if player, do extra work on player and send to GameMode for any state change
-			OnDeathDelegate.Broadcast();
+			OnDeathDelegate.Broadcast(GetOwner());
 			OwnerHealth->Execute_OnDeath(GetOwner());
 		}
 	}
