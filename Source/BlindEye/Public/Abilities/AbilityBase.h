@@ -56,6 +56,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float InitialCostPercent = 5;
+
+	bool GetIsOnCooldown();
 	
 protected:
 	// Called when the game starts
@@ -70,6 +72,7 @@ protected:
 	bool bOnCooldown = false;
 	FTimerHandle CooldownTimerHandle;
 
+	void SetOnCooldown();
 	void SetOffCooldown();
 
 	// called when all ability inner states finished or ability cancelled

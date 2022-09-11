@@ -12,14 +12,27 @@ AAbilityBase::AAbilityBase()
 	bAlwaysRelevant = true;
 }
 
+bool AAbilityBase::GetIsOnCooldown()
+{
+	return bOnCooldown;
+}
+
 // Called when the game starts
 void AAbilityBase::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
+void AAbilityBase::SetOnCooldown()
+{
+	bOnCooldown = true;
+	GetWorldTimerManager().SetTimer(CooldownTimerHandle, this, &AAbilityBase::SetOffCooldown, Cooldown, false);
+}
+
 void AAbilityBase::SetOffCooldown()
 {
+	// If cooldown removed by outside source
+	GetWorldTimerManager().ClearTimer(CooldownTimerHandle);
 	bOnCooldown = false;
 }
 
@@ -39,6 +52,7 @@ void AAbilityBase::DelayToNextState(float delay)
 	UWorld* world = GetWorld();
 	if (!world) return;
 
+	world->GetTimerManager().ClearTimer(NextStateDelayTimerHandle);
 	world->GetTimerManager().SetTimer(NextStateDelayTimerHandle, this, &AAbilityBase::EndCurrState, delay, false);
 }
 
@@ -47,13 +61,15 @@ void AAbilityBase::EndAbilityLogic()
 	UWorld* world = GetWorld();
 	if (world)
 	{
-		world->GetTimerManager().ClearTimer(NextStateDelayTimerHandle);
+		GetWorldTimerManager().ClearTimer(NextStateDelayTimerHandle);
 	}
 	
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, "Ability ended");
 	CurrState = 0;
+	AbilityStates[CurrState]->ResetState();
 	bIsRunning = false;
 	AbilityEndedDelegate.ExecuteIfBound();
+	SetOnCooldown();
 }
 
 void AAbilityBase::EndCurrState()

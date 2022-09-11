@@ -16,22 +16,29 @@ UAbilityManager::UAbilityManager()
  
 void UAbilityManager::SER_UsedAbility_Implementation(EAbilityTypes abilityType, EAbilityInputTypes abilityUsageType)
 {
-	// prevent using ability if another one activated
+	// prevent using ability if another one activated and blocking other abilities
 	// TODO: Check if ability being used is blocking. If not, cancel ability 
-	
 
 	if (abilityType == EAbilityTypes::Basic)
 	{
-		if (IsAbilityBlocked(BasicAttack)) return;
+		if (IsAbilityUnavailable(BasicAttack)) return;
 		BasicAttack->UseAbility(abilityUsageType);
+	} else if (abilityType == EAbilityTypes::ChargedBasic) {
+		// TODO:
 	} else if (abilityType == EAbilityTypes::Unique1)
 	{
 		if (UniqueAbilities[0])
 		{
-			if (IsAbilityBlocked(UniqueAbilities[0])) return;
+			if (IsAbilityUnavailable(UniqueAbilities[0])) return;
 			UniqueAbilities[0]->UseAbility(abilityUsageType);
 		}
-			
+	} else if (abilityType == EAbilityTypes::Unique2)
+	{
+		if (UniqueAbilities[1])
+		{
+			if (IsAbilityUnavailable(UniqueAbilities[1])) return;
+			UniqueAbilities[1]->UseAbility(abilityUsageType);
+		}
 	}
 	// TODO: Rest of abilities
 }
@@ -45,7 +52,7 @@ bool UAbilityManager::IsMovementBlocked()
 	return false;
 }
 
-bool UAbilityManager::IsAbilityBlocked()
+bool UAbilityManager::IsAbilityUnavailable()
 {
 	if (CurrUsedAbility)
 	{
@@ -129,9 +136,12 @@ void UAbilityManager::AbilityEnded()
 	CurrUsedAbility = nullptr;
 }
 
-bool UAbilityManager::IsAbilityBlocked(AAbilityBase* AbilityToUse)
+bool UAbilityManager::IsAbilityUnavailable(AAbilityBase* AbilityToUse) const
 {
-	return CurrUsedAbility != nullptr && CurrUsedAbility->Blockers.IsOtherAbilitiesBlocked && CurrUsedAbility != AbilityToUse;
+	return	(AbilityToUse->GetIsOnCooldown() == true) ||
+			(CurrUsedAbility != nullptr &&
+			CurrUsedAbility->Blockers.IsOtherAbilitiesBlocked &&
+			CurrUsedAbility != AbilityToUse);
 }
 
 void UAbilityManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

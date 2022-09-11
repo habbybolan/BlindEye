@@ -49,7 +49,7 @@ public:
 	void SER_UsedAbility(EAbilityTypes abilityType, EAbilityInputTypes abilityUsageType);
 
 	bool IsMovementBlocked();
-	bool IsAbilityBlocked();
+	bool IsAbilityUnavailable();
 	bool IsReceiveDamageBlocked();
 	bool IsDamageFeedbackBlocked();
 
@@ -61,7 +61,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	bool IsAbilityBlocked(AAbilityBase* AbilityToUse);
+	bool IsAbilityUnavailable(AAbilityBase* AbilityToUse) const;
 
 	// Ability Types
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)

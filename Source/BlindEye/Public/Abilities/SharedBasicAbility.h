@@ -53,10 +53,16 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<ABasicAttackSmallFlock> SecondChargeFlockType;
-
+ 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<ABasicAttackSmallFlock> LastChargeFlockType;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float ChargeDelay = 0.2f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float AbilityCancelDelay = 2; 
+	
 	UFUNCTION(Server, Reliable)
 	void SpawnFlock(uint8 comboNum);
 	

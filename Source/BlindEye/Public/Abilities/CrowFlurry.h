@@ -68,9 +68,13 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_SpawnCrowFlurry(FRotator FlurryRotation);
+	UFUNCTION(BlueprintImplementableEvent)
+	void MULT_SpawnCrowFlurryHelper();
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_DestroyCrowFlurry(); 
+	void MULT_DestroyCrowFlurry();
+	UFUNCTION(blueprintImplementableEvent)
+	void MULT_DestroyCrowFlurryHelper(); 
 
 	UPROPERTY()
 	UNiagaraComponent* SpawnedCrowFlurryParticle;

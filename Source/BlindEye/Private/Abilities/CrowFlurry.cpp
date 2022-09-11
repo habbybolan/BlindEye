@@ -26,12 +26,7 @@ void ACrowFlurry::StartCrowFlurry()
 
 void ACrowFlurry::MULT_SpawnCrowFlurry_Implementation(FRotator rotation)
 {
-	UWorld* world = GetWorld();
-	if (!world) return;
-	
-	SpawnedCrowFlurryParticle = UNiagaraFunctionLibrary::SpawnSystemAttached(CrowFlurryParticle, GetInstigator()->GetRootComponent(), NAME_None,
-		GetInstigator()->GetActorLocation(), rotation, FVector::OneVector,
-		EAttachLocation::KeepWorldPosition, false, ENCPoolMethod::AutoRelease);
+	MULT_SpawnCrowFlurryHelper();
 }
 
 void ACrowFlurry::PerformCrowFlurry()
@@ -56,13 +51,7 @@ void ACrowFlurry::PerformCrowFlurry()
 
 void ACrowFlurry::MULT_DestroyCrowFlurry_Implementation()
 {
-	UWorld* world = GetWorld();
-	if (!world) return;
-
-	if (SpawnedCrowFlurryParticle)
-	{
-		SpawnedCrowFlurryParticle->Deactivate();
-	}
+	MULT_DestroyCrowFlurryHelper();
 }
 
 void ACrowFlurry::StopCrowFlurry()
@@ -72,8 +61,6 @@ void ACrowFlurry::StopCrowFlurry()
 
 	MULT_DestroyCrowFlurry();
 	
-	world->GetTimerManager().SetTimer(CrowFlurryParticleDestroyTimerHandle, this, &ACrowFlurry::DestroyParticles, 1.f, false);
-	world->GetTimerManager().ClearTimer(CrowFlurryTimerHandle);
 	// TODO: Stop particles/sound...
 }
 
