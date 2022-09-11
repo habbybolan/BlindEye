@@ -67,6 +67,11 @@ void ABlindEyeEnemyBase::OnDeath_Implementation()
 	Destroy();
 }
 
+float ABlindEyeEnemyBase::GetHealthPercent_Implementation()
+{
+	return CurrHealth / MaxHealth;
+}
+
 TEAMS ABlindEyeEnemyBase::GetTeam_Implementation()
 {
 	return Team;

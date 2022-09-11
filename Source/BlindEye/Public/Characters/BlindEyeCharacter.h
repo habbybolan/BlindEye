@@ -75,11 +75,16 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void UpdateAllyHealthUI();
 
-	UFUNCTION(BlueprintCallable)
-	float GetHealthPercent();
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void UpdateShrineHealthUI(); 
+	
+	float GetHealthPercent_Implementation() override; 
 
 	UFUNCTION(BlueprintCallable)
-	float GetAllyHealthPercent(); 
+	float GetAllyHealthPercent();
+
+	UFUNCTION(BlueprintCallable)
+	float GetShrineHealthPercent();  
 
 	// Called when playerState replicated on client
 	void UpdateAllClientUI();

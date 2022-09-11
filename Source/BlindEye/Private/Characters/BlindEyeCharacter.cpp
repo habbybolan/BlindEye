@@ -62,6 +62,19 @@ ABlindEyeCharacter::ABlindEyeCharacter()
 void ABlindEyeCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (IsLocallyControlled())
+	{
+		UWorld* world = GetWorld();
+		if (world == nullptr) return;
+
+		AActor* ShrineActor = UGameplayStatics::GetActorOfClass(world, AShrine::StaticClass());
+		if (ShrineActor)
+		{
+			AShrine* Shrine = Cast<AShrine>(ShrineActor);
+			Shrine->ShrineHealthChange.AddUFunction(this, TEXT("UpdateShrineHealthUI"));
+		}
+	}
 }
 
 
@@ -180,8 +193,8 @@ void ABlindEyeCharacter::HealthUpdated()
 		AllyBlindCharacter->UpdateAllyHealthUI();
 	}
 }
-
-float ABlindEyeCharacter::GetHealthPercent()
+ 
+float ABlindEyeCharacter::GetHealthPercent_Implementation()
 {
 	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
 	{
@@ -198,6 +211,18 @@ float ABlindEyeCharacter::GetAllyHealthPercent()
 		ABlindEyePlayerState* BlindAllyState = Cast<ABlindEyePlayerState>(AllyState);
 		if (BlindAllyState == nullptr) return 0;
 		return BlindAllyState->GetHealth() / BlindAllyState->GetMaxHealth();
+	}
+	return 0;
+}
+
+float ABlindEyeCharacter::GetShrineHealthPercent()
+{
+	ABlindEyeGameState* BlindGameState = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(GetWorld()));
+	AShrine* Shrine = BlindGameState->GetShrine();
+	if (Shrine == nullptr) return 0;
+	if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(Shrine))
+	{
+		return HealthInterface->Execute_GetHealthPercent(Shrine);
 	}
 	return 0;
 }
