@@ -49,6 +49,6 @@ float UBaseDamageType::ProcessDamage(AActor* Owner, AActor* HitCharacter, FVecto
 		//delete statusEffect;
 	}
 	// dont apply any damage if same team
-	//if (HitTeam == InstigatorTeam) return 0;
+	if (HitTeam == InstigatorTeam) return 0;
 	return DamageMultiplier;
 }
