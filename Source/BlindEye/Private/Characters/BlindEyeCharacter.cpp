@@ -11,6 +11,7 @@
 #include "Characters/BlindEyePlayerController.h"
 #include "Components/HealthComponent.h"
 #include "Enemies/BlindEyeEnemyController.h"
+#include "Enemies/BurrowerEnemy.h"
 #include "Enemies/SnapperEnemy.h"
 #include "Gameplay/BlindEyeGameState.h"
 #include "Gameplay/BlindEyePlayerState.h"
@@ -170,7 +171,15 @@ void ABlindEyeCharacter::SER_DebugKillAllSnappers_Implementation()
 
 void ABlindEyeCharacter::SER_DebugKillAllBurrowers_Implementation()
 {
-	// TODO:
+	TArray<AActor*> BurrowerActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABurrowerEnemy::StaticClass(), BurrowerActors);
+	for (AActor* BurrowerActor : BurrowerActors)
+	{
+		if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(BurrowerActor))
+		{
+			HealthInterface->Execute_GetHealthComponent(BurrowerActor)->Kill();
+		}
+	}
 }
 
 void ABlindEyeCharacter::SER_DebugKillAllHunters_Implementation()
@@ -319,6 +328,7 @@ void ABlindEyeCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 
 	PlayerInputComponent->BindAction("Debug1", IE_Released, this, &ABlindEyeCharacter::SER_DebugInvincibility);
 	PlayerInputComponent->BindAction("Debug2", IE_Released, this, &ABlindEyeCharacter::SER_DebugKillAllSnappers);
+	PlayerInputComponent->BindAction("Debug3", IE_Released, this, &ABlindEyeCharacter::SER_DebugKillAllBurrowers);
 }
 
 
