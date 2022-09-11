@@ -46,8 +46,16 @@ public:
 
 	DECLARE_MULTICAST_DELEGATE(FDeathSignature)
 	FDeathSignature OnDeathDelegate;
+	
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, ReplicatedUsing="OnRep_IsInvincibility")
+	bool IsInvincible = false;
+
+	UFUNCTION()
+	void OnRep_IsInvincibility();
 
 protected:
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	// cached owners health interface
 	IHealthInterface* OwnerHealth;

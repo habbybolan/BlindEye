@@ -57,7 +57,7 @@ ABlindEyeCharacter::ABlindEyeCharacter()
 	
 	PlayerType = PlayerType::CrowPlayer;
 	Team = TEAMS::Player;
-}
+} 
 
 void ABlindEyeCharacter::BeginPlay()
 {
@@ -143,6 +143,20 @@ void ABlindEyeCharacter::Unique1Pressed()
 void ABlindEyeCharacter::Unique1Released()
 {
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Released);
+}
+
+void ABlindEyeCharacter::DebugInvincibility_Implementation()
+{
+	HealthComponent->IsInvincible = !HealthComponent->IsInvincible;
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		HealthComponent->OnRep_IsInvincibility();
+	}
+}
+
+void ABlindEyeCharacter::DebugKillAllEnemies_Implementation()
+{
+	// TODO:
 }
 
 float ABlindEyeCharacter::GetHealth_Implementation()
@@ -283,6 +297,9 @@ void ABlindEyeCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 	PlayerInputComponent->BindAction("Unique1", IE_Pressed, this, &ABlindEyeCharacter::Unique1Pressed);
 	PlayerInputComponent->BindAction("Unique1", IE_Released, this, &ABlindEyeCharacter::Unique1Released);
 	// TODO: Player input for rest of attacks
+
+	PlayerInputComponent->BindAction("Debug1", IE_Released, this, &ABlindEyeCharacter::DebugInvincibility);
+	PlayerInputComponent->BindAction("Unique1", IE_Released, this, &ABlindEyeCharacter::DebugKillAllEnemies);
 }
 
 

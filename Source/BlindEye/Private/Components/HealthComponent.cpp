@@ -7,6 +7,7 @@
 #include "Interfaces/HealthInterface.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
 UHealthComponent::UHealthComponent()
@@ -14,6 +15,8 @@ UHealthComponent::UHealthComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+	
+	IsInvincible = false; // make sure this debug starts false
 }
 
 
@@ -52,8 +55,12 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 	{
 		const UBaseDamageType* baseDamageType = Cast<UBaseDamageType>(DamageType);
 		if (!baseDamageType) return;
-		
+		 
 		float damageMultiplied = Damage * baseDamageType->ProcessDamage(DamageCauser, GetOwner(), HitLocation, this);
+
+		// Debug invincibility
+		if (IsInvincible) Damage = 0;
+		
 		OwnerHealth->Execute_SetHealth(GetOwner(), OwnerHealth->Execute_GetHealth(GetOwner()) - damageMultiplied);
 		// send callback to owning actor for any additional logic
 		OwnerHealth->Execute_OnTakeDamage(GetOwner(), Damage, HitLocation, DamageType, DamageCauser->GetInstigator());
@@ -158,3 +165,14 @@ void UHealthComponent::RemoveMark()
 	CurrMark = nullptr;
 }
 
+void UHealthComponent::OnRep_IsInvincibility()
+{
+	FString boolString = IsInvincible ? "True" : "False";
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Orange, "Invincibility: " + boolString);
+}
+
+void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UHealthComponent, IsInvincible);
+}
