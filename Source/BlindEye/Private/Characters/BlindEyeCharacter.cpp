@@ -255,9 +255,12 @@ UHealthComponent* ABlindEyeCharacter::GetHealthComponent_Implementation()
 	return HealthComponent;
 }
 
-void ABlindEyeCharacter::OnDeath_Implementation()
+void ABlindEyeCharacter::OnDeath_Implementation() 
 {
-	
+	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
+	{
+		return BlindEyePS->SetIsDead(true);
+	}
 }
 
 bool ABlindEyeCharacter::TryConsumeBirdMeter_Implementation(float PercentAmount)
@@ -330,6 +333,15 @@ float ABlindEyeCharacter::GetHealthPercent_Implementation()
 		return BlindEyePS->GetHealth() / BlindEyePS->GetMaxHealth();
 	}
 	return 0;
+}
+
+bool ABlindEyeCharacter::GetIsDead_Implementation()
+{
+	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
+	{
+		return BlindEyePS->GetIsDead();
+	}
+	return false;
 }
 
 float ABlindEyeCharacter::GetAllyHealthPercent()

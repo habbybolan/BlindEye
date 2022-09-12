@@ -50,4 +50,9 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void OnDeath();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	bool GetIsDead();
+
+	
 };

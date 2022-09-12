@@ -94,7 +94,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void UpdateShrineHealthUI(); 
-	float GetHealthPercent_Implementation() override; 
+	float GetHealthPercent_Implementation() override;
+
+	virtual bool GetIsDead_Implementation() override;
 
 	UFUNCTION(BlueprintCallable)
 	float GetAllyHealthPercent();

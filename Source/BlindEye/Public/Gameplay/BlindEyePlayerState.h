@@ -24,6 +24,9 @@ public:
 	float GetBirdMeter();
 	float GetMaxBirdMeter();
 	void SetBirdMeter(float NewBirdMeter);
+	
+	bool GetIsDead();
+	void SetIsDead(bool IsDead);
 
 protected:
 	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
@@ -40,6 +43,9 @@ protected:
 	float MaxBirdMeter = 100.f;
 	UPROPERTY(Replicated, ReplicatedUsing="OnRep_BirdMeterUpdated")
 	float CurrBirdMeter;
+ 
+	UPROPERTY(Replicated)
+	bool IsDead = false;
 
 	UFUNCTION()
 	void OnRep_BirdMeterUpdated();
