@@ -75,6 +75,15 @@ public:
 	TEAMS Team;
 	virtual TEAMS GetTeam_Implementation() override;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float ReviveSpeedAllyPercentPerSec = 25;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float ReviveSpeedAutoPercentPerSec = 25;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float HealthPercentOnRevive = 50;
+
 	// Event called after playerState updates health
 	UFUNCTION()
 	void HealthUpdated();
@@ -140,6 +149,15 @@ protected:
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	 */
 	void LookUpAtRate(float Rate);
+
+	UFUNCTION(Server, Reliable)
+	void SER_OnCheckAllyHealing();
+	FTimerHandle AllyHealingCheckTimerHandle;
+	const float AllyHealCheckDelay = 0.2f;
+	float CurrRevivePercent = 0; 
+
+	UFUNCTION(Server, Reliable)
+	void SER_OnRevive();
 
 	UFUNCTION()
 	void BasicAttackPressed();

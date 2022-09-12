@@ -157,6 +157,27 @@ void ABlindEyeCharacter::LookUpAtRate(float Rate)
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
+ 
+void ABlindEyeCharacter::SER_OnCheckAllyHealing_Implementation()
+{
+	// TODO: Sphere cast around on timer for healing
+	CurrRevivePercent += AllyHealCheckDelay * ReviveSpeedAutoPercentPerSec;
+	if (CurrRevivePercent >= 100)
+	{
+		SER_OnRevive();
+	}
+}
+
+void ABlindEyeCharacter::SER_OnRevive_Implementation()
+{ 
+	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
+	{
+		BlindEyePS->SetHealth(BlindEyePS->GetMaxHealth() * HealthPercentOnRevive);
+		BlindEyePS->SetIsDead(false);
+		GetWorldTimerManager().ClearTimer(AllyHealingCheckTimerHandle);
+		CurrRevivePercent = 0;
+	}
+}
 
 void ABlindEyeCharacter::BasicAttackPressed() 
 {
@@ -266,8 +287,10 @@ void ABlindEyeCharacter::OnDeath_Implementation()
 {
 	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
 	{
-		return BlindEyePS->SetIsDead(true);
+		BlindEyePS->SetIsDead(true);
 	}
+
+	GetWorldTimerManager().SetTimer(AllyHealingCheckTimerHandle, this, &ABlindEyeCharacter::SER_OnCheckAllyHealing, AllyHealCheckDelay, true);
 }
 
 bool ABlindEyeCharacter::TryConsumeBirdMeter_Implementation(float PercentAmount)
