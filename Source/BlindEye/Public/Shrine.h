@@ -35,6 +35,9 @@ public:
 	virtual TEAMS GetTeam_Implementation() override;
 	virtual float GetHealthPercent_Implementation() override;
 
+	virtual void OnDeath_Implementation() override;
+	virtual bool GetIsDead_Implementation() override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

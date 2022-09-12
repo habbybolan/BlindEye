@@ -75,6 +75,21 @@ public:
 	TEAMS Team;
 	virtual TEAMS GetTeam_Implementation() override;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float ReviveSpeedAllyPercentPerSec = 5;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float ReviveSpeedAutoPercentPerSec = 1;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float HealthPercentOnRevive = 50;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float AllyReviveRadius = 300;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<TEnumAsByte<EObjectTypeQuery>> AllyReviveObjectTypes;
+
 	// Event called after playerState updates health
 	UFUNCTION()
 	void HealthUpdated();
@@ -94,7 +109,11 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void UpdateShrineHealthUI(); 
-	float GetHealthPercent_Implementation() override; 
+	float GetHealthPercent_Implementation() override;
+
+	virtual bool GetIsDead_Implementation() override;
+
+	bool IsActionsBlocked();
 
 	UFUNCTION(BlueprintCallable)
 	float GetAllyHealthPercent();
@@ -136,6 +155,15 @@ protected:
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	 */
 	void LookUpAtRate(float Rate);
+
+	UFUNCTION(Server, Reliable)
+	void SER_OnCheckAllyHealing();
+	FTimerHandle AllyHealingCheckTimerHandle;
+	const float AllyHealCheckDelay = 0.2f;
+	float CurrRevivePercent = 0; 
+
+	UFUNCTION(Server, Reliable)
+	void SER_OnRevive();
 
 	UFUNCTION()
 	void BasicAttackPressed();
