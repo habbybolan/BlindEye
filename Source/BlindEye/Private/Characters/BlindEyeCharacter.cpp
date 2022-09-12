@@ -161,7 +161,20 @@ void ABlindEyeCharacter::LookUpAtRate(float Rate)
 void ABlindEyeCharacter::SER_OnCheckAllyHealing_Implementation()
 {
 	// TODO: Sphere cast around on timer for healing
-	CurrRevivePercent += AllyHealCheckDelay * ReviveSpeedAutoPercentPerSec;
+	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(this);
+	TArray<AActor*> OverlapActors;
+	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), GetActorLocation(), AllyReviveRadius, AllyReviveObjectTypes,
+		nullptr, ActorsToIgnore, OverlapActors);
+	if (OverlapActors.Num() > 0)
+	{
+		CurrRevivePercent += AllyHealCheckDelay * ReviveSpeedAllyPercentPerSec;
+	} else
+	{
+		CurrRevivePercent += AllyHealCheckDelay * ReviveSpeedAutoPercentPerSec;
+	}
+	
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0.2f, FColor::Green, "Revive %: " + FString::SanitizeFloat(CurrRevivePercent));
 	if (CurrRevivePercent >= 100)
 	{
 		SER_OnRevive();

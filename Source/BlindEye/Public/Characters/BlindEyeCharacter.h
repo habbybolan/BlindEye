@@ -76,13 +76,19 @@ public:
 	virtual TEAMS GetTeam_Implementation() override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float ReviveSpeedAllyPercentPerSec = 25;
+	float ReviveSpeedAllyPercentPerSec = 5;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float ReviveSpeedAutoPercentPerSec = 25;
+	float ReviveSpeedAutoPercentPerSec = 1;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float HealthPercentOnRevive = 50;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float AllyReviveRadius = 300;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<TEnumAsByte<EObjectTypeQuery>> AllyReviveObjectTypes;
 
 	// Event called after playerState updates health
 	UFUNCTION()
