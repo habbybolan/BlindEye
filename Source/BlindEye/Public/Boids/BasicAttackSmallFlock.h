@@ -22,6 +22,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AActor> TargetType;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+
 protected:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void BeginPlay() override;
