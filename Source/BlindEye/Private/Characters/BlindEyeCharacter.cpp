@@ -523,10 +523,10 @@ void ABlindEyeCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 	PlayerInputComponent->BindAction("Debug1", IE_Released, this, &ABlindEyeCharacter::SER_DebugInvincibility);
 	PlayerInputComponent->BindAction("Debug2", IE_Released, this, &ABlindEyeCharacter::SER_DebugKillAllSnappers);
 	PlayerInputComponent->BindAction("Debug3", IE_Released, this, &ABlindEyeCharacter::SER_DebugKillAllBurrowers);
-	PlayerInputComponent->BindAction("Debug4", IE_Released, this, &ABlindEyeCharacter::SER_DamageSelf);
-	PlayerInputComponent->BindAction("Debug5", IE_Released, this, &ABlindEyeCharacter::SER_DamageShrine);
-	PlayerInputComponent->BindAction("Debug5", IE_Released, this, &ABlindEyeCharacter::SER_DamageShrine);
-	PlayerInputComponent->BindAction("Debug6", IE_Released, this, &ABlindEyeCharacter::SER_ShrineInvincibility);
+	PlayerInputComponent->BindAction("Debug4", IE_Released, this, &ABlindEyeCharacter::SER_DebugKillAllHunters);
+	PlayerInputComponent->BindAction("Debug5", IE_Released, this, &ABlindEyeCharacter::SER_DamageSelf);
+	PlayerInputComponent->BindAction("Debug6", IE_Released, this, &ABlindEyeCharacter::SER_DamageShrine);
+	PlayerInputComponent->BindAction("Debug7", IE_Released, this, &ABlindEyeCharacter::SER_ShrineInvincibility);
 }
 
 
