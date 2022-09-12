@@ -49,6 +49,9 @@ public:
 	float CostPercentPerSec = 20;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float InitialCostPercent = 5; 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UBaseDamageType> DamageType;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)

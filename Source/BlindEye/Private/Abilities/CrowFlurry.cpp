@@ -47,6 +47,13 @@ void ACrowFlurry::PerformCrowFlurry()
 		UGameplayStatics::ApplyPointDamage(Hit.GetActor(), DamagePerSec * 0.2f, FVector::ZeroVector,
 					FHitResult(), GetInstigator()->Controller, this, DamageType);
 	}
+
+	// consume bird meter
+	if (!TryConsumeBirdMeter(CostPercentPerSec * 0.2f))
+	{
+		// if out of bird meter, simulate releasing button
+		AbilityStates[CurrState]->HandleInput(EAbilityInputTypes::Released);
+	}
 }
 
 void ACrowFlurry::MULT_DestroyCrowFlurry_Implementation()
@@ -91,6 +98,11 @@ UFirstCrowFlurryState::UFirstCrowFlurryState(AAbilityBase* ability) : FAbilitySt
 void UFirstCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState();
+	if (!Ability) return;
+	if (ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability))
+	{
+		if (!CrowFlurry->TryConsumeBirdMeter(CrowFlurry->InitialCostPercent)) return;
+	}
 	if (CurrInnerState > EInnerState::None) return;
 	RunState();
 }
