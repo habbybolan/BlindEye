@@ -80,6 +80,7 @@ void ABlindEyeCharacter::BeginPlay()
 	if (GetLocalRole() == ROLE_Authority)
 	{
 		world->GetTimerManager().SetTimer(BirdRegenTimerHandle, this, &ABlindEyeCharacter::RegenBirdMeter, RegenBirdMeterCallDelay, true);
+		world->GetTimerManager().SetTimer(HealthRegenTimerHandle, this, &ABlindEyeCharacter::RegenHealth, RegenHealthCallDelay, true);
 	}
 }
 
@@ -127,6 +128,16 @@ void ABlindEyeCharacter::RegenBirdMeter()
 		float NewBirdMeter = FMath::Min(BlindEyePlayerState->GetBirdMeter() + (BirdMeterIncrPerSec * RegenBirdMeterCallDelay),
 			BlindEyePlayerState->GetMaxBirdMeter());
 		BlindEyePlayerState->SetBirdMeter(NewBirdMeter);
+	}
+}
+
+void ABlindEyeCharacter::RegenHealth()
+{
+	if (ABlindEyePlayerState* BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState()))
+	{ 
+		float NewHealth = FMath::Min(BlindEyePlayerState->GetHealth() + (HealthRegenPerSec * RegenHealthCallDelay),
+			BlindEyePlayerState->GetMaxHealth()); 
+		BlindEyePlayerState->SetHealth(NewHealth);
 	}
 }
 

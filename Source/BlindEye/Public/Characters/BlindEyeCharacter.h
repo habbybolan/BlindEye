@@ -69,6 +69,9 @@ public:
 	float BirdMeterRegenPercentPerSec = 5.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float HealthRegenPerSec = 1.f;  
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TEAMS Team;
 	virtual TEAMS GetTeam_Implementation() override;
 
@@ -110,6 +113,11 @@ protected:
 	void RegenBirdMeter();
 	const float RegenBirdMeterCallDelay = 0.2f;	// Delay on timer call for regen-ing bird meter
 	FTimerHandle BirdRegenTimerHandle;
+
+	UFUNCTION()
+	void RegenHealth(); 
+	const float RegenHealthCallDelay = 0.2f;	// Delay on timer call for regen-ing bird meter
+	FTimerHandle HealthRegenTimerHandle;  
 	
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
