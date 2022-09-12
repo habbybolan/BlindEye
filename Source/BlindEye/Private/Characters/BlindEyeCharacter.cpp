@@ -257,8 +257,7 @@ UHealthComponent* ABlindEyeCharacter::GetHealthComponent_Implementation()
 
 void ABlindEyeCharacter::OnDeath_Implementation()
 {
-	// TODO:
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, "Player Died");
+	
 }
 
 bool ABlindEyeCharacter::TryConsumeBirdMeter_Implementation(float PercentAmount)
