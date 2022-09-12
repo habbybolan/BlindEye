@@ -98,6 +98,8 @@ public:
 
 	virtual bool GetIsDead_Implementation() override;
 
+	bool IsActionsBlocked();
+
 	UFUNCTION(BlueprintCallable)
 	float GetAllyHealthPercent();
 

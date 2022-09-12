@@ -160,36 +160,43 @@ void ABlindEyeCharacter::LookUpAtRate(float Rate)
 
 void ABlindEyeCharacter::BasicAttackPressed() 
 {
+	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Basic, EAbilityInputTypes::Pressed);
 }
 
 void ABlindEyeCharacter::ChargedAttackPressed()
 {
+	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::ChargedBasic, EAbilityInputTypes::Pressed);
 }
 
 void ABlindEyeCharacter::ChargedAttackReleased()
 {
+	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::ChargedBasic, EAbilityInputTypes::Released);
 }
 
 void ABlindEyeCharacter::Unique1Pressed()
 {
+	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Pressed);
 }
 
 void ABlindEyeCharacter::Unique1Released()
 {
+	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Released);
 }
 
 void ABlindEyeCharacter::Unique2Pressed()
 {
+	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Pressed);
 }
 
 void ABlindEyeCharacter::Unique2Released()
 {
+	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Released);
 }
 
@@ -344,6 +351,12 @@ bool ABlindEyeCharacter::GetIsDead_Implementation()
 	return false;
 }
 
+bool ABlindEyeCharacter::IsActionsBlocked()
+{
+	ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState());
+	return BlindEyePS == nullptr || BlindEyePS->GetIsDead();
+}
+
 float ABlindEyeCharacter::GetAllyHealthPercent()
 {
 	ABlindEyePlayerState* AllyState = GetAllyPlayerState();
@@ -370,6 +383,8 @@ float ABlindEyeCharacter::GetShrineHealthPercent()
 
 void ABlindEyeCharacter::MoveForward(float Value)
 {
+	if (IsActionsBlocked()) return;
+	
 	if (AbilityManager->IsMovementBlocked()) return;
 	
 	if ((Controller != nullptr) && (Value != 0.0f))
@@ -386,6 +401,8 @@ void ABlindEyeCharacter::MoveForward(float Value)
 
 void ABlindEyeCharacter::MoveRight(float Value)
 {
+	if (IsActionsBlocked()) return;
+	
 	if (AbilityManager->IsMovementBlocked()) return;
 	if ( (Controller != nullptr) && (Value != 0.0f) )
 	{
@@ -407,8 +424,6 @@ void ABlindEyeCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 {
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ABlindEyeCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABlindEyeCharacter::MoveRight);
