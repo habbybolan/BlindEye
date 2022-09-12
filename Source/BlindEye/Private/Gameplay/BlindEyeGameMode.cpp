@@ -50,4 +50,11 @@ void ABlindEyeGameMode::OnGameEnded()
 			BlindEyePlayerController->CLI_GameEnded();
 		}
 	}
+
+	World->GetTimerManager().SetTimer(GameRestartTimerHandle, this, &ABlindEyeGameMode::RestartGame, 5, false);
+}
+
+void ABlindEyeGameMode::RestartGame()
+{
+	Super::RestartGame();
 }

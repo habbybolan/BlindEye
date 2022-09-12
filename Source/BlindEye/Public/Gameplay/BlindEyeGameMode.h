@@ -28,5 +28,8 @@ public:
 
 protected:
 	void OnGameEnded();
+
+	FTimerHandle GameRestartTimerHandle;
+	virtual void RestartGame() override;
 	
 };
