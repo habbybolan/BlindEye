@@ -54,6 +54,8 @@ bool ASnapperEnemyController::IsInBasicAttackRange()
 
 void ASnapperEnemyController::PerformBasicAttack()
 {
+	if (!CanBasicAttack()) return;
+	
 	Snapper->PerformBasicAttack();
 	IsBasicAttackOnDelay = true;
 	GetWorldTimerManager().SetTimer(BasicAttackDelayTimerHandle, this, &ASnapperEnemyController::SetCanBasicAttack, BasicAttackDelay, false);

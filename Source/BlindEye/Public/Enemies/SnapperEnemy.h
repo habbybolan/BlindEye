@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DamageTypes/BaseDamageType.h"
 #include "Enemies/BlindEyeEnemyBase.h"
 #include "SnapperEnemy.generated.h"
 
@@ -16,6 +17,15 @@ class BLINDEYE_API ASnapperEnemy : public ABlindEyeEnemyBase
 
 public:
 	virtual void OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<TEnumAsByte<	EObjectTypeQuery>> ObjectTypes;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float BasicAttackDamage = 5;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UBaseDamageType> BasicAttackDamageType;
 
 	void PerformBasicAttack();
 	
