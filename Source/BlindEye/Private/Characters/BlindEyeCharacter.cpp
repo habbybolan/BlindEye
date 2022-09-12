@@ -64,18 +64,22 @@ ABlindEyeCharacter::ABlindEyeCharacter()
 void ABlindEyeCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	UWorld* world = GetWorld();
+	if (world == nullptr) return;
 
 	if (IsLocallyControlled())
 	{
-		UWorld* world = GetWorld();
-		if (world == nullptr) return;
-
 		AActor* ShrineActor = UGameplayStatics::GetActorOfClass(world, AShrine::StaticClass());
 		if (ShrineActor)
 		{
 			AShrine* Shrine = Cast<AShrine>(ShrineActor);
 			Shrine->ShrineHealthChange.AddUFunction(this, TEXT("UpdateShrineHealthUI"));
 		}
+	}
+
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		world->GetTimerManager().SetTimer(BirdRegenTimerHandle, this, &ABlindEyeCharacter::RegenBirdMeter, RegenBirdMeterCallDelay, true);
 	}
 }
 
@@ -113,6 +117,17 @@ void ABlindEyeCharacter::OnRep_PlayerState()
 void ABlindEyeCharacter::UpdateAllClientUI()
 {
 	UpdatePlayerHealthUI();
+}
+
+void ABlindEyeCharacter::RegenBirdMeter()
+{
+	if (ABlindEyePlayerState* BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState()))
+	{ 
+		float BirdMeterIncrPerSec = BlindEyePlayerState->GetMaxBirdMeter() * (BirdMeterRegenPercentPerSec / 100);
+		float NewBirdMeter = FMath::Min(BlindEyePlayerState->GetBirdMeter() + (BirdMeterIncrPerSec * RegenBirdMeterCallDelay),
+			BlindEyePlayerState->GetMaxBirdMeter());
+		BlindEyePlayerState->SetBirdMeter(NewBirdMeter);
+	}
 }
 
 void ABlindEyeCharacter::PossessedBy(AController* NewController)

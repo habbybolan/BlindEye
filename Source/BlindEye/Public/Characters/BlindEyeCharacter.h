@@ -65,6 +65,9 @@ public:
 
 	virtual bool TryConsumeBirdMeter_Implementation(float PercentAmount) override;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=100))
+	float BirdMeterRegenPercentPerSec = 5.f;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TEAMS Team;
 	virtual TEAMS GetTeam_Implementation() override;
@@ -102,6 +105,11 @@ public:
 	PlayerType PlayerType;
 
 protected:
+
+	UFUNCTION()
+	void RegenBirdMeter();
+	const float RegenBirdMeterCallDelay = 0.2f;	// Delay on timer call for regen-ing bird meter
+	FTimerHandle BirdRegenTimerHandle;
 	
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
