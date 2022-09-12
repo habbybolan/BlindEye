@@ -17,6 +17,7 @@ class BLINDEYE_API ABlindEyeEnemyController : public AAIController
 public:
 
 
+
 protected:
 	virtual void BeginPlay() override;
 };

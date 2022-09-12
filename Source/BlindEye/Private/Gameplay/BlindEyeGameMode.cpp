@@ -31,3 +31,23 @@ FTransform ABlindEyeGameMode::GetSpawnPoint() const
 	}
 	return FTransform();
 }
+
+void ABlindEyeGameMode::OnShrineDeath()
+{
+	OnGameEnded();
+}
+
+void ABlindEyeGameMode::OnGameEnded()
+{
+	UWorld* World = GetWorld();
+	if (!World) return;
+	
+	for (FConstPlayerControllerIterator Iterator = World->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		APlayerController* PlayerController = Iterator->Get();
+		if (ABlindEyePlayerController* BlindEyePlayerController = Cast<ABlindEyePlayerController>(PlayerController))
+		{
+			BlindEyePlayerController->CLI_GameEnded();
+		}
+	}
+}

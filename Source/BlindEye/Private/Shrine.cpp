@@ -3,6 +3,8 @@
 #include "Shrine.h"
 
 #include "Components/HealthComponent.h"
+#include "GameFramework/GameModeBase.h"
+#include "Gameplay/BlindEyeGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
@@ -42,6 +44,23 @@ TEAMS AShrine::GetTeam_Implementation()
 float AShrine::GetHealthPercent_Implementation()
 {
 	return CurrShrineHealth / MaxShrineHealth;
+}
+
+void AShrine::OnDeath_Implementation()
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
+	
+	AGameModeBase* GameMode = UGameplayStatics::GetGameMode(world);
+	if (ABlindEyeGameMode* BlindEyeGameMode = Cast<ABlindEyeGameMode>(GameMode))
+	{
+		BlindEyeGameMode->OnShrineDeath();
+	}
+}
+
+bool AShrine::GetIsDead_Implementation()
+{
+	return CurrShrineHealth <= 0;
 }
 
 // Called when the game starts or when spawned
