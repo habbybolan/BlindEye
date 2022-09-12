@@ -293,6 +293,27 @@ void ABlindEyeCharacter::SER_DamageShrine_Implementation()
 	}
 }
 
+void ABlindEyeCharacter::SER_ShrineInvincibility_Implementation()
+{
+	if (ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(GetWorld())))
+	{
+		AShrine* Shrine = BlindEyeGameState->GetShrine();
+		if (Shrine != nullptr)
+		{
+			if (const IHealthInterface* ShrineHealthInterface = Cast<IHealthInterface>(Shrine))
+			{
+				UHealthComponent* ShrineHealthComp = ShrineHealthInterface->Execute_GetHealthComponent(Shrine);
+				if (ShrineHealthComp == nullptr) return;
+				ShrineHealthComp->IsInvincible = !ShrineHealthComp->IsInvincible;
+				if (GetLocalRole() == ROLE_Authority)
+				{
+					ShrineHealthComp->OnRep_IsInvincibility();
+				}
+			}
+		}
+	}
+}
+
 float ABlindEyeCharacter::GetHealth_Implementation()
 {
 	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
@@ -475,8 +496,6 @@ void ABlindEyeCharacter::MoveRight(float Value)
 //////////////////////////////////////////////////////////////////////////
 // Input
 
-
-
 void ABlindEyeCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// Set up gameplay key bindings
@@ -506,6 +525,8 @@ void ABlindEyeCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 	PlayerInputComponent->BindAction("Debug3", IE_Released, this, &ABlindEyeCharacter::SER_DebugKillAllBurrowers);
 	PlayerInputComponent->BindAction("Debug4", IE_Released, this, &ABlindEyeCharacter::SER_DamageSelf);
 	PlayerInputComponent->BindAction("Debug5", IE_Released, this, &ABlindEyeCharacter::SER_DamageShrine);
+	PlayerInputComponent->BindAction("Debug5", IE_Released, this, &ABlindEyeCharacter::SER_DamageShrine);
+	PlayerInputComponent->BindAction("Debug6", IE_Released, this, &ABlindEyeCharacter::SER_ShrineInvincibility);
 }
 
 

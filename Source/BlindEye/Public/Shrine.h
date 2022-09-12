@@ -37,6 +37,7 @@ public:
 
 	virtual void OnDeath_Implementation() override;
 	virtual bool GetIsDead_Implementation() override;
+	virtual UHealthComponent* GetHealthComponent_Implementation() override;
 
 protected:
 	// Called when the game starts or when spawned

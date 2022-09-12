@@ -193,7 +193,9 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void SER_DamageSelf(); 
 	UFUNCTION(Server, Reliable)
-	void SER_DamageShrine(); 
+	void SER_DamageShrine();
+	UFUNCTION(Server, Reliable)
+	void SER_ShrineInvincibility(); 
 
 protected:
 	// APawn interface
