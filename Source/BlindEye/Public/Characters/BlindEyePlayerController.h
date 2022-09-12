@@ -20,6 +20,9 @@ public:
 	UFUNCTION(Server, Reliable)
 	void SER_SpawnPlayer();
 
+	UFUNCTION(Server, Reliable)
+	void CLI_GameEnded();
+
 private:
 	UPROPERTY()
 	ABlindEyeCharacter* OwningCharacter;

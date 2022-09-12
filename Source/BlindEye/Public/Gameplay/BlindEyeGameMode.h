@@ -22,5 +22,14 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TSubclassOf<ABlindEyeCharacter>> PlayerClassTypes;
+
+	// called by shrine when it's destroyed
+	void OnShrineDeath();
+
+protected:
+	void OnGameEnded();
+
+	FTimerHandle GameRestartTimerHandle;
+	virtual void RestartGame() override;
 	
 };

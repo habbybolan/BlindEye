@@ -50,11 +50,14 @@ void ABlindEyePlayerState::SetBirdMeter(float NewBirdMeter)
 	}
 }
 
-void ABlindEyePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+bool ABlindEyePlayerState::GetIsDead()
 {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ABlindEyePlayerState, CurrHealth);
-	DOREPLIFETIME(ABlindEyePlayerState, CurrBirdMeter);
+	return IsDead;
+}
+
+void ABlindEyePlayerState::SetIsDead(bool isDead)
+{ 
+	IsDead = isDead;
 }
 
 void ABlindEyePlayerState::OnRep_HealthUpdated()
@@ -73,4 +76,12 @@ void ABlindEyePlayerState::OnRep_BirdMeterUpdated()
 	{
 		BlindEyeCharacter->BirdMeterUpdated();
 	}
+}
+
+void ABlindEyePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ABlindEyePlayerState, CurrHealth);
+	DOREPLIFETIME(ABlindEyePlayerState, CurrBirdMeter);
+	DOREPLIFETIME(ABlindEyePlayerState, IsDead);
 }

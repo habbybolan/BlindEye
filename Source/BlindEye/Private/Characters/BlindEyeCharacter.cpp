@@ -157,39 +157,80 @@ void ABlindEyeCharacter::LookUpAtRate(float Rate)
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
+ 
+void ABlindEyeCharacter::SER_OnCheckAllyHealing_Implementation()
+{
+	// TODO: Sphere cast around on timer for healing
+	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(this);
+	TArray<AActor*> OverlapActors;
+	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), GetActorLocation(), AllyReviveRadius, AllyReviveObjectTypes,
+		nullptr, ActorsToIgnore, OverlapActors);
+	if (OverlapActors.Num() > 0)
+	{
+		CurrRevivePercent += AllyHealCheckDelay * ReviveSpeedAllyPercentPerSec;
+	} else
+	{
+		CurrRevivePercent += AllyHealCheckDelay * ReviveSpeedAutoPercentPerSec;
+	}
+	
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0.2f, FColor::Green, "Revive %: " + FString::SanitizeFloat(CurrRevivePercent));
+	if (CurrRevivePercent >= 100)
+	{
+		SER_OnRevive();
+	}
+}
+
+void ABlindEyeCharacter::SER_OnRevive_Implementation()
+{ 
+	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
+	{
+		BlindEyePS->SetHealth(BlindEyePS->GetMaxHealth() * HealthPercentOnRevive);
+		BlindEyePS->SetIsDead(false);
+		GetWorldTimerManager().ClearTimer(AllyHealingCheckTimerHandle);
+		CurrRevivePercent = 0;
+	}
+}
 
 void ABlindEyeCharacter::BasicAttackPressed() 
 {
+	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Basic, EAbilityInputTypes::Pressed);
 }
 
 void ABlindEyeCharacter::ChargedAttackPressed()
 {
+	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::ChargedBasic, EAbilityInputTypes::Pressed);
 }
 
 void ABlindEyeCharacter::ChargedAttackReleased()
 {
+	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::ChargedBasic, EAbilityInputTypes::Released);
 }
 
 void ABlindEyeCharacter::Unique1Pressed()
 {
+	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Pressed);
 }
 
 void ABlindEyeCharacter::Unique1Released()
 {
+	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Released);
 }
 
 void ABlindEyeCharacter::Unique2Pressed()
 {
+	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Pressed);
 }
 
 void ABlindEyeCharacter::Unique2Released()
 {
+	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Released);
 }
 
@@ -255,10 +296,14 @@ UHealthComponent* ABlindEyeCharacter::GetHealthComponent_Implementation()
 	return HealthComponent;
 }
 
-void ABlindEyeCharacter::OnDeath_Implementation()
+void ABlindEyeCharacter::OnDeath_Implementation() 
 {
-	// TODO:
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, "Player Died");
+	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
+	{
+		BlindEyePS->SetIsDead(true);
+	}
+
+	GetWorldTimerManager().SetTimer(AllyHealingCheckTimerHandle, this, &ABlindEyeCharacter::SER_OnCheckAllyHealing, AllyHealCheckDelay, true);
 }
 
 bool ABlindEyeCharacter::TryConsumeBirdMeter_Implementation(float PercentAmount)
@@ -333,6 +378,21 @@ float ABlindEyeCharacter::GetHealthPercent_Implementation()
 	return 0;
 }
 
+bool ABlindEyeCharacter::GetIsDead_Implementation()
+{
+	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
+	{
+		return BlindEyePS->GetIsDead();
+	}
+	return false;
+}
+
+bool ABlindEyeCharacter::IsActionsBlocked()
+{
+	ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState());
+	return BlindEyePS == nullptr || BlindEyePS->GetIsDead();
+}
+
 float ABlindEyeCharacter::GetAllyHealthPercent()
 {
 	ABlindEyePlayerState* AllyState = GetAllyPlayerState();
@@ -359,6 +419,8 @@ float ABlindEyeCharacter::GetShrineHealthPercent()
 
 void ABlindEyeCharacter::MoveForward(float Value)
 {
+	if (IsActionsBlocked()) return;
+	
 	if (AbilityManager->IsMovementBlocked()) return;
 	
 	if ((Controller != nullptr) && (Value != 0.0f))
@@ -375,6 +437,8 @@ void ABlindEyeCharacter::MoveForward(float Value)
 
 void ABlindEyeCharacter::MoveRight(float Value)
 {
+	if (IsActionsBlocked()) return;
+	
 	if (AbilityManager->IsMovementBlocked()) return;
 	if ( (Controller != nullptr) && (Value != 0.0f) )
 	{
@@ -396,8 +460,6 @@ void ABlindEyeCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 {
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ABlindEyeCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABlindEyeCharacter::MoveRight);
