@@ -55,6 +55,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Radius = 500;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=100))
+	float CostPercentPerSec = 20;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=100))
+	float InitialCostPercent = 20; 
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UBaseDamageType> MainDamageType;
  

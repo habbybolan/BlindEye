@@ -12,6 +12,7 @@ ACrowCocoon::ACrowCocoon() : AAbilityBase()
 {
 	AbilityStates.Add(new UCrowCocoonStart(this));
 	AbilityStates.Add(new UCrowPulseState(this));
+	
 	PulseParticles.SetNum(MaxNumberPulses, false);
 	SpawnedPulseParticles.SetNum(MaxNumberPulses, false);
 	DamageTicks.SetNum(MaxNumberPulses);
@@ -63,7 +64,13 @@ void ACrowCocoon::PerformPulse()
 		TArray<AActor*>(), GetInstigator());
 	}
 	MULT_PerformPulseParticles(CalcPulseIndex());
-	// TODO: Deplete bird meter
+
+	// consume bird meter
+	if (!TryConsumeBirdMeter(CostPercentPerSec * MaxHoldDuration / MaxNumberPulses))
+	{
+		// if out of bird meter, simulate releasing button
+		AbilityStates[CurrState]->HandleInput(EAbilityInputTypes::Released);
+	}
 }
 
 uint8 ACrowCocoon::CalcPulseIndex()
@@ -110,6 +117,12 @@ UCrowCocoonStart::UCrowCocoonStart(AAbilityBase* ability): FAbilityState(ability
 void UCrowCocoonStart::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
+	// apply initial cost
+	if (!Ability) return;
+	if (ACrowCocoon* CrowCocoon = Cast<ACrowCocoon>(Ability))
+	{
+		if (!CrowCocoon->TryConsumeBirdMeter(CrowCocoon->InitialCostPercent)) return;
+	}
 	// only enter ability on pressed
 	if (abilityUsageType == EAbilityInputTypes::Pressed)
 	{
