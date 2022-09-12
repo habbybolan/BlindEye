@@ -10,6 +10,7 @@
 #include "Abilities/AbilityManager.h"
 #include "Characters/BlindEyePlayerController.h"
 #include "Components/HealthComponent.h"
+#include "DamageTypes/DebugDamageType.h"
 #include "Enemies/BlindEyeEnemyController.h"
 #include "Enemies/BurrowerEnemy.h"
 #include "Enemies/SnapperEnemy.h"
@@ -274,6 +275,24 @@ void ABlindEyeCharacter::SER_DebugKillAllHunters_Implementation()
 	// TODO:
 }
 
+void ABlindEyeCharacter::SER_DamageSelf_Implementation()
+{
+	UGameplayStatics::ApplyPointDamage(this, 10, FVector::ZeroVector, FHitResult(),
+		GetController(), this, UDebugDamageType::StaticClass());
+}
+
+void ABlindEyeCharacter::SER_DamageShrine_Implementation()
+{
+	if (ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(GetWorld())))
+	{
+		if (BlindEyeGameState->GetShrine())
+		{
+			UGameplayStatics::ApplyPointDamage(BlindEyeGameState->GetShrine(), 10, FVector::ZeroVector, FHitResult(),
+			GetController(), this, UDebugDamageType::StaticClass());
+		}
+	}
+}
+
 float ABlindEyeCharacter::GetHealth_Implementation()
 {
 	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
@@ -456,6 +475,8 @@ void ABlindEyeCharacter::MoveRight(float Value)
 //////////////////////////////////////////////////////////////////////////
 // Input
 
+
+
 void ABlindEyeCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// Set up gameplay key bindings
@@ -469,7 +490,6 @@ void ABlindEyeCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &ABlindEyeCharacter::LookUpAtRate);
 
-	// TODO: Player input for Basic attack
 	PlayerInputComponent->BindAction("BasicAttack", IE_Pressed, this, &ABlindEyeCharacter::BasicAttackPressed);
 
 	PlayerInputComponent->BindAction("ChargeBasicAttack", IE_Pressed, this, &ABlindEyeCharacter::ChargedAttackPressed);
@@ -480,11 +500,12 @@ void ABlindEyeCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 
 	PlayerInputComponent->BindAction("Unique2", IE_Pressed, this, &ABlindEyeCharacter::Unique2Pressed);
 	PlayerInputComponent->BindAction("Unique2", IE_Released, this, &ABlindEyeCharacter::Unique2Released);
-	// TODO: Player input for rest of attacks
 
 	PlayerInputComponent->BindAction("Debug1", IE_Released, this, &ABlindEyeCharacter::SER_DebugInvincibility);
 	PlayerInputComponent->BindAction("Debug2", IE_Released, this, &ABlindEyeCharacter::SER_DebugKillAllSnappers);
 	PlayerInputComponent->BindAction("Debug3", IE_Released, this, &ABlindEyeCharacter::SER_DebugKillAllBurrowers);
+	PlayerInputComponent->BindAction("Debug4", IE_Released, this, &ABlindEyeCharacter::SER_DamageSelf);
+	PlayerInputComponent->BindAction("Debug5", IE_Released, this, &ABlindEyeCharacter::SER_DamageShrine);
 }
 
 
