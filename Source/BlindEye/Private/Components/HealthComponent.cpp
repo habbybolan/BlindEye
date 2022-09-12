@@ -59,7 +59,7 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 		float damageMultiplied = Damage * baseDamageType->ProcessDamage(DamageCauser, GetOwner(), HitLocation, this);
 
 		// Debug invincibility
-		if (IsInvincible) Damage = 0;
+		if (IsInvincible) damageMultiplied = 0;
 		
 		OwnerHealth->Execute_SetHealth(GetOwner(), OwnerHealth->Execute_GetHealth(GetOwner()) - damageMultiplied);
 		// send callback to owning actor for any additional logic

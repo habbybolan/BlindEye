@@ -190,6 +190,12 @@ protected:
 	void SER_DebugKillAllBurrowers();
 	UFUNCTION(Server, Reliable)
 	void SER_DebugKillAllHunters();
+	UFUNCTION(Server, Reliable)
+	void SER_DamageSelf(); 
+	UFUNCTION(Server, Reliable)
+	void SER_DamageShrine();
+	UFUNCTION(Server, Reliable)
+	void SER_ShrineInvincibility(); 
 
 protected:
 	// APawn interface

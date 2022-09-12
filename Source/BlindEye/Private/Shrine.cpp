@@ -63,6 +63,11 @@ bool AShrine::GetIsDead_Implementation()
 	return CurrShrineHealth <= 0;
 }
 
+UHealthComponent* AShrine::GetHealthComponent_Implementation()
+{
+	return HealthComponent;
+}
+
 // Called when the game starts or when spawned
 void AShrine::BeginPlay()
 {

@@ -26,6 +26,9 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=( ClampMin=0 ))
 	float DamageMultiplier = 1;
+
+	UPROPERTY(EditAnywhere)
+	bool DebugDamageEverything = false;	// used for debug to allow attacking same team
 	
 	/**
 	 * Process the damage and return the damage multiplier from the hit
