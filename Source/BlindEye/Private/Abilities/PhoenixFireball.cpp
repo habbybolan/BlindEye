@@ -107,8 +107,13 @@ FPhoenixFireballCastState::FPhoenixFireballCastState(AAbilityBase* ability) : FA
 
 void FPhoenixFireballCastState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
-	if (abilityUsageType != EAbilityInputTypes::Pressed) return;
 	FAbilityState::TryEnterState(abilityUsageType);
+	if (!Ability) return;
+	if (APhoenixFireball* PhoenixFireball = Cast<APhoenixFireball>(Ability))
+	{
+		if (!PhoenixFireball->TryConsumeBirdMeter(PhoenixFireball->CostPercent)) return;
+	}
+	if (abilityUsageType != EAbilityInputTypes::Pressed) return;
 	RunState();
 }
 
