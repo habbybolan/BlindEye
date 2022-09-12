@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/AbilityUserInterface.h"
 #include "Interfaces/HealthInterface.h"
 #include "BlindEyeCharacter.generated.h"
 
@@ -20,7 +21,7 @@ enum class PlayerType : uint8
 };
 
 UCLASS(config=Game)
-class ABlindEyeCharacter : public ACharacter, public IHealthInterface
+class ABlindEyeCharacter : public ACharacter, public IHealthInterface, public IAbilityUserInterface
 {
 	GENERATED_BODY()
 
@@ -62,6 +63,14 @@ public:
 
 	virtual void OnDeath_Implementation() override;
 
+	virtual bool TryConsumeBirdMeter_Implementation(float PercentAmount) override;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=100))
+	float BirdMeterRegenPercentPerSec = 5.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float HealthRegenPerSec = 1.f;  
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TEAMS Team;
 	virtual TEAMS GetTeam_Implementation() override;
@@ -69,15 +78,22 @@ public:
 	// Event called after playerState updates health
 	UFUNCTION()
 	void HealthUpdated();
-
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void UpdatePlayerHealthUI();
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void UpdateAllyHealthUI();
 
+	// Event called after PlayerState updated Bird meter
+	UFUNCTION()
+	void BirdMeterUpdated(); 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void UpdateBirdMeterUI();
+	float GetBirdMeterPercent_Implementation() override;
+	virtual float GetBirdMeter_Implementation() override;
+	
+
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void UpdateShrineHealthUI(); 
-	
 	float GetHealthPercent_Implementation() override; 
 
 	UFUNCTION(BlueprintCallable)
@@ -92,6 +108,16 @@ public:
 	PlayerType PlayerType;
 
 protected:
+
+	UFUNCTION()
+	void RegenBirdMeter();
+	const float RegenBirdMeterCallDelay = 0.2f;	// Delay on timer call for regen-ing bird meter
+	FTimerHandle BirdRegenTimerHandle;
+
+	UFUNCTION()
+	void RegenHealth(); 
+	const float RegenHealthCallDelay = 0.2f;	// Delay on timer call for regen-ing bird meter
+	FTimerHandle HealthRegenTimerHandle;  
 	
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);

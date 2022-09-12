@@ -40,7 +40,6 @@ void UAbilityManager::SER_UsedAbility_Implementation(EAbilityTypes abilityType, 
 			UniqueAbilities[1]->UseAbility(abilityUsageType);
 		}
 	}
-	// TODO: Rest of abilities
 }
 
 bool UAbilityManager::IsMovementBlocked()

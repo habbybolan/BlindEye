@@ -43,6 +43,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Damage = 60;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=100))
+	float CostPercent = 30;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UNiagaraSystem* FireConeParticle;
 

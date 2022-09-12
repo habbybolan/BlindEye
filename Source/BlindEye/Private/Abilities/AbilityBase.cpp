@@ -3,6 +3,7 @@
 
 #include "Abilities/AbilityBase.h"
 
+#include "Interfaces/AbilityUserInterface.h"
 #include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
@@ -15,6 +16,18 @@ AAbilityBase::AAbilityBase()
 bool AAbilityBase::GetIsOnCooldown()
 {
 	return bOnCooldown;
+}
+
+bool AAbilityBase::TryConsumeBirdMeter(float BirdMeterAmount)
+{
+	if (BirdMeterAmount == 0) return true;
+
+	if (GetInstigator() == nullptr) return false;
+	if (const IAbilityUserInterface* AbilityUserInterface = Cast<IAbilityUserInterface>(GetInstigator()))
+	{
+		return AbilityUserInterface->Execute_TryConsumeBirdMeter(GetInstigator(), BirdMeterAmount);
+	}
+	return true;
 }
 
 // Called when the game starts

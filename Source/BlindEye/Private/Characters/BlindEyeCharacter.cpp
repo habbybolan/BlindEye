@@ -64,18 +64,23 @@ ABlindEyeCharacter::ABlindEyeCharacter()
 void ABlindEyeCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	UWorld* world = GetWorld();
+	if (world == nullptr) return;
 
 	if (IsLocallyControlled())
 	{
-		UWorld* world = GetWorld();
-		if (world == nullptr) return;
-
 		AActor* ShrineActor = UGameplayStatics::GetActorOfClass(world, AShrine::StaticClass());
 		if (ShrineActor)
 		{
 			AShrine* Shrine = Cast<AShrine>(ShrineActor);
 			Shrine->ShrineHealthChange.AddUFunction(this, TEXT("UpdateShrineHealthUI"));
 		}
+	}
+
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		world->GetTimerManager().SetTimer(BirdRegenTimerHandle, this, &ABlindEyeCharacter::RegenBirdMeter, RegenBirdMeterCallDelay, true);
+		world->GetTimerManager().SetTimer(HealthRegenTimerHandle, this, &ABlindEyeCharacter::RegenHealth, RegenHealthCallDelay, true);
 	}
 }
 
@@ -113,6 +118,27 @@ void ABlindEyeCharacter::OnRep_PlayerState()
 void ABlindEyeCharacter::UpdateAllClientUI()
 {
 	UpdatePlayerHealthUI();
+}
+
+void ABlindEyeCharacter::RegenBirdMeter()
+{
+	if (ABlindEyePlayerState* BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState()))
+	{ 
+		float BirdMeterIncrPerSec = BlindEyePlayerState->GetMaxBirdMeter() * (BirdMeterRegenPercentPerSec / 100);
+		float NewBirdMeter = FMath::Min(BlindEyePlayerState->GetBirdMeter() + (BirdMeterIncrPerSec * RegenBirdMeterCallDelay),
+			BlindEyePlayerState->GetMaxBirdMeter());
+		BlindEyePlayerState->SetBirdMeter(NewBirdMeter);
+	}
+}
+
+void ABlindEyeCharacter::RegenHealth()
+{
+	if (ABlindEyePlayerState* BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState()))
+	{ 
+		float NewHealth = FMath::Min(BlindEyePlayerState->GetHealth() + (HealthRegenPerSec * RegenHealthCallDelay),
+			BlindEyePlayerState->GetMaxHealth()); 
+		BlindEyePlayerState->SetHealth(NewHealth);
+	}
 }
 
 void ABlindEyeCharacter::PossessedBy(AController* NewController)
@@ -235,6 +261,21 @@ void ABlindEyeCharacter::OnDeath_Implementation()
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, "Player Died");
 }
 
+bool ABlindEyeCharacter::TryConsumeBirdMeter_Implementation(float PercentAmount)
+{
+	ABlindEyePlayerState* BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState());
+	if (BlindEyePlayerState == nullptr) return false;
+
+	float GetExactAmount = BlindEyePlayerState->GetMaxBirdMeter() * (PercentAmount / 100);
+	float RemainingMeter = BlindEyePlayerState->GetBirdMeter();
+	if (RemainingMeter >= GetExactAmount)
+	{
+		BlindEyePlayerState->SetBirdMeter(RemainingMeter - GetExactAmount);
+		return true;
+	}
+	return false;
+}
+
 TEAMS ABlindEyeCharacter::GetTeam_Implementation()
 {
 	return Team;
@@ -248,14 +289,41 @@ void ABlindEyeCharacter::HealthUpdated()
 		UpdatePlayerHealthUI();
 	} else
 	{
-		// Update health on owning characters UI
+		// Update health value of ally on owning player's UI
 		ABlindEyePlayerState* BlindEyePlayerState = GetAllyPlayerState();
 		ABlindEyeCharacter* AllyBlindCharacter = Cast<ABlindEyeCharacter>(BlindEyePlayerState->GetPawn());
 		if (AllyBlindCharacter == nullptr) return;
 		AllyBlindCharacter->UpdateAllyHealthUI();
 	}
 }
- 
+
+void ABlindEyeCharacter::BirdMeterUpdated()
+{
+	if (IsLocallyControlled())
+	{
+		// Update owning bird meter
+		UpdateBirdMeterUI();
+	}
+}
+
+float ABlindEyeCharacter::GetBirdMeterPercent_Implementation()
+{
+	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
+	{
+		return BlindEyePS->GetBirdMeter() / BlindEyePS->GetMaxBirdMeter();
+	}
+	return 0;
+}
+
+float ABlindEyeCharacter::GetBirdMeter_Implementation()
+{
+	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
+	{
+		return BlindEyePS->GetBirdMeter();
+	}
+	return 0;
+}
+
 float ABlindEyeCharacter::GetHealthPercent_Implementation()
 {
 	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))

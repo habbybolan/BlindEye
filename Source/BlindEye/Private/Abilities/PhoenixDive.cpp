@@ -93,6 +93,11 @@ FJumpState::FJumpState(AAbilityBase* ability) : FAbilityState(ability) {}
 void FJumpState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
+	if (!Ability) return;
+	if (APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability))
+	{
+		if (!PhoenixDive->TryConsumeBirdMeter(PhoenixDive->CostPercent)) return;
+	}
 	RunState();
 }
 

@@ -36,9 +36,18 @@ float ABlindEyePlayerState::GetBirdMeter()
 	return CurrBirdMeter;
 }
 
+float ABlindEyePlayerState::GetMaxBirdMeter()
+{
+	return MaxBirdMeter;
+}
+
 void ABlindEyePlayerState::SetBirdMeter(float NewBirdMeter)
 {
 	CurrBirdMeter = NewBirdMeter;
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		OnRep_BirdMeterUpdated();
+	}
 }
 
 void ABlindEyePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -59,5 +68,9 @@ void ABlindEyePlayerState::OnRep_HealthUpdated()
 
 void ABlindEyePlayerState::OnRep_BirdMeterUpdated()
 {
-	// TODO:
+	ABlindEyeCharacter* BlindEyeCharacter = Cast<ABlindEyeCharacter>(GetPawn());
+	if (BlindEyeCharacter)
+	{
+		BlindEyeCharacter->BirdMeterUpdated();
+	}
 }
