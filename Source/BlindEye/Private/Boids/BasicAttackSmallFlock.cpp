@@ -47,7 +47,6 @@ void ABasicAttackSmallFlock::CheckForDamage()
 
 	bCanAttack = false;
 	GetWorld()->GetTimerManager().SetTimer(CanAttackTimerHandle, this, &AFlock::SetCanAttack, DamageCooldown, false);
-	TArray<TEnumAsByte<EObjectTypeQuery> > ObjectTypes;
 	TArray<AActor*> ActorsToIgnore;
 	TArray<AActor*> OutActors;
 	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), CalcAveragePosition(), DamageRadius, ObjectTypes, ABlindEyeEnemyBase::StaticClass(), ActorsToIgnore, OutActors);

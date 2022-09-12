@@ -5,9 +5,11 @@
 #include "Characters/BlindEyeCharacter.h"
 #include "Enemies/BlindEyeEnemyController.h"
 #include "Enemies/SnapperEnemyController.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 void ASnapperEnemy::OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType,
-	AActor* DamageCauser)
+                                                AActor* DamageCauser)
 {
 	Super::OnTakeDamage_Implementation(Damage, HitLocation, DamageType, DamageCauser);
 
@@ -23,5 +25,18 @@ void ASnapperEnemy::OnTakeDamage_Implementation(float Damage, FVector HitLocatio
 
 void ASnapperEnemy::PerformBasicAttack()
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Red, "Try Attack");
+	UWorld* world = GetWorld();
+	if (!world) return;
+	
+	TArray<FHitResult> OutHits;
+	UKismetSystemLibrary::BoxTraceMultiForObjects(world, GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 300, FVector(0, 100 / 2, 100 / 2),
+		GetActorRotation(), ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, OutHits, true);
+
+	for (FHitResult Hit : OutHits)
+	{
+		AActor* HitActor = Hit.GetActor();
+		if (!HitActor) continue;
+
+		UGameplayStatics::ApplyPointDamage(HitActor, BasicAttackDamage, Hit.ImpactNormal, Hit, GetController(), this, BasicAttackDamageType);
+	}
 }
