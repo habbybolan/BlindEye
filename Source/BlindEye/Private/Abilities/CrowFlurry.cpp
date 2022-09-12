@@ -98,6 +98,7 @@ UFirstCrowFlurryState::UFirstCrowFlurryState(AAbilityBase* ability) : FAbilitySt
 void UFirstCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState();
+	// apply initial cost
 	if (!Ability) return;
 	if (ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability))
 	{
