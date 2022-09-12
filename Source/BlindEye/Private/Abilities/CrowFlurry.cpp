@@ -26,12 +26,7 @@ void ACrowFlurry::StartCrowFlurry()
 
 void ACrowFlurry::MULT_SpawnCrowFlurry_Implementation(FRotator rotation)
 {
-	UWorld* world = GetWorld();
-	if (!world) return;
-	
-	SpawnedCrowFlurryParticle = UNiagaraFunctionLibrary::SpawnSystemAttached(CrowFlurryParticle, GetInstigator()->GetRootComponent(), NAME_None,
-		GetInstigator()->GetActorLocation(), rotation, FVector::OneVector,
-		EAttachLocation::KeepWorldPosition, false, ENCPoolMethod::AutoRelease);
+	MULT_SpawnCrowFlurryHelper();
 }
 
 void ACrowFlurry::PerformCrowFlurry()
@@ -52,17 +47,18 @@ void ACrowFlurry::PerformCrowFlurry()
 		UGameplayStatics::ApplyPointDamage(Hit.GetActor(), DamagePerSec * 0.2f, FVector::ZeroVector,
 					FHitResult(), GetInstigator()->Controller, this, DamageType);
 	}
+
+	// consume bird meter
+	if (!TryConsumeBirdMeter(CostPercentPerSec * 0.2f))
+	{
+		// if out of bird meter, simulate releasing button
+		AbilityStates[CurrState]->HandleInput(EAbilityInputTypes::Released);
+	}
 }
 
 void ACrowFlurry::MULT_DestroyCrowFlurry_Implementation()
 {
-	UWorld* world = GetWorld();
-	if (!world) return;
-
-	if (SpawnedCrowFlurryParticle)
-	{
-		SpawnedCrowFlurryParticle->Deactivate();
-	}
+	MULT_DestroyCrowFlurryHelper();
 }
 
 void ACrowFlurry::StopCrowFlurry()
@@ -72,8 +68,6 @@ void ACrowFlurry::StopCrowFlurry()
 
 	MULT_DestroyCrowFlurry();
 	
-	world->GetTimerManager().SetTimer(CrowFlurryParticleDestroyTimerHandle, this, &ACrowFlurry::DestroyParticles, 1.f, false);
-	world->GetTimerManager().ClearTimer(CrowFlurryTimerHandle);
 	// TODO: Stop particles/sound...
 }
 
@@ -104,6 +98,12 @@ UFirstCrowFlurryState::UFirstCrowFlurryState(AAbilityBase* ability) : FAbilitySt
 void UFirstCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState();
+	// apply initial cost
+	if (!Ability) return;
+	if (ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability))
+	{
+		if (!CrowFlurry->TryConsumeBirdMeter(CrowFlurry->InitialCostPercent)) return;
+	}
 	if (CurrInnerState > EInnerState::None) return;
 	RunState();
 }

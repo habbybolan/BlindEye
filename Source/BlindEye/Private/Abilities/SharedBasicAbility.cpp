@@ -12,18 +12,13 @@ ASharedBasicAbility::ASharedBasicAbility() : AAbilityBase()
 
 void ASharedBasicAbility::TryCancelAbility()
 {
-	ClearLeaveAbilityTimer();
 	Super::TryCancelAbility();
 }
 
 void ASharedBasicAbility::EndAbilityLogic()
 {
 	Super::EndAbilityLogic();
-	UWorld* world = GetWorld();
-	if (world)
-	{
-		world->GetTimerManager().ClearTimer(ResetAbilityTimerHandle);
-	}
+	ClearLeaveAbilityTimer();
 }
 
 void ASharedBasicAbility::SpawnFlock_Implementation(uint8 comboNum)
@@ -57,7 +52,8 @@ void ASharedBasicAbility::SetLeaveAbilityTimer()
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	world->GetTimerManager().SetTimer(ResetAbilityTimerHandle, this, &AAbilityBase::TryCancelAbility, 2, false);
+	world->GetTimerManager().ClearTimer(ResetAbilityTimerHandle);
+	world->GetTimerManager().SetTimer(ResetAbilityTimerHandle, this, &AAbilityBase::TryCancelAbility, AbilityCancelDelay, false);
 } 
 
 void ASharedBasicAbility::ClearLeaveAbilityTimer()
@@ -77,6 +73,11 @@ UFirstAttackState::UFirstAttackState(AAbilityBase* ability) : FAbilityState(abil
 void UFirstAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState();
+	if (!Ability) return;
+	if (ASharedBasicAbility* SharedBasicAbility = Cast<ASharedBasicAbility>(Ability))
+	{
+		if (!SharedBasicAbility->TryConsumeBirdMeter(SharedBasicAbility->FirstChargeCostPercent)) return;
+	}
 	if (CurrInnerState > EInnerState::None) return;
 	RunState();
 }
@@ -89,7 +90,6 @@ void UFirstAttackState::RunState(EAbilityInputTypes abilityUsageType)
 	{
 		SharedAbility->SpawnFlock(0);
 	}
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Blue, "Charge: 1");
 	ExitState();
 }
 
@@ -101,7 +101,7 @@ void UFirstAttackState::ExitState()
 	if (SharedAbility)
 	{
 		SharedAbility->SetLeaveAbilityTimer();
-		SharedAbility->DelayToNextState(.2f);
+		SharedAbility->DelayToNextState(SharedAbility->ChargeDelay1);
 	}
 }
 
@@ -112,6 +112,11 @@ USecondAttackState::USecondAttackState(AAbilityBase* ability) : FAbilityState(ab
 void USecondAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState();
+	if (!Ability) return;
+	if (ASharedBasicAbility* SharedBasicAbility = Cast<ASharedBasicAbility>(Ability))
+	{
+		if (!SharedBasicAbility->TryConsumeBirdMeter(SharedBasicAbility->SecondChargeCostPercent)) return;
+	}
 	if (CurrInnerState > EInnerState::None) return;
 	RunState();
 }
@@ -124,22 +129,19 @@ void USecondAttackState::RunState(EAbilityInputTypes abilityUsageType)
 	{
 		SharedAbility->SpawnFlock(1);
 	}
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Blue, "Charge: 2");
 	ExitState();
 }
 
 void USecondAttackState::ExitState()
 {
 	// Exits the ability if no input in time
+	FAbilityState::ExitState();
 	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
 	if (SharedAbility)
 	{
 		SharedAbility->SetLeaveAbilityTimer();
-		SharedAbility->DelayToNextState(.2f);
+		SharedAbility->DelayToNextState(SharedAbility->ChargeDelay2);
 	}
-	
-	FAbilityState::ExitState();
-	
 }
 
 // Last Attack state *********************
@@ -149,6 +151,11 @@ ULastAttackState::ULastAttackState(AAbilityBase* ability) : FAbilityState(abilit
 void ULastAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState();
+	if (!Ability) return;
+	if (ASharedBasicAbility* SharedBasicAbility = Cast<ASharedBasicAbility>(Ability))
+	{
+		if (!SharedBasicAbility->TryConsumeBirdMeter(SharedBasicAbility->ThirdChargeCostPercent)) return;
+	}
 	if (CurrInnerState > EInnerState::None) return;
 	RunState();
 }
@@ -161,12 +168,11 @@ void ULastAttackState::RunState(EAbilityInputTypes abilityUsageType)
 	{
 		SharedAbility->SpawnFlock(2);
 	}
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Blue, "Charge: last");
 	ExitState();
 }
 
 void ULastAttackState::ExitState()
 {
-	Ability->EndCurrState();
 	FAbilityState::ExitState();
+	Ability->EndCurrState();
 }

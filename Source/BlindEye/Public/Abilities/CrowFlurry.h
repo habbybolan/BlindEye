@@ -45,8 +45,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<	EObjectTypeQuery>> ObjectTypes;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=100))
 	float CostPercentPerSec = 20;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=100))
+	float InitialCostPercent = 5; 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UBaseDamageType> DamageType;
@@ -68,9 +71,13 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_SpawnCrowFlurry(FRotator FlurryRotation);
+	UFUNCTION(BlueprintImplementableEvent)
+	void MULT_SpawnCrowFlurryHelper();
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_DestroyCrowFlurry(); 
+	void MULT_DestroyCrowFlurry();
+	UFUNCTION(blueprintImplementableEvent)
+	void MULT_DestroyCrowFlurryHelper(); 
 
 	UPROPERTY()
 	UNiagaraComponent* SpawnedCrowFlurryParticle;

@@ -19,8 +19,11 @@ enum class TEAMS
 	Enemy = 1
 };
 
+class UHealthComponent;
+
 /**
- * Health interface for any actor with the HealthComponent
+ * Health interface for any actor with a HealthComponent
+ * Used by the HealthComponent, or by other classes to get info on HealthComponent
  */
 class BLINDEYE_API IHealthInterface
 {
@@ -32,7 +35,19 @@ public:
 	float GetHealth();
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
 	void SetHealth(float NewHealth);
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	float GetHealthPercent();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	TEAMS GetTeam();
+
+	// Any extra specific logic, outside of damage logic, for actor to perform on taking damage
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void OnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UHealthComponent* GetHealthComponent();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void OnDeath();
 };

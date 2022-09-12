@@ -7,6 +7,7 @@
 #include "Interfaces/HealthInterface.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
 UHealthComponent::UHealthComponent()
@@ -14,8 +15,15 @@ UHealthComponent::UHealthComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+	
+	IsInvincible = false; // make sure this debug starts false
 }
 
+
+const FAppliedStatusEffects& UHealthComponent::GetAppliedStatusEffect()
+{
+	return AppliedStatusEffects;
+}
 
 // Called when the game starts
 void UHealthComponent::BeginPlay()
@@ -47,21 +55,30 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 	{
 		const UBaseDamageType* baseDamageType = Cast<UBaseDamageType>(DamageType);
 		if (!baseDamageType) return;
+		 
+		float damageMultiplied = Damage * baseDamageType->ProcessDamage(DamageCauser, GetOwner(), HitLocation, this);
 
-		APawn* pawn = Cast<APawn>(GetOwner());
-		if (!pawn) return;
+		// Debug invincibility
+		if (IsInvincible) Damage = 0;
 		
-		float damageMultiplied = Damage * baseDamageType->ProcessDamage(DamageCauser, pawn, HitLocation, this);
 		OwnerHealth->Execute_SetHealth(GetOwner(), OwnerHealth->Execute_GetHealth(GetOwner()) - damageMultiplied);
+		// send callback to owning actor for any additional logic
+		OwnerHealth->Execute_OnTakeDamage(GetOwner(), Damage, HitLocation, DamageType, DamageCauser->GetInstigator());
 		
 		if (OwnerHealth->Execute_GetHealth(GetOwner()) <= 0)
 		{
 			// TODO: Check if player character or enemy
 			// TODO: If enemy delete, if player, do extra work on player and send to GameMode for any state change
+			OnDeath();
 		}
 	}
 }
 
+void UHealthComponent::OnDeath()
+{
+	OnDeathDelegate.Broadcast(GetOwner());
+	OwnerHealth->Execute_OnDeath(GetOwner());
+}
 
 void UHealthComponent::Stun_Implementation(float StunDuration)
 {
@@ -139,6 +156,12 @@ void UHealthComponent::TryDetonation_Implementation(PlayerType Player)
 	}
 }
 
+void UHealthComponent::TryTaunt_Implementation(float Duration)
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Silver, "Taunt");
+	// TODO: 
+}
+
 void UHealthComponent::RemoveMark()
 {
 	// TODO: Remove Mark visual
@@ -146,3 +169,20 @@ void UHealthComponent::RemoveMark()
 	CurrMark = nullptr;
 }
 
+void UHealthComponent::OnRep_IsInvincibility()
+{
+	FString boolString = IsInvincible ? "True" : "False";
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Orange, "Invincibility: " + boolString);
+}
+
+
+void UHealthComponent::Kill()
+{
+	OnDeath();
+}
+
+void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UHealthComponent, IsInvincible);
+}

@@ -1,6 +1,7 @@
 // Copyright (C) Nicholas Johnson 2022
 
 #include "Enemies/BlindEyeEnemybase.h"
+#include "Characters/BlindEyeCharacter.h"
 #include "Components/HealthComponent.h"
 #include "Net/UnrealNetwork.h"
 
@@ -16,10 +17,16 @@ ABlindEyeEnemyBase::ABlindEyeEnemyBase()
 	Team = TEAMS::Enemy;
 }
 
+const FAppliedStatusEffects& ABlindEyeEnemyBase::GetAppliedStatusEffects()
+{
+	return HealthComponent->GetAppliedStatusEffect();
+}
+
 // Called when the game starts or when spawned
 void ABlindEyeEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
+	
 }
 
 void ABlindEyeEnemyBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -44,6 +51,25 @@ float ABlindEyeEnemyBase::GetHealth_Implementation()
 void ABlindEyeEnemyBase::SetHealth_Implementation(float NewHealth)
 {
 	CurrHealth = NewHealth;
+}
+
+void ABlindEyeEnemyBase::OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType,
+	AActor* DamageCauser)
+{}
+
+UHealthComponent* ABlindEyeEnemyBase::GetHealthComponent_Implementation()
+{
+	return HealthComponent;
+}
+
+void ABlindEyeEnemyBase::OnDeath_Implementation()
+{
+	Destroy();
+}
+
+float ABlindEyeEnemyBase::GetHealthPercent_Implementation()
+{
+	return CurrHealth / MaxHealth;
 }
 
 TEAMS ABlindEyeEnemyBase::GetTeam_Implementation()

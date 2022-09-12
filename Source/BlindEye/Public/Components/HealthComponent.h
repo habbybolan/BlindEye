@@ -8,6 +8,21 @@
 #include "Interfaces/DamageInterface.h"
 #include "HealthComponent.generated.h"
 
+USTRUCT(BlueprintType)
+struct FAppliedStatusEffects 
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool IsStun = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool IsBurn = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool IsMarked = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool IsStaggered = false;
+};
+
 enum class PlayerType : uint8;
 class IHealthInterface;
 
@@ -26,7 +41,25 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float RefreshMarkerAmount = 2.f;
 
+	UFUNCTION(BlueprintCallable)
+	const FAppliedStatusEffects& GetAppliedStatusEffect();
+
+	DECLARE_MULTICAST_DELEGATE_OneParam(FDeathSignature, AActor*)
+	FDeathSignature OnDeathDelegate;
+	
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, ReplicatedUsing="OnRep_IsInvincibility")
+	bool IsInvincible = false;
+
+	UFUNCTION()
+	void OnRep_IsInvincibility();
+
+	void Kill();
+
 protected:
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	void OnDeath();
 
 	// cached owners health interface
 	IHealthInterface* OwnerHealth;
@@ -34,6 +67,7 @@ protected:
 	virtual void BeginPlay() override;
 	
 	FMarkData* CurrMark;
+	FAppliedStatusEffects AppliedStatusEffects;
 
 	UFUNCTION()
 	void SetPointDamage(AActor* DamagedActor, float Damage,
@@ -57,6 +91,8 @@ protected:
 	virtual void TryApplyMarker_Implementation(PlayerType Player) override;
 
 	virtual void TryDetonation_Implementation(PlayerType Player) override;
+
+	virtual void TryTaunt_Implementation(float Duration) override;
 		
 	FTimerHandle MarkerDecayTimerHandle;
 	void RemoveMark();
