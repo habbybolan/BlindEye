@@ -19,8 +19,8 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void SER_SpawnPlayer();
-
-	UFUNCTION(Server, Reliable)
+ 
+	UFUNCTION(Client, Reliable)
 	void CLI_GameEnded();
 
 private:
