@@ -4,6 +4,8 @@
 #include "Components/HealthComponent.h"
 
 #include "DamageTypes/BaseDamageType.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Interfaces/HealthInterface.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -89,13 +91,12 @@ void UHealthComponent::Stun_Implementation(float StunDuration)
 
 void UHealthComponent::KnockBack_Implementation(FVector KnockBackForce)
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Silver, "Knockback");
-	/* TODO:
-	* If player
-	*	set player state as stunned and knock away from HitPoint
-	* if enemy
-	*	...
-	*/
+	ACharacter* Character = Cast<ACharacter>(GetOwner());
+	if (Character)
+	{
+		UCharacterMovementComponent* Movement = Character->GetCharacterMovement();
+		Movement->AddImpulse(KnockBackForce * 100);
+	}
 }
 
 void UHealthComponent::Burn_Implementation(float DamagePerSec, float Duration)
