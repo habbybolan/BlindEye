@@ -11,7 +11,7 @@
  * 
  */
 UCLASS()
-class BLINDEYE_API ABlindEyeGameMode : public AGameMode
+class BLINDEYE_API ABlindEyeGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
@@ -26,10 +26,12 @@ public:
 	// called by shrine when it's destroyed
 	void OnShrineDeath();
 
+	virtual void RestartGame();
+
 protected:
 	void OnGameEnded();
 
 	FTimerHandle GameRestartTimerHandle;
-	virtual void RestartGame() override;
+	
 	
 };

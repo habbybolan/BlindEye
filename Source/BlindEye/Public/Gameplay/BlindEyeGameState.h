@@ -12,7 +12,7 @@ class ABlindEyeCharacter;
  * 
  */
 UCLASS()
-class BLINDEYE_API ABlindEyeGameState : public AGameState
+class BLINDEYE_API ABlindEyeGameState : public AGameStateBase
 {
 	GENERATED_BODY()
 
