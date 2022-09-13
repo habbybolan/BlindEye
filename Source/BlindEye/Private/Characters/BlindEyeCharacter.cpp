@@ -14,6 +14,7 @@
 #include "Enemies/BlindEyeEnemyController.h"
 #include "Enemies/BurrowerEnemy.h"
 #include "Enemies/SnapperEnemy.h"
+#include "GameFramework/PlayerStart.h"
 #include "Gameplay/BlindEyeGameState.h"
 #include "Gameplay/BlindEyePlayerState.h"
 #include "Kismet/GameplayStatics.h"
@@ -60,7 +61,20 @@ ABlindEyeCharacter::ABlindEyeCharacter()
 	
 	PlayerType = PlayerType::CrowPlayer;
 	Team = TEAMS::Player;
-} 
+}
+
+void ABlindEyeCharacter::FellOutOfWorld(const UDamageType& dmgType)
+{
+	// reset player to a playerStart on killz reached
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		UWorld* world = GetWorld();
+		if (world == nullptr) return;
+
+		AActor* ActorPlayerStart = UGameplayStatics::GetActorOfClass(world, APlayerStart::StaticClass());
+		SetActorLocation(ActorPlayerStart->GetActorLocation());
+	}
+}
 
 void ABlindEyeCharacter::BeginPlay()
 {

@@ -36,6 +36,8 @@ class ABlindEyeCharacter : public ACharacter, public IHealthInterface, public IA
 public:
 	ABlindEyeCharacter();
 
+	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
+
 	virtual void OnRep_PlayerState() override;
 	virtual void PossessedBy(AController* NewController) override;
 
