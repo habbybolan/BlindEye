@@ -47,7 +47,22 @@ void ABlindEyeGameMode::OnGameEnded()
 		APlayerController* PlayerController = Iterator->Get();
 		if (ABlindEyePlayerController* BlindEyePlayerController = Cast<ABlindEyePlayerController>(PlayerController))
 		{
-			BlindEyePlayerController->CLI_GameEnded();
+			BlindEyePlayerController->CLI_GameLost();
+		}
+	}
+}
+
+void ABlindEyeGameMode::OnGameWon()
+{
+	UWorld* World = GetWorld();
+	if (!World) return;
+	
+	for (FConstPlayerControllerIterator Iterator = World->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		APlayerController* PlayerController = Iterator->Get();
+		if (ABlindEyePlayerController* BlindEyePlayerController = Cast<ABlindEyePlayerController>(PlayerController))
+		{
+			BlindEyePlayerController->CLI_GameWon();
 		}
 	}
 }
@@ -56,4 +71,14 @@ void ABlindEyeGameMode::RestartGame()
 {
 	// TODO: Check in GameSession if can restart?
 	GetWorld()->ServerTravel("?Restart",false);
+}
+
+void ABlindEyeGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	world->GetTimerManager().SetTimer(GameWinTimerHandle, this, &ABlindEyeGameMode::OnGameWon, TimerUntilGameWon, false);
 }

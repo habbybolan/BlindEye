@@ -23,15 +23,22 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TSubclassOf<ABlindEyeCharacter>> PlayerClassTypes;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float TimerUntilGameWon = 60;
+
 	// called by shrine when it's destroyed
 	void OnShrineDeath();
 
 	virtual void RestartGame();
 
 protected:
+	virtual void BeginPlay() override;
+	
 	void OnGameEnded();
+	void OnGameWon();
 
 	FTimerHandle GameRestartTimerHandle;
+	FTimerHandle GameWinTimerHandle;
 	
 	
 };
