@@ -23,6 +23,8 @@ Blind Eye is a two player, 3D, third person, cooperative battle arena defense ga
 
 [G Drive Folder](<https://drive.google.com/drive/folders/1hjaj08cCvYL3Be4o2cc4maj_e3tBocap?usp=sharing>)
 
+[M1 Build](<https://drive.vfs.com/index.php/apps/files/?dir=/VFSSTORAGE10%20Dropbox%20GDPGSD/Builds/GD66PG22/BlindEye/M1&fileid=75792717>)
+
 ### Controls
 
 Action               | Keyboard Control  | Gamepad Control
