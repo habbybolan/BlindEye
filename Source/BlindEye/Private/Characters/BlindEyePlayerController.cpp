@@ -57,4 +57,9 @@ void ABlindEyePlayerController::CLI_GameEnded_Implementation()
 {
 	// TODO: Display Lose screen
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Red, "Game Over");
+	if (GetPawn() == nullptr) return;
+	if (ABlindEyeCharacter* BlindEyeCharacter = Cast<ABlindEyeCharacter>(GetPawn()))
+	{
+		BlindEyeCharacter->OnGameLost();
+	}
 }
