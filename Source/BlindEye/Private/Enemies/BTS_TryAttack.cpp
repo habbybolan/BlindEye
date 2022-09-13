@@ -18,5 +18,4 @@ void UBTS_TryAttack::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
 	{
 		SnapperController->PerformBasicAttack();
 	}
-	
 }
