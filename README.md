@@ -28,12 +28,13 @@ Ability 2            | E                 | B
 
 ### Debug tools/controls
 
-Use the Esc to open the menu
-
-Select from menu
-
-1. Kill All Snappers
-2. Invincibility
+1 - Player invincibility
+2 - kill all snappers
+3 - kill all burrowers
+4 - Kill all Hunters
+5 - Damage self
+6 - Damage Shrine
+7 - Shrine invincibility
 
 
 ### Known Issues
