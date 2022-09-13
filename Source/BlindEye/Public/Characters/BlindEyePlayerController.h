@@ -23,6 +23,9 @@ public:
 	UFUNCTION(Client, Reliable)
 	void CLI_GameEnded();
 
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_RestartLevel();
+
 private:
 	UPROPERTY()
 	ABlindEyeCharacter* OwningCharacter;

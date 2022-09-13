@@ -63,3 +63,15 @@ void ABlindEyePlayerController::CLI_GameEnded_Implementation()
 		BlindEyeCharacter->OnGameLost();
 	}
 }
+
+void ABlindEyePlayerController::SER_RestartLevel_Implementation()
+{
+	AGameModeBase* GameMode = UGameplayStatics::GetGameMode(GetWorld());
+	if (GameMode)
+	{
+		if (ABlindEyeGameMode* BlindEyeGameMode = Cast<ABlindEyeGameMode>(GameMode))
+		{
+			BlindEyeGameMode->RestartGame();
+		}
+	}
+}
