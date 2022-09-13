@@ -37,6 +37,16 @@ void ABlindEyeGameMode::OnShrineDeath()
 	OnGameEnded();
 }
 
+void ABlindEyeGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	world->SpawnActor(HunterControllerType);
+}
+
 void ABlindEyeGameMode::OnGameEnded()
 {
 	UWorld* World = GetWorld();

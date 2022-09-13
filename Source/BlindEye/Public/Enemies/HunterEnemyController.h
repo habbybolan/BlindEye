@@ -24,6 +24,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
 	float BasicAttackDelay = 3.f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float SpawnDelay = 15.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<AHunterEnemy> HunterType;
+
 	// Calls blueprint to initialize behavior tree
 	UFUNCTION(BlueprintImplementableEvent)
 	void InitializeBehaviorTree();
@@ -40,10 +46,17 @@ protected:
 	bool IsBasicAttackOnDelay = false;
 	FTimerHandle BasicAttackDelayTimerHandle;
 
+	FTimerHandle SpawnDelayTimerHandle;
+
 	UPROPERTY() 
 	AHunterEnemy* Hunter;
 
 	virtual void OnPossess(APawn* InPawn) override;
 	void SetCanBasicAttack();
+
+	UFUNCTION()
+	void SpawnOnDelay(AActor* HunterKilled);
+	UFUNCTION()
+	void SpawnHunter();
 	
 };

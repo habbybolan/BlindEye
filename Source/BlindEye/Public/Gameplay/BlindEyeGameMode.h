@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Characters/BlindEyeCharacter.h"
+#include "Enemies/HunterEnemyController.h"
 #include "GameFramework/GameMode.h"
 #include "BlindEyeGameMode.generated.h"
 
@@ -23,10 +24,15 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TSubclassOf<ABlindEyeCharacter>> PlayerClassTypes;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<AHunterEnemyController> HunterControllerType;
+
 	// called by shrine when it's destroyed
 	void OnShrineDeath();
 
 protected:
+	virtual void BeginPlay() override;
+	
 	void OnGameEnded();
 
 	FTimerHandle GameRestartTimerHandle;

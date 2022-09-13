@@ -4,6 +4,7 @@
 #include "Enemies/HunterEnemyController.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Enemies/BurrowerSpawnPoint.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
 #include "Kismet/GameplayStatics.h"
@@ -12,24 +13,7 @@
 void AHunterEnemyController::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	InitializeBehaviorTree();
-	
-	UWorld* world = GetWorld();
-	if (!world) return;
-
-	// Get random playerto attack
-	AGameStateBase* GameState = UGameplayStatics::GetGameState(world);
-	AActor* RandPlayerTarget;
-	if (GameState->PlayerArray.Num() == 1)
-	{
-		RandPlayerTarget = GameState->PlayerArray[0]->GetPawn();
-	}
-	else
-	{
-		RandPlayerTarget = GameState->PlayerArray[UKismetMathLibrary::RandomIntegerInRange(0, 1)]->GetPawn();
-	}
-	SetTargetEnemy(RandPlayerTarget);
+	SpawnOnDelay(nullptr);
 }
 
 void AHunterEnemyController::SetTargetEnemy(AActor* target)
@@ -70,10 +54,57 @@ void AHunterEnemyController::PerformBasicAttack()
 void AHunterEnemyController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
+	
+	UWorld* world = GetWorld();
+	if (!world) return;
+	
 	Hunter = Cast<AHunterEnemy>(InPawn);
+	
+	if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(Hunter))
+	{
+		HealthInterface->Execute_GetHealthComponent(Hunter)->OnDeathDelegate.AddUFunction(this, FName("SpawnOnDelay"));
+	}
+
+	// Get random player to attack
+	AGameStateBase* GameState = UGameplayStatics::GetGameState(world);
+	AActor* RandPlayerTarget;
+	if (GameState->PlayerArray.Num() == 1)
+	{
+		RandPlayerTarget = GameState->PlayerArray[0]->GetPawn();
+	}
+	else
+	{
+		RandPlayerTarget = GameState->PlayerArray[UKismetMathLibrary::RandomIntegerInRange(0, 1)]->GetPawn();
+	}
+	InitializeBehaviorTree();
+	SetTargetEnemy(RandPlayerTarget);
 }
 
 void AHunterEnemyController::SetCanBasicAttack()
 {
 	IsBasicAttackOnDelay = false;
+}
+
+void AHunterEnemyController::SpawnOnDelay(AActor* HunterKilled)
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	world->GetTimerManager().SetTimer(SpawnDelayTimerHandle, this, &AHunterEnemyController::SpawnHunter, SpawnDelay, false);
+}
+
+void AHunterEnemyController::SpawnHunter() 
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	AActor* SpawnPoint = UGameplayStatics::GetActorOfClass(world, ABurrowerSpawnPoint::StaticClass());
+	if (!SpawnPoint) return;
+	
+	FVector SpawnLocation = SpawnPoint->GetActorLocation();
+	FRotator Rotation = SpawnPoint->GetActorRotation();
+	FActorSpawnParameters params; 
+	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	AHunterEnemy* SpawnedHunter = world->SpawnActor<AHunterEnemy>(HunterType, SpawnLocation, Rotation, params);
+	Possess(SpawnedHunter);
 }

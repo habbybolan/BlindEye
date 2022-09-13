@@ -17,7 +17,7 @@ class BLINDEYE_API AHunterEnemy : public ABlindEyeEnemyBase
 	GENERATED_BODY()
 	
 public:
-
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<	EObjectTypeQuery>> ObjectTypes;
 
