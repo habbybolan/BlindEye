@@ -98,8 +98,10 @@ void AHunterEnemyController::SpawnHunter()
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	AActor* SpawnPoint = UGameplayStatics::GetActorOfClass(world, ABurrowerSpawnPoint::StaticClass());
-	if (!SpawnPoint) return;
+	TArray<AActor*> SpawnPoints;
+	UGameplayStatics::GetAllActorsOfClass(world, ABurrowerSpawnPoint::StaticClass(),SpawnPoints);
+	if (SpawnPoints.Num() == 0) return;
+	AActor* SpawnPoint = SpawnPoints[UKismetMathLibrary::RandomIntegerInRange(0, SpawnPoints.Num() - 1)];
 	
 	FVector SpawnLocation = SpawnPoint->GetActorLocation();
 	FRotator Rotation = SpawnPoint->GetActorRotation();
