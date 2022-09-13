@@ -7,6 +7,7 @@
 #include "GameFramework/GameMode.h"
 #include "BlindEyeGameMode.generated.h"
 
+class AHunterEnemyController;
 /**
  * 
  */
@@ -30,6 +31,9 @@ public:
 	void OnShrineDeath();
 
 	virtual void RestartGame();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<AHunterEnemyController> HunterControllerType;
 
 protected:
 	virtual void BeginPlay() override;

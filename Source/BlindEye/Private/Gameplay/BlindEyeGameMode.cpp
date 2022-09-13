@@ -5,6 +5,7 @@
 
 #include "EngineUtils.h"
 #include "Characters/BlindEyePlayerController.h"
+#include "Enemies/HunterEnemyController.h"
 #include "GameFramework/PlayerStart.h"
 #include "Gameplay/BlindEyeGameState.h"
 
@@ -81,4 +82,7 @@ void ABlindEyeGameMode::BeginPlay()
 	if (!world) return;
 
 	world->GetTimerManager().SetTimer(GameWinTimerHandle, this, &ABlindEyeGameMode::OnGameWon, TimerUntilGameWon, false);
+
+	world->SpawnActor(HunterControllerType);
+
 }

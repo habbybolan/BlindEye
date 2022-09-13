@@ -64,6 +64,7 @@ UHealthComponent* ABlindEyeEnemyBase::GetHealthComponent_Implementation()
 
 void ABlindEyeEnemyBase::OnDeath_Implementation()
 {
+	UnPossessed();
 	Destroy();
 }
 
