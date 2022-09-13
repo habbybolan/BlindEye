@@ -53,8 +53,32 @@ void ABlindEyePlayerController::SER_SpawnPlayer_Implementation()
 	}
 }
 
-void ABlindEyePlayerController::CLI_GameEnded_Implementation()
+void ABlindEyePlayerController::CLI_GameLost_Implementation()
 {
-	// TODO: Display Lose screen
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Red, "Game Over");
+	if (GetPawn() == nullptr) return;
+	if (ABlindEyeCharacter* BlindEyeCharacter = Cast<ABlindEyeCharacter>(GetPawn()))
+	{
+		BlindEyeCharacter->OnGameLost();
+	}
+}
+
+void ABlindEyePlayerController::SER_RestartLevel_Implementation()
+{
+	AGameModeBase* GameMode = UGameplayStatics::GetGameMode(GetWorld());
+	if (GameMode)
+	{
+		if (ABlindEyeGameMode* BlindEyeGameMode = Cast<ABlindEyeGameMode>(GameMode))
+		{
+			BlindEyeGameMode->RestartGame();
+		}
+	}
+}
+
+void ABlindEyePlayerController::CLI_GameWon_Implementation()
+{
+	if (GetPawn() == nullptr) return;
+	if (ABlindEyeCharacter* BlindEyeCharacter = Cast<ABlindEyeCharacter>(GetPawn()))
+	{
+		BlindEyeCharacter->OnGameWon();
+	}
 }

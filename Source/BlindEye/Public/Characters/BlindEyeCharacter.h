@@ -105,7 +105,9 @@ public:
 	void UpdateBirdMeterUI();
 	float GetBirdMeterPercent_Implementation() override;
 	virtual float GetBirdMeter_Implementation() override;
-	
+
+	void OnGameLost();
+	void OnGameWon();
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void UpdateShrineHealthUI(); 
@@ -155,6 +157,11 @@ protected:
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	 */
 	void LookUpAtRate(float Rate);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnGameLostUI();
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnGameWonUI();
 
 	UFUNCTION(Server, Reliable)
 	void SER_OnCheckAllyHealing();

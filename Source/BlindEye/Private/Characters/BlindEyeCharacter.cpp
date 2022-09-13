@@ -409,6 +409,16 @@ float ABlindEyeCharacter::GetBirdMeter_Implementation()
 	return 0;
 }
 
+void ABlindEyeCharacter::OnGameLost()
+{
+	OnGameLostUI();
+}
+
+void ABlindEyeCharacter::OnGameWon()
+{
+	OnGameWonUI();
+}
+
 float ABlindEyeCharacter::GetHealthPercent_Implementation()
 {
 	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))

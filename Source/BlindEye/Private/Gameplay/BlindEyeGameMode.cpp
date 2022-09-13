@@ -5,6 +5,7 @@
 
 #include "EngineUtils.h"
 #include "Characters/BlindEyePlayerController.h"
+#include "Enemies/HunterEnemyController.h"
 #include "GameFramework/PlayerStart.h"
 #include "Gameplay/BlindEyeGameState.h"
 
@@ -37,16 +38,6 @@ void ABlindEyeGameMode::OnShrineDeath()
 	OnGameEnded();
 }
 
-void ABlindEyeGameMode::BeginPlay()
-{
-	Super::BeginPlay();
-
-	UWorld* world = GetWorld();
-	if (!world) return;
-
-	world->SpawnActor(HunterControllerType);
-}
-
 void ABlindEyeGameMode::OnGameEnded()
 {
 	UWorld* World = GetWorld();
@@ -57,14 +48,41 @@ void ABlindEyeGameMode::OnGameEnded()
 		APlayerController* PlayerController = Iterator->Get();
 		if (ABlindEyePlayerController* BlindEyePlayerController = Cast<ABlindEyePlayerController>(PlayerController))
 		{
-			BlindEyePlayerController->CLI_GameEnded();
+			BlindEyePlayerController->CLI_GameLost();
 		}
 	}
+}
 
-	World->GetTimerManager().SetTimer(GameRestartTimerHandle, this, &ABlindEyeGameMode::RestartGame, 5, false);
+void ABlindEyeGameMode::OnGameWon()
+{
+	UWorld* World = GetWorld();
+	if (!World) return;
+	
+	for (FConstPlayerControllerIterator Iterator = World->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		APlayerController* PlayerController = Iterator->Get();
+		if (ABlindEyePlayerController* BlindEyePlayerController = Cast<ABlindEyePlayerController>(PlayerController))
+		{
+			BlindEyePlayerController->CLI_GameWon();
+		}
+	}
 }
 
 void ABlindEyeGameMode::RestartGame()
 {
-	Super::RestartGame();
+	// TODO: Check in GameSession if can restart?
+	GetWorld()->ServerTravel("?Restart",false);
+}
+
+void ABlindEyeGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	world->GetTimerManager().SetTimer(GameWinTimerHandle, this, &ABlindEyeGameMode::OnGameWon, TimerUntilGameWon, false);
+
+	world->SpawnActor(HunterControllerType);
+
 }
