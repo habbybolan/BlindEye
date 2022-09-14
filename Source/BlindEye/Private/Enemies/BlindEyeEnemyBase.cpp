@@ -15,6 +15,7 @@ ABlindEyeEnemyBase::ABlindEyeEnemyBase()
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 
 	MarkerComponent = CreateDefaultSubobject<UMarkerComponent>("markerComponent");
+	MarkerComponent->SetupAttachment(RootComponent);
 
 	CurrHealth = MaxHealth;
 	Team = TEAMS::Enemy;
