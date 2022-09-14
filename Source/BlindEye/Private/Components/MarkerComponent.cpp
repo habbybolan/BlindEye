@@ -4,11 +4,12 @@
 #include "Components/MarkerComponent.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "BlindEyeUtils.h"
+#include "Net/UnrealNetwork.h"
 
 
 UMarkerComponent::UMarkerComponent()
 {
-	
+
 }
 
 // Called when the game starts or when spawned
@@ -37,7 +38,7 @@ void UMarkerComponent::OnComponentDestroyed(bool bDestroyingHierarchy)
 	if (PhoenixMark) PhoenixMark->Destroy();
 }
 
-void UMarkerComponent::RemoveMark()
+void UMarkerComponent::MULT_RemoveMark_Implementation()
 {
 	// TODO: play particle effect/shader
 	CrowMark->GetStaticMeshComponent()->SetVisibility(false);
@@ -45,20 +46,25 @@ void UMarkerComponent::RemoveMark()
 	bMarked = false;
 }
 
-void UMarkerComponent::DetonateMark()
+void UMarkerComponent::MULT_DetonateMark_Implementation()
 {
 	// TODO: play particle effect/shader
 	CrowMark->GetStaticMeshComponent()->SetVisibility(false);
 	PhoenixMark->GetStaticMeshComponent()->SetVisibility(false);
-	bMarked = false;
+	bMarked = false; 
 }
 
-void UMarkerComponent::AddMark(PlayerType PlayerMarkToSet)
+void UMarkerComponent::MULT_AddMark_Implementation(PlayerType PlayerMarkToSet)
 {
 	if (bMarked) return;
 	CrowMark->GetStaticMeshComponent()->SetVisibility(PlayerMarkToSet == PlayerType::CrowPlayer);
 	PhoenixMark->GetStaticMeshComponent()->SetVisibility(PlayerMarkToSet == PlayerType::PhoenixPlayer);
 	bMarked = true;
 	// TODO: play particle/shader
+}
+
+void UMarkerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 

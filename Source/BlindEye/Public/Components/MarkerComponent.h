@@ -22,19 +22,23 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AStaticMeshActor> PhoenixMarkType;
 
-	void RemoveMark();
-	void DetonateMark(); 
-	void AddMark(PlayerType PlayerMarkToSet); 
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_RemoveMark();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_DetonateMark();
+	UFUNCTION(NetMulticast, Reliable) 
+	void MULT_AddMark(PlayerType PlayerMarkToSet); 
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual void OnComponentDestroyed(bool bDestroyingHierarchy) override;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	AStaticMeshActor* CrowMark;
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	AStaticMeshActor* PhoenixMark;
 
 	bool bMarked = false;

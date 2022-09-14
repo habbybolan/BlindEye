@@ -39,16 +39,16 @@ UMarkerComponent* ABlindEyeBaseCharacter::GetMarkerComponent_Implementation()
 
 void ABlindEyeBaseCharacter::OnMarkAdded(PlayerType MarkType)
 { 
-	MarkerComponent->AddMark(MarkType);
+	MarkerComponent->MULT_AddMark(MarkType);
 }
 
 void ABlindEyeBaseCharacter::OnMarkRemoved()
 {
-	MarkerComponent->RemoveMark();
+	MarkerComponent->MULT_RemoveMark();
 }
 
 void ABlindEyeBaseCharacter::OnMarkDetonated()
 {
-	MarkerComponent->DetonateMark();
+	MarkerComponent->MULT_DetonateMark();
 }
 
