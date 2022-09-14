@@ -7,11 +7,16 @@
 #include "GameFramework/Character.h"
 #include "Interfaces/HealthInterface.h"
 #include "BlindEyeEnemyBase.generated.h"
+ 
+class UMarkerComponent;
 
 UCLASS()
 class BLINDEYE_API ABlindEyeEnemyBase : public ACharacter, public IHealthInterface
 {
 	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UMarkerComponent* MarkerComponent;
 
 public:
 	// Sets default values for this character's properties

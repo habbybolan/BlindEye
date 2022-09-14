@@ -20,6 +20,8 @@ enum class PlayerType : uint8
 	PhoenixPlayer
 };
 
+class UMarkerComponent;
+
 UCLASS(config=Game)
 class ABlindEyeCharacter : public ACharacter, public IHealthInterface, public IAbilityUserInterface
 {
@@ -32,6 +34,9 @@ class ABlindEyeCharacter : public ACharacter, public IHealthInterface, public IA
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UMarkerComponent* MarkerComponent;
 	
 public:
 	ABlindEyeCharacter();

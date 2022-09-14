@@ -3,6 +3,7 @@
 #include "Enemies/BlindEyeEnemybase.h"
 #include "Characters/BlindEyeCharacter.h"
 #include "Components/HealthComponent.h"
+#include "Components/MarkerComponent.h"
 #include "Net/UnrealNetwork.h"
 
 // Sets default values
@@ -12,6 +13,8 @@ ABlindEyeEnemyBase::ABlindEyeEnemyBase()
 	PrimaryActorTick.bCanEverTick = true;
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+
+	MarkerComponent = CreateDefaultSubobject<UMarkerComponent>("markerComponent");
 
 	CurrHealth = MaxHealth;
 	Team = TEAMS::Enemy;
