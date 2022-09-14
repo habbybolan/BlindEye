@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/StaticMeshActor.h"
 #include "GameFramework/Actor.h"
 #include "MarkerComponent.generated.h"
 
@@ -19,13 +20,18 @@ public:
 	void SetPlayerMarkMesh(PlayerType PlayerMarkToSet); 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UStaticMeshComponent* CrowMark;
+	TSubclassOf<AStaticMeshActor> CrowMarkType;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UStaticMeshComponent* PhoenixMark; 
+	TSubclassOf<AStaticMeshActor> PhoenixMarkType; 
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY()
+	AStaticMeshActor* CrowMark;
+	UPROPERTY()
+	AStaticMeshActor* PhoenixMark;
 
 	void PlaySpawnEffect();
 	void RemoveMark();

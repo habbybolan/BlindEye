@@ -6,18 +6,23 @@
 
 UMarkerComponent::UMarkerComponent()
 {
-	CrowMark = CreateDefaultSubobject<UStaticMeshComponent>("CrowMark");
-	CrowMark->SetupAttachment(this);
-	PhoenixMark = CreateDefaultSubobject<UStaticMeshComponent>("PhoenixMark");
-	PhoenixMark->SetupAttachment(this);
 }
 
 // Called when the game starts or when spawned
 void UMarkerComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	CrowMark->SetVisibility(false); 
-	CrowMark->SetVisibility(false);
+
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+
+	FVector location = GetComponentLocation() + GetOwner()->GetActorLocation();
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Blue, "Location: " +
+		FString::SanitizeFloat(location.X) + "," + FString::SanitizeFloat(location.Y) + "," + FString::SanitizeFloat(location.Z));
+	CrowMark = World->SpawnActor<AStaticMeshActor>(CrowMarkType, location, GetComponentRotation());
+	CrowMark->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform); 
+	PhoenixMark = World->SpawnActor<AStaticMeshActor>(PhoenixMarkType, location, GetComponentRotation());
+	PhoenixMark->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
 }
 
 void UMarkerComponent::PlaySpawnEffect()
@@ -31,7 +36,7 @@ void UMarkerComponent::RemoveMark()
 
 void UMarkerComponent::SetPlayerMarkMesh(PlayerType PlayerMarkToSet)
 {
-	CrowMark->SetVisibility(PlayerMarkToSet == PlayerType::CrowPlayer);
-	CrowMark->SetVisibility(PlayerMarkToSet == PlayerType::PhoenixPlayer);
+	CrowMark->SetHidden(PlayerMarkToSet == PlayerType::CrowPlayer);
+	CrowMark->SetHidden(PlayerMarkToSet == PlayerType::PhoenixPlayer);
 }
 
