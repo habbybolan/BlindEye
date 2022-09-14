@@ -57,14 +57,18 @@ public:
 
 	// Delegates for status effects*********
 	
-	DECLARE_MULTICAST_DELEGATE_OneParam(FStunSignature, float)
-	FStunSignature StunDelegate;
+	DECLARE_MULTICAST_DELEGATE_OneParam(FStunStartSignature, float)
+	FStunStartSignature StunStartDelegate;
+	DECLARE_MULTICAST_DELEGATE(FStunEndSignature)
+	FStunEndSignature StunEndDelegate; 
 
 	DECLARE_MULTICAST_DELEGATE_OneParam(FKnockBackSignature, FVector)
 	FKnockBackSignature KnockBackDelegate;
 
-	DECLARE_MULTICAST_DELEGATE_TwoParams(FBurnSignature, float, float) 
-	FBurnSignature BurnDelegate;
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FBurnStartSignature, float, float) 
+	FBurnStartSignature BurnDelegateStart;
+	DECLARE_MULTICAST_DELEGATE(FBurnEndSignature) 
+	FBurnEndSignature BurnDelegateEnd; 
 
 	DECLARE_MULTICAST_DELEGATE(FStaggerSignature) 
 	FStaggerSignature StaggerDelegate;
@@ -94,10 +98,13 @@ protected:
 	FMarkData* CurrMark;
 	FAppliedStatusEffects AppliedStatusEffects;
 
-	FTimerHandle StunTimerHandle;
+	FTimerHandle StunTimerHandle; 
+	FTimerHandle BurnTimerHandle;
 
 	// End Status effect properties ***
-	void RemoveStun(); 
+	
+	void RemoveStun();
+	void RemoveBurn();
 
 	UFUNCTION()
 	void SetPointDamage(AActor* DamagedActor, float Damage,

@@ -18,9 +18,9 @@ public:
 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float DamagePerSec;
+	float DamagePerSec = 5;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float Duration;
+	float Duration = 3;
 
 	virtual void ProcessEffect(AActor* Owner, AActor* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const override;
 	

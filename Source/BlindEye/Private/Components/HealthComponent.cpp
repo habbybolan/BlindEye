@@ -41,6 +41,13 @@ void UHealthComponent::BeginPlay()
 void UHealthComponent::RemoveStun()
 {
 	AppliedStatusEffects.IsStun = false;
+	StunEndDelegate.Broadcast();
+}
+
+void UHealthComponent::RemoveBurn()
+{
+	AppliedStatusEffects.IsBurn = false;
+	BurnDelegateEnd.Broadcast();
 }
 
 void UHealthComponent::SetPointDamage(AActor* DamagedActor, float Damage, AController* InstigatedBy,
@@ -103,7 +110,7 @@ void UHealthComponent::Stun_Implementation(float StunDuration)
 	} 
 	World->GetTimerManager().SetTimer(StunTimerHandle, this, &UHealthComponent::RemoveStun, StunDuration, false);
 	AppliedStatusEffects.IsStun = true;
-	StunDelegate.Broadcast(StunDuration);
+	StunStartDelegate.Broadcast(StunDuration);
 }
 
 void UHealthComponent::KnockBack_Implementation(FVector KnockBackForce)
@@ -119,9 +126,21 @@ void UHealthComponent::KnockBack_Implementation(FVector KnockBackForce)
 
 void UHealthComponent::Burn_Implementation(float DamagePerSec, float Duration)
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Silver, "Burn");
-	// TODO:
-	// only effects enemy, damage over time
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	if (AppliedStatusEffects.IsBurn)
+	{
+		float RemainingTimeOnStun = UKismetSystemLibrary::K2_GetTimerRemainingTimeHandle(World, BurnTimerHandle);
+		// Do nothing if trying to override with less stun duration
+		if (Duration <= RemainingTimeOnStun)
+		{
+			return; 
+		}
+	} 
+	World->GetTimerManager().SetTimer(BurnTimerHandle, this, &UHealthComponent::RemoveBurn, Duration, false);
+	AppliedStatusEffects.IsBurn = true;
+	BurnDelegateStart.Broadcast(DamagePerSec, Duration);
 }
 
 void UHealthComponent::Stagger_Implementation()

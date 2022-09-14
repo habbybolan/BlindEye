@@ -26,7 +26,10 @@ const FAppliedStatusEffects& ABlindEyeEnemyBase::GetAppliedStatusEffects()
 void ABlindEyeEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
-	HealthComponent->StunDelegate.AddUFunction(this, TEXT("OnStun"));
+	HealthComponent->StunStartDelegate.AddUFunction(this, TEXT("OnStunStart"));
+	HealthComponent->StunEndDelegate.AddUFunction(this, TEXT("OnStunEnd"));
+	HealthComponent->BurnDelegateStart.AddUFunction(this, TEXT("OnBurnStart"));
+	HealthComponent->BurnDelegateEnd.AddUFunction(this, TEXT("OnBurnEnd"));
 }
 
 void ABlindEyeEnemyBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -36,9 +39,24 @@ void ABlindEyeEnemyBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(ABlindEyeEnemyBase, CurrHealth);
 }
 
-void ABlindEyeEnemyBase::OnStun(float StunDuration)
+void ABlindEyeEnemyBase::OnStunStart(float StunDuration)
 {
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Blue, "Enemy Stunned: " + FString::SanitizeFloat(StunDuration));
+}
+
+void ABlindEyeEnemyBase::OnStunEnd()
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Blue, "Stun ended");
+}
+
+void ABlindEyeEnemyBase::OnBurnStart(float DamagePerSec, float Duration)
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Blue, "Burn Started");
+}
+
+void ABlindEyeEnemyBase::OnBurnEnd()
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Blue, "Burn ended");
 }
 
 // Called every frame

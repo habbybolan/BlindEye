@@ -35,8 +35,19 @@ protected:
 
 	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
 
+	// Status effect delegate listeners ******
+	
 	UFUNCTION()
-	void OnStun(float StunDuration);
+	void OnStunStart(float StunDuration);
+	UFUNCTION()
+	void OnStunEnd();
+
+	UFUNCTION()
+	void OnBurnStart(float DamagePerSec, float Duration);
+	UFUNCTION() 
+	void OnBurnEnd(); 
+
+	// End Status effect delegate listeners ******
 	
 
 public:	
