@@ -32,7 +32,6 @@ void ASnapperEnemyController::SetTargetEnemy(AActor* target)
 	if (BlackboardComp == nullptr) return;
 	
 	GetBlackboardComponent()->SetValueAsObject(TEXT("EnemyActor"), target);
-	Target = MakeWeakObjectPtr<AActor>(target);
 }
 
 bool ASnapperEnemyController::CanBasicAttack()
@@ -40,9 +39,9 @@ bool ASnapperEnemyController::CanBasicAttack()
 	return !IsBasicAttackOnDelay;
 }
 
-bool ASnapperEnemyController::IsInBasicAttackRange()
+bool ASnapperEnemyController::IsInBasicAttackRange(AActor* Target) 
 {
-	if (Target.IsValid())
+	if (Target != nullptr)
 	{
 		FVector TargetLocation = Target->GetActorLocation();
 
@@ -70,4 +69,19 @@ void ASnapperEnemyController::OnPossess(APawn* InPawn)
 void ASnapperEnemyController::SetCanBasicAttack()
 {
 	IsBasicAttackOnDelay = false;
+}
+
+void ASnapperEnemyController::OnTauntStart(float Duration, AActor* Taunter)
+{
+	Super::OnTauntStart(Duration, Taunter);
+	
+	if (GetBlackboardComponent() == nullptr) return;
+	GetBlackboardComponent()->SetValueAsObject(TEXT("TauntActor"), Taunter);
+}
+
+void ASnapperEnemyController::OnTauntEnd()
+{
+	Super::OnTauntEnd();
+	if (GetBlackboardComponent() == nullptr) return;
+	GetBlackboardComponent()->SetValueAsObject(TEXT("TauntActor"), nullptr);
 }
