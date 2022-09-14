@@ -38,6 +38,7 @@ public:
 	
 protected:
 	TWeakObjectPtr<AActor> Target;
+	TWeakObjectPtr<AActor> TauntTarget;
 
 	bool IsBasicAttackOnDelay = false;
 	FTimerHandle BasicAttackDelayTimerHandle;

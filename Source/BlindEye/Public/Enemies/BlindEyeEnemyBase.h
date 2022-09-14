@@ -34,25 +34,6 @@ protected:
 	float CurrHealth;
 
 	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
-
-	// Status effect delegate listeners ******
-	
-	UFUNCTION()
-	virtual void OnStunStart(float StunDuration);
-	UFUNCTION()
-	virtual void OnStunEnd();
-
-	UFUNCTION()
-	virtual void OnBurnStart(float DamagePerSec, float Duration);
-	UFUNCTION() 
-	virtual void OnBurnEnd();
-
-	UFUNCTION()
-	virtual void OnTauntStart(float Duration, AActor* Taunter);
-	UFUNCTION()  
-	virtual void OnTauntEnd(); 
-
-	// End Status effect delegate listeners ******
 	
 
 public:	
