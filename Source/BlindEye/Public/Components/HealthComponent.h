@@ -88,9 +88,16 @@ protected:
 	IHealthInterface* OwnerHealth;
 
 	virtual void BeginPlay() override;
+
+	// Status effect properties ***
 	
 	FMarkData* CurrMark;
 	FAppliedStatusEffects AppliedStatusEffects;
+
+	FTimerHandle StunTimerHandle;
+
+	// End Status effect properties ***
+	void RemoveStun(); 
 
 	UFUNCTION()
 	void SetPointDamage(AActor* DamagedActor, float Damage,

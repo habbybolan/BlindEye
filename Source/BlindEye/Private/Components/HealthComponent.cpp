@@ -38,9 +38,14 @@ void UHealthComponent::BeginPlay()
 	GetOwner()->OnTakeRadialDamage.AddDynamic(this, &UHealthComponent::SetRadialDamage);
 }
 
+void UHealthComponent::RemoveStun()
+{
+	AppliedStatusEffects.IsStun = false;
+}
+
 void UHealthComponent::SetPointDamage(AActor* DamagedActor, float Damage, AController* InstigatedBy,
-	FVector HitLocation, UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection,
-	const UDamageType* DamageType, AActor* DamageCauser)
+                                      FVector HitLocation, UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection,
+                                      const UDamageType* DamageType, AActor* DamageCauser)
 {
 	SetDamage(Damage, HitLocation, DamageType, DamageCauser);
 }
@@ -84,9 +89,21 @@ void UHealthComponent::OnDeath()
 
 void UHealthComponent::Stun_Implementation(float StunDuration)
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Silver, "Stunned");
-	// TODO: Only applies to enemy
-	//		Pause brain logic and play animation?
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	if (AppliedStatusEffects.IsStun)
+	{
+		float RemainingTimeOnStun = UKismetSystemLibrary::K2_GetTimerRemainingTimeHandle(World, StunTimerHandle);
+		// Do nothing if trying to override with less stun duration
+		if (StunDuration <= RemainingTimeOnStun)
+		{
+			return;
+		}
+	} 
+	World->GetTimerManager().SetTimer(StunTimerHandle, this, &UHealthComponent::RemoveStun, StunDuration, false);
+	AppliedStatusEffects.IsStun = true;
+	StunDelegate.Broadcast(StunDuration);
 }
 
 void UHealthComponent::KnockBack_Implementation(FVector KnockBackForce)
