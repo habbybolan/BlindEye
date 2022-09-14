@@ -8,6 +8,7 @@
 
 UMarkerComponent::UMarkerComponent()
 {
+	
 }
 
 // Called when the game starts or when spawned
@@ -27,6 +28,13 @@ void UMarkerComponent::BeginPlay()
 	PhoenixMark = World->SpawnActor<AStaticMeshActor>(PhoenixMarkType, location, GetComponentRotation());
 	PhoenixMark->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
 	PhoenixMark->GetStaticMeshComponent()->SetVisibility(false);
+}
+
+void UMarkerComponent::OnComponentDestroyed(bool bDestroyingHierarchy)
+{
+	Super::OnComponentDestroyed(bDestroyingHierarchy);
+	if (CrowMark) CrowMark->Destroy();
+	if (PhoenixMark) PhoenixMark->Destroy();
 }
 
 void UMarkerComponent::RemoveMark()

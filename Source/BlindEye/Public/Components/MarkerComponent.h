@@ -30,6 +30,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void OnComponentDestroyed(bool bDestroyingHierarchy) override;
+
 	UPROPERTY()
 	AStaticMeshActor* CrowMark;
 	UPROPERTY()
