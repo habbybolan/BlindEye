@@ -49,5 +49,8 @@ protected:
 
 	virtual void OnTauntStart(float Duration, AActor* Taunter) override;
 	virtual void OnTauntEnd() override;
+
+	virtual void OnStunStart(float StunDuration) override;
+	virtual void OnStunEnd() override;
 	
 };

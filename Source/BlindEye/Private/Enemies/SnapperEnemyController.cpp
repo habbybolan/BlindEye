@@ -82,6 +82,19 @@ void ASnapperEnemyController::OnTauntStart(float Duration, AActor* Taunter)
 void ASnapperEnemyController::OnTauntEnd()
 {
 	Super::OnTauntEnd();
+	
 	if (GetBlackboardComponent() == nullptr) return;
 	GetBlackboardComponent()->SetValueAsObject(TEXT("TauntActor"), nullptr);
+}
+
+void ASnapperEnemyController::OnStunStart(float StunDuration)
+{
+	Super::OnStunStart(StunDuration);
+	// TODO: Play stun animation
+}
+
+void ASnapperEnemyController::OnStunEnd()
+{
+	Super::OnStunEnd();
+	// TODO: Stop stun animation, return control to BB
 }
