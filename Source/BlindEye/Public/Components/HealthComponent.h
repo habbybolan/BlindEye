@@ -55,6 +55,29 @@ public:
 
 	void Kill();
 
+	// Delegates for status effects*********
+	
+	DECLARE_MULTICAST_DELEGATE_OneParam(FStunSignature, float)
+	FStunSignature StunDelegate;
+
+	DECLARE_MULTICAST_DELEGATE_OneParam(FKnockBackSignature, FVector)
+	FKnockBackSignature KnockBackDelegate;
+
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FBurnSignature, float, float) 
+	FBurnSignature BurnDelegate;
+
+	DECLARE_MULTICAST_DELEGATE(FStaggerSignature) 
+	FStaggerSignature StaggerDelegate;
+
+	DECLARE_MULTICAST_DELEGATE(FMarkedSignature) 
+	FMarkedSignature MarkedDelegate;
+
+	DECLARE_MULTICAST_DELEGATE(FDetonateSignature) 
+	FDetonateSignature DetonateDelegate;
+
+	DECLARE_MULTICAST_DELEGATE_OneParam(FTauntSignature, AActor*) 
+	FTauntSignature TauntDelegate; 
+
 protected:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -91,10 +114,9 @@ protected:
 	virtual void TryApplyMarker_Implementation(PlayerType Player) override;
 
 	virtual void TryDetonation_Implementation(PlayerType Player) override;
-
-	virtual void TryTaunt_Implementation(float Duration) override;
+ 
+	virtual void TryTaunt_Implementation(float Duration, AActor* Taunter) override;
 		
 	FTimerHandle MarkerDecayTimerHandle;
 	void RemoveMark();
-		
 };

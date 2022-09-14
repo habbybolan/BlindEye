@@ -42,7 +42,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void TryDetonation(PlayerType Player);
- 
+  
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void TryTaunt(float Duration);
+	void TryTaunt(float Duration, AActor* Taunter);
 };

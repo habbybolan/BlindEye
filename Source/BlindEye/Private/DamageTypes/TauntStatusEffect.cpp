@@ -15,7 +15,7 @@ void UTauntStatusEffect::ProcessEffect(AActor* Owner, AActor* HitCharacter, FVec
 		if (const ABlindEyeCharacter* Player = Cast<ABlindEyeCharacter>(Owner->GetInstigator()))
 		{
 			// TODO: Pass player into taunt
-			DamageInterface->Execute_TryTaunt(HealthComponent, Duration);
+			DamageInterface->Execute_TryTaunt(HealthComponent, Duration, Owner);
 		}
 	}
 }

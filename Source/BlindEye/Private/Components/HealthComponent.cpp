@@ -96,6 +96,7 @@ void UHealthComponent::KnockBack_Implementation(FVector KnockBackForce)
 	{
 		UCharacterMovementComponent* Movement = Character->GetCharacterMovement();
 		Movement->AddImpulse(KnockBackForce * 100);
+		KnockBackDelegate.Broadcast(KnockBackForce);
 	}
 }
 
@@ -157,7 +158,7 @@ void UHealthComponent::TryDetonation_Implementation(PlayerType Player)
 	}
 }
 
-void UHealthComponent::TryTaunt_Implementation(float Duration)
+void UHealthComponent::TryTaunt_Implementation(float Duration, AActor* Taunter)
 {
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Silver, "Taunt");
 	// TODO: 
