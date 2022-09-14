@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BurrowerEnemy.h"
-#include "Characters/BlindEyeCharacter.h"
+#include "Characters/BlindEyePlayerCharacter.h"
 #include "Enemies/BlindEyeEnemyController.h"
 #include "BurrowerEnemyController.generated.h"
 
@@ -40,7 +40,7 @@ protected:
 
 	void AddNewActionState(EBurrowActionState NewAction);
 
-	ABlindEyeCharacter* GetRandomPlayerForTarget() const;
+	ABlindEyePlayerCharacter* GetRandomPlayerForTarget() const;
 
 	UFUNCTION()
 	void ActionStateFinished();

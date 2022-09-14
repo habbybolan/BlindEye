@@ -7,7 +7,7 @@
 #include "GameFramework/GameState.h"
 #include "BlindEyeGameState.generated.h"
 
-class ABlindEyeCharacter;
+class ABlindEyePlayerCharacter;
 /**
  * 
  */

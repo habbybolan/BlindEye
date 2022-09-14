@@ -3,7 +3,7 @@
 
 #include "DamageTypes/MarkData.h"
 
-#include "Characters/BlindEyeCharacter.h"
+#include "Characters/BlindEyePlayerCharacter.h"
 
 FMarkData::FMarkData()
 {

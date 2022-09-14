@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BlindEyeBaseCharacter.h"
 #include "Components/HealthComponent.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/HealthInterface.h"
@@ -11,12 +12,11 @@
 class UMarkerComponent;
 
 UCLASS()
-class BLINDEYE_API ABlindEyeEnemyBase : public ACharacter, public IHealthInterface
+class BLINDEYE_API ABlindEyeEnemyBase : public ABlindEyeBaseCharacter
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	UMarkerComponent* MarkerComponent;
+	
 
 public:
 	// Sets default values for this character's properties
@@ -25,9 +25,6 @@ public:
 	// helper to get status effects from health component
 	UFUNCTION(BlueprintCallable)
 	const FAppliedStatusEffects& GetAppliedStatusEffects(); 
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UHealthComponent* HealthComponent;
 
 protected:
 	// Called when the game starts or when spawned
@@ -39,7 +36,6 @@ protected:
 	float CurrHealth;
 
 	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
-	
 
 public:	
 	// Called every frame
@@ -49,17 +45,8 @@ public:
 	virtual void SetHealth_Implementation(float NewHealth) override;
 
 	virtual void OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
-	virtual UHealthComponent* GetHealthComponent_Implementation() override;
 
 	virtual void OnDeath_Implementation() override;
 	virtual float GetHealthPercent_Implementation() override;
-	virtual UMarkerComponent* GetMarkerComponent_Implementation() override;
-	
-	
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TEAMS Team;
-	virtual TEAMS GetTeam_Implementation() override;
-
 	
 };

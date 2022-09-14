@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Characters/BlindEyeCharacter.h"
+#include "Characters/BlindEyePlayerCharacter.h"
 #include "PhoenixCharacter.generated.h"
 
 /**
  * NOT BEING USED ********************
  */
 UCLASS()
-class BLINDEYE_API APhoenixCharacter : public ABlindEyeCharacter
+class BLINDEYE_API APhoenixCharacter : public ABlindEyePlayerCharacter
 {
 	GENERATED_BODY()
 

@@ -1,7 +1,7 @@
 // Copyright (C) Nicholas Johnson 2022
 
 #include "Enemies/BlindEyeEnemybase.h"
-#include "Characters/BlindEyeCharacter.h"
+#include "Characters/BlindEyePlayerCharacter.h"
 #include "Components/HealthComponent.h"
 #include "Components/MarkerComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -11,11 +11,6 @@ ABlindEyeEnemyBase::ABlindEyeEnemyBase()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
-
-	MarkerComponent = CreateDefaultSubobject<UMarkerComponent>("markerComponent");
-	MarkerComponent->SetupAttachment(RootComponent);
 
 	CurrHealth = MaxHealth;
 	Team = TEAMS::Enemy;
@@ -60,11 +55,6 @@ void ABlindEyeEnemyBase::OnTakeDamage_Implementation(float Damage, FVector HitLo
 	AActor* DamageCauser)
 {}
 
-UHealthComponent* ABlindEyeEnemyBase::GetHealthComponent_Implementation()
-{
-	return HealthComponent;
-}
-
 void ABlindEyeEnemyBase::OnDeath_Implementation()
 {
 	UnPossessed();
@@ -75,14 +65,3 @@ float ABlindEyeEnemyBase::GetHealthPercent_Implementation()
 {
 	return CurrHealth / MaxHealth;
 }
-
-UMarkerComponent* ABlindEyeEnemyBase::GetMarkerComponent_Implementation()
-{
-	return MarkerComponent;
-}
-
-TEAMS ABlindEyeEnemyBase::GetTeam_Implementation()
-{
-	return Team;
-}
-

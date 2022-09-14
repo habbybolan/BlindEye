@@ -2,7 +2,7 @@
 
 
 #include "Components/MarkerComponent.h"
-#include "Characters/BlindEyeCharacter.h"
+#include "Characters/BlindEyePlayerCharacter.h"
 
 UMarkerComponent::UMarkerComponent()
 {
@@ -20,7 +20,7 @@ void UMarkerComponent::BeginPlay()
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Blue, "Location: " +
 		FString::SanitizeFloat(location.X) + "," + FString::SanitizeFloat(location.Y) + "," + FString::SanitizeFloat(location.Z));
 	CrowMark = World->SpawnActor<AStaticMeshActor>(CrowMarkType, location, GetComponentRotation());
-	CrowMark->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform); 
+	CrowMark->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
 	PhoenixMark = World->SpawnActor<AStaticMeshActor>(PhoenixMarkType, location, GetComponentRotation());
 	PhoenixMark->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
 }

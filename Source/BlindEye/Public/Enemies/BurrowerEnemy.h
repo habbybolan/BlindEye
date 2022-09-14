@@ -11,7 +11,7 @@
 
 class ASnapperEnemy;
 class UHealthComponent;
-class ABlindEyeCharacter;
+class ABlindEyePlayerCharacter;
 
 /**
  * 
@@ -28,7 +28,7 @@ public:
 	// Spawn the burrower at a point, and either attack or spawn snappers depending on action state
 	void SpawnAction(FTransform SpawnLocation);
 
-	void AttackAction(ABlindEyeCharacter* target);
+	void AttackAction(ABlindEyePlayerCharacter* target);
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	uint8 MinSnappersSpawn = 2;
@@ -126,7 +126,7 @@ protected:
 
 	FVector CachedBeforeHidePosition;
 
-	TWeakObjectPtr<ABlindEyeCharacter> Target;
+	TWeakObjectPtr<ABlindEyePlayerCharacter> Target;
 
 	// Used in expiring the burrower from following player forever and delay on re-emerging from ground
 	FTimerHandle AttackTimerHandle;

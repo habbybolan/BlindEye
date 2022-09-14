@@ -3,7 +3,7 @@
 
 #include "Characters/BlindEyePlayerController.h"
 
-#include "Characters/BlindEyeCharacter.h"
+#include "Characters/BlindEyePlayerCharacter.h"
 #include "Gameplay/BlindEyeGameMode.h"
 #include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
@@ -23,7 +23,7 @@ void ABlindEyePlayerController::SER_SpawnPlayer_Implementation()
 	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	FTransform spawnTransform = BlindEyeGameMode->GetSpawnPoint();
-	TSubclassOf<ABlindEyeCharacter> PlayerClassType;
+	TSubclassOf<ABlindEyePlayerCharacter> PlayerClassType;
 	PlayerType playerType;
 
 	// TODO: Temporary for test spawning
@@ -39,7 +39,7 @@ void ABlindEyePlayerController::SER_SpawnPlayer_Implementation()
 		IsServer = !IsServer;
 	}
 		
-	OwningCharacter = Cast<ABlindEyeCharacter>(world->SpawnActor<ABlindEyeCharacter>(PlayerClassType, spawnTransform, spawnParams));
+	OwningCharacter = Cast<ABlindEyePlayerCharacter>(world->SpawnActor<ABlindEyePlayerCharacter>(PlayerClassType, spawnTransform, spawnParams));
 	if (OwningCharacter)
 	{
 		OwningCharacter->PlayerType = playerType;
@@ -56,7 +56,7 @@ void ABlindEyePlayerController::SER_SpawnPlayer_Implementation()
 void ABlindEyePlayerController::CLI_GameLost_Implementation()
 {
 	if (GetPawn() == nullptr) return;
-	if (ABlindEyeCharacter* BlindEyeCharacter = Cast<ABlindEyeCharacter>(GetPawn()))
+	if (ABlindEyePlayerCharacter* BlindEyeCharacter = Cast<ABlindEyePlayerCharacter>(GetPawn()))
 	{
 		BlindEyeCharacter->OnGameLost();
 	}
@@ -77,7 +77,7 @@ void ABlindEyePlayerController::SER_RestartLevel_Implementation()
 void ABlindEyePlayerController::CLI_GameWon_Implementation()
 {
 	if (GetPawn() == nullptr) return;
-	if (ABlindEyeCharacter* BlindEyeCharacter = Cast<ABlindEyeCharacter>(GetPawn()))
+	if (ABlindEyePlayerCharacter* BlindEyeCharacter = Cast<ABlindEyePlayerCharacter>(GetPawn()))
 	{
 		BlindEyeCharacter->OnGameWon();
 	}
