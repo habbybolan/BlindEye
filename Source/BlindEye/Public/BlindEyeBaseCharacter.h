@@ -5,10 +5,12 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/HealthInterface.h"
+#include "BlindEyeUtils.h"
 #include "BlindEyeBaseCharacter.generated.h"
 
 class UMarkerComponent;
 class UHealthComponent;
+enum class PlayerType : uint8;
  
 UCLASS(Abstract)
 class BLINDEYE_API ABlindEyeBaseCharacter : public ACharacter, public IHealthInterface
@@ -31,7 +33,6 @@ public:
 
 	virtual UHealthComponent* GetHealthComponent_Implementation() override;
 	virtual UMarkerComponent* GetMarkerComponent_Implementation() override;
-	
 
 protected:
 	// Called when the game starts or when spawned
@@ -39,7 +40,7 @@ protected:
 
 
 	UFUNCTION()
-	void OnMarkAdded();
+	void OnMarkAdded(PlayerType MarkerType);
 	UFUNCTION()
 	void OnMarkRemoved();
 	UFUNCTION()

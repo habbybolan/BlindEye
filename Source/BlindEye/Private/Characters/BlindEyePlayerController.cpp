@@ -7,6 +7,7 @@
 #include "Gameplay/BlindEyeGameMode.h"
 #include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
+#include "BlindEyeUtils.h"
 
 class ABlindEyeGameState;
 

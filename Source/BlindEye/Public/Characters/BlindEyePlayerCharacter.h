@@ -14,13 +14,6 @@ class UAbilityManager;
 class UHealthComponent;
 class ABlindEyePlayerState;
 
-UENUM(BlueprintType)
-enum class PlayerType : uint8
-{
-	CrowPlayer,
-	PhoenixPlayer
-};
-
 class UMarkerComponent;
 
 UCLASS(config=Game)

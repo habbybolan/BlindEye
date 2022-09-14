@@ -20,7 +20,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AStaticMeshActor> CrowMarkType;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<AStaticMeshActor> PhoenixMarkType; 
+	TSubclassOf<AStaticMeshActor> PhoenixMarkType;
+
+	void RemoveMark();
+	void DetonateMark(); 
+	void AddMark(PlayerType PlayerMarkToSet); 
 
 protected:
 	// Called when the game starts or when spawned
@@ -31,7 +35,5 @@ protected:
 	UPROPERTY()
 	AStaticMeshActor* PhoenixMark;
 
-	void RemoveMark();
-	void DetonateMark(); 
-	void AddMark(PlayerType PlayerMarkToSet); 
+	bool bMarked = false;
 };

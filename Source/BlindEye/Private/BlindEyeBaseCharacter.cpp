@@ -2,7 +2,6 @@
 
 
 #include "BlindEyeBaseCharacter.h"
-
 #include "Components/HealthComponent.h"
 #include "Components/MarkerComponent.h"
 
@@ -38,18 +37,18 @@ UMarkerComponent* ABlindEyeBaseCharacter::GetMarkerComponent_Implementation()
 	return MarkerComponent;
 }
 
-void ABlindEyeBaseCharacter::OnMarkAdded()
-{
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Blue, "Mark added");
+void ABlindEyeBaseCharacter::OnMarkAdded(PlayerType MarkType)
+{ 
+	MarkerComponent->AddMark(MarkType);
 }
 
 void ABlindEyeBaseCharacter::OnMarkRemoved()
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Blue, "Mark removed");
+	MarkerComponent->RemoveMark();
 }
 
 void ABlindEyeBaseCharacter::OnMarkDetonated()
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Blue, "Mark detonated");
+	MarkerComponent->DetonateMark();
 }
 
