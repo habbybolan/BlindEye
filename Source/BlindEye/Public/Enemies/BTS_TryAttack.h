@@ -16,6 +16,8 @@ class BLINDEYE_API UBTS_TryAttack : public UBTService
 
 public:
 
+	UPROPERTY(EditAnywhere, Category=Blackboard)
+	FBlackboardKeySelector TargetKey;
 	
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 	
