@@ -454,6 +454,11 @@ bool ABlindEyeCharacter::GetIsDead_Implementation()
 	return false;
 }
 
+UMarkerComponent* ABlindEyeCharacter::GetMarkerComponent_Implementation()
+{
+	return MarkerComponent;
+}
+
 bool ABlindEyeCharacter::IsActionsBlocked()
 {
 	ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState());

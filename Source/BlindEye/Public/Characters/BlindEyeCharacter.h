@@ -122,6 +122,8 @@ public:
 
 	virtual bool GetIsDead_Implementation() override;
 
+	virtual UMarkerComponent* GetMarkerComponent_Implementation() override;
+
 	bool IsActionsBlocked();
 
 	UFUNCTION(BlueprintCallable)

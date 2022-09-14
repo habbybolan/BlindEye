@@ -75,6 +75,11 @@ float ABlindEyeEnemyBase::GetHealthPercent_Implementation()
 	return CurrHealth / MaxHealth;
 }
 
+UMarkerComponent* ABlindEyeEnemyBase::GetMarkerComponent_Implementation()
+{
+	return MarkerComponent;
+}
+
 TEAMS ABlindEyeEnemyBase::GetTeam_Implementation()
 {
 	return Team;
