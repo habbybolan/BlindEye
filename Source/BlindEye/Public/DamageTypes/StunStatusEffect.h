@@ -17,7 +17,7 @@ class BLINDEYE_API UStunStatusEffect : public UBaseStatusEffect
 public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float StunDuration;
+	float StunDuration = 2;
 	
 	virtual void ProcessEffect(AActor* Owner, AActor* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const override;
 };

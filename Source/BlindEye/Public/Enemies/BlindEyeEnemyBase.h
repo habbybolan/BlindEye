@@ -34,6 +34,9 @@ protected:
 	float CurrHealth;
 
 	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
+
+	UFUNCTION()
+	void OnStun(float StunDuration);
 	
 
 public:	

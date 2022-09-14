@@ -26,7 +26,7 @@ const FAppliedStatusEffects& ABlindEyeEnemyBase::GetAppliedStatusEffects()
 void ABlindEyeEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	HealthComponent->StunDelegate.AddUFunction(this, TEXT("OnStun"));
 }
 
 void ABlindEyeEnemyBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -34,6 +34,11 @@ void ABlindEyeEnemyBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ABlindEyeEnemyBase, CurrHealth);
+}
+
+void ABlindEyeEnemyBase::OnStun(float StunDuration)
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Blue, "Enemy Stunned: " + FString::SanitizeFloat(StunDuration));
 }
 
 // Called every frame
