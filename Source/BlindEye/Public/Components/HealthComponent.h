@@ -23,6 +23,9 @@ struct FAppliedStatusEffects
 	bool IsStaggered = false;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool IsTaunt = false;
+
+	// keep track of burn damage
+	float BurnDPS = 0;
 };
 
 enum class PlayerType : uint8;
@@ -103,8 +106,11 @@ protected:
 	FAppliedStatusEffects AppliedStatusEffects;
 
 	FTimerHandle StunTimerHandle; 
-	FTimerHandle BurnTimerHandle;
-	FTimerHandle TauntTimerHandle; 
+	FTimerHandle BurnTimerHandle; 
+	FTimerHandle BurnAppliedTimerHandle;
+	FTimerHandle TauntTimerHandle;
+
+	float DelayBetweenBurnTicks = 0.2f;
 
 	// End Status effect properties ***
 
@@ -112,6 +118,8 @@ protected:
 	void RemoveStun();
 	UFUNCTION()
 	void RemoveBurn();
+	UFUNCTION()
+	void ApplyBurn(); 
 	UFUNCTION()
 	void RemoveTaunt();
 

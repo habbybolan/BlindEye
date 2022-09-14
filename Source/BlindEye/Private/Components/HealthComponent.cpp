@@ -38,24 +38,6 @@ void UHealthComponent::BeginPlay()
 	GetOwner()->OnTakeRadialDamage.AddDynamic(this, &UHealthComponent::SetRadialDamage);
 }
 
-void UHealthComponent::RemoveStun()
-{
-	AppliedStatusEffects.IsStun = false;
-	StunEndDelegate.Broadcast();
-}
-
-void UHealthComponent::RemoveBurn()
-{
-	AppliedStatusEffects.IsBurn = false;
-	BurnDelegateEnd.Broadcast();
-}
-
-void UHealthComponent::RemoveTaunt()
-{
-	AppliedStatusEffects.IsTaunt = false;
-	TauntEndDelegate.Broadcast();
-}
-
 void UHealthComponent::SetPointDamage(AActor* DamagedActor, float Damage, AController* InstigatedBy,
                                       FVector HitLocation, UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection,
                                       const UDamageType* DamageType, AActor* DamageCauser)
@@ -143,9 +125,14 @@ void UHealthComponent::Burn_Implementation(float DamagePerSec, float Duration)
 		{
 			return; 
 		}
-	} 
+	} else
+	{
+		World->GetTimerManager().SetTimer(BurnAppliedTimerHandle, this, &UHealthComponent::ApplyBurn, DelayBetweenBurnTicks, true, 0);
+	}
+	
 	World->GetTimerManager().SetTimer(BurnTimerHandle, this, &UHealthComponent::RemoveBurn, Duration, false);
 	AppliedStatusEffects.IsBurn = true;
+	AppliedStatusEffects.BurnDPS = DamagePerSec;
 	BurnDelegateStart.Broadcast(DamagePerSec, Duration);
 }
 
@@ -242,4 +229,34 @@ void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UHealthComponent, IsInvincible);
+}
+
+void UHealthComponent::RemoveStun()
+{
+	AppliedStatusEffects.IsStun = false;
+	StunEndDelegate.Broadcast();
+}
+
+void UHealthComponent::RemoveBurn()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+
+	World->GetTimerManager().ClearTimer(BurnAppliedTimerHandle);
+	AppliedStatusEffects.IsBurn = false;
+	BurnDelegateEnd.Broadcast();
+}
+
+void UHealthComponent::ApplyBurn()
+{
+	UBaseDamageType* DamageType =  NewObject<UBaseDamageType>();
+	DamageType->DebugDamageEverything = true;
+	SetDamage(AppliedStatusEffects.BurnDPS * DelayBetweenBurnTicks,FVector::ZeroVector, DamageType, GetOwner());
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, DelayBetweenBurnTicks, FColor::Blue, "Burn: " + FString::SanitizeFloat(AppliedStatusEffects.BurnDPS * DelayBetweenBurnTicks));
+}
+
+void UHealthComponent::RemoveTaunt()
+{
+	AppliedStatusEffects.IsTaunt = false;
+	TauntEndDelegate.Broadcast();
 }
