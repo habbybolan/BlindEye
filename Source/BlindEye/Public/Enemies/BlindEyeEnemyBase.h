@@ -38,19 +38,19 @@ protected:
 	// Status effect delegate listeners ******
 	
 	UFUNCTION()
-	void OnStunStart(float StunDuration);
+	virtual void OnStunStart(float StunDuration);
 	UFUNCTION()
-	void OnStunEnd();
+	virtual void OnStunEnd();
 
 	UFUNCTION()
-	void OnBurnStart(float DamagePerSec, float Duration);
+	virtual void OnBurnStart(float DamagePerSec, float Duration);
 	UFUNCTION() 
-	void OnBurnEnd();
+	virtual void OnBurnEnd();
 
 	UFUNCTION()
-	void OnTauntStart(float Duration, AActor* Taunter);
+	virtual void OnTauntStart(float Duration, AActor* Taunter);
 	UFUNCTION()  
-	void OnTauntEnd(); 
+	virtual void OnTauntEnd(); 
 
 	// End Status effect delegate listeners ******
 	
