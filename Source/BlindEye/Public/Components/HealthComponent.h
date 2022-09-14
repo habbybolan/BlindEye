@@ -21,6 +21,8 @@ struct FAppliedStatusEffects
 	bool IsMarked = false;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool IsStaggered = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool IsTaunt = false;
 };
 
 enum class PlayerType : uint8;
@@ -79,8 +81,10 @@ public:
 	DECLARE_MULTICAST_DELEGATE(FDetonateSignature) 
 	FDetonateSignature DetonateDelegate;
 
-	DECLARE_MULTICAST_DELEGATE_OneParam(FTauntSignature, AActor*) 
-	FTauntSignature TauntDelegate; 
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FTauntStartSignature, float, AActor*) 
+	FTauntStartSignature TauntStartDelegate;
+	DECLARE_MULTICAST_DELEGATE(FTauntEndSignature) 
+	FTauntEndSignature TauntEndDelegate; 
 
 protected:
 
@@ -100,11 +104,16 @@ protected:
 
 	FTimerHandle StunTimerHandle; 
 	FTimerHandle BurnTimerHandle;
+	FTimerHandle TauntTimerHandle; 
 
 	// End Status effect properties ***
-	
+
+	UFUNCTION()
 	void RemoveStun();
+	UFUNCTION()
 	void RemoveBurn();
+	UFUNCTION()
+	void RemoveTaunt();
 
 	UFUNCTION()
 	void SetPointDamage(AActor* DamagedActor, float Damage,

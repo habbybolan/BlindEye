@@ -50,6 +50,12 @@ void UHealthComponent::RemoveBurn()
 	BurnDelegateEnd.Broadcast();
 }
 
+void UHealthComponent::RemoveTaunt()
+{
+	AppliedStatusEffects.IsTaunt = false;
+	TauntEndDelegate.Broadcast();
+}
+
 void UHealthComponent::SetPointDamage(AActor* DamagedActor, float Damage, AController* InstigatedBy,
                                       FVector HitLocation, UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection,
                                       const UDamageType* DamageType, AActor* DamageCauser)
@@ -196,8 +202,21 @@ void UHealthComponent::TryDetonation_Implementation(PlayerType Player)
 
 void UHealthComponent::TryTaunt_Implementation(float Duration, AActor* Taunter)
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Silver, "Taunt");
-	// TODO: 
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	if (AppliedStatusEffects.IsTaunt)
+	{
+		float RemainingTimeOnStun = UKismetSystemLibrary::K2_GetTimerRemainingTimeHandle(World, TauntTimerHandle);
+		// Do nothing if trying to override with less stun duration
+		if (Duration <= RemainingTimeOnStun)
+		{
+			return;
+		}
+	} 
+	World->GetTimerManager().SetTimer(TauntTimerHandle, this, &UHealthComponent::RemoveTaunt, Duration, false);
+	AppliedStatusEffects.IsTaunt = true; 
+	TauntStartDelegate.Broadcast(Duration, Taunter);
 }
 
 void UHealthComponent::RemoveMark()

@@ -45,7 +45,12 @@ protected:
 	UFUNCTION()
 	void OnBurnStart(float DamagePerSec, float Duration);
 	UFUNCTION() 
-	void OnBurnEnd(); 
+	void OnBurnEnd();
+
+	UFUNCTION()
+	void OnTauntStart(float Duration, AActor* Taunter);
+	UFUNCTION()  
+	void OnTauntEnd(); 
 
 	// End Status effect delegate listeners ******
 	

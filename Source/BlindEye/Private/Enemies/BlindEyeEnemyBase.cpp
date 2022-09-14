@@ -30,6 +30,8 @@ void ABlindEyeEnemyBase::BeginPlay()
 	HealthComponent->StunEndDelegate.AddUFunction(this, TEXT("OnStunEnd"));
 	HealthComponent->BurnDelegateStart.AddUFunction(this, TEXT("OnBurnStart"));
 	HealthComponent->BurnDelegateEnd.AddUFunction(this, TEXT("OnBurnEnd"));
+	HealthComponent->TauntStartDelegate.AddUFunction(this, TEXT("OnTauntStart"));
+	HealthComponent->TauntEndDelegate.AddUFunction(this, TEXT("OnTauntEnd"));
 }
 
 void ABlindEyeEnemyBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -57,6 +59,16 @@ void ABlindEyeEnemyBase::OnBurnStart(float DamagePerSec, float Duration)
 void ABlindEyeEnemyBase::OnBurnEnd()
 {
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Blue, "Burn ended");
+}
+
+void ABlindEyeEnemyBase::OnTauntStart(float Duration, AActor* Taunter)
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Blue, "Taunt started for " + FString::SanitizeFloat(Duration) + "from: " + Taunter->GetName());
+}
+
+void ABlindEyeEnemyBase::OnTauntEnd()
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Blue, "Taunt ended");
 }
 
 // Called every frame
