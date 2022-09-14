@@ -25,18 +25,24 @@ void UMarkerComponent::BeginPlay()
 	PhoenixMark->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
 }
 
-void UMarkerComponent::PlaySpawnEffect()
-{
-	
-}
-
 void UMarkerComponent::RemoveMark()
 {
+	// TODO: play particle effect/shader
+	CrowMark->SetHidden(true);
+	CrowMark->SetHidden(true);
 }
 
-void UMarkerComponent::SetPlayerMarkMesh(PlayerType PlayerMarkToSet)
+void UMarkerComponent::DetonateMark()
 {
+	// TODO: play particle effect/shader
+	CrowMark->SetHidden(true);
+	CrowMark->SetHidden(true);
+}
+
+void UMarkerComponent::AddMark(PlayerType PlayerMarkToSet)
+{ 
 	CrowMark->SetHidden(PlayerMarkToSet == PlayerType::CrowPlayer);
 	CrowMark->SetHidden(PlayerMarkToSet == PlayerType::PhoenixPlayer);
+	// TODO: play particle/shader
 }
 

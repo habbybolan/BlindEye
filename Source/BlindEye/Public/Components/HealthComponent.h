@@ -78,8 +78,10 @@ public:
 	DECLARE_MULTICAST_DELEGATE(FStaggerSignature) 
 	FStaggerSignature StaggerDelegate;
 
-	DECLARE_MULTICAST_DELEGATE(FMarkedSignature) 
-	FMarkedSignature MarkedDelegate;
+	DECLARE_MULTICAST_DELEGATE_OneParam(FMarkedSignature, PlayerType) 
+	FMarkedSignature MarkedAddedDelegate;
+	DECLARE_MULTICAST_DELEGATE(FUnMarkedSignature) 
+	FUnMarkedSignature MarkedRemovedDelegate; 
 
 	DECLARE_MULTICAST_DELEGATE(FDetonateSignature) 
 	FDetonateSignature DetonateDelegate;
@@ -150,4 +152,5 @@ protected:
 		
 	FTimerHandle MarkerDecayTimerHandle;
 	void RemoveMark();
+	void DetonateMark(); 
 };

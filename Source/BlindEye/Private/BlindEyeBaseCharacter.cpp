@@ -9,13 +9,18 @@
 // Sets default values
 ABlindEyeBaseCharacter::ABlindEyeBaseCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
 	MarkerComponent = CreateDefaultSubobject<UMarkerComponent>("MarkerComponent");
 	MarkerComponent->SetupAttachment(RootComponent);
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+}
+
+void ABlindEyeBaseCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	HealthComponent->MarkedAddedDelegate.AddUFunction(this, TEXT("OnMarkAdded"));
+	HealthComponent->MarkedRemovedDelegate.AddUFunction(this, TEXT("OnMarkRemoved"));
+	HealthComponent->DetonateDelegate.AddUFunction(this, TEXT("OnMarkDetonated"));
 }
 
 TEAMS ABlindEyeBaseCharacter::GetTeam_Implementation()
@@ -33,24 +38,18 @@ UMarkerComponent* ABlindEyeBaseCharacter::GetMarkerComponent_Implementation()
 	return MarkerComponent;
 }
 
-// Called when the game starts or when spawned
-void ABlindEyeBaseCharacter::BeginPlay()
+void ABlindEyeBaseCharacter::OnMarkAdded()
 {
-	Super::BeginPlay();
-	
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Blue, "Mark added");
 }
 
-// Called every frame
-void ABlindEyeBaseCharacter::Tick(float DeltaTime)
+void ABlindEyeBaseCharacter::OnMarkRemoved()
 {
-	Super::Tick(DeltaTime);
-
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Blue, "Mark removed");
 }
 
-// Called to bind functionality to input
-void ABlindEyeBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ABlindEyeBaseCharacter::OnMarkDetonated()
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Blue, "Mark detonated");
 }
 

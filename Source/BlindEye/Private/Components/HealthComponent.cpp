@@ -158,6 +158,7 @@ void UHealthComponent::TryApplyMarker_Implementation(PlayerType Player)
 		float RefreshedTime = UKismetMathLibrary::Min(TimeRemaining + RefreshMarkerAmount, MarkerDecay);
 		world->GetTimerManager().ClearTimer(MarkerDecayTimerHandle);
 		world->GetTimerManager().SetTimer(MarkerDecayTimerHandle, this, &UHealthComponent::RemoveMark, RefreshedTime, false);
+		MarkedAddedDelegate.Broadcast(Player);
 	} else
 	{
 		// Set the decay timer on marker
@@ -208,9 +209,14 @@ void UHealthComponent::TryTaunt_Implementation(float Duration, AActor* Taunter)
 
 void UHealthComponent::RemoveMark()
 {
-	// TODO: Remove Mark visual
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Orange, "Marker removed");
 	CurrMark = nullptr;
+	MarkedRemovedDelegate.Broadcast();
+}
+
+void UHealthComponent::DetonateMark()
+{
+	CurrMark = nullptr;
+	DetonateDelegate.Broadcast();
 }
 
 void UHealthComponent::OnRep_IsInvincibility()

@@ -17,8 +17,6 @@ class BLINDEYE_API UMarkerComponent : public USceneComponent
 public:	
 	UMarkerComponent();
 
-	void SetPlayerMarkMesh(PlayerType PlayerMarkToSet); 
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AStaticMeshActor> CrowMarkType;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -33,6 +31,7 @@ protected:
 	UPROPERTY()
 	AStaticMeshActor* PhoenixMark;
 
-	void PlaySpawnEffect();
 	void RemoveMark();
+	void DetonateMark(); 
+	void AddMark(PlayerType PlayerMarkToSet); 
 };
