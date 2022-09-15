@@ -7,6 +7,7 @@
 
 void UKnockBackStatusEffect::ProcessEffect(AActor* Owner, AActor* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const
 {
+	if (Owner->GetInstigator() == HitCharacter) return;
 	if (const IDamageInterface* DamageInterface = Cast<IDamageInterface>(HealthComponent))
 	{
 		FVector direction = HitCharacter->GetActorLocation() - HitLocation;

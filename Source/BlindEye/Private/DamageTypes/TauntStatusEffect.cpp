@@ -10,6 +10,7 @@
 void UTauntStatusEffect::ProcessEffect(AActor* Owner, AActor* HitCharacter, FVector HitLocation,
                                        UHealthComponent* HealthComponent) const
 {
+	if (Owner->GetInstigator() == HitCharacter) return;
 	if (const IDamageInterface* DamageInterface = Cast<IDamageInterface>(HealthComponent))
 	{
 		if (const ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Owner->GetInstigator()))
