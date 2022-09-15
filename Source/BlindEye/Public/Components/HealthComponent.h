@@ -162,8 +162,12 @@ protected:
 	TSubclassOf<UBaseDamageType> FireDetonationOnEnemyDamageType;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
-	TSubclassOf<UBaseDamageType> DarkDetonationOnPlayerDamageType;  
-
+	TSubclassOf<UBaseDamageType> DarkDetonationOnPlayerDamageType;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
+	float DarkDetonationOnPlayerDamage = 35;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
+	float DarkDetonationOnPlayerRadius = 450;
+ 
 	// End Detonation Effect properties *********
 	
 	FTimerHandle MarkerDecayTimerHandle;

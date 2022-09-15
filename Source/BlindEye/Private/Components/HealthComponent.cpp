@@ -11,6 +11,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Interfaces/HealthInterface.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -61,7 +62,8 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 	{
 		const UBaseDamageType* baseDamageType = Cast<UBaseDamageType>(DamageType);
 		if (!baseDamageType) return;
-		 
+
+		
 		float damageMultiplied = Damage * baseDamageType->ProcessDamage(DamageCauser, GetOwner(), HitLocation, this);
 
 		// Debug invincibility
@@ -162,7 +164,6 @@ void UHealthComponent::TryApplyMarker_Implementation(PlayerType Player, AActor* 
 		float RefreshedTime = UKismetMathLibrary::Min(TimeRemaining + RefreshMarkerAmount, MarkerDecay);
 		world->GetTimerManager().ClearTimer(MarkerDecayTimerHandle);
 		world->GetTimerManager().SetTimer(MarkerDecayTimerHandle, this, &UHealthComponent::RemoveMark, RefreshedTime, false);
-		MarkedAddedDelegate.Broadcast(Player);
 	} else
 	{
 		// Set the decay timer on marker
@@ -170,6 +171,7 @@ void UHealthComponent::TryApplyMarker_Implementation(PlayerType Player, AActor* 
 		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Purple, "Mark Applied");
 		CurrMark = new FMarkData();
 		CurrMark->InitializeData(Player);
+		MarkedAddedDelegate.Broadcast(Player);
 	}
 }
 
@@ -200,17 +202,26 @@ void UHealthComponent::PerformDetonationEffect(AActor* DamageCause)
 		{
 			UBaseDamageType* StunDamage = NewObject<UBaseDamageType>(GetTransientPackage(), DarkDetonationOnEnemyDamageType);
 			SetDamage(DarkDetonationOnEnemyDamage, GetOwner()->GetActorLocation(), StunDamage, DamageCause);
-		} else if (CurrMark->MarkPlayerType == PlayerType::PhoenixPlayer)
+		}
+		else if (CurrMark->MarkPlayerType == PlayerType::PhoenixPlayer)
 		{
 			UBaseDamageType* BurnDamage = NewObject<UBaseDamageType>(GetTransientPackage(), FireDetonationOnEnemyDamageType);
 			SetDamage(1, GetOwner()->GetActorLocation(), BurnDamage, DamageCause);
 		}
-	} else if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	}
+	else if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
 		if (CurrMark->MarkPlayerType == PlayerType::CrowPlayer)
 		{
-			// TODO: Explosion
-		} else if (CurrMark->MarkPlayerType == PlayerType::PhoenixPlayer)
+			UWorld* World = GetWorld();
+			if (!World) return;
+			
+			UGameplayStatics::ApplyRadialDamage(World, DarkDetonationOnPlayerDamage, GetOwner()->GetActorLocation(),
+				DarkDetonationOnPlayerRadius, DarkDetonationOnPlayerDamageType, TArray<AActor*>(), DamageCause);
+			UBaseDamageType* ExplosionDamage = NewObject<UBaseDamageType>(GetTransientPackage(), DarkDetonationOnPlayerDamageType);
+			SetDamage(1, GetOwner()->GetActorLocation(), ExplosionDamage, DamageCause);
+		}
+		else if (CurrMark->MarkPlayerType == PlayerType::PhoenixPlayer)
 		{
 			// TODO: Heal Radius
 		}
