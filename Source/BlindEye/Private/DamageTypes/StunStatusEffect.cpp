@@ -9,6 +9,6 @@ void UStunStatusEffect::ProcessEffect(AActor* Owner, AActor* HitCharacter, FVect
 {
 	if (const IDamageInterface* DamageInterface = Cast<IDamageInterface>(HealthComponent))
 	{
-		DamageInterface->Execute_Stun(HealthComponent, StunDuration);
+		DamageInterface->Execute_Stun(HealthComponent, StunDuration, Owner);
 	}
 }

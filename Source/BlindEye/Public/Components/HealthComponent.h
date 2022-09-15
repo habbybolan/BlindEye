@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "DamageTypes/BaseDamageType.h"
 #include "DamageTypes/MarkData.h"
 #include "Interfaces/DamageInterface.h"
 #include "HealthComponent.generated.h"
@@ -136,21 +137,37 @@ protected:
 
 	void SetDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
 
-	virtual void Stun_Implementation(float StunDuration) override;
+	virtual void Stun_Implementation(float StunDuration, AActor* DamageCause) override;
 
-	virtual void KnockBack_Implementation(FVector KnockBackForce) override;
+	virtual void KnockBack_Implementation(FVector KnockBackForce, AActor* DamageCause) override;
 
-	virtual void Burn_Implementation(float DamagePerSec, float Duration) override;
+	virtual void Burn_Implementation(float DamagePerSec, float Duration, AActor* DamageCause) override;
 
-	virtual void Stagger_Implementation() override;
+	virtual void Stagger_Implementation(AActor* DamageCause) override;
 
-	virtual void TryApplyMarker_Implementation(PlayerType Player) override;
+	virtual void TryApplyMarker_Implementation(PlayerType Player, AActor* DamageCause) override;
 
-	virtual void TryDetonation_Implementation(PlayerType Player) override;
+	virtual void TryDetonation_Implementation(PlayerType Player, AActor* DamageCause) override;
  
 	virtual void TryTaunt_Implementation(float Duration, AActor* Taunter) override;
-		
+
+	// Detonation Effect properties *********
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
+	TSubclassOf<UBaseDamageType> DarkDetonationOnEnemyDamageType;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
+	float DarkDetonationOnEnemyDamage = 15;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
+	TSubclassOf<UBaseDamageType> FireDetonationOnEnemyDamageType;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
+	TSubclassOf<UBaseDamageType> DarkDetonationOnPlayerDamageType;  
+
+	// End Detonation Effect properties *********
+	
 	FTimerHandle MarkerDecayTimerHandle;
 	void RemoveMark();
-	void DetonateMark(); 
+	void DetonateMark();
+	void PerformDetonationEffect(); 
 };

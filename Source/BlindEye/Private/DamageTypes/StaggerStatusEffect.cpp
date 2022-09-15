@@ -9,6 +9,6 @@ void UStaggerStatusEffect::ProcessEffect(AActor* Owner, AActor* HitCharacter, FV
 {
 	if (const IDamageInterface* DamageInterface = Cast<IDamageInterface>(HealthComponent))
 	{
-		DamageInterface->Execute_Stagger(HealthComponent);
+		DamageInterface->Execute_Stagger(HealthComponent, Owner);
 	}
 }

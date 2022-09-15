@@ -14,7 +14,7 @@ void UMarkerStatusEffect::ProcessEffect(AActor* Owner, AActor* HitCharacter, FVe
 	{
 		if (const ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Owner->GetInstigator()))
 		{
-			DamageInterface->Execute_TryApplyMarker(HealthComponent, Player->PlayerType);
+			DamageInterface->Execute_TryApplyMarker(HealthComponent, Player->PlayerType, Owner);
 		}
 	}
 }

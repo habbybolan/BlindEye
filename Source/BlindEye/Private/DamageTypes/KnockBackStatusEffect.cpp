@@ -13,6 +13,6 @@ void UKnockBackStatusEffect::ProcessEffect(AActor* Owner, AActor* HitCharacter, 
 		direction.Normalize();
 		direction *= KnockBackForce;
 		direction.Z = KnockUpForce;
-		DamageInterface->Execute_KnockBack(HealthComponent, direction);
+		DamageInterface->Execute_KnockBack(HealthComponent, direction, Owner);
 	}
 }

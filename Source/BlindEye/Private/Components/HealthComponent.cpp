@@ -3,7 +3,11 @@
 
 #include "Components/HealthComponent.h"
 
+#include "Characters/BlindEyePlayerCharacter.h"
 #include "DamageTypes/BaseDamageType.h"
+#include "DamageTypes/BaseStatusEffect.h"
+#include "DamageTypes/StunStatusEffect.h"
+#include "Enemies/BlindEyeEnemyBase.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Interfaces/HealthInterface.h"
@@ -82,7 +86,7 @@ void UHealthComponent::OnDeath()
 	OwnerHealth->Execute_OnDeath(GetOwner());
 }
 
-void UHealthComponent::Stun_Implementation(float StunDuration)
+void UHealthComponent::Stun_Implementation(float StunDuration, AActor* DamageCause)
 {
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
@@ -101,7 +105,7 @@ void UHealthComponent::Stun_Implementation(float StunDuration)
 	StunStartDelegate.Broadcast(StunDuration);
 }
 
-void UHealthComponent::KnockBack_Implementation(FVector KnockBackForce)
+void UHealthComponent::KnockBack_Implementation(FVector KnockBackForce, AActor* DamageCause)
 {
 	ACharacter* Character = Cast<ACharacter>(GetOwner());
 	if (Character)
@@ -112,7 +116,7 @@ void UHealthComponent::KnockBack_Implementation(FVector KnockBackForce)
 	}
 }
 
-void UHealthComponent::Burn_Implementation(float DamagePerSec, float Duration)
+void UHealthComponent::Burn_Implementation(float DamagePerSec, float Duration, AActor* DamageCause)
 {
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
@@ -136,14 +140,14 @@ void UHealthComponent::Burn_Implementation(float DamagePerSec, float Duration)
 	BurnDelegateStart.Broadcast(DamagePerSec, Duration);
 }
 
-void UHealthComponent::Stagger_Implementation()
+void UHealthComponent::Stagger_Implementation(AActor* DamageCause)
 {
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Silver, "Stagger");
 	// TODO: probably call stun?
 	// ...
 }
 
-void UHealthComponent::TryApplyMarker_Implementation(PlayerType Player)
+void UHealthComponent::TryApplyMarker_Implementation(PlayerType Player, AActor* DamageCause)
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
@@ -169,21 +173,45 @@ void UHealthComponent::TryApplyMarker_Implementation(PlayerType Player)
 	}
 }
 
-void UHealthComponent::TryDetonation_Implementation(PlayerType Player)
+void UHealthComponent::TryDetonation_Implementation(PlayerType Player, AActor* DamageCause)
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
 	
 	if (CurrMark != nullptr)
 	{
-		// TODO: perform marker effect and remove marker
-
 		// Detonate mark if of different type, clear decay timer
 		if (CurrMark->MarkPlayerType != Player)
 		{
 			world->GetTimerManager().ClearTimer(MarkerDecayTimerHandle);
 			GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Purple, "Marker detonated on: " + GetOwner()->GetName());
-			RemoveMark();
+			DetonateMark();
+		}
+	}
+}
+
+void UHealthComponent::PerformDetonationEffect()
+{
+	// If enemy is being detonated
+	if (ABlindEyeEnemyBase* BLindEyeEnemy = Cast<ABlindEyeEnemyBase>(GetOwner()))
+	{
+		if (CurrMark->MarkPlayerType == PlayerType::CrowPlayer)
+		{
+			// TODO: Stun
+			// UBaseDamageType* StunDamage = NewObject<UBaseDamageType>(DarkDetonationOnEnemyDamageType);
+			// SetDamage(DarkDetonationOnEnemyDamage, GetOwner()->GetActorLocation(), StunDamage, )
+		} else if (CurrMark->MarkPlayerType == PlayerType::PhoenixPlayer)
+		{
+			// TODO: Burn
+		}
+	} else if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	{
+		if (CurrMark->MarkPlayerType == PlayerType::CrowPlayer)
+		{
+			// TODO: Explosion
+		} else if (CurrMark->MarkPlayerType == PlayerType::PhoenixPlayer)
+		{
+			// TODO: Heal Radius
 		}
 	}
 }
@@ -215,6 +243,7 @@ void UHealthComponent::RemoveMark()
 
 void UHealthComponent::DetonateMark()
 {
+	PerformDetonationEffect();
 	CurrMark = nullptr;
 	DetonateDelegate.Broadcast();
 }
