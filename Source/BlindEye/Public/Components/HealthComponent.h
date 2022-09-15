@@ -169,5 +169,5 @@ protected:
 	FTimerHandle MarkerDecayTimerHandle;
 	void RemoveMark();
 	void DetonateMark();
-	void PerformDetonationEffect(); 
+	void PerformDetonationEffect(AActor* DamageCause); 
 };

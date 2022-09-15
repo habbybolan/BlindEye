@@ -185,21 +185,21 @@ void UHealthComponent::TryDetonation_Implementation(PlayerType Player, AActor* D
 		{
 			world->GetTimerManager().ClearTimer(MarkerDecayTimerHandle);
 			GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Purple, "Marker detonated on: " + GetOwner()->GetName());
+			PerformDetonationEffect(DamageCause);
 			DetonateMark();
 		}
 	}
 }
 
-void UHealthComponent::PerformDetonationEffect()
+void UHealthComponent::PerformDetonationEffect(AActor* DamageCause)
 {
 	// If enemy is being detonated
 	if (ABlindEyeEnemyBase* BLindEyeEnemy = Cast<ABlindEyeEnemyBase>(GetOwner()))
 	{
 		if (CurrMark->MarkPlayerType == PlayerType::CrowPlayer)
 		{
-			// TODO: Stun
-			// UBaseDamageType* StunDamage = NewObject<UBaseDamageType>(DarkDetonationOnEnemyDamageType);
-			// SetDamage(DarkDetonationOnEnemyDamage, GetOwner()->GetActorLocation(), StunDamage, )
+			UBaseDamageType* StunDamage = NewObject<UBaseDamageType>(GetTransientPackage(), DarkDetonationOnEnemyDamageType);
+			SetDamage(DarkDetonationOnEnemyDamage, GetOwner()->GetActorLocation(), StunDamage, DamageCause);
 		} else if (CurrMark->MarkPlayerType == PlayerType::PhoenixPlayer)
 		{
 			// TODO: Burn
@@ -243,7 +243,6 @@ void UHealthComponent::RemoveMark()
 
 void UHealthComponent::DetonateMark()
 {
-	PerformDetonationEffect();
 	CurrMark = nullptr;
 	DetonateDelegate.Broadcast();
 }
@@ -286,6 +285,7 @@ void UHealthComponent::ApplyBurn()
 {
 	UBaseDamageType* DamageType =  NewObject<UBaseDamageType>();
 	DamageType->DebugDamageEverything = true;
+	// TODO: Apply damage based on damage cause, dont use self with debug param
 	SetDamage(AppliedStatusEffects.BurnDPS * DelayBetweenBurnTicks,FVector::ZeroVector, DamageType, GetOwner());
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, DelayBetweenBurnTicks, FColor::Blue, "Burn: " + FString::SanitizeFloat(AppliedStatusEffects.BurnDPS * DelayBetweenBurnTicks));
 }
