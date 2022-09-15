@@ -3,25 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BlindEyeBaseCharacter.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/AbilityUserInterface.h"
 #include "Interfaces/HealthInterface.h"
-#include "BlindEyeCharacter.generated.h"
+#include "BlindEyePlayerCharacter.generated.h"
 
 enum class TEAMS;
 class UAbilityManager;
 class UHealthComponent;
 class ABlindEyePlayerState;
 
-UENUM(BlueprintType)
-enum class PlayerType : uint8
-{
-	CrowPlayer,
-	PhoenixPlayer
-};
+class UMarkerComponent;
 
 UCLASS(config=Game)
-class ABlindEyeCharacter : public ACharacter, public IHealthInterface, public IAbilityUserInterface
+class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityUserInterface
 {
 	GENERATED_BODY()
 
@@ -34,7 +30,7 @@ class ABlindEyeCharacter : public ACharacter, public IHealthInterface, public IA
 	class UCameraComponent* FollowCamera;
 	
 public:
-	ABlindEyeCharacter();
+	ABlindEyePlayerCharacter();
 
 	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
 
@@ -54,14 +50,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UAbilityManager* AbilityManager;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UHealthComponent* HealthComponent;
-
 	virtual float GetHealth_Implementation() override;
 	virtual void SetHealth_Implementation(float NewHealth) override;
 
 	virtual void OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
-	virtual UHealthComponent* GetHealthComponent_Implementation() override;
 
 	virtual void OnDeath_Implementation() override;
 
@@ -72,10 +64,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float HealthRegenPerSec = 1.f;  
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TEAMS Team;
-	virtual TEAMS GetTeam_Implementation() override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float ReviveSpeedAllyPercentPerSec = 5;
@@ -116,7 +104,7 @@ public:
 	float GetHealthPercent_Implementation() override;
 
 	virtual bool GetIsDead_Implementation() override;
-
+	
 	bool IsActionsBlocked();
 
 	UFUNCTION(BlueprintCallable)

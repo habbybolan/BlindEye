@@ -3,7 +3,7 @@
 
 #include "Gameplay/BlindEyePlayerState.h"
 
-#include "Characters/BlindEyeCharacter.h"
+#include "Characters/BlindEyePlayerCharacter.h"
 #include "Net/UnrealNetwork.h"
 
 ABlindEyePlayerState::ABlindEyePlayerState()
@@ -62,7 +62,7 @@ void ABlindEyePlayerState::SetIsDead(bool isDead)
 
 void ABlindEyePlayerState::OnRep_HealthUpdated()
 {
-	ABlindEyeCharacter* BlindEyeCharacter = Cast<ABlindEyeCharacter>(GetPawn());
+	ABlindEyePlayerCharacter* BlindEyeCharacter = Cast<ABlindEyePlayerCharacter>(GetPawn());
 	if (BlindEyeCharacter)
 	{
 		BlindEyeCharacter->HealthUpdated();
@@ -71,7 +71,7 @@ void ABlindEyePlayerState::OnRep_HealthUpdated()
 
 void ABlindEyePlayerState::OnRep_BirdMeterUpdated()
 {
-	ABlindEyeCharacter* BlindEyeCharacter = Cast<ABlindEyeCharacter>(GetPawn());
+	ABlindEyePlayerCharacter* BlindEyeCharacter = Cast<ABlindEyePlayerCharacter>(GetPawn());
 	if (BlindEyeCharacter)
 	{
 		BlindEyeCharacter->BirdMeterUpdated();

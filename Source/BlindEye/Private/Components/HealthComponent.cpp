@@ -4,6 +4,8 @@
 #include "Components/HealthComponent.h"
 
 #include "DamageTypes/BaseDamageType.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Interfaces/HealthInterface.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -37,8 +39,8 @@ void UHealthComponent::BeginPlay()
 }
 
 void UHealthComponent::SetPointDamage(AActor* DamagedActor, float Damage, AController* InstigatedBy,
-	FVector HitLocation, UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection,
-	const UDamageType* DamageType, AActor* DamageCauser)
+                                      FVector HitLocation, UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection,
+                                      const UDamageType* DamageType, AActor* DamageCauser)
 {
 	SetDamage(Damage, HitLocation, DamageType, DamageCauser);
 }
@@ -82,27 +84,56 @@ void UHealthComponent::OnDeath()
 
 void UHealthComponent::Stun_Implementation(float StunDuration)
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Silver, "Stunned");
-	// TODO: Only applies to enemy
-	//		Pause brain logic and play animation?
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	if (AppliedStatusEffects.IsStun)
+	{
+		float RemainingTimeOnStun = UKismetSystemLibrary::K2_GetTimerRemainingTimeHandle(World, StunTimerHandle);
+		// Do nothing if trying to override with less stun duration
+		if (StunDuration <= RemainingTimeOnStun)
+		{
+			return;
+		}
+	} 
+	World->GetTimerManager().SetTimer(StunTimerHandle, this, &UHealthComponent::RemoveStun, StunDuration, false);
+	AppliedStatusEffects.IsStun = true;
+	StunStartDelegate.Broadcast(StunDuration);
 }
 
 void UHealthComponent::KnockBack_Implementation(FVector KnockBackForce)
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Silver, "Knockback");
-	/* TODO:
-	* If player
-	*	set player state as stunned and knock away from HitPoint
-	* if enemy
-	*	...
-	*/
+	ACharacter* Character = Cast<ACharacter>(GetOwner());
+	if (Character)
+	{
+		UCharacterMovementComponent* Movement = Character->GetCharacterMovement();
+		Movement->AddImpulse(KnockBackForce * 100);
+		KnockBackDelegate.Broadcast(KnockBackForce);
+	}
 }
 
 void UHealthComponent::Burn_Implementation(float DamagePerSec, float Duration)
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Silver, "Burn");
-	// TODO:
-	// only effects enemy, damage over time
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	if (AppliedStatusEffects.IsBurn)
+	{
+		float RemainingTimeOnStun = UKismetSystemLibrary::K2_GetTimerRemainingTimeHandle(World, BurnTimerHandle);
+		// Do nothing if trying to override with less stun duration
+		if (Duration <= RemainingTimeOnStun)
+		{
+			return; 
+		}
+	} else
+	{
+		World->GetTimerManager().SetTimer(BurnAppliedTimerHandle, this, &UHealthComponent::ApplyBurn, DelayBetweenBurnTicks, true, 0);
+	}
+	
+	World->GetTimerManager().SetTimer(BurnTimerHandle, this, &UHealthComponent::RemoveBurn, Duration, false);
+	AppliedStatusEffects.IsBurn = true;
+	AppliedStatusEffects.BurnDPS = DamagePerSec;
+	BurnDelegateStart.Broadcast(DamagePerSec, Duration);
 }
 
 void UHealthComponent::Stagger_Implementation()
@@ -127,6 +158,7 @@ void UHealthComponent::TryApplyMarker_Implementation(PlayerType Player)
 		float RefreshedTime = UKismetMathLibrary::Min(TimeRemaining + RefreshMarkerAmount, MarkerDecay);
 		world->GetTimerManager().ClearTimer(MarkerDecayTimerHandle);
 		world->GetTimerManager().SetTimer(MarkerDecayTimerHandle, this, &UHealthComponent::RemoveMark, RefreshedTime, false);
+		MarkedAddedDelegate.Broadcast(Player);
 	} else
 	{
 		// Set the decay timer on marker
@@ -156,17 +188,35 @@ void UHealthComponent::TryDetonation_Implementation(PlayerType Player)
 	}
 }
 
-void UHealthComponent::TryTaunt_Implementation(float Duration)
+void UHealthComponent::TryTaunt_Implementation(float Duration, AActor* Taunter)
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Silver, "Taunt");
-	// TODO: 
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	if (AppliedStatusEffects.IsTaunt)
+	{
+		float RemainingTimeOnStun = UKismetSystemLibrary::K2_GetTimerRemainingTimeHandle(World, TauntTimerHandle);
+		// Do nothing if trying to override with less stun duration
+		if (Duration <= RemainingTimeOnStun)
+		{
+			return;
+		}
+	} 
+	World->GetTimerManager().SetTimer(TauntTimerHandle, this, &UHealthComponent::RemoveTaunt, Duration, false);
+	AppliedStatusEffects.IsTaunt = true; 
+	TauntStartDelegate.Broadcast(Duration, Taunter);
 }
 
 void UHealthComponent::RemoveMark()
 {
-	// TODO: Remove Mark visual
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Orange, "Marker removed");
 	CurrMark = nullptr;
+	MarkedRemovedDelegate.Broadcast();
+}
+
+void UHealthComponent::DetonateMark()
+{
+	CurrMark = nullptr;
+	DetonateDelegate.Broadcast();
 }
 
 void UHealthComponent::OnRep_IsInvincibility()
@@ -185,4 +235,34 @@ void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UHealthComponent, IsInvincible);
+}
+
+void UHealthComponent::RemoveStun()
+{
+	AppliedStatusEffects.IsStun = false;
+	StunEndDelegate.Broadcast();
+}
+
+void UHealthComponent::RemoveBurn()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+
+	World->GetTimerManager().ClearTimer(BurnAppliedTimerHandle);
+	AppliedStatusEffects.IsBurn = false;
+	BurnDelegateEnd.Broadcast();
+}
+
+void UHealthComponent::ApplyBurn()
+{
+	UBaseDamageType* DamageType =  NewObject<UBaseDamageType>();
+	DamageType->DebugDamageEverything = true;
+	SetDamage(AppliedStatusEffects.BurnDPS * DelayBetweenBurnTicks,FVector::ZeroVector, DamageType, GetOwner());
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, DelayBetweenBurnTicks, FColor::Blue, "Burn: " + FString::SanitizeFloat(AppliedStatusEffects.BurnDPS * DelayBetweenBurnTicks));
+}
+
+void UHealthComponent::RemoveTaunt()
+{
+	AppliedStatusEffects.IsTaunt = false;
+	TauntEndDelegate.Broadcast();
 }

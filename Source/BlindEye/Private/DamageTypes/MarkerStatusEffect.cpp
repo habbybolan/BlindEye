@@ -4,7 +4,7 @@
 #include "DamageTypes/MarkerStatusEffect.h"
 
 #include "Components/HealthComponent.h"
-#include "Characters/BlindEyeCharacter.h"
+#include "Characters/BlindEyePlayerCharacter.h"
 #include "Interfaces/DamageInterface.h"
 
 void UMarkerStatusEffect::ProcessEffect(AActor* Owner, AActor* HitCharacter, FVector HitLocation,
@@ -12,7 +12,7 @@ void UMarkerStatusEffect::ProcessEffect(AActor* Owner, AActor* HitCharacter, FVe
 {
 	if (const IDamageInterface* DamageInterface = Cast<IDamageInterface>(HealthComponent))
 	{
-		if (const ABlindEyeCharacter* Player = Cast<ABlindEyeCharacter>(Owner->GetInstigator()))
+		if (const ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Owner->GetInstigator()))
 		{
 			DamageInterface->Execute_TryApplyMarker(HealthComponent, Player->PlayerType);
 		}

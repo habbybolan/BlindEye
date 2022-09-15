@@ -6,7 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "BlindEyePlayerController.generated.h"
 
-class ABlindEyeCharacter;
+class ABlindEyePlayerCharacter;
 /**
  * 
  */
@@ -31,7 +31,7 @@ public:
 
 private:
 	UPROPERTY()
-	ABlindEyeCharacter* OwningCharacter;
+	ABlindEyePlayerCharacter* OwningCharacter;
 	
 };
 

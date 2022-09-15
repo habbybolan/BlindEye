@@ -9,7 +9,7 @@
 #include "Components/HealthComponent.h"
 #include "Enemies/SnapperEnemy.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "Characters/BlindEyeCharacter.h"
+#include "Characters/BlindEyePlayerCharacter.h"
 #include "Enemies/BurrowerEnemyController.h"
 #include "Enemies/SnapperEnemyController.h"
 #include "Interfaces/HealthInterface.h"
@@ -93,7 +93,7 @@ void ABurrowerEnemy::SpawnAction(FTransform SpawnLocation)
 	MULT_SpawnWarningParticle();
 }
 
-void ABurrowerEnemy::AttackAction(ABlindEyeCharacter* target)
+void ABurrowerEnemy::AttackAction(ABlindEyePlayerCharacter* target)
 {
 	UWorld* world = GetWorld();
 	if (!world) return;

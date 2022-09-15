@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Characters/BlindEyeCharacter.h"
+#include "Characters/BlindEyePlayerCharacter.h"
 #include "GameFramework/GameMode.h"
 #include "BlindEyeGameMode.generated.h"
 
@@ -22,7 +22,7 @@ public:
 	FTransform GetSpawnPoint() const;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<TSubclassOf<ABlindEyeCharacter>> PlayerClassTypes;
+	TArray<TSubclassOf<ABlindEyePlayerCharacter>> PlayerClassTypes;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float TimerUntilGameWon = 60;

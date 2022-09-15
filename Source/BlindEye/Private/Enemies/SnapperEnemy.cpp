@@ -2,7 +2,7 @@
 
 
 #include "Enemies/SnapperEnemy.h"
-#include "Characters/BlindEyeCharacter.h"
+#include "Characters/BlindEyePlayerCharacter.h"
 #include "Enemies/BlindEyeEnemyController.h"
 #include "Enemies/SnapperEnemyController.h"
 #include "Kismet/GameplayStatics.h"
@@ -14,7 +14,7 @@ void ASnapperEnemy::OnTakeDamage_Implementation(float Damage, FVector HitLocatio
 	Super::OnTakeDamage_Implementation(Damage, HitLocation, DamageType, DamageCauser);
 
 	// If taken damage from player, set Target as player
-	if (ABlindEyeCharacter* BlindEyeCharacter = Cast<ABlindEyeCharacter>(DamageCauser))
+	if (ABlindEyePlayerCharacter* BlindEyeCharacter = Cast<ABlindEyePlayerCharacter>(DamageCauser))
 	{
 		if (ASnapperEnemyController* SnapperController = Cast<ASnapperEnemyController>(GetController()))
 		{

@@ -28,5 +28,7 @@ public:
 	TSubclassOf<UBaseDamageType> BasicAttackDamageType;
 
 	void PerformBasicAttack();
+
+protected:
 	
 };

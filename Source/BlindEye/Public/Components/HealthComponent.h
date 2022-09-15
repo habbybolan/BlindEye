@@ -21,6 +21,11 @@ struct FAppliedStatusEffects
 	bool IsMarked = false;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool IsStaggered = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool IsTaunt = false;
+
+	// keep track of burn damage
+	float BurnDPS = 0;
 };
 
 enum class PlayerType : uint8;
@@ -55,6 +60,37 @@ public:
 
 	void Kill();
 
+	// Delegates for status effects*********
+	
+	DECLARE_MULTICAST_DELEGATE_OneParam(FStunStartSignature, float)
+	FStunStartSignature StunStartDelegate;
+	DECLARE_MULTICAST_DELEGATE(FStunEndSignature)
+	FStunEndSignature StunEndDelegate; 
+
+	DECLARE_MULTICAST_DELEGATE_OneParam(FKnockBackSignature, FVector)
+	FKnockBackSignature KnockBackDelegate;
+
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FBurnStartSignature, float, float) 
+	FBurnStartSignature BurnDelegateStart;
+	DECLARE_MULTICAST_DELEGATE(FBurnEndSignature) 
+	FBurnEndSignature BurnDelegateEnd; 
+
+	DECLARE_MULTICAST_DELEGATE(FStaggerSignature) 
+	FStaggerSignature StaggerDelegate;
+
+	DECLARE_MULTICAST_DELEGATE_OneParam(FMarkedSignature, PlayerType) 
+	FMarkedSignature MarkedAddedDelegate;
+	DECLARE_MULTICAST_DELEGATE(FUnMarkedSignature) 
+	FUnMarkedSignature MarkedRemovedDelegate; 
+
+	DECLARE_MULTICAST_DELEGATE(FDetonateSignature) 
+	FDetonateSignature DetonateDelegate;
+
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FTauntStartSignature, float, AActor*) 
+	FTauntStartSignature TauntStartDelegate;
+	DECLARE_MULTICAST_DELEGATE(FTauntEndSignature) 
+	FTauntEndSignature TauntEndDelegate; 
+
 protected:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -65,9 +101,29 @@ protected:
 	IHealthInterface* OwnerHealth;
 
 	virtual void BeginPlay() override;
+
+	// Status effect properties ***
 	
 	FMarkData* CurrMark;
 	FAppliedStatusEffects AppliedStatusEffects;
+
+	FTimerHandle StunTimerHandle; 
+	FTimerHandle BurnTimerHandle; 
+	FTimerHandle BurnAppliedTimerHandle;
+	FTimerHandle TauntTimerHandle;
+
+	float DelayBetweenBurnTicks = 0.2f;
+
+	// End Status effect properties ***
+
+	UFUNCTION()
+	void RemoveStun();
+	UFUNCTION()
+	void RemoveBurn();
+	UFUNCTION()
+	void ApplyBurn(); 
+	UFUNCTION()
+	void RemoveTaunt();
 
 	UFUNCTION()
 	void SetPointDamage(AActor* DamagedActor, float Damage,
@@ -91,10 +147,10 @@ protected:
 	virtual void TryApplyMarker_Implementation(PlayerType Player) override;
 
 	virtual void TryDetonation_Implementation(PlayerType Player) override;
-
-	virtual void TryTaunt_Implementation(float Duration) override;
+ 
+	virtual void TryTaunt_Implementation(float Duration, AActor* Taunter) override;
 		
 	FTimerHandle MarkerDecayTimerHandle;
 	void RemoveMark();
-		
+	void DetonateMark(); 
 };

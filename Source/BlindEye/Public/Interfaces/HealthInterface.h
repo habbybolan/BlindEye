@@ -20,6 +20,7 @@ enum class TEAMS
 };
 
 class UHealthComponent;
+class UMarkerComponent;
 
 /**
  * Health interface for any actor with a HealthComponent
@@ -54,5 +55,6 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	bool GetIsDead();
 
-	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UMarkerComponent* GetMarkerComponent();
 };

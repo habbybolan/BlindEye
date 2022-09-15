@@ -33,11 +33,10 @@ public:
 	void SetTargetEnemy(AActor* target);
 
 	bool CanBasicAttack();
-	bool IsInBasicAttackRange();
+	bool IsInBasicAttackRange(AActor* Target);
 	void PerformBasicAttack();
 	
 protected:
-	TWeakObjectPtr<AActor> Target;
 
 	bool IsBasicAttackOnDelay = false;
 	FTimerHandle BasicAttackDelayTimerHandle;
@@ -47,5 +46,11 @@ protected:
 
 	virtual void OnPossess(APawn* InPawn) override;
 	void SetCanBasicAttack();
+
+	virtual void OnTauntStart(float Duration, AActor* Taunter) override;
+	virtual void OnTauntEnd() override;
+
+	virtual void OnStunStart(float StunDuration) override;
+	virtual void OnStunEnd() override;
 	
 };

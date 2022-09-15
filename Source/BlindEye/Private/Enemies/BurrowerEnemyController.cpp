@@ -3,7 +3,7 @@
 
 #include "Enemies/BurrowerEnemyController.h"
 
-#include "Characters/BlindEyeCharacter.h"
+#include "Characters/BlindEyePlayerCharacter.h"
 #include "Enemies/BurrowerEnemy.h"
 #include "Enemies/BurrowerSpawnPoint.h"
 #include "Kismet/GameplayStatics.h"
@@ -69,7 +69,7 @@ void ABurrowerEnemyController::AddNewActionState(EBurrowActionState NewAction)
 	CachedPreviousActions[0] = NewAction;
 }
 
-ABlindEyeCharacter* ABurrowerEnemyController::GetRandomPlayerForTarget() const
+ABlindEyePlayerCharacter* ABurrowerEnemyController::GetRandomPlayerForTarget() const
 {
 	UWorld* world = GetWorld();
 	if (!world) return nullptr;
@@ -77,9 +77,9 @@ ABlindEyeCharacter* ABurrowerEnemyController::GetRandomPlayerForTarget() const
 	// TODO: All players should be retrieved from GameState (Store all connected players for easy retrieval)
 	// Get random player character
 	TArray<AActor*> AllPlayers;
-	UGameplayStatics::GetAllActorsOfClass(world, ABlindEyeCharacter::StaticClass(), AllPlayers);
+	UGameplayStatics::GetAllActorsOfClass(world, ABlindEyePlayerCharacter::StaticClass(), AllPlayers);
 	uint32 rand = UKismetMathLibrary::RandomIntegerInRange(0, AllPlayers.Num() - 1);
-	return Cast<ABlindEyeCharacter>(AllPlayers[rand]);
+	return Cast<ABlindEyePlayerCharacter>(AllPlayers[rand]);
 }
 
 void ABurrowerEnemyController::ActionStateFinished()
