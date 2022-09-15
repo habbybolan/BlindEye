@@ -29,13 +29,8 @@ void UMarkerComponent::BeginPlay()
 	PhoenixMark = World->SpawnActor<AStaticMeshActor>(PhoenixMarkType, location, GetComponentRotation());
 	PhoenixMark->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
 	PhoenixMark->GetStaticMeshComponent()->SetVisibility(false);
-}
 
-void UMarkerComponent::OnComponentDestroyed(bool bDestroyingHierarchy)
-{
-	Super::OnComponentDestroyed(bDestroyingHierarchy);
-	if (CrowMark) CrowMark->Destroy();
-	if (PhoenixMark) PhoenixMark->Destroy();
+	//GetOwner()->OnDestroyed.Add(this, &UMarkerComponent::OnOwnerDestroyed);
 }
 
 void UMarkerComponent::MULT_RemoveMark_Implementation()
@@ -66,5 +61,12 @@ void UMarkerComponent::MULT_AddMark_Implementation(PlayerType PlayerMarkToSet)
 void UMarkerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+}
+
+void UMarkerComponent::OnOwnerDestroyed(AActor* DestroyedActor)
+{
+	if (CrowMark) CrowMark->Destroy();
+	if (PhoenixMark) PhoenixMark->Destroy();
+	DestroyComponent();
 }
 

@@ -34,11 +34,12 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	virtual void OnComponentDestroyed(bool bDestroyingHierarchy) override;
+	UFUNCTION()
+	virtual void OnOwnerDestroyed(AActor* DestroyedActor);
 
-	UPROPERTY(Replicated)
+	UPROPERTY()
 	AStaticMeshActor* CrowMark;
-	UPROPERTY(Replicated)
+	UPROPERTY()
 	AStaticMeshActor* PhoenixMark;
 
 	bool bMarked = false;
