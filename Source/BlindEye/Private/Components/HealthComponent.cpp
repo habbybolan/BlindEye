@@ -202,7 +202,8 @@ void UHealthComponent::PerformDetonationEffect(AActor* DamageCause)
 			SetDamage(DarkDetonationOnEnemyDamage, GetOwner()->GetActorLocation(), StunDamage, DamageCause);
 		} else if (CurrMark->MarkPlayerType == PlayerType::PhoenixPlayer)
 		{
-			// TODO: Burn
+			UBaseDamageType* BurnDamage = NewObject<UBaseDamageType>(GetTransientPackage(), FireDetonationOnEnemyDamageType);
+			SetDamage(1, GetOwner()->GetActorLocation(), BurnDamage, DamageCause);
 		}
 	} else if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
