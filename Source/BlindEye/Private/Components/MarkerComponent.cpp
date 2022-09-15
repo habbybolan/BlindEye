@@ -30,8 +30,8 @@ void UMarkerComponent::BeginPlay()
 	PhoenixMark->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
 	PhoenixMark->GetStaticMeshComponent()->SetVisibility(false);
 
-	//GetOwner()->OnDestroyed.Add(this, &UMarkerComponent::OnOwnerDestroyed);
-}
+	GetOwner()->OnDestroyed.AddDynamic(this, &UMarkerComponent::OnOwnerDestroyed);
+} 
 
 void UMarkerComponent::MULT_RemoveMark_Implementation()
 {
@@ -63,7 +63,7 @@ void UMarkerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
-void UMarkerComponent::OnOwnerDestroyed(AActor* DestroyedActor)
+void UMarkerComponent::OnOwnerDestroyed(AActor* OwnerDestroyed)
 {
 	if (CrowMark) CrowMark->Destroy();
 	if (PhoenixMark) PhoenixMark->Destroy();

@@ -35,7 +35,7 @@ protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION()
-	virtual void OnOwnerDestroyed(AActor* DestroyedActor);
+	virtual void OnOwnerDestroyed(AActor* OwnerDestroyed);
 
 	UPROPERTY()
 	AStaticMeshActor* CrowMark;
