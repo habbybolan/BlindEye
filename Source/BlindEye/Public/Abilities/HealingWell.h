@@ -25,7 +25,7 @@ public:
 	float Radius = 450;
  
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float Duration = 450;
+	float Duration = 4;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;

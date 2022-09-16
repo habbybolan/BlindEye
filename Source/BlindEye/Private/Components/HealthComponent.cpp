@@ -195,22 +195,26 @@ void UHealthComponent::TryDetonation_Implementation(PlayerType Player, AActor* D
 
 void UHealthComponent::PerformDetonationEffect(AActor* DamageCause)
 {
-	// If enemy is being detonated
+	// If enemy is being detonated 
 	if (ABlindEyeEnemyBase* BLindEyeEnemy = Cast<ABlindEyeEnemyBase>(GetOwner()))
 	{
+		// Stun to detonated enemy (Detonate Crow Mark on Enemy)
 		if (CurrMark->MarkPlayerType == PlayerType::CrowPlayer)
 		{
 			UBaseDamageType* StunDamage = NewObject<UBaseDamageType>(GetTransientPackage(), DarkDetonationOnEnemyDamageType);
 			SetDamage(DarkDetonationOnEnemyDamage, GetOwner()->GetActorLocation(), StunDamage, DamageCause);
 		}
+		// Burn on detonated (Detonate Phoenix Mark on Enemy)
 		else if (CurrMark->MarkPlayerType == PlayerType::PhoenixPlayer)
 		{
 			UBaseDamageType* BurnDamage = NewObject<UBaseDamageType>(GetTransientPackage(), FireDetonationOnEnemyDamageType);
 			SetDamage(1, GetOwner()->GetActorLocation(), BurnDamage, DamageCause);
 		}
 	}
+	// If player being detonated
 	else if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
+		// Explosion around detonated player (Detonate Crow Mark on Phoenix)
 		if (CurrMark->MarkPlayerType == PlayerType::CrowPlayer)
 		{
 			UWorld* World = GetWorld();
@@ -221,6 +225,7 @@ void UHealthComponent::PerformDetonationEffect(AActor* DamageCause)
 			UBaseDamageType* ExplosionDamage = NewObject<UBaseDamageType>(GetTransientPackage(), DarkDetonationOnPlayerDamageType);
 			SetDamage(1, GetOwner()->GetActorLocation(), ExplosionDamage, DamageCause);
 		}
+		// Healing well around detonated player (Detonate Phoenix Mark on Crow)
 		else if (CurrMark->MarkPlayerType == PlayerType::PhoenixPlayer)
 		{
 			UWorld* World = GetWorld();
