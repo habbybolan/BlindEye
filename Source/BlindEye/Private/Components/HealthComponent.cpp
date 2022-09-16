@@ -41,6 +41,11 @@ void UHealthComponent::BeginPlay()
 
 	GetOwner()->OnTakePointDamage.AddDynamic(this, &UHealthComponent::SetPointDamage);
 	GetOwner()->OnTakeRadialDamage.AddDynamic(this, &UHealthComponent::SetRadialDamage);
+
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+
+	World->GetTimerManager().SetTimer(HealTimerHandle, this, &UHealthComponent::PerformHeal, PerformHealDelay, true);
 }
 
 void UHealthComponent::SetPointDamage(AActor* DamagedActor, float Damage, AController* InstigatedBy,
@@ -290,22 +295,46 @@ void UHealthComponent::ImprovedHealing_Implementation(float HealPercentIncrease,
 	if (AppliedStatusEffects.IsImprovedHealing)
 	{
 		float RemainingTimeOnHeal = UKismetSystemLibrary::K2_GetTimerRemainingTimeHandle(World, ImprovedHealingTimerHandle);
-		// Do nothing if trying to override with less stun duration
+		// Do nothing if trying to override with less heal duration
 		if (Duration <= RemainingTimeOnHeal)
 		{
 			return;
 		}
-	} 
+	}
+
+	bool TempIsImprovedHealing = AppliedStatusEffects.IsImprovedHealing;
+	
 	World->GetTimerManager().SetTimer(ImprovedHealingTimerHandle, this, &UHealthComponent::RemoveImprovedHealing, Duration, false);
 	AppliedStatusEffects.IsImprovedHealing = true; 
-	AppliedStatusEffects.HealPercentIncrease = HealPercentIncrease; 
-	ImprovedHealingStartDelegate.Broadcast(HealPercentIncrease, Duration);
+	AppliedStatusEffects.HealPercentIncrease = HealPercentIncrease;
+	
+	// only broadcast if start healing
+	if (!TempIsImprovedHealing)
+	{
+		ImprovedHealingStartDelegate.Broadcast(HealPercentIncrease, Duration);
+	}
 }
 
 void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UHealthComponent, IsInvincible);
+}
+
+void UHealthComponent::PerformHeal()
+{
+	if (HealPerSec <= 0) return;
+	
+	float HealAmountPerSec = HealPerSec;
+	// Check if increased healing applied
+	if (AppliedStatusEffects.IsImprovedHealing)
+	{
+		HealAmountPerSec += HealAmountPerSec * AppliedStatusEffects.HealPercentIncrease;
+	}
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, PerformHealDelay, FColor::Green, "Heal: " + FString::SanitizeFloat(HealAmountPerSec));
+	float NewHealth = OwnerHealth->Execute_GetHealth(GetOwner()) + HealAmountPerSec * PerformHealDelay;
+	NewHealth = FMath::Min(OwnerHealth->Execute_GetMaxHealth(GetOwner()), NewHealth);
+	OwnerHealth->Execute_SetHealth(GetOwner(), NewHealth);
 }
 
 void UHealthComponent::RemoveStun()
