@@ -331,8 +331,7 @@ void UHealthComponent::PerformHeal()
 	{
 		HealAmountPerSec += HealAmountPerSec * AppliedStatusEffects.HealPercentIncrease;
 	}
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, PerformHealDelay, FColor::Green, "Heal: " + FString::SanitizeFloat(HealAmountPerSec));
-	float NewHealth = OwnerHealth->Execute_GetHealth(GetOwner()) + HealAmountPerSec * PerformHealDelay;
+	float NewHealth = OwnerHealth->Execute_GetHealth(GetOwner()) + ((HealAmountPerSec / 100) * PerformHealDelay);
 	NewHealth = FMath::Min(OwnerHealth->Execute_GetMaxHealth(GetOwner()), NewHealth);
 	OwnerHealth->Execute_SetHealth(GetOwner(), NewHealth);
 }
