@@ -65,3 +65,8 @@ float ABlindEyeEnemyBase::GetHealthPercent_Implementation()
 {
 	return CurrHealth / MaxHealth;
 }
+
+float ABlindEyeEnemyBase::GetMaxHealth_Implementation()
+{
+	return MaxHealth;
+}

@@ -26,23 +26,26 @@ class BLINDEYE_API IDamageInterface
 public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void Stun(float StunDuration);
+	void Stun(float StunDuration, AActor* DamageCause);
  
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void KnockBack(FVector KnockBackForce);
+	void KnockBack(FVector KnockBackForce, AActor* DamageCause);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void Burn(float DamagePerSec, float Duration);
+	void Burn(float DamagePerSec, float Duration, AActor* DamageCause);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void Stagger();
+	void Stagger(AActor* DamageCause);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void TryApplyMarker(PlayerType Player);
+	void TryApplyMarker(PlayerType Player, AActor* DamageCause);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void TryDetonation(PlayerType Player);
+	void TryDetonation(PlayerType Player, AActor* DamageCause);
   
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void TryTaunt(float Duration, AActor* Taunter);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void ImprovedHealing(float HealPercentIncrease, float Duration);
 };

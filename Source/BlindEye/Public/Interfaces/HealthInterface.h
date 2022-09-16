@@ -35,6 +35,8 @@ public:
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
 	float GetHealth();
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	float GetMaxHealth();
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable) 
 	void SetHealth(float NewHealth);
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
 	float GetHealthPercent();

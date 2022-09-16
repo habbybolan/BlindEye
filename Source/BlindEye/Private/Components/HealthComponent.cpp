@@ -3,10 +3,15 @@
 
 #include "Components/HealthComponent.h"
 
+#include "Characters/BlindEyePlayerCharacter.h"
 #include "DamageTypes/BaseDamageType.h"
+#include "DamageTypes/BaseStatusEffect.h"
+#include "DamageTypes/StunStatusEffect.h"
+#include "Enemies/BlindEyeEnemyBase.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Interfaces/HealthInterface.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -36,6 +41,11 @@ void UHealthComponent::BeginPlay()
 
 	GetOwner()->OnTakePointDamage.AddDynamic(this, &UHealthComponent::SetPointDamage);
 	GetOwner()->OnTakeRadialDamage.AddDynamic(this, &UHealthComponent::SetRadialDamage);
+
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+
+	World->GetTimerManager().SetTimer(HealTimerHandle, this, &UHealthComponent::PerformHeal, PerformHealDelay, true);
 }
 
 void UHealthComponent::SetPointDamage(AActor* DamagedActor, float Damage, AController* InstigatedBy,
@@ -57,7 +67,8 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 	{
 		const UBaseDamageType* baseDamageType = Cast<UBaseDamageType>(DamageType);
 		if (!baseDamageType) return;
-		 
+
+		
 		float damageMultiplied = Damage * baseDamageType->ProcessDamage(DamageCauser, GetOwner(), HitLocation, this);
 
 		// Debug invincibility
@@ -82,7 +93,7 @@ void UHealthComponent::OnDeath()
 	OwnerHealth->Execute_OnDeath(GetOwner());
 }
 
-void UHealthComponent::Stun_Implementation(float StunDuration)
+void UHealthComponent::Stun_Implementation(float StunDuration, AActor* DamageCause)
 {
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
@@ -101,7 +112,7 @@ void UHealthComponent::Stun_Implementation(float StunDuration)
 	StunStartDelegate.Broadcast(StunDuration);
 }
 
-void UHealthComponent::KnockBack_Implementation(FVector KnockBackForce)
+void UHealthComponent::KnockBack_Implementation(FVector KnockBackForce, AActor* DamageCause)
 {
 	ACharacter* Character = Cast<ACharacter>(GetOwner());
 	if (Character)
@@ -112,7 +123,7 @@ void UHealthComponent::KnockBack_Implementation(FVector KnockBackForce)
 	}
 }
 
-void UHealthComponent::Burn_Implementation(float DamagePerSec, float Duration)
+void UHealthComponent::Burn_Implementation(float DamagePerSec, float Duration, AActor* DamageCause)
 {
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
@@ -136,14 +147,14 @@ void UHealthComponent::Burn_Implementation(float DamagePerSec, float Duration)
 	BurnDelegateStart.Broadcast(DamagePerSec, Duration);
 }
 
-void UHealthComponent::Stagger_Implementation()
+void UHealthComponent::Stagger_Implementation(AActor* DamageCause)
 {
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Silver, "Stagger");
 	// TODO: probably call stun?
 	// ...
 }
 
-void UHealthComponent::TryApplyMarker_Implementation(PlayerType Player)
+void UHealthComponent::TryApplyMarker_Implementation(PlayerType Player, AActor* DamageCause)
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
@@ -158,7 +169,6 @@ void UHealthComponent::TryApplyMarker_Implementation(PlayerType Player)
 		float RefreshedTime = UKismetMathLibrary::Min(TimeRemaining + RefreshMarkerAmount, MarkerDecay);
 		world->GetTimerManager().ClearTimer(MarkerDecayTimerHandle);
 		world->GetTimerManager().SetTimer(MarkerDecayTimerHandle, this, &UHealthComponent::RemoveMark, RefreshedTime, false);
-		MarkedAddedDelegate.Broadcast(Player);
 	} else
 	{
 		// Set the decay timer on marker
@@ -166,24 +176,70 @@ void UHealthComponent::TryApplyMarker_Implementation(PlayerType Player)
 		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Purple, "Mark Applied");
 		CurrMark = new FMarkData();
 		CurrMark->InitializeData(Player);
+		MarkedAddedDelegate.Broadcast(Player);
 	}
 }
 
-void UHealthComponent::TryDetonation_Implementation(PlayerType Player)
+void UHealthComponent::TryDetonation_Implementation(PlayerType Player, AActor* DamageCause)
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
 	
 	if (CurrMark != nullptr)
 	{
-		// TODO: perform marker effect and remove marker
-
 		// Detonate mark if of different type, clear decay timer
 		if (CurrMark->MarkPlayerType != Player)
 		{
 			world->GetTimerManager().ClearTimer(MarkerDecayTimerHandle);
 			GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Purple, "Marker detonated on: " + GetOwner()->GetName());
-			RemoveMark();
+			PerformDetonationEffect(DamageCause);
+			DetonateMark();
+		}
+	}
+}
+
+void UHealthComponent::PerformDetonationEffect(AActor* DamageCause)
+{
+	// If enemy is being detonated 
+	if (ABlindEyeEnemyBase* BLindEyeEnemy = Cast<ABlindEyeEnemyBase>(GetOwner()))
+	{
+		// Stun to detonated enemy (Detonate Crow Mark on Enemy)
+		if (CurrMark->MarkPlayerType == PlayerType::CrowPlayer)
+		{
+			UBaseDamageType* StunDamage = NewObject<UBaseDamageType>(GetTransientPackage(), DarkDetonationOnEnemyDamageType);
+			SetDamage(DarkDetonationOnEnemyDamage, GetOwner()->GetActorLocation(), StunDamage, DamageCause);
+		}
+		// Burn on detonated (Detonate Phoenix Mark on Enemy)
+		else if (CurrMark->MarkPlayerType == PlayerType::PhoenixPlayer)
+		{
+			UBaseDamageType* BurnDamage = NewObject<UBaseDamageType>(GetTransientPackage(), FireDetonationOnEnemyDamageType);
+			SetDamage(1, GetOwner()->GetActorLocation(), BurnDamage, DamageCause);
+		}
+	}
+	// If player being detonated
+	else if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	{
+		// Explosion around detonated player (Detonate Crow Mark on Phoenix)
+		if (CurrMark->MarkPlayerType == PlayerType::CrowPlayer)
+		{
+			UWorld* World = GetWorld();
+			if (!World) return;
+			
+			UGameplayStatics::ApplyRadialDamage(World, DarkDetonationOnPlayerDamage, GetOwner()->GetActorLocation(),
+				DarkDetonationOnPlayerRadius, DarkDetonationOnPlayerDamageType, TArray<AActor*>(), DamageCause);
+			UBaseDamageType* ExplosionDamage = NewObject<UBaseDamageType>(GetTransientPackage(), DarkDetonationOnPlayerDamageType);
+			SetDamage(1, GetOwner()->GetActorLocation(), ExplosionDamage, DamageCause);
+		}
+		// Healing well around detonated player (Detonate Phoenix Mark on Crow)
+		else if (CurrMark->MarkPlayerType == PlayerType::PhoenixPlayer)
+		{
+			UWorld* World = GetWorld();
+			if (!World) return;
+
+			FActorSpawnParameters params;
+			params.Instigator = Cast<APawn>(GetOwner());
+			params.Owner = GetOwner();
+			World->SpawnActor<AHealingWell>(HealingWellType, GetOwner()->GetActorLocation(), FRotator::ZeroRotator, params);
 		}
 	}
 }
@@ -231,10 +287,53 @@ void UHealthComponent::Kill()
 	OnDeath();
 }
 
+void UHealthComponent::ImprovedHealing_Implementation(float HealPercentIncrease, float Duration)
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	if (AppliedStatusEffects.IsImprovedHealing)
+	{
+		float RemainingTimeOnHeal = UKismetSystemLibrary::K2_GetTimerRemainingTimeHandle(World, ImprovedHealingTimerHandle);
+		// Do nothing if trying to override with less heal duration
+		if (Duration <= RemainingTimeOnHeal)
+		{
+			return;
+		}
+	}
+
+	bool TempIsImprovedHealing = AppliedStatusEffects.IsImprovedHealing;
+	
+	World->GetTimerManager().SetTimer(ImprovedHealingTimerHandle, this, &UHealthComponent::RemoveImprovedHealing, Duration, false);
+	AppliedStatusEffects.IsImprovedHealing = true; 
+	AppliedStatusEffects.HealPercentIncrease = HealPercentIncrease;
+	
+	// only broadcast if start healing
+	if (!TempIsImprovedHealing)
+	{
+		ImprovedHealingStartDelegate.Broadcast(HealPercentIncrease, Duration);
+	}
+}
+
 void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UHealthComponent, IsInvincible);
+}
+
+void UHealthComponent::PerformHeal()
+{
+	if (HealPerSec <= 0) return;
+	
+	float HealAmountPerSec = HealPerSec;
+	// Check if increased healing applied
+	if (AppliedStatusEffects.IsImprovedHealing)
+	{
+		HealAmountPerSec += HealAmountPerSec * AppliedStatusEffects.HealPercentIncrease;
+	}
+	float NewHealth = OwnerHealth->Execute_GetHealth(GetOwner()) + ((HealAmountPerSec / 100) * PerformHealDelay);
+	NewHealth = FMath::Min(OwnerHealth->Execute_GetMaxHealth(GetOwner()), NewHealth);
+	OwnerHealth->Execute_SetHealth(GetOwner(), NewHealth);
 }
 
 void UHealthComponent::RemoveStun()
@@ -257,6 +356,7 @@ void UHealthComponent::ApplyBurn()
 {
 	UBaseDamageType* DamageType =  NewObject<UBaseDamageType>();
 	DamageType->DebugDamageEverything = true;
+	// TODO: Apply damage based on damage cause, dont use self with debug param
 	SetDamage(AppliedStatusEffects.BurnDPS * DelayBetweenBurnTicks,FVector::ZeroVector, DamageType, GetOwner());
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, DelayBetweenBurnTicks, FColor::Blue, "Burn: " + FString::SanitizeFloat(AppliedStatusEffects.BurnDPS * DelayBetweenBurnTicks));
 }
@@ -265,4 +365,11 @@ void UHealthComponent::RemoveTaunt()
 {
 	AppliedStatusEffects.IsTaunt = false;
 	TauntEndDelegate.Broadcast();
+}
+
+void UHealthComponent::RemoveImprovedHealing()
+{
+	AppliedStatusEffects.IsImprovedHealing = false;
+	AppliedStatusEffects.HealPercentIncrease = 0; 
+	ImprovedHealingEndDelegate.Broadcast();
 }

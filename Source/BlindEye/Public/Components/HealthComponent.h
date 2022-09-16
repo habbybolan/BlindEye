@@ -3,7 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Abilities/HealingWell.h"
 #include "Components/ActorComponent.h"
+#include "DamageTypes/BaseDamageType.h"
 #include "DamageTypes/MarkData.h"
 #include "Interfaces/DamageInterface.h"
 #include "HealthComponent.generated.h"
@@ -17,15 +19,21 @@ struct FAppliedStatusEffects
 	bool IsStun = false;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool IsBurn = false;
+	// keep track of burn damage
+	float BurnDPS = 0;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool IsMarked = false;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool IsStaggered = false;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool IsTaunt = false;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool IsImprovedHealing = false;
+	float HealPercentIncrease = 0;
 
-	// keep track of burn damage
-	float BurnDPS = 0;
+	
 };
 
 enum class PlayerType : uint8;
@@ -54,6 +62,9 @@ public:
 	
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, ReplicatedUsing="OnRep_IsInvincibility")
 	bool IsInvincible = false;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float HealPerSec = 0;
 
 	UFUNCTION()
 	void OnRep_IsInvincibility();
@@ -89,7 +100,18 @@ public:
 	DECLARE_MULTICAST_DELEGATE_TwoParams(FTauntStartSignature, float, AActor*) 
 	FTauntStartSignature TauntStartDelegate;
 	DECLARE_MULTICAST_DELEGATE(FTauntEndSignature) 
-	FTauntEndSignature TauntEndDelegate; 
+	FTauntEndSignature TauntEndDelegate;
+
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FImprovedHealingStartSignature, float, float)
+	FImprovedHealingStartSignature ImprovedHealingStartDelegate;
+	DECLARE_MULTICAST_DELEGATE(FImprovedHealingEndSignature)  
+	FImprovedHealingEndSignature ImprovedHealingEndDelegate;
+
+	virtual void ImprovedHealing_Implementation(float HealPercentIncrease, float Duration) override;
+	FTimerHandle ImprovedHealingTimerHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<AHealingWell> HealingWellType;
 
 protected:
 
@@ -114,6 +136,10 @@ protected:
 
 	float DelayBetweenBurnTicks = 0.2f;
 
+	FTimerHandle HealTimerHandle;
+	float PerformHealDelay = 0.2f;
+	void PerformHeal();
+
 	// End Status effect properties ***
 
 	UFUNCTION()
@@ -124,6 +150,8 @@ protected:
 	void ApplyBurn(); 
 	UFUNCTION()
 	void RemoveTaunt();
+	UFUNCTION()
+	void RemoveImprovedHealing();
 
 	UFUNCTION()
 	void SetPointDamage(AActor* DamagedActor, float Damage,
@@ -136,21 +164,41 @@ protected:
 
 	void SetDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
 
-	virtual void Stun_Implementation(float StunDuration) override;
+	virtual void Stun_Implementation(float StunDuration, AActor* DamageCause) override;
 
-	virtual void KnockBack_Implementation(FVector KnockBackForce) override;
+	virtual void KnockBack_Implementation(FVector KnockBackForce, AActor* DamageCause) override;
 
-	virtual void Burn_Implementation(float DamagePerSec, float Duration) override;
+	virtual void Burn_Implementation(float DamagePerSec, float Duration, AActor* DamageCause) override;
 
-	virtual void Stagger_Implementation() override;
+	virtual void Stagger_Implementation(AActor* DamageCause) override;
 
-	virtual void TryApplyMarker_Implementation(PlayerType Player) override;
+	virtual void TryApplyMarker_Implementation(PlayerType Player, AActor* DamageCause) override;
 
-	virtual void TryDetonation_Implementation(PlayerType Player) override;
+	virtual void TryDetonation_Implementation(PlayerType Player, AActor* DamageCause) override;
  
 	virtual void TryTaunt_Implementation(float Duration, AActor* Taunter) override;
-		
+
+	// Detonation Effect properties *********
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
+	TSubclassOf<UBaseDamageType> DarkDetonationOnEnemyDamageType;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
+	float DarkDetonationOnEnemyDamage = 15;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
+	TSubclassOf<UBaseDamageType> FireDetonationOnEnemyDamageType;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
+	TSubclassOf<UBaseDamageType> DarkDetonationOnPlayerDamageType;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
+	float DarkDetonationOnPlayerDamage = 35;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
+	float DarkDetonationOnPlayerRadius = 450;
+ 
+	// End Detonation Effect properties *********
+	
 	FTimerHandle MarkerDecayTimerHandle;
 	void RemoveMark();
-	void DetonateMark(); 
+	void DetonateMark();
+	void PerformDetonationEffect(AActor* DamageCause); 
 };

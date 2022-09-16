@@ -59,6 +59,8 @@ public:
 
 	virtual bool TryConsumeBirdMeter_Implementation(float PercentAmount) override;
 
+	virtual float GetMaxHealth_Implementation() override;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=100))
 	float BirdMeterRegenPercentPerSec = 5.f;
 

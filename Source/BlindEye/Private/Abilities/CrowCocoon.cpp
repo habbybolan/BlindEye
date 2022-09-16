@@ -46,7 +46,9 @@ void ACrowCocoon::EndAbilityLogic()
 
 	UWorld* world = GetWorld();
 	if (!world) return;
-	
+
+	UGameplayStatics::ApplyPointDamage(GetInstigator(), 1, FVector::ZeroVector,
+		FHitResult(), GetInstigator()->GetController(), GetInstigator(), MainDamageType);
 	UGameplayStatics::ApplyRadialDamage(world, DamageTicks[CalcPulseIndex()], GetInstigator()->GetActorLocation(), Radius, MainDamageType,
 		TArray<AActor*>(), GetInstigator());
 }
