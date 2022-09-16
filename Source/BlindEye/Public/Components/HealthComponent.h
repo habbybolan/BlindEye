@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Abilities/HealingWell.h"
 #include "Components/ActorComponent.h"
 #include "DamageTypes/BaseDamageType.h"
 #include "DamageTypes/MarkData.h"
@@ -18,15 +19,21 @@ struct FAppliedStatusEffects
 	bool IsStun = false;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool IsBurn = false;
+	// keep track of burn damage
+	float BurnDPS = 0;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool IsMarked = false;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool IsStaggered = false;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool IsTaunt = false;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool IsImprovedHealing = false;
+	float HealPercentIncrease = 0;
 
-	// keep track of burn damage
-	float BurnDPS = 0;
+	
 };
 
 enum class PlayerType : uint8;
@@ -90,7 +97,18 @@ public:
 	DECLARE_MULTICAST_DELEGATE_TwoParams(FTauntStartSignature, float, AActor*) 
 	FTauntStartSignature TauntStartDelegate;
 	DECLARE_MULTICAST_DELEGATE(FTauntEndSignature) 
-	FTauntEndSignature TauntEndDelegate; 
+	FTauntEndSignature TauntEndDelegate;
+
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FImprovedHealingStartSignature, float, float)
+	FImprovedHealingStartSignature ImprovedHealingStartDelegate;
+	DECLARE_MULTICAST_DELEGATE(FImprovedHealingEndSignature)  
+	FImprovedHealingEndSignature ImprovedHealingEndDelegate;
+
+	virtual void ImprovedHealing_Implementation(float HealPercentIncrease, float Duration) override;
+	FTimerHandle ImprovedHealingTimerHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<AHealingWell> HealingWellType;
 
 protected:
 
@@ -125,6 +143,8 @@ protected:
 	void ApplyBurn(); 
 	UFUNCTION()
 	void RemoveTaunt();
+	UFUNCTION()
+	void RemoveImprovedHealing();
 
 	UFUNCTION()
 	void SetPointDamage(AActor* DamagedActor, float Damage,

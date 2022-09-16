@@ -223,7 +223,13 @@ void UHealthComponent::PerformDetonationEffect(AActor* DamageCause)
 		}
 		else if (CurrMark->MarkPlayerType == PlayerType::PhoenixPlayer)
 		{
-			// TODO: Heal Radius
+			UWorld* World = GetWorld();
+			if (!World) return;
+
+			FActorSpawnParameters params;
+			params.Instigator = Cast<APawn>(GetOwner());
+			params.Owner = GetOwner();
+			World->SpawnActor<AHealingWell>(HealingWellType, GetOwner()->GetActorLocation(), FRotator::ZeroRotator, params);
 		}
 	}
 }
@@ -271,6 +277,26 @@ void UHealthComponent::Kill()
 	OnDeath();
 }
 
+void UHealthComponent::ImprovedHealing_Implementation(float HealPercentIncrease, float Duration)
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	if (AppliedStatusEffects.IsImprovedHealing)
+	{
+		float RemainingTimeOnHeal = UKismetSystemLibrary::K2_GetTimerRemainingTimeHandle(World, ImprovedHealingTimerHandle);
+		// Do nothing if trying to override with less stun duration
+		if (Duration <= RemainingTimeOnHeal)
+		{
+			return;
+		}
+	} 
+	World->GetTimerManager().SetTimer(ImprovedHealingTimerHandle, this, &UHealthComponent::RemoveImprovedHealing, Duration, false);
+	AppliedStatusEffects.IsImprovedHealing = true; 
+	AppliedStatusEffects.HealPercentIncrease = HealPercentIncrease; 
+	ImprovedHealingStartDelegate.Broadcast(HealPercentIncrease, Duration);
+}
+
 void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -306,4 +332,11 @@ void UHealthComponent::RemoveTaunt()
 {
 	AppliedStatusEffects.IsTaunt = false;
 	TauntEndDelegate.Broadcast();
+}
+
+void UHealthComponent::RemoveImprovedHealing()
+{
+	AppliedStatusEffects.IsImprovedHealing = false;
+	AppliedStatusEffects.HealPercentIncrease = 0; 
+	ImprovedHealingEndDelegate.Broadcast();
 }

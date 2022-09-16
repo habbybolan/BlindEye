@@ -45,4 +45,7 @@ public:
   
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void TryTaunt(float Duration, AActor* Taunter);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void ImprovedHealing(float HealPercentIncrease, float Duration);
 };
