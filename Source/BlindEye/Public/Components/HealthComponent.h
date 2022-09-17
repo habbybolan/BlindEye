@@ -63,6 +63,9 @@ public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, ReplicatedUsing="OnRep_IsInvincibility")
 	bool IsInvincible = false;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float HealPerSec = 0;
+
 	UFUNCTION()
 	void OnRep_IsInvincibility();
 
@@ -132,6 +135,10 @@ protected:
 	FTimerHandle TauntTimerHandle;
 
 	float DelayBetweenBurnTicks = 0.2f;
+
+	FTimerHandle HealTimerHandle;
+	float PerformHealDelay = 0.2f;
+	void PerformHeal();
 
 	// End Status effect properties ***
 

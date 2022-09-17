@@ -48,5 +48,6 @@ public:
 
 	virtual void OnDeath_Implementation() override;
 	virtual float GetHealthPercent_Implementation() override;
+	virtual float GetMaxHealth_Implementation() override;
 	
 };

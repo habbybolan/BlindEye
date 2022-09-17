@@ -370,6 +370,13 @@ bool ABlindEyePlayerCharacter::TryConsumeBirdMeter_Implementation(float PercentA
 	return false;
 }
 
+float ABlindEyePlayerCharacter::GetMaxHealth_Implementation()
+{
+	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
+		return BlindEyePS->GetMaxHealth();
+	return 0;
+}
+
 void ABlindEyePlayerCharacter::HealthUpdated()
 {
 	if (IsLocallyControlled())
