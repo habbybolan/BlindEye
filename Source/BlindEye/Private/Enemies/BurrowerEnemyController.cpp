@@ -18,12 +18,24 @@ void ABurrowerEnemyController::BeginPlay()
 
 	CachedPreviousActions.SetNum(3, false);
 
+	InitializeBehaviorTree();
 	CacheSpawnPoints();
 }
 
 EBurrowActionState ABurrowerEnemyController::GetCurrAction()
 {
 	return CachedPreviousActions[0];
+}
+
+void ABurrowerEnemyController::CalcNewActionState()
+{
+	if (CachedPreviousActions[0] == EBurrowActionState::Spawning)
+	{
+		AddNewActionState(EBurrowActionState::Attacking);
+	} else
+	{
+		AddNewActionState(EBurrowActionState::Spawning);
+	}
 }
 
 void ABurrowerEnemyController::SpawnActionStart()
@@ -102,7 +114,7 @@ void ABurrowerEnemyController::OnPossess(APawn* InPawn)
 	if (!CachedBurrower) return;
 	//world->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ABurrowerEnemyController::SpawnLogic, 5.0f, true);
 	CachedBurrower->SetHidden(true);
-	SpawnActionStart();
+	//SpawnActionStart();
 
 	CachedBurrower->ActionStateFinished.BindUFunction(this, FName("ActionStateFinished"));
 }

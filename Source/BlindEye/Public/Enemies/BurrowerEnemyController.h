@@ -8,7 +8,8 @@
 #include "Enemies/BlindEyeEnemyController.h"
 #include "BurrowerEnemyController.generated.h"
 
-enum class EBurrowActionState
+UENUM(BlueprintType)
+enum class EBurrowActionState : uint8
 {
 	Spawning,
 	Attacking
@@ -28,6 +29,11 @@ public:
 
 	
 	EBurrowActionState GetCurrAction();
+	// Cache if next action state is either attacking or spawning
+	void CalcNewActionState();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void InitializeBehaviorTree();
 	
 	
 protected:
@@ -37,7 +43,7 @@ protected:
 	void AttackActionStart();
 	void CacheSpawnPoints();
 	FTransform FindRandSpawnPoint();
-
+	
 	void AddNewActionState(EBurrowActionState NewAction);
 
 	ABlindEyePlayerCharacter* GetRandomPlayerForTarget() const;
