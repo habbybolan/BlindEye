@@ -1,7 +1,7 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
-#include "Enemies/BurrowerSpawnPoint.h"
+#include "Enemies/Burrower/BurrowerSpawnPoint.h"
 
 // Sets default values
 ABurrowerSpawnPoint::ABurrowerSpawnPoint()

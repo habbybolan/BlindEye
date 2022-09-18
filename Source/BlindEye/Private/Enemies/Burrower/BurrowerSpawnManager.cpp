@@ -1,9 +1,9 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
-#include "Enemies/BurrowerSpawnManager.h"
+#include "Enemies/Burrower/BurrowerSpawnManager.h"
 
-#include "Enemies/BurrowerSpawnPoint.h"
+#include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 

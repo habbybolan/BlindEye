@@ -1,7 +1,7 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
-#include "Enemies/BurrowerEnemy.h"
+#include "Enemies/Burrower/BurrowerEnemy.h"
 
 #include "NavigationSystem.h"
 #include "NiagaraFunctionLibrary.h"
@@ -10,7 +10,7 @@
 #include "Enemies/SnapperEnemy.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Characters/BlindEyePlayerCharacter.h"
-#include "Enemies/BurrowerEnemyController.h"
+#include "Enemies/Burrower/BurrowerEnemyController.h"
 #include "Enemies/SnapperEnemyController.h"
 #include "Interfaces/HealthInterface.h"
 #include "Particles/ParticleSystemComponent.h"

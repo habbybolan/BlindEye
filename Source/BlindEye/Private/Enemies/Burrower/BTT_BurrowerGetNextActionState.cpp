@@ -5,7 +5,7 @@
 
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Enemies/BurrowerEnemyController.h"
+#include "Enemies/Burrower/BurrowerEnemyController.h"
 
 EBTNodeResult::Type UBTT_BurrowerGetNextActionState::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {

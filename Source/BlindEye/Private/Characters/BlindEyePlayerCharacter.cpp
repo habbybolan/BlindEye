@@ -13,7 +13,7 @@
 #include "Components/MarkerComponent.h"
 #include "DamageTypes/DebugDamageType.h"
 #include "Enemies/BlindEyeEnemyController.h"
-#include "Enemies/BurrowerEnemy.h"
+#include "Enemies/Burrower/BurrowerEnemy.h"
 #include "Enemies/SnapperEnemy.h"
 #include "GameFramework/PlayerStart.h"
 #include "Gameplay/BlindEyeGameState.h"

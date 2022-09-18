@@ -1,11 +1,11 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
-#include "Enemies/BurrowerEnemyController.h"
+#include "Enemies/Burrower/BurrowerEnemyController.h"
 
 #include "Characters/BlindEyePlayerCharacter.h"
-#include "Enemies/BurrowerEnemy.h"
-#include "Enemies/BurrowerSpawnPoint.h"
+#include "Enemies/Burrower/BurrowerEnemy.h"
+#include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
