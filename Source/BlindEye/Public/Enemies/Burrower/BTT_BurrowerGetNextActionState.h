@@ -14,6 +14,8 @@ class BLINDEYE_API UBTT_BurrowerGetNextActionState : public UBTTask_BlackboardBa
 {
 	GENERATED_BODY()
 
+	UBTT_BurrowerGetNextActionState();
+
 	UPROPERTY(EditAnywhere, Category=Blackboard) 
 	FBlackboardKeySelector ActionStateKey;
 

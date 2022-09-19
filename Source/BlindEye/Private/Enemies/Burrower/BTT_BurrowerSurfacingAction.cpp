@@ -7,6 +7,12 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/Burrower/BurrowerEnemyController.h"
 
+UBTT_BurrowerSurfacingAction::UBTT_BurrowerSurfacingAction()
+{
+	NodeName = TEXT("Surfacing");
+	bNotifyTick = true;
+}
+
 EBTNodeResult::Type UBTT_BurrowerSurfacingAction::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	AAIController* Controller = OwnerComp.GetAIOwner();

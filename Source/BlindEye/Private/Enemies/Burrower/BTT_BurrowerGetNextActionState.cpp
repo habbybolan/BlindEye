@@ -7,6 +7,12 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/Burrower/BurrowerEnemyController.h"
 
+UBTT_BurrowerGetNextActionState::UBTT_BurrowerGetNextActionState()
+{
+	NodeName = TEXT("Calc Next Action State");
+	bNotifyTick = false;
+}
+
 EBTNodeResult::Type UBTT_BurrowerGetNextActionState::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	AAIController* Controller = OwnerComp.GetAIOwner();

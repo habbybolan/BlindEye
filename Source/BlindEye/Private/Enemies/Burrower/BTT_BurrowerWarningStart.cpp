@@ -12,7 +12,7 @@
 
 UBTT_BurrowerWarningStart::UBTT_BurrowerWarningStart()
 {
-	NodeName = "Warning";
+	NodeName = TEXT("Warning");
 	bNotifyTick = true;
 }
 

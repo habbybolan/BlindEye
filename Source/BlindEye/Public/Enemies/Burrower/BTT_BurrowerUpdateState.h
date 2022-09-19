@@ -14,6 +14,8 @@ class BLINDEYE_API UBTT_BurrowerUpdateState : public UBTTask_BlackboardBase
 {
 	GENERATED_BODY()
 
+	UBTT_BurrowerUpdateState();
+
 	UPROPERTY(EditAnywhere)
 	uint32 bHidden : 1;
 

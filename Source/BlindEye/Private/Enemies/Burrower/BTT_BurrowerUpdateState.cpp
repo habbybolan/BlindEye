@@ -5,6 +5,12 @@
 
 #include "Enemies/Burrower/BurrowerEnemyController.h"
 
+UBTT_BurrowerUpdateState::UBTT_BurrowerUpdateState()
+{
+	NodeName = TEXT("Update Visibility State");
+	bNotifyTick = false;
+}
+
 EBTNodeResult::Type UBTT_BurrowerUpdateState::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	AAIController* Controller = OwnerComp.GetAIOwner();
