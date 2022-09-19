@@ -45,12 +45,13 @@ public:
 	void StartHiding();
 	 
 	void SetBurrowerState(bool isHidden, bool bGravity, ECollisionEnabled::Type Collision);
+
+	FTransform FindRandSpawnPoint();
 	
 protected:
 	FTimerHandle SpawnTimerHandle;
 	
 	void CacheSpawnPoints();
-	FTransform FindRandSpawnPoint();
 	
 	void AddNewActionState(EBurrowActionState NewAction);
 	
