@@ -58,6 +58,7 @@ void ABurrowerEnemy::StartSurfacing()
 
 void ABurrowerEnemy::StartHiding()
 {
+	CachedBeforeHidePosition = GetActorLocation();
 	HideTimelineComponent->PlayFromStart();
 }
 
