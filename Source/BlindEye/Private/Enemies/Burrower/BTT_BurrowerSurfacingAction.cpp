@@ -19,7 +19,7 @@ EBTNodeResult::Type UBTT_BurrowerSurfacingAction::ExecuteTask(UBehaviorTreeCompo
 	if (ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Controller))
 	{
 		BurrowerController->StartSurfacing();
-		return EBTNodeResult::Succeeded;
+		return EBTNodeResult::InProgress;
 	}
 	return EBTNodeResult::Failed;
 }

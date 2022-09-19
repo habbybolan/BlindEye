@@ -17,7 +17,7 @@ EBTNodeResult::Type UBTT_BurrowerHiding::ExecuteTask(UBehaviorTreeComponent& Own
 	if (ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Controller))
 	{
 		BurrowerController->StartHiding();
-		return EBTNodeResult::Succeeded;
+		return EBTNodeResult::InProgress;
 	}
 	return EBTNodeResult::Failed;
 }
