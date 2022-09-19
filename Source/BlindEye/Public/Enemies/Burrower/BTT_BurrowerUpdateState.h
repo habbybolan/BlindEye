@@ -19,11 +19,9 @@ class BLINDEYE_API UBTT_BurrowerUpdateState : public UBTTask_BlackboardBase
 	UPROPERTY(EditAnywhere)
 	uint32 bHidden : 1;
 
-	UPROPERTY(EditAnywhere) 
-	uint32 bGravity : 1;
-
+	// Sets if the collision preset for if burrower if following the player or not
 	UPROPERTY(EditAnywhere)
-	TEnumAsByte<ECollisionEnabled::Type> Collision;
+	uint32 bFollowing : 1;
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	

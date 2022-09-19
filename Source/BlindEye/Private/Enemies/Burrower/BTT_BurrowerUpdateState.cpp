@@ -16,7 +16,7 @@ EBTNodeResult::Type UBTT_BurrowerUpdateState::ExecuteTask(UBehaviorTreeComponent
 	AAIController* Controller = OwnerComp.GetAIOwner();
 	if (ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Controller))
 	{
-		BurrowerController->SetBurrowerState(bHidden, bGravity, Collision);
+		BurrowerController->SetBurrowerState(bHidden, bFollowing);
 		return EBTNodeResult::Succeeded;
 	}
 	return EBTNodeResult::Failed;

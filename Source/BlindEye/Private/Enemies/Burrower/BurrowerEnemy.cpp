@@ -12,6 +12,7 @@
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Enemies/Burrower/BurrowerEnemyController.h"
 #include "Enemies/SnapperEnemyController.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Interfaces/HealthInterface.h"
 #include "Particles/ParticleSystemComponent.h"
 
@@ -224,31 +225,36 @@ void ABurrowerEnemy::StartHideLogic()
 	SetSurfacingHiding();
 }
  
-void ABurrowerEnemy::MULT_SetBurrowerState_Implementation(bool isHidden, bool bGravity, ECollisionEnabled::Type Collision)
+void ABurrowerEnemy::MULT_SetBurrowerState_Implementation(bool isHidden, bool bFollowing)
 { 
 	SetActorHiddenInGame(isHidden);
-	GetCapsuleComponent()->SetEnableGravity(bGravity);
-	GetCapsuleComponent()->SetCollisionEnabled(Collision);
+	
+	GetCapsuleComponent()->SetEnableGravity(bFollowing);
+	GetCharacterMovement()->GravityScale = bFollowing ? 1 : 0;
+	if (bFollowing)
+	{
+		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Block);
+		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	} else
+	{
+		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
+		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
+	}
 }
 
 void ABurrowerEnemy::SetAppeared()
 {
-	MULT_SetBurrowerState(false, true, ECollisionEnabled::QueryAndPhysics);
+	MULT_SetBurrowerState(false, false);
 }
 
 void ABurrowerEnemy::SetDisappeared()
 {
-	MULT_SetBurrowerState(true, false, ECollisionEnabled::NoCollision);
+	MULT_SetBurrowerState(true, false);
 }
-
+ 
 void ABurrowerEnemy::SetSurfacingHiding()
 {
-	MULT_SetBurrowerState(false, true, ECollisionEnabled::NoCollision);
-}
-
-void ABurrowerEnemy::SetFollowing()
-{
-	MULT_SetBurrowerState(true, true, ECollisionEnabled::NoCollision);
+	MULT_SetBurrowerState(false, false);
 }
 
 void ABurrowerEnemy::MULT_SpawnWarningParticle_Implementation()

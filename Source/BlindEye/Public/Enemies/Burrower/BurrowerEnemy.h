@@ -85,7 +85,7 @@ public:
 	void StartHiding();
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SetBurrowerState(bool isHidden, bool bGravity, ECollisionEnabled::Type Collision);
+	void MULT_SetBurrowerState(bool isHidden, bool bFollowing);
 
 	UFUNCTION()
 	void SpawnSnappers();

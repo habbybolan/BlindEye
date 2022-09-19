@@ -114,13 +114,12 @@ void ABurrowerEnemyController::StartHiding()
 	CachedBurrower->StartHiding();
 }
  
-void ABurrowerEnemyController::SetBurrowerState(bool isHidden, bool bGravity,
-	ECollisionEnabled::Type Collision)
+void ABurrowerEnemyController::SetBurrowerState(bool isHidden, bool bFollowing)
 {
 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
 	if (!CachedBurrower) return;
 
-	CachedBurrower->MULT_SetBurrowerState(isHidden, bGravity, Collision);
+	CachedBurrower->MULT_SetBurrowerState(isHidden, bFollowing);
 }
 
 void ABurrowerEnemyController::OnPossess(APawn* InPawn)

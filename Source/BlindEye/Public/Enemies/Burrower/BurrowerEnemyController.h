@@ -45,7 +45,7 @@ public:
 	void StartSurfacing();
 	void StartHiding();
 	 
-	void SetBurrowerState(bool isHidden, bool bGravity, ECollisionEnabled::Type Collision);
+	void SetBurrowerState(bool isHidden, bool bFollowing);
 
 	FTransform FindRandSpawnPoint();
 	
