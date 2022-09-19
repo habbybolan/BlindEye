@@ -18,7 +18,7 @@
 ABurrowerEnemy::ABurrowerEnemy()
 {
 	bReplicates = true;
-	SpawnTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("SpawnTimeline"));
+	SurfacingTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("SpawnTimeline"));
 	HideTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("HideTimeline"));
 }
 
@@ -27,12 +27,12 @@ void ABurrowerEnemy::BeginPlay()
 	Super::BeginPlay();
 
 	// Timeline curve for appearing from the ground
-	if (SpawnCurve)
+	if (SurfacingCurve)
 	{
-		SpawnUpdateEvent.BindUFunction(this, FName("TimelineSpawnMovement"));
-		SpawnFinishedEvent.BindUFunction(this, FName("TimelineSpawnFinished"));
-		SpawnTimelineComponent->SetTimelineFinishedFunc(SpawnFinishedEvent);
-		SpawnTimelineComponent->AddInterpFloat(SpawnCurve, SpawnUpdateEvent);
+		SurfacingUpdateEvent.BindUFunction(this, FName("TimelineSurfacingMovement"));
+		SurfacingFinishedEvent.BindUFunction(this, FName("TimelineSurfacingFinished"));
+		SurfacingTimelineComponent->SetTimelineFinishedFunc(SurfacingFinishedEvent);
+		SurfacingTimelineComponent->AddInterpFloat(SurfacingCurve, SurfacingUpdateEvent);
 	}
 
 	// Timeline curve for hiding the burrower
@@ -46,6 +46,20 @@ void ABurrowerEnemy::BeginPlay()
 	//
 	// GetCapsuleComponent()->SetEnableGravity(false);
 	// GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void ABurrowerEnemy::StartSurfacing()
+{
+	CachedSpawnLocation = GetActorLocation() + FVector::DownVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
+	SetActorLocation(CachedSpawnLocation);
+	MULT_SetSurfacingHiding();
+	SurfacingTimelineComponent->PlayFromStart();
+	MULT_SpawnWarningParticle();
+}
+
+void ABurrowerEnemy::StartHiding()
+{
+	HideTimelineComponent->PlayFromStart();
 }
 
 void ABurrowerEnemy::SpawnSnappers()
@@ -83,34 +97,34 @@ void ABurrowerEnemy::Destroyed()
 	MULT_DespawnWarningParticle();
 }
 
-void ABurrowerEnemy::SpawnAction(FTransform SpawnLocation)
-{
-	// TODO: Find spawnpoint, teleport to below it so not showing, rise uit so not showing, p from ground and spawn enemies
-	CachedSpawnLocation = SpawnLocation.GetLocation() + FVector::DownVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
-	SetActorLocation(CachedSpawnLocation);
-	MULT_SetAppearingHiding();
-	SpawnTimelineComponent->PlayFromStart();
-	MULT_SpawnWarningParticle();
-}
+// void ABurrowerEnemy::SpawnAction(FTransform SpawnLocation)
+// {
+// 	// TODO: Find spawnpoint, teleport to below it so not showing, rise uit so not showing, p from ground and spawn enemies
+// 	CachedSpawnLocation = SpawnLocation.GetLocation() + FVector::DownVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
+// 	SetActorLocation(CachedSpawnLocation);
+// 	MULT_SetSurfacingHiding();
+// 	SurfacingTimelineComponent->PlayFromStart();
+// 	MULT_SpawnWarningParticle();
+// }
 
-void ABurrowerEnemy::AttackAction(ABlindEyePlayerCharacter* target)
-{
-	UWorld* world = GetWorld();
-	if (!world) return;
-	
-	ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(GetController());
-	if (!BurrowerController) return;
-
-	UNavigationSystemV1* NavSyst = UNavigationSystemV1::GetNavigationSystem(world);
-	FNavLocation NavLocation;
-	NavSyst->GetRandomPointInNavigableRadius(target->GetActorLocation(), 1000, NavLocation);
-	SetActorLocation(NavLocation.Location + (FVector::UpVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
-	
-	MULT_SetFollowing();
-	BurrowerController->MoveToActor(target, 1);
-	world->GetTimerManager().SetTimer(AttackTimerHandle, this, &ABurrowerEnemy::StartAttackAppearance, MaxTimerFollowingPlayerInAttack, false);
-	MULT_SpawnFollowParticle();
-}
+// void ABurrowerEnemy::AttackAction(ABlindEyePlayerCharacter* target)
+// {
+// 	UWorld* world = GetWorld();
+// 	if (!world) return;
+// 	
+// 	ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(GetController());
+// 	if (!BurrowerController) return;
+//
+// 	UNavigationSystemV1* NavSyst = UNavigationSystemV1::GetNavigationSystem(world);
+// 	FNavLocation NavLocation;
+// 	NavSyst->GetRandomPointInNavigableRadius(target->GetActorLocation(), 1000, NavLocation);
+// 	SetActorLocation(NavLocation.Location + (FVector::UpVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
+// 	
+// 	MULT_SetFollowing();
+// 	BurrowerController->MoveToActor(target, 1);
+// 	world->GetTimerManager().SetTimer(AttackTimerHandle, this, &ABurrowerEnemy::StartAttackAppearance, MaxTimerFollowingPlayerInAttack, false);
+// 	MULT_SpawnFollowParticle();
+// }
 
 void ABurrowerEnemy::OnSnapperDeath(AActor* SnapperActor)
 {
@@ -140,50 +154,53 @@ TArray<FVector> ABurrowerEnemy::GetSnapperSpawnPoints()
 	return SpawnPoints;
 }
 
-void ABurrowerEnemy::StartAttackAppearance()
-{
-	UWorld* world = GetWorld();
-	if (!world) return;
+// void ABurrowerEnemy::StartAttackAppearance()
+// {
+// 	UWorld* world = GetWorld();
+// 	if (!world) return;
+//
+// 	// clear timer for ending attack follow
+// 	world->GetTimerManager().ClearTimer(AttackTimerHandle);
+// 	world->GetTimerManager().SetTimer(AttackTimerHandle, this, &ABurrowerEnemy::PerformAttackAppearance, AttackDelayBeforeEmerging, false);
+// }
 
-	// clear timer for ending attack follow
-	world->GetTimerManager().ClearTimer(AttackTimerHandle);
-	world->GetTimerManager().SetTimer(AttackTimerHandle, this, &ABurrowerEnemy::PerformAttackAppearance, AttackDelayBeforeEmerging, false);
-}
+// void ABurrowerEnemy::PerformAttackAppearance()
+// {
+// 	SpawnAction(GetActorTransform());
+// }
 
-void ABurrowerEnemy::PerformAttackAppearance()
+void ABurrowerEnemy::TimelineSurfacingMovement()
 {
-	SpawnAction(GetActorTransform());
-}
-
-void ABurrowerEnemy::TimelineSpawnMovement()
-{
-	float playbackPosition = SpawnTimelineComponent->GetPlaybackPosition();
+	float playbackPosition = SurfacingTimelineComponent->GetPlaybackPosition();
 	SetActorLocation(FMath::Lerp(CachedSpawnLocation, CachedSpawnLocation +
 		(FVector::UpVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2 + 50)), playbackPosition));
 }
 
-void ABurrowerEnemy::TimelineSpawnFinished()
+void ABurrowerEnemy::TimelineSurfacingFinished()
 {
-	//GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	// TODO: play particles and delay resurface
-	ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(GetController());
-	if (!BurrowerController) return;
-
-	MULT_DespawnFollowParticle();
-	MULT_DespawnWarningParticle();
-
-	if (BurrowerController->GetCurrAction() == EBurrowActionState::Attacking)
-	{
-		UWorld* world = GetWorld();
-		if (!world) return;
-
-		MULT_SetAppeared();
-		world->GetTimerManager().SetTimer(HideTimerHandle, this, &ABurrowerEnemy::StartHideLogic, AttackTimeAppearingLength, false);
-	} else
-	{
-		SpawnSnappers();
-		MULT_SetAppeared();
-	}
+	// //GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	// // TODO: play particles and delay resurface
+	// ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(GetController());
+	// if (!BurrowerController) return;
+	//
+	// MULT_DespawnFollowParticle();
+	// MULT_DespawnWarningParticle();
+	//
+	// if (BurrowerController->GetCurrAction() == EBurrowActionState::Attacking)
+	// {
+	// 	UWorld* world = GetWorld();
+	// 	if (!world) return;
+	//
+	// 	MULT_SetAppeared();
+	// 	world->GetTimerManager().SetTimer(HideTimerHandle, this, &ABurrowerEnemy::StartHideLogic, AttackTimeAppearingLength, false);
+	// } else
+	// {
+	// 	SpawnSnappers();
+	// 	MULT_SetAppeared();
+	// }
+	
+	MULT_SetAppeared();
+	SurfacingFinished.ExecuteIfBound();
 }
 
 void ABurrowerEnemy::TimelineHideMovement()
@@ -196,14 +213,23 @@ void ABurrowerEnemy::TimelineHideMovement()
 void ABurrowerEnemy::TimelineHideFinished()
 {
 	MULT_SetDisappeared();
-	ActionStateFinished.ExecuteIfBound();
+	HidingFinished.ExecuteIfBound();
+	// ActionStateFinished.ExecuteIfBound();
 }
+
 
 void ABurrowerEnemy::StartHideLogic()
 {
 	CachedBeforeHidePosition = GetActorLocation();
 	HideTimelineComponent->PlayFromStart();
-	MULT_SetAppearingHiding();
+	MULT_SetSurfacingHiding();
+}
+
+void ABurrowerEnemy::MULT_SetBurrowerState_Implementation(bool isHidden, bool bGravity, ECollisionEnabled::Type Collision)
+{
+	SetHidden(isHidden);
+	GetCapsuleComponent()->SetEnableGravity(bGravity);
+	GetCapsuleComponent()->SetCollisionEnabled(Collision);
 }
 
 void ABurrowerEnemy::MULT_SetAppeared_Implementation()
@@ -220,7 +246,7 @@ void ABurrowerEnemy::MULT_SetDisappeared_Implementation()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
-void ABurrowerEnemy::MULT_SetAppearingHiding_Implementation()
+void ABurrowerEnemy::MULT_SetSurfacingHiding_Implementation()
 {
 	SetHidden(false);
 	GetCapsuleComponent()->SetEnableGravity(true);

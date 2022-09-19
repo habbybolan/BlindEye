@@ -38,23 +38,14 @@ void ABurrowerEnemyController::CalcNewActionState()
 	}
 }
 
-void ABurrowerEnemyController::SpawnActionStart()
+bool ABurrowerEnemyController::IsSurfacing()
 {
-	AddNewActionState(EBurrowActionState::Spawning);
-	FTransform randSpawn = FindRandSpawnPoint();
-	if (CachedBurrower)
-	{
-		CachedBurrower->SpawnAction(randSpawn);
-	}
+	return bSurfacing;
 }
 
-void ABurrowerEnemyController::AttackActionStart()
+bool ABurrowerEnemyController::IsHiding()
 {
-	AddNewActionState(EBurrowActionState::Attacking);
-	if (CachedBurrower)
-	{
-		CachedBurrower->AttackAction(GetRandomPlayerForTarget());
-	} 
+	return bHiding;
 }
 
 void ABurrowerEnemyController::CacheSpawnPoints()
@@ -67,6 +58,7 @@ void ABurrowerEnemyController::CacheSpawnPoints()
 
 FTransform ABurrowerEnemyController::FindRandSpawnPoint()
 {
+	// TODO: remove and move to separate task
 	if (SpawnLocation.Num() == 0) return FTransform();
 	uint32 randIndex = UKismetMathLibrary::RandomInteger(SpawnLocation.Num());
 	return SpawnLocation[randIndex]->GetTransform();
@@ -81,29 +73,46 @@ void ABurrowerEnemyController::AddNewActionState(EBurrowActionState NewAction)
 	CachedPreviousActions[0] = NewAction;
 }
 
-ABlindEyePlayerCharacter* ABurrowerEnemyController::GetRandomPlayerForTarget() const
-{
-	UWorld* world = GetWorld();
-	if (!world) return nullptr;
-
-	// TODO: All players should be retrieved from GameState (Store all connected players for easy retrieval)
-	// Get random player character
-	TArray<AActor*> AllPlayers;
-	UGameplayStatics::GetAllActorsOfClass(world, ABlindEyePlayerCharacter::StaticClass(), AllPlayers);
-	uint32 rand = UKismetMathLibrary::RandomIntegerInRange(0, AllPlayers.Num() - 1);
-	return Cast<ABlindEyePlayerCharacter>(AllPlayers[rand]);
-}
-
 void ABurrowerEnemyController::ActionStateFinished()
 {
-	// TODO: Change - currently just flip-flopping between states
-	if (CachedPreviousActions[0] == EBurrowActionState::Spawning)
-	{
-		AttackActionStart();
-	} else
-	{
-		SpawnActionStart();
-	}
+	// TODO: Notify Behavior tree action state finished
+}
+
+void ABurrowerEnemyController::SurfacingFinished()
+{
+	bSurfacing = false;
+}
+
+void ABurrowerEnemyController::HidingFinished()
+{
+	bHiding = false;
+}
+
+void ABurrowerEnemyController::StartSurfacing()
+{
+	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
+	if (!CachedBurrower) return;
+	
+	bSurfacing = true;
+	CachedBurrower->StartSurfacing();
+}
+
+void ABurrowerEnemyController::StartHiding()
+{
+	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
+	if (!CachedBurrower) return;
+	
+	bHiding = true;
+	CachedBurrower->StartHiding();
+}
+ 
+void ABurrowerEnemyController::SetBurrowerState(bool isHidden, bool bGravity,
+	ECollisionEnabled::Type Collision)
+{
+	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
+	if (!CachedBurrower) return;
+
+	CachedBurrower->MULT_SetBurrowerState(isHidden, bGravity, Collision);
 }
 
 void ABurrowerEnemyController::OnPossess(APawn* InPawn)
@@ -117,4 +126,6 @@ void ABurrowerEnemyController::OnPossess(APawn* InPawn)
 	//SpawnActionStart();
 
 	CachedBurrower->ActionStateFinished.BindUFunction(this, FName("ActionStateFinished"));
+	CachedBurrower->SurfacingFinished.BindUFunction(this, FName("SurfacingFinished"));
+	CachedBurrower->HidingFinished.BindUFunction(this, FName("HidingFinished"));
 }

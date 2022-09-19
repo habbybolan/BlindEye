@@ -34,22 +34,32 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void InitializeBehaviorTree();
-	
+
+	UFUNCTION()
+	bool IsSurfacing();
+
+	UFUNCTION()
+	bool IsHiding();
+
+	void StartSurfacing();
+	void StartHiding();
+	 
+	void SetBurrowerState(bool isHidden, bool bGravity, ECollisionEnabled::Type Collision);
 	
 protected:
 	FTimerHandle SpawnTimerHandle;
-
-	void SpawnActionStart();
-	void AttackActionStart();
+	
 	void CacheSpawnPoints();
 	FTransform FindRandSpawnPoint();
 	
 	void AddNewActionState(EBurrowActionState NewAction);
-
-	ABlindEyePlayerCharacter* GetRandomPlayerForTarget() const;
-
+	
 	UFUNCTION()
 	void ActionStateFinished();
+	UFUNCTION()
+	void SurfacingFinished();
+	UFUNCTION()
+	void HidingFinished();
 
 	TArray<EBurrowActionState> CachedPreviousActions;
 
@@ -60,5 +70,8 @@ protected:
 
 	UPROPERTY()
 	TArray<AActor*> SpawnLocation;
+
+	bool bSurfacing = false; // if burrower currently surfacing
+	bool bHiding = false;	// if burrower currently hiding
 	
 };
