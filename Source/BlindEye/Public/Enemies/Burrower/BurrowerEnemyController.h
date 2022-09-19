@@ -27,7 +27,8 @@ public:
 
 	virtual void BeginPlay() override;
 
-	
+
+	void SpawnSnappers();
 	EBurrowActionState GetCurrAction();
 	// Cache if next action state is either attacking or spawning
 	void CalcNewActionState();

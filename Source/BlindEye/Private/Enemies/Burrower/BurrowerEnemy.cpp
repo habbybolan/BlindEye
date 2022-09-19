@@ -52,7 +52,7 @@ void ABurrowerEnemy::StartSurfacing()
 {
 	CachedSpawnLocation = GetActorLocation() + FVector::DownVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
 	SetActorLocation(CachedSpawnLocation);
-	MULT_SetSurfacingHiding();
+	SetSurfacingHiding();
 	SurfacingTimelineComponent->PlayFromStart();
 }
 
@@ -88,7 +88,7 @@ void ABurrowerEnemy::SpawnSnappers()
 		}
 	}
 
-	world->GetTimerManager().SetTimer(HideTimerHandle, this, &ABurrowerEnemy::StartHideLogic, SpawnTimeAppearingLength, false);
+	//world->GetTimerManager().SetTimer(HideTimerHandle, this, &ABurrowerEnemy::StartHideLogic, SpawnTimeAppearingLength, false);
 }
 
 void ABurrowerEnemy::Destroyed()
@@ -199,7 +199,7 @@ void ABurrowerEnemy::TimelineSurfacingFinished()
 	// 	MULT_SetAppeared();
 	// }
 	
-	MULT_SetAppeared();
+	SetAppeared();
 	SurfacingFinished.ExecuteIfBound();
 }
 
@@ -212,52 +212,43 @@ void ABurrowerEnemy::TimelineHideMovement()
 
 void ABurrowerEnemy::TimelineHideFinished()
 {
-	MULT_SetDisappeared();
+	SetDisappeared();
 	HidingFinished.ExecuteIfBound();
 	// ActionStateFinished.ExecuteIfBound();
 }
-
 
 void ABurrowerEnemy::StartHideLogic()
 {
 	CachedBeforeHidePosition = GetActorLocation();
 	HideTimelineComponent->PlayFromStart();
-	MULT_SetSurfacingHiding();
+	SetSurfacingHiding();
 }
-
+ 
 void ABurrowerEnemy::MULT_SetBurrowerState_Implementation(bool isHidden, bool bGravity, ECollisionEnabled::Type Collision)
-{
-	SetHidden(isHidden);
+{ 
+	SetActorHiddenInGame(isHidden);
 	GetCapsuleComponent()->SetEnableGravity(bGravity);
 	GetCapsuleComponent()->SetCollisionEnabled(Collision);
 }
 
-void ABurrowerEnemy::MULT_SetAppeared_Implementation()
+void ABurrowerEnemy::SetAppeared()
 {
-	SetHidden(false);
-	GetCapsuleComponent()->SetEnableGravity(true);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	MULT_SetBurrowerState(false, true, ECollisionEnabled::QueryAndPhysics);
 }
 
-void ABurrowerEnemy::MULT_SetDisappeared_Implementation()
+void ABurrowerEnemy::SetDisappeared()
 {
-	SetHidden(true);
-	GetCapsuleComponent()->SetEnableGravity(false);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MULT_SetBurrowerState(true, false, ECollisionEnabled::NoCollision);
 }
 
-void ABurrowerEnemy::MULT_SetSurfacingHiding_Implementation()
+void ABurrowerEnemy::SetSurfacingHiding()
 {
-	SetHidden(false);
-	GetCapsuleComponent()->SetEnableGravity(true);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MULT_SetBurrowerState(false, true, ECollisionEnabled::NoCollision);
 }
 
-void ABurrowerEnemy::MULT_SetFollowing_Implementation()
+void ABurrowerEnemy::SetFollowing()
 {
-	SetHidden(true);
-	GetCapsuleComponent()->SetEnableGravity(true);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MULT_SetBurrowerState(true, true, ECollisionEnabled::NoCollision);
 }
 
 void ABurrowerEnemy::MULT_SpawnWarningParticle_Implementation()

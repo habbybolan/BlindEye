@@ -36,6 +36,7 @@ void UBTT_BurrowerWarningStart::TickTask(UBehaviorTreeComponent& OwnerComp, uint
 	if (MyMemory->RemainingWaitTime <= 0.0f)
 	{
 		// continue execution from this node
+		MyMemory->RemainingWaitTime = 0.0f;
 		EndWarning(OwnerComp);
 	}
 }

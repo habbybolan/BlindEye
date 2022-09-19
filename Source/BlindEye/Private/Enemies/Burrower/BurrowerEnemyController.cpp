@@ -22,6 +22,14 @@ void ABurrowerEnemyController::BeginPlay()
 	CacheSpawnPoints();
 }
 
+void ABurrowerEnemyController::SpawnSnappers()
+{
+	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
+	if (!CachedBurrower) return;
+
+	CachedBurrower->SpawnSnappers();
+}
+
 EBurrowActionState ABurrowerEnemyController::GetCurrAction()
 {
 	return CachedPreviousActions[0];

@@ -86,6 +86,9 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_SetBurrowerState(bool isHidden, bool bGravity, ECollisionEnabled::Type Collision);
+
+	UFUNCTION()
+	void SpawnSnappers();
  
 protected:
 
@@ -133,7 +136,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UCurveFloat* HideCurve;
 
-	FTimerHandle HideTimerHandle;
+	// FTimerHandle HideTimerHandle;
 	FVector CachedSpawnLocation;
 
 	FVector CachedBeforeHidePosition;
@@ -143,17 +146,10 @@ protected:
 	// Used in expiring the burrower from following player forever and delay on re-emerging from ground
 	FTimerHandle AttackTimerHandle;
 	
-	UFUNCTION()
-	void SpawnSnappers();
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SetSurfacingHiding();
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SetDisappeared();
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SetAppeared();
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SetFollowing();
+	void SetSurfacingHiding();
+	void SetDisappeared();
+	void SetAppeared();
+	void SetFollowing();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_SpawnWarningParticle();
