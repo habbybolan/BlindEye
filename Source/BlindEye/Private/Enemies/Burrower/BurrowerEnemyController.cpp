@@ -113,7 +113,7 @@ void ABurrowerEnemyController::OnPossess(APawn* InPawn)
 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
 	if (!CachedBurrower) return;
 	//world->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ABurrowerEnemyController::SpawnLogic, 5.0f, true);
-	CachedBurrower->SetHidden(true);
+	//CachedBurrower->SetHidden(true);
 	//SpawnActionStart();
 
 	CachedBurrower->ActionStateFinished.BindUFunction(this, FName("ActionStateFinished"));
