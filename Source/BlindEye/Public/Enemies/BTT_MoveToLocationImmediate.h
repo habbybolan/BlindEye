@@ -18,7 +18,10 @@ class BLINDEYE_API UBTT_MoveToLocationImmediate : public UBTTask_BlackboardBase
 	FBlackboardKeySelector SelfKey;
 
 	UPROPERTY(EditAnywhere, Category=Blackboard) 
-	FBlackboardKeySelector LocationKey;
+	FBlackboardKeySelector LocationKey; 
+
+	UPROPERTY(EditAnywhere, Category=Blackboard) 
+	FBlackboardKeySelector RotationKey;
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	

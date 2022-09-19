@@ -15,6 +15,8 @@ EBTNodeResult::Type UBTT_MoveToLocationImmediate::ExecuteTask(UBehaviorTreeCompo
 		{
 			FVector LocationToMove = BBComp->GetValueAsVector(LocationKey.SelectedKeyName);
 			SelfActor->SetActorLocation(LocationToMove);
+			FRotator RotationOnMove = BBComp->GetValueAsRotator(RotationKey.SelectedKeyName);
+			SelfActor->SetActorRotation(RotationOnMove);
 			return EBTNodeResult::Succeeded;
 		}
 	}
