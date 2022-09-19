@@ -54,7 +54,6 @@ void ABurrowerEnemy::StartSurfacing()
 	SetActorLocation(CachedSpawnLocation);
 	MULT_SetSurfacingHiding();
 	SurfacingTimelineComponent->PlayFromStart();
-	MULT_SpawnWarningParticle();
 }
 
 void ABurrowerEnemy::StartHiding()
