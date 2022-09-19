@@ -43,9 +43,9 @@ void ABurrowerEnemy::BeginPlay()
 		HideTimelineComponent->SetTimelineFinishedFunc(HideFinishedEvent);
 		HideTimelineComponent->AddInterpFloat(HideCurve, HideUpdateEvent);
 	}
-
-	GetCapsuleComponent()->SetEnableGravity(false);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//
+	// GetCapsuleComponent()->SetEnableGravity(false);
+	// GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ABurrowerEnemy::SpawnSnappers()
