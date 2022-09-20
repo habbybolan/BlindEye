@@ -6,5 +6,4 @@
 void UBurrowerHealthComponent::KnockBack_Implementation(FVector KnockBackForce, AActor* DamageCause)
 {
 	// Prevent knockback on burrower
-	// TODO: Apply stun?
 }
