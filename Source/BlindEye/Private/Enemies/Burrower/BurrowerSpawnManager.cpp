@@ -38,7 +38,9 @@ void ABurrowerSpawnManager::SpawnBurrower()
 	if (!world) return;
 
 	FTransform SpawnPoint = FindRandomSpawnPoint();
-	ABurrowerEnemy* SpawnedBurrower = world->SpawnActor<ABurrowerEnemy>(BurrowerType, SpawnPoint.GetLocation(), SpawnPoint.Rotator());
+	FActorSpawnParameters params;
+	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn; 
+	ABurrowerEnemy* SpawnedBurrower = world->SpawnActor<ABurrowerEnemy>(BurrowerType, SpawnPoint.GetLocation(), SpawnPoint.Rotator(), params);
 	if (SpawnedBurrower)
 	{
 		SpawnedBurrowers.Add(SpawnedBurrower->GetUniqueID(), MakeWeakObjectPtr(SpawnedBurrower));
