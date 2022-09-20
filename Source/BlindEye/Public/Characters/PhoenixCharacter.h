@@ -15,5 +15,7 @@ class BLINDEYE_API APhoenixCharacter : public ABlindEyePlayerCharacter
 	GENERATED_BODY()
 
 public:
+
+	APhoenixCharacter(const FObjectInitializer& ObjectInitializer);
 	
 };

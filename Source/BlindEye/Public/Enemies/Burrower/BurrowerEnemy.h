@@ -23,7 +23,7 @@ class BLINDEYE_API ABurrowerEnemy : public ABlindEyeEnemyBase
 
 public:
 
-	ABurrowerEnemy();
+	ABurrowerEnemy(const FObjectInitializer& ObjectInitializer);
 
 	// Spawn the burrower at a point, and either attack or spawn snappers depending on action state
 	// void SpawnAction(FTransform SpawnLocation);

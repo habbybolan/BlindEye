@@ -3,3 +3,4 @@
 
 #include "Characters/CrowCharacter.h"
 
+ACrowCharacter::ACrowCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}

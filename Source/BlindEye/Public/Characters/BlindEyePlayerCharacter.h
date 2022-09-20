@@ -30,7 +30,7 @@ class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityU
 	class UCameraComponent* FollowCamera;
 	
 public:
-	ABlindEyePlayerCharacter();
+	ABlindEyePlayerCharacter(const FObjectInitializer& ObjectInitializer);
 
 	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
 

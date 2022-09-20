@@ -15,5 +15,6 @@ class BLINDEYE_API ACrowCharacter : public ABlindEyePlayerCharacter
 	GENERATED_BODY()
 
 public:
+	ACrowCharacter(const FObjectInitializer& ObjectInitializer);
 
 };
