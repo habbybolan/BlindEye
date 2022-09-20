@@ -24,4 +24,4 @@ public:
 	
 };
 
-static bool IsAssetImportScript = true;
+static bool IsAssetImportScript = false;
