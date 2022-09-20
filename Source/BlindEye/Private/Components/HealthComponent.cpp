@@ -265,6 +265,10 @@ void UHealthComponent::TryTaunt_Implementation(float Duration, AActor* Taunter)
 
 void UHealthComponent::RemoveMark()
 {
+	UWorld* World = GetWorld();
+	if (World == nullptr)  return;
+
+	World->GetTimerManager().ClearTimer(MarkerDecayTimerHandle);
 	CurrMark = nullptr;
 	MarkedRemovedDelegate.Broadcast();
 }

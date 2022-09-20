@@ -215,7 +215,7 @@ void ABurrowerEnemy::TimelineHideFinished()
 {
 	SetDisappeared();
 	HidingFinished.ExecuteIfBound();
-	// ActionStateFinished.ExecuteIfBound();
+	HealthComponent->RemoveMark();
 }
 
 void ABurrowerEnemy::StartHideLogic()

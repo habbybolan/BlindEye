@@ -113,6 +113,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AHealingWell> HealingWellType;
 
+	void RemoveMark();
+
 protected:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -198,7 +200,6 @@ protected:
 	// End Detonation Effect properties *********
 	
 	FTimerHandle MarkerDecayTimerHandle;
-	void RemoveMark();
 	void DetonateMark();
 	void PerformDetonationEffect(AActor* DamageCause); 
 };
