@@ -80,8 +80,21 @@ public:
  
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UNiagaraSystem* FollowParticle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=SurfacingDamage)
+	TSubclassOf<UBaseDamageType> SurfacingDamageType;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=SurfacingDamage)
+	TArray<TEnumAsByte<EObjectTypeQuery>> SurfacingObjectTypes;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=SurfacingDamage)
+	float SurfacingRadius = 200.f;
+ 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=SurfacingDamage)
+	float SurfacingDamage = 20.f;
 	
 	void StartSurfacing();
+	void PerformSurfacingDamage();
 	void StartHiding();
 
 	UFUNCTION(NetMulticast, Reliable)

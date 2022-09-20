@@ -14,6 +14,7 @@
 #include "Enemies/SnapperEnemyController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Interfaces/HealthInterface.h"
+#include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 
 ABurrowerEnemy::ABurrowerEnemy()
@@ -57,6 +58,27 @@ void ABurrowerEnemy::StartSurfacing()
 	SetActorLocation(CachedSpawnLocation);
 	SetSurfacingHiding();
 	SurfacingTimelineComponent->PlayFromStart();
+	PerformSurfacingDamage();
+
+	
+}
+
+void ABurrowerEnemy::PerformSurfacingDamage()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	FVector StartPosition = GetActorLocation() + FVector::UpVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
+	FVector EndPosition = StartPosition + FVector::DownVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
+
+	TArray<FHitResult> OutHits;
+	UKismetSystemLibrary::SphereTraceMultiForObjects(World, StartPosition, EndPosition, SurfacingRadius, SurfacingObjectTypes,
+		false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, OutHits, true);
+
+	for (FHitResult Hit : OutHits)
+	{
+		UGameplayStatics::ApplyPointDamage(Hit.GetActor(), SurfacingDamage, Hit.Location, Hit, GetController(), this, SurfacingDamageType);
+	}
 }
 
 void ABurrowerEnemy::StartHiding()
