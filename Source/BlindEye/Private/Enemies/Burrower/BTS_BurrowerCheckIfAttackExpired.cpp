@@ -5,13 +5,6 @@
 
 #include "BehaviorTree/BlackboardComponent.h"
 
-void UBTS_BurrowerCheckIfAttackExpired::OnInstanceDestroyed(UBehaviorTreeComponent& OwnerComp)
-{
-	Super::OnInstanceDestroyed(OwnerComp);
-	UBlackboardComponent* BBComp = OwnerComp.GetBlackboardComponent();
-	BBComp->SetValueAsBool(IsAttackingExpiredKey.SelectedKeyName, false);
-}
-
 void UBTS_BurrowerCheckIfAttackExpired::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
                                                  float DeltaSeconds)
 {
@@ -22,5 +15,6 @@ void UBTS_BurrowerCheckIfAttackExpired::TickNode(UBehaviorTreeComponent& OwnerCo
 	{
 		UBlackboardComponent* BBComp = OwnerComp.GetBlackboardComponent();
 		BBComp->SetValueAsBool(IsAttackingExpiredKey.SelectedKeyName, true);
+		CurrTimer = 0;
 	}
 }

@@ -22,9 +22,7 @@ class BLINDEYE_API UBTS_BurrowerCheckIfAttackExpired : public UBTService
 	
 	UPROPERTY()
 	float CurrTimer = 0;
-
-	virtual void OnInstanceDestroyed(UBehaviorTreeComponent& OwnerComp) override;
-
+	
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 	
 };

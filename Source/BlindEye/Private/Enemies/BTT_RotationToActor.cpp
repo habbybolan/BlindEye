@@ -23,7 +23,9 @@ EBTNodeResult::Type UBTT_RotationToActor::ExecuteTask(UBehaviorTreeComponent& Ow
 	{ 
 		if (AActor* targetActor = Cast<AActor>(ActorObject))
 		{
-			FRotator outRotation = (targetActor->GetActorLocation() - selfActor->GetActorLocation()).Rotation();
+			FVector RotationVec = targetActor->GetActorLocation() - selfActor->GetActorLocation();
+			RotationVec.Z = 0;
+			FRotator outRotation = RotationVec.Rotation();
 			BBComp->SetValueAsRotator(OutRotationKey.SelectedKeyName, outRotation);
 			return EBTNodeResult::Succeeded;
 		}

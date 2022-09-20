@@ -24,7 +24,7 @@ void ABurrowerSpawnManager::BeginPlay()
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	world->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ABurrowerSpawnManager::SpawnBurrower, SpawnDelay, true, 0.1);
+	world->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ABurrowerSpawnManager::SpawnBurrower, SpawnDelay, false, 0.1);
 }
 
 void ABurrowerSpawnManager::OnBurrowerDeath(AActor* BurrowerActor)
