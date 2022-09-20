@@ -29,9 +29,6 @@ class BLINDEYE_API UBTT_BurrowerWarningStart : public UBTTask_BlackboardBase
 	UPROPERTY(EditAnywhere)
 	float WarningDelay = 3;
 
-	UPROPERTY(EditAnywhere)
-	UNiagaraSystem* WarningParticle;
-
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
@@ -43,13 +40,7 @@ class BLINDEYE_API UBTT_BurrowerWarningStart : public UBTTask_BlackboardBase
 
 protected:
 	void EndWarning(UBehaviorTreeComponent& OwnerComp);
-
-	UPROPERTY()
-	UNiagaraComponent* SpawnedWarningParticle;
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SpawnWarningParticle(UBehaviorTreeComponent* OwnerComp);
-	UFUNCTION(NetMulticast, Reliable) 
-	void MULT_DespawnWarningParticle(); 
+	
+	void DespawnWarningParticle(UBehaviorTreeComponent& OwnerComp); 
 	
 };

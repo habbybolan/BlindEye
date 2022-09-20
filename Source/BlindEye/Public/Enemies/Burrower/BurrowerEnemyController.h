@@ -48,6 +48,12 @@ public:
 	void SetBurrowerState(bool isHidden, bool bFollowing);
 
 	FTransform FindRandSpawnPoint();
+
+	UFUNCTION()
+	void StartWarningParticles();
+	 
+	UFUNCTION()
+	void StopWarningParticles();
 	
 protected:
 	FTimerHandle SpawnTimerHandle;

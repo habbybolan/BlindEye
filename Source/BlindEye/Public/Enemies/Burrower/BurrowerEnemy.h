@@ -80,7 +80,7 @@ public:
  
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UNiagaraSystem* FollowParticle;
-
+	
 	void StartSurfacing();
 	void StartHiding();
 
@@ -88,7 +88,12 @@ public:
 	void MULT_SetBurrowerState(bool isHidden, bool bFollowing);
 
 	UFUNCTION()
-	void SpawnSnappers();
+	void SpawnSnappers(); 
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_SpawnWarningParticle();
+	UFUNCTION(NetMulticast, Reliable) 
+	void MULT_DespawnWarningParticle();
  
 protected:
 
@@ -151,10 +156,7 @@ protected:
 	void SetAppeared();
 	void SetFollowing();
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SpawnWarningParticle();
-	UFUNCTION(NetMulticast, Reliable) 
-	void MULT_DespawnWarningParticle();
+	
 
 	
 	UFUNCTION(NetMulticast, Reliable)

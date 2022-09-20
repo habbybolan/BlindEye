@@ -72,6 +72,22 @@ FTransform ABurrowerEnemyController::FindRandSpawnPoint()
 	return SpawnLocation[randIndex]->GetTransform();
 }
 
+void ABurrowerEnemyController::StopWarningParticles()
+{
+	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
+	if (!CachedBurrower) return;
+
+	CachedBurrower->MULT_DespawnWarningParticle();
+} 
+
+void ABurrowerEnemyController::StartWarningParticles()
+{
+	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
+	if (!CachedBurrower) return;
+
+	CachedBurrower->MULT_SpawnWarningParticle();
+}
+
 void ABurrowerEnemyController::AddNewActionState(EBurrowActionState NewAction)
 {
 	for (int i = CachedPreviousActions.Num() - 1; i > 0; i--)

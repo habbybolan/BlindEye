@@ -20,7 +20,9 @@ ABurrowerEnemy::ABurrowerEnemy()
 {
 	bReplicates = true;
 	SurfacingTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("SpawnTimeline"));
+	SurfacingTimelineComponent->SetIsReplicated(true);
 	HideTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("HideTimeline"));
+	HideTimelineComponent->SetIsReplicated(true);
 }
 
 void ABurrowerEnemy::BeginPlay()
@@ -265,7 +267,7 @@ void ABurrowerEnemy::MULT_SpawnWarningParticle_Implementation()
 
 void ABurrowerEnemy::MULT_DespawnWarningParticle_Implementation()
 {
-	if (SpawnedWarningParticle)
+	if (SpawnedWarningParticle != nullptr)
 	{
 		SpawnedWarningParticle->Deactivate();
 	}
