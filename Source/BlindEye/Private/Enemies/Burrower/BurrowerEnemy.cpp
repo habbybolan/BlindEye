@@ -170,11 +170,10 @@ TArray<FVector> ABurrowerEnemy::GetSnapperSpawnPoints()
 // 	SpawnAction(GetActorTransform());
 // }
 
-void ABurrowerEnemy::TimelineSurfacingMovement()
+void ABurrowerEnemy::TimelineSurfacingMovement(float Value)
 {
-	float playbackPosition = SurfacingTimelineComponent->GetPlaybackPosition();
 	SetActorLocation(FMath::Lerp(CachedSpawnLocation, CachedSpawnLocation +
-		(FVector::UpVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2 + 50)), playbackPosition));
+		(FVector::UpVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2 + 50)), Value));
 }
 
 void ABurrowerEnemy::TimelineSurfacingFinished()
@@ -204,11 +203,10 @@ void ABurrowerEnemy::TimelineSurfacingFinished()
 	SurfacingFinished.ExecuteIfBound();
 }
 
-void ABurrowerEnemy::TimelineHideMovement()
+void ABurrowerEnemy::TimelineHideMovement(float Value)
 {
-	float playbackPosition = HideTimelineComponent->GetPlaybackPosition();
 	SetActorLocation(FMath::Lerp(CachedBeforeHidePosition, CachedBeforeHidePosition +
-		(FVector::DownVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2 + 50)), playbackPosition));
+		(FVector::DownVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2 + 50)), Value));
 }
 
 void ABurrowerEnemy::TimelineHideFinished()

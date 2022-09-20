@@ -114,7 +114,7 @@ protected:
 	// Timeline functions for burrower appearing
 
 	UFUNCTION()
-	void TimelineSurfacingMovement();
+	void TimelineSurfacingMovement(float Value);
 
 	UFUNCTION()
 	void TimelineSurfacingFinished();
@@ -122,7 +122,7 @@ protected:
 	// Timeline functions for hiding burrower
 
 	UFUNCTION()
-	void TimelineHideMovement();
+	void TimelineHideMovement(float Value);
 
 	UFUNCTION()
 	void TimelineHideFinished();
