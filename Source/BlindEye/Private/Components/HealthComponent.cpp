@@ -279,12 +279,6 @@ void UHealthComponent::DetonateMark()
 	DetonateDelegate.Broadcast();
 }
 
-void UHealthComponent::OnRep_IsInvincibility()
-{
-	FString boolString = IsInvincible ? "True" : "False";
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Orange, "Invincibility: " + boolString);
-}
-
 
 void UHealthComponent::Kill()
 {

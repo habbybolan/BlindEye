@@ -250,13 +250,9 @@ void ABlindEyePlayerCharacter::Unique2Released()
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Released);
 }
 
-void ABlindEyePlayerCharacter::SER_DebugInvincibility_Implementation()
+void ABlindEyePlayerCharacter::SER_DebugInvincibility_Implementation(bool IsInvincible)
 {
-	HealthComponent->IsInvincible = !HealthComponent->IsInvincible;
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		HealthComponent->OnRep_IsInvincibility();
-	}
+	HealthComponent->IsInvincible = IsInvincible;
 }
 
 void ABlindEyePlayerCharacter::SER_DebugKillAllSnappers_Implementation()
@@ -328,10 +324,6 @@ void ABlindEyePlayerCharacter::SER_ShrineInvincibility_Implementation()
 				UHealthComponent* ShrineHealthComp = ShrineHealthInterface->Execute_GetHealthComponent(Shrine);
 				if (ShrineHealthComp == nullptr) return;
 				ShrineHealthComp->IsInvincible = !ShrineHealthComp->IsInvincible;
-				if (GetLocalRole() == ROLE_Authority)
-				{
-					ShrineHealthComp->OnRep_IsInvincibility();
-				}
 			}
 		}
 	}
@@ -393,6 +385,11 @@ float ABlindEyePlayerCharacter::GetMaxHealth_Implementation()
 	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
 		return BlindEyePS->GetMaxHealth();
 	return 0;
+}
+
+bool ABlindEyePlayerCharacter::GetIsInvincible()
+{
+	return HealthComponent->IsInvincible;
 }
 
 void ABlindEyePlayerCharacter::HealthUpdated()
@@ -559,7 +556,6 @@ void ABlindEyePlayerCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAction("Unique2", IE_Pressed, this, &ABlindEyePlayerCharacter::Unique2Pressed);
 	PlayerInputComponent->BindAction("Unique2", IE_Released, this, &ABlindEyePlayerCharacter::Unique2Released);
 
-	PlayerInputComponent->BindAction("Debug1", IE_Released, this, &ABlindEyePlayerCharacter::SER_DebugInvincibility);
 	PlayerInputComponent->BindAction("Debug2", IE_Released, this, &ABlindEyePlayerCharacter::SER_DebugKillAllSnappers);
 	PlayerInputComponent->BindAction("Debug3", IE_Released, this, &ABlindEyePlayerCharacter::SER_DebugKillAllBurrowers);
 	PlayerInputComponent->BindAction("Debug4", IE_Released, this, &ABlindEyePlayerCharacter::SER_DebugKillAllHunters);
