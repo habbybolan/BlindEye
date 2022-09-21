@@ -436,8 +436,7 @@ void ABlindEyePlayerCharacter::SER_PauseWinCondition_Implementation(bool IsWinCo
 {
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
-
-	bWinConditionPaused = IsWinCondPaused;
+	
 	AGameModeBase* GameMode = UGameplayStatics::GetGameMode(World);
 	if (ABlindEyeGameMode* BlindEyeGM = Cast<ABlindEyeGameMode>(GameMode))
 	{
@@ -484,7 +483,15 @@ bool ABlindEyePlayerCharacter::GetIsUnlimitedBirdMeter()
 
 bool ABlindEyePlayerCharacter::GetIsWinConditionPaused()
 {
-	return bWinConditionPaused;
+	UWorld* World = GetWorld();
+	if (World == nullptr) return false;
+	
+	AGameStateBase* GameState = UGameplayStatics::GetGameState(World);
+	if (ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState))
+	{ 
+		return BlindEyeGameState->bWinConditionPaused;
+	}
+	return false;
 }
 
 bool ABlindEyePlayerCharacter::GetIsHunterAlwaysVisible()

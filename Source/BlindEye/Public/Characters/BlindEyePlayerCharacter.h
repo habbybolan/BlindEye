@@ -182,7 +182,6 @@ protected:
 	FTimerHandle HealthRegenTimerHandle;
 
 	bool bUnlimitedBirdMeter = false;
-	bool bWinConditionPaused = false;
 	
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);

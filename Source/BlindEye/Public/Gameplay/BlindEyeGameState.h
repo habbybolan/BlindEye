@@ -26,10 +26,14 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	AShrine* GetShrine();
+	
+	UPROPERTY(Replicated)
+	bool bWinConditionPaused = false;
 
 protected:
 	TWeakObjectPtr<AShrine> Shrine;
 
+	
 	
 	
 };

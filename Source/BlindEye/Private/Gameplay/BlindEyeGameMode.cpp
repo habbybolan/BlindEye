@@ -78,6 +78,9 @@ void ABlindEyeGameMode::PauseWinCondition(bool IsPauseWinCond)
 {
 	UWorld* World = GetWorld();
 	if (!World) return;
+
+	ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState);
+	BlindEyeGameState->bWinConditionPaused = IsPauseWinCond;
 	
 	if (IsPauseWinCond)
 	{
