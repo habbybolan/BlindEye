@@ -20,6 +20,7 @@
 #include "Gameplay/BlindEyePlayerState.h"
 #include "Kismet/GameplayStatics.h"
 #include "BlindEyeUtils.h"
+#include "Enemies/HunterEnemy.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ATP_ThirdPersonCharacter
@@ -286,7 +287,15 @@ void ABlindEyePlayerCharacter::SER_DebugKillAllBurrowers_Implementation()
 
 void ABlindEyePlayerCharacter::SER_DebugKillAllHunters_Implementation()
 {
-	// TODO:
+	TArray<AActor*> HunterActors; 
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AHunterEnemy::StaticClass(), HunterActors);
+	for (AActor* HunterActor : HunterActors)
+	{
+		if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(HunterActor))
+		{
+			HealthInterface->Execute_GetHealthComponent(HunterActor)->Kill();
+		}
+	}
 }
 
 void ABlindEyePlayerCharacter::SER_DamageSelf_Implementation()
