@@ -130,7 +130,9 @@ protected:
 	UFUNCTION()
 	void RegenHealth(); 
 	const float RegenHealthCallDelay = 0.2f;	// Delay on timer call for regen-ing bird meter
-	FTimerHandle HealthRegenTimerHandle;  
+	FTimerHandle HealthRegenTimerHandle;
+
+	bool bUnlimitedBirdMeter = true;
 	
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
@@ -181,6 +183,8 @@ protected:
 	UFUNCTION()
 	void Unique2Released();
 
+	// Debugger Functionality *********
+
 	UFUNCTION(Server, Reliable)
 	void SER_DebugInvincibility();
 	UFUNCTION(Server, Reliable)
@@ -194,7 +198,11 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void SER_DamageShrine();
 	UFUNCTION(Server, Reliable)
-	void SER_ShrineInvincibility(); 
+	void SER_ShrineInvincibility();
+	UFUNCTION(Server, Reliable)
+	void SER_UnlimitedBirdMeter(); 
+
+	// End Debugger Functionality *********
 
 protected:
 	// APawn interface

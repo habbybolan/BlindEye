@@ -337,6 +337,11 @@ void ABlindEyePlayerCharacter::SER_ShrineInvincibility_Implementation()
 	}
 }
 
+void ABlindEyePlayerCharacter::SER_UnlimitedBirdMeter_Implementation()
+{
+	
+}
+
 float ABlindEyePlayerCharacter::GetHealth_Implementation()
 {
 	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
@@ -366,9 +371,13 @@ void ABlindEyePlayerCharacter::OnDeath_Implementation()
 
 bool ABlindEyePlayerCharacter::TryConsumeBirdMeter_Implementation(float PercentAmount)
 {
+	// Debugger for unlimited bird meter
+	if (bUnlimitedBirdMeter) return true;
+	
 	ABlindEyePlayerState* BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState());
 	if (BlindEyePlayerState == nullptr) return false;
 
+	// Try to consume bird meter, return true if enough remaining
 	float GetExactAmount = BlindEyePlayerState->GetMaxBirdMeter() * (PercentAmount / 100);
 	float RemainingMeter = BlindEyePlayerState->GetBirdMeter();
 	if (RemainingMeter >= GetExactAmount)
