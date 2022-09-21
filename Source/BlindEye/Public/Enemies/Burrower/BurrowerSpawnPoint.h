@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/ArrowComponent.h"
 #include "GameFramework/Actor.h"
 #include "BurrowerSpawnPoint.generated.h"
 
@@ -10,6 +11,9 @@ UCLASS()
 class BLINDEYE_API ABurrowerSpawnPoint : public AActor
 {
 	GENERATED_BODY()
+
+	UArrowComponent* ArrowComponent;
+
 	
 public:	
 	// Sets default values for this actor's properties

@@ -16,7 +16,7 @@ class BLINDEYE_API ABlindEyeEnemyController : public AAIController
 
 public:
 
-
+	AActor* GetBTTarget();
 
 protected:
 	virtual void BeginPlay() override;

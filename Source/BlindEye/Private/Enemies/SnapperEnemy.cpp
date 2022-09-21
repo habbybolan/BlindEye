@@ -8,6 +8,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
+ASnapperEnemy::ASnapperEnemy(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}
+
 void ASnapperEnemy::OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType,
                                                 AActor* DamageCauser)
 {

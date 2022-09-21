@@ -6,7 +6,7 @@
 #include "Components/MarkerComponent.h"
 
 // Sets default values
-ABlindEyeBaseCharacter::ABlindEyeBaseCharacter()
+ABlindEyeBaseCharacter::ABlindEyeBaseCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	MarkerComponent = CreateDefaultSubobject<UMarkerComponent>("MarkerComponent");
 	MarkerComponent->SetupAttachment(RootComponent);

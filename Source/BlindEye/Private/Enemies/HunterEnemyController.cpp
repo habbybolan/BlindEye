@@ -4,7 +4,7 @@
 #include "Enemies/HunterEnemyController.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Enemies/BurrowerSpawnPoint.h"
+#include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
 #include "Kismet/GameplayStatics.h"

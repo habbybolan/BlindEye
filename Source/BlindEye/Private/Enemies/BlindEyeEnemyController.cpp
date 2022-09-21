@@ -3,8 +3,20 @@
 
 #include "Enemies/BlindEyeEnemyController.h"
 
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Components/HealthComponent.h"
 #include "Interfaces/HealthInterface.h"
+
+AActor* ABlindEyeEnemyController::GetBTTarget()
+{
+	UBlackboardComponent* BBComp = GetBlackboardComponent();
+	if (BBComp == nullptr) return nullptr;
+
+	UObject* ObjectActor = BBComp->GetValueAsObject("EnemyActor");
+	if (ObjectActor == nullptr) return nullptr;
+
+	return Cast<AActor>(ObjectActor);
+}
 
 void ABlindEyeEnemyController::BeginPlay()
 {

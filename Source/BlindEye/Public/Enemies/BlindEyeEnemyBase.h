@@ -19,8 +19,8 @@ class BLINDEYE_API ABlindEyeEnemyBase : public ABlindEyeBaseCharacter
 	
 
 public:
-	// Sets default values for this character's properties
-	ABlindEyeEnemyBase();
+
+	ABlindEyeEnemyBase(const FObjectInitializer& ObjectInitializer);
 
 	// helper to get status effects from health component
 	UFUNCTION(BlueprintCallable)

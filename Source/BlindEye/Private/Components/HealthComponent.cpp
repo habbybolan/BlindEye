@@ -17,7 +17,7 @@
 #include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
-UHealthComponent::UHealthComponent()
+UHealthComponent::UHealthComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -265,6 +265,10 @@ void UHealthComponent::TryTaunt_Implementation(float Duration, AActor* Taunter)
 
 void UHealthComponent::RemoveMark()
 {
+	UWorld* World = GetWorld();
+	if (World == nullptr)  return;
+
+	World->GetTimerManager().ClearTimer(MarkerDecayTimerHandle);
 	CurrMark = nullptr;
 	MarkedRemovedDelegate.Broadcast();
 }

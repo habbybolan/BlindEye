@@ -46,7 +46,7 @@ class BLINDEYE_API UHealthComponent : public UActorComponent, public IDamageInte
 
 public:	
 	// Sets default values for this component's properties
-	UHealthComponent();
+	UHealthComponent(const FObjectInitializer& ObjectInitializer);
  
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float MarkerDecay = 5.f;
@@ -112,6 +112,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AHealingWell> HealingWellType;
+
+	void RemoveMark();
 
 protected:
 
@@ -198,7 +200,6 @@ protected:
 	// End Detonation Effect properties *********
 	
 	FTimerHandle MarkerDecayTimerHandle;
-	void RemoveMark();
 	void DetonateMark();
 	void PerformDetonationEffect(AActor* DamageCause); 
 };
