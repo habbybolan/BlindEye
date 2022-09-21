@@ -82,6 +82,30 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<EObjectTypeQuery>> AllyReviveObjectTypes;
 
+	// Debugger Functionality *********
+
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_DebugInvincibility(bool IsInvincible);
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_DebugKillAllSnappers();
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_DebugKillAllBurrowers();
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_DebugKillAllHunters();
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_DamageSelf(); 
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_DamageShrine();
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_ShrineInvincibility();
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_UnlimitedBirdMeter();
+
+	UFUNCTION(BlueprintCallable)
+	bool GetIsInvincible();
+
+	// End Debugger Functionality *********
+
 	// Event called after playerState updates health
 	UFUNCTION()
 	void HealthUpdated();
@@ -183,26 +207,7 @@ protected:
 	UFUNCTION()
 	void Unique2Released();
 
-	// Debugger Functionality *********
-
-	UFUNCTION(Server, Reliable)
-	void SER_DebugInvincibility();
-	UFUNCTION(Server, Reliable)
-	void SER_DebugKillAllSnappers();
-	UFUNCTION(Server, Reliable)
-	void SER_DebugKillAllBurrowers();
-	UFUNCTION(Server, Reliable)
-	void SER_DebugKillAllHunters();
-	UFUNCTION(Server, Reliable)
-	void SER_DamageSelf(); 
-	UFUNCTION(Server, Reliable)
-	void SER_DamageShrine();
-	UFUNCTION(Server, Reliable)
-	void SER_ShrineInvincibility();
-	UFUNCTION(Server, Reliable)
-	void SER_UnlimitedBirdMeter(); 
-
-	// End Debugger Functionality *********
+	
 
 protected:
 	// APawn interface
