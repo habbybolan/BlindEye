@@ -15,8 +15,11 @@ AShrine::AShrine()
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 
+	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("Capsule");
+	RootComponent = CapsuleComponent;
+	
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
-	RootComponent = Mesh;
+	Mesh->SetupAttachment(RootComponent);
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
 	CurrShrineHealth = MaxShrineHealth;
