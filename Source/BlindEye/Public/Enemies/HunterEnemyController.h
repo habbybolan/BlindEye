@@ -30,6 +30,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AHunterEnemy> HunterType;
 
+	void SetAlwaysVisible(bool IsAlwaysVisible);
+	bool GetAlwaysVisible();
+
 	// Calls blueprint to initialize behavior tree
 	UFUNCTION(BlueprintImplementableEvent)
 	void InitializeBehaviorTree();
@@ -54,6 +57,9 @@ protected:
 
 	UPROPERTY() 
 	AHunterEnemy* Hunter;
+
+	UPROPERTY()
+	bool DebugAlwaysVisible = false;
 
 	virtual void OnPossess(APawn* InPawn) override;
 	void SetCanBasicAttack();

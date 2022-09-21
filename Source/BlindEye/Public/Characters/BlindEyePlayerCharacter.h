@@ -111,7 +111,9 @@ public:
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void SER_UnlimitedBirdMeter(bool IsUnlimited);
 	UFUNCTION(Server, Reliable, BlueprintCallable)
-	void SER_PauseWinCondition(bool IsWinCondPaused);  
+	void SER_PauseWinCondition(bool IsWinCondPaused);
+	UFUNCTION(Server, Reliable, BlueprintCallable) 
+	void SER_HunterAlwaysVisible(bool IsHunterAlwaysVisible);   
 
 	UFUNCTION(BlueprintCallable)
 	bool GetIsInvincible();
@@ -121,6 +123,8 @@ public:
 	bool GetIsUnlimitedBirdMeter();
 	UFUNCTION(BlueprintCallable) 
 	bool GetIsWinConditionPaused();
+	UFUNCTION(BlueprintCallable) 
+	bool GetIsHunterAlwaysVisible();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<ASnapperEnemy> SnapperType;

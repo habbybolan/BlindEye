@@ -16,6 +16,24 @@ void AHunterEnemyController::BeginPlay()
 	OnHunterDeath(nullptr);
 }
 
+void AHunterEnemyController::SetAlwaysVisible(bool IsAlwaysVisible)
+{
+	DebugAlwaysVisible = IsAlwaysVisible;
+	// Try to set current hunter visible if existing
+	if (DebugAlwaysVisible)
+	{
+		if (Hunter)
+		{
+			Hunter->TryTurnVisible();
+		}
+	}
+}
+
+bool AHunterEnemyController::GetAlwaysVisible()
+{
+	return DebugAlwaysVisible;
+}
+
 void AHunterEnemyController::SetTargetEnemy(AActor* target)
 {
 	UBlackboardComponent* BlackboardComp = GetBlackboardComponent();
@@ -121,5 +139,12 @@ void AHunterEnemyController::SpawnHunter()
 	FActorSpawnParameters params; 
 	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 	AHunterEnemy* SpawnedHunter = world->SpawnActor<AHunterEnemy>(HunterType, SpawnLocation, Rotation, params);
+
+	// if debugger for always visible, spawn hunter visible
+	if (DebugAlwaysVisible)
+	{
+		SpawnedHunter->TryTurnVisible();
+	}
+	
 	Possess(SpawnedHunter);
 }

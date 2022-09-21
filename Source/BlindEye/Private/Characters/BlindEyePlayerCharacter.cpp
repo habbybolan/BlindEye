@@ -446,6 +446,18 @@ void ABlindEyePlayerCharacter::SER_PauseWinCondition_Implementation(bool IsWinCo
 }
 
 
+void ABlindEyePlayerCharacter::SER_HunterAlwaysVisible_Implementation(bool IsHunterAlwaysVisible)
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	if (AActor* HunterActorController = UGameplayStatics::GetActorOfClass(World, AHunterEnemyController::StaticClass()))
+	{
+		AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(HunterActorController);
+		HunterController->SetAlwaysVisible(IsHunterAlwaysVisible);
+	}
+}
+
 bool ABlindEyePlayerCharacter::GetIsInvincible()
 {
 	return HealthComponent->IsInvincible;
@@ -473,6 +485,19 @@ bool ABlindEyePlayerCharacter::GetIsUnlimitedBirdMeter()
 bool ABlindEyePlayerCharacter::GetIsWinConditionPaused()
 {
 	return bWinConditionPaused;
+}
+
+bool ABlindEyePlayerCharacter::GetIsHunterAlwaysVisible()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return false;
+	
+	if (AActor* HunterActorController = UGameplayStatics::GetActorOfClass(World, AHunterEnemyController::StaticClass()))
+	{
+		AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(HunterActorController);
+		return HunterController->GetAlwaysVisible();
+	}
+	return false;
 }
 
 void ABlindEyePlayerCharacter::HealthUpdated()
