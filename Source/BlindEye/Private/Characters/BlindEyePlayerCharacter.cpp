@@ -312,7 +312,7 @@ void ABlindEyePlayerCharacter::SER_DamageShrine_Implementation()
 	}
 }
 
-void ABlindEyePlayerCharacter::SER_ShrineInvincibility_Implementation()
+void ABlindEyePlayerCharacter::SER_ShrineInvincibility_Implementation(bool IsInvincible)
 {
 	if (ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(GetWorld())))
 	{
@@ -323,7 +323,7 @@ void ABlindEyePlayerCharacter::SER_ShrineInvincibility_Implementation()
 			{
 				UHealthComponent* ShrineHealthComp = ShrineHealthInterface->Execute_GetHealthComponent(Shrine);
 				if (ShrineHealthComp == nullptr) return;
-				ShrineHealthComp->IsInvincible = !ShrineHealthComp->IsInvincible;
+				ShrineHealthComp->IsInvincible = IsInvincible;
 			}
 		}
 	}
@@ -390,6 +390,20 @@ float ABlindEyePlayerCharacter::GetMaxHealth_Implementation()
 bool ABlindEyePlayerCharacter::GetIsInvincible()
 {
 	return HealthComponent->IsInvincible;
+}
+
+bool ABlindEyePlayerCharacter::GetIsShrineInvincible()
+{
+	if (ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(GetWorld())))
+	{
+		AShrine* Shrine = BlindEyeGameState->GetShrine();
+		if (Shrine == nullptr) return false;
+		if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(Shrine))
+		{
+			return HealthInterface->Execute_GetHealthComponent(Shrine)->IsInvincible;
+		}
+	}
+	return false;
 }
 
 void ABlindEyePlayerCharacter::HealthUpdated()
@@ -556,12 +570,8 @@ void ABlindEyePlayerCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAction("Unique2", IE_Pressed, this, &ABlindEyePlayerCharacter::Unique2Pressed);
 	PlayerInputComponent->BindAction("Unique2", IE_Released, this, &ABlindEyePlayerCharacter::Unique2Released);
 
-	PlayerInputComponent->BindAction("Debug2", IE_Released, this, &ABlindEyePlayerCharacter::SER_DebugKillAllSnappers);
-	PlayerInputComponent->BindAction("Debug3", IE_Released, this, &ABlindEyePlayerCharacter::SER_DebugKillAllBurrowers);
-	PlayerInputComponent->BindAction("Debug4", IE_Released, this, &ABlindEyePlayerCharacter::SER_DebugKillAllHunters);
-	PlayerInputComponent->BindAction("Debug5", IE_Released, this, &ABlindEyePlayerCharacter::SER_DamageSelf);
-	PlayerInputComponent->BindAction("Debug6", IE_Released, this, &ABlindEyePlayerCharacter::SER_DamageShrine);
-	PlayerInputComponent->BindAction("Debug7", IE_Released, this, &ABlindEyePlayerCharacter::SER_ShrineInvincibility);
+	PlayerInputComponent->BindAction("Debug1", IE_Released, this, &ABlindEyePlayerCharacter::SER_DamageSelf);
+	PlayerInputComponent->BindAction("Debug2", IE_Released, this, &ABlindEyePlayerCharacter::SER_DamageShrine);
 }
 
 

@@ -97,12 +97,14 @@ public:
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void SER_DamageShrine();
 	UFUNCTION(Server, Reliable, BlueprintCallable)
-	void SER_ShrineInvincibility();
+	void SER_ShrineInvincibility(bool IsInvincible);
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void SER_UnlimitedBirdMeter();
 
 	UFUNCTION(BlueprintCallable)
 	bool GetIsInvincible();
+	UFUNCTION(BlueprintCallable)
+	bool GetIsShrineInvincible();
 
 	// End Debugger Functionality *********
 
