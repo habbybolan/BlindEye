@@ -24,3 +24,31 @@ void AHunterEnemy::PerformBasicAttack()
 		UGameplayStatics::ApplyPointDamage(HitActor, BasicAttackDamage, Hit.ImpactNormal, Hit, GetController(), this, BasicAttackDamageType);
 	}
 }
+
+void AHunterEnemy::TryTurnVisible()
+{
+	if (IsVisible) return;
+
+	IsVisible = true;
+	TurnVisible();
+}
+
+void AHunterEnemy::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (IsVisible == false)
+	{
+		UWorld* World = GetWorld();
+		if (World == nullptr) return;
+
+		TArray<AActor*> OutActors;
+		if (UKismetSystemLibrary::SphereOverlapActors(World, GetActorLocation(), RadiusToTurnVisible,
+			ObjectTypes, nullptr, TArray<AActor*>(), OutActors))
+		{
+			// Player close, turn visible
+			TryTurnVisible();
+		}
+	}
+	
+}

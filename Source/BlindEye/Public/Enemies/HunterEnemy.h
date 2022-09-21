@@ -29,6 +29,21 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UBaseDamageType> BasicAttackDamageType;
 
+	UPROPERTY(BlueprintReadWrite)
+	bool IsVisible = false;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float RadiusToTurnVisible = 500;
+
 	void PerformBasicAttack();
+
+	void TryTurnVisible();
+
+protected:
+
+	virtual void Tick(float DeltaSeconds) override;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void TurnVisible();
 	
 };
