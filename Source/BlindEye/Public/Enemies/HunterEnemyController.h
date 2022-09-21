@@ -16,6 +16,7 @@ class BLINDEYE_API AHunterEnemyController : public ABlindEyeEnemyController
 	GENERATED_BODY()
 
 public:
+	AHunterEnemyController();
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
@@ -30,6 +31,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AHunterEnemy> HunterType;
 
+	void SetAlwaysVisible(bool IsAlwaysVisible);
+
 	// Calls blueprint to initialize behavior tree
 	UFUNCTION(BlueprintImplementableEvent)
 	void InitializeBehaviorTree();
@@ -39,6 +42,10 @@ public:
 	bool CanBasicAttack();
 	bool IsInBasicAttackRange();
 	void PerformBasicAttack();
+
+	// Debugger functionality for spawning a hunter
+	//	If a hunter is already alive, then dont do anything
+	void DebugSpawnHunter();
 	
 protected:
 	TWeakObjectPtr<AActor> Target;
@@ -55,8 +62,7 @@ protected:
 	void SetCanBasicAttack();
 
 	UFUNCTION()
-	void SpawnOnDelay(AActor* HunterKilled);
+	void OnHunterDeath(AActor* HunterKilled);
 	UFUNCTION()
 	void SpawnHunter();
-	
 };

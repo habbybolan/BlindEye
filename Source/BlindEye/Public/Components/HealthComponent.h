@@ -60,14 +60,11 @@ public:
 	DECLARE_MULTICAST_DELEGATE_OneParam(FDeathSignature, AActor*)
 	FDeathSignature OnDeathDelegate;
 	
-	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, ReplicatedUsing="OnRep_IsInvincibility")
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
 	bool IsInvincible = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float HealPerSec = 0;
-
-	UFUNCTION()
-	void OnRep_IsInvincibility();
 
 	void Kill();
 

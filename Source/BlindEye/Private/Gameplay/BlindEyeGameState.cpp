@@ -26,6 +26,8 @@ void ABlindEyeGameState::BeginPlay()
 void ABlindEyeGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ABlindEyeGameState, bWinConditionPaused)
+	DOREPLIFETIME(ABlindEyeGameState, bHunterAlwaysVisible)
 }
 
 AShrine* ABlindEyeGameState::GetShrine()

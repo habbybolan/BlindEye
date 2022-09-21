@@ -19,11 +19,9 @@
 // Sets default values for this component's properties
 UHealthComponent::UHealthComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-	
-	IsInvincible = false; // make sure this debug starts false
+	PrimaryComponentTick.bCanEverTick = false;
+
+	// MUST SET REPLICATED TO TRUE IN BLUEPRINTS, CRASHES IF SET HERE
 }
 
 
@@ -279,12 +277,6 @@ void UHealthComponent::DetonateMark()
 	DetonateDelegate.Broadcast();
 }
 
-void UHealthComponent::OnRep_IsInvincibility()
-{
-	FString boolString = IsInvincible ? "True" : "False";
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Orange, "Invincibility: " + boolString);
-}
-
 
 void UHealthComponent::Kill()
 {
@@ -317,12 +309,6 @@ void UHealthComponent::ImprovedHealing_Implementation(float HealPercentIncrease,
 	{
 		ImprovedHealingStartDelegate.Broadcast(HealPercentIncrease, Duration);
 	}
-}
-
-void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(UHealthComponent, IsInvincible);
 }
 
 void UHealthComponent::PerformHeal()
@@ -376,4 +362,10 @@ void UHealthComponent::RemoveImprovedHealing()
 	AppliedStatusEffects.IsImprovedHealing = false;
 	AppliedStatusEffects.HealPercentIncrease = 0; 
 	ImprovedHealingEndDelegate.Broadcast();
+}
+
+void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UHealthComponent, IsInvincible);
 }

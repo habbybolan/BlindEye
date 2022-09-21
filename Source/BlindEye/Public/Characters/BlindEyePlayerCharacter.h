@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "BlindEyeBaseCharacter.h"
+#include "Enemies/SnapperEnemy.h"
+#include "Enemies/Burrower/BurrowerEnemy.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/AbilityUserInterface.h"
 #include "Interfaces/HealthInterface.h"
@@ -82,6 +84,54 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<EObjectTypeQuery>> AllyReviveObjectTypes;
 
+	// Debugger Functionality *********
+
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_DebugInvincibility(bool IsInvincible);
+	// Kill Debuggers
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_DebugKillAllSnappers();
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_DebugKillAllBurrowers();
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_DebugKillAllHunters();
+	// Spawn Debuggers
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_DebugSpawnSnapper();
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_DebugSpawnBurrower();
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_DebugSpawnHunter();
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	
+	void SER_DamageSelf(); 
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_DamageShrine();
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_ShrineInvincibility(bool IsInvincible);
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_UnlimitedBirdMeter(bool IsUnlimited);
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_PauseWinCondition(bool IsWinCondPaused);
+	UFUNCTION(Server, Reliable, BlueprintCallable) 
+	void SER_HunterAlwaysVisible(bool IsHunterAlwaysVisible);   
+
+	UFUNCTION(BlueprintCallable)
+	bool GetIsInvincible();
+	UFUNCTION(BlueprintCallable)
+	bool GetIsShrineInvincible();
+	UFUNCTION(BlueprintCallable)
+	bool GetIsUnlimitedBirdMeter();
+	UFUNCTION(BlueprintCallable) 
+	bool GetIsWinConditionPaused();
+	UFUNCTION(BlueprintCallable) 
+	bool GetIsHunterAlwaysVisible();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<ASnapperEnemy> SnapperType;
+
+	// End Debugger Functionality *********
+
 	// Event called after playerState updates health
 	UFUNCTION()
 	void HealthUpdated();
@@ -130,7 +180,10 @@ protected:
 	UFUNCTION()
 	void RegenHealth(); 
 	const float RegenHealthCallDelay = 0.2f;	// Delay on timer call for regen-ing bird meter
-	FTimerHandle HealthRegenTimerHandle;  
+	FTimerHandle HealthRegenTimerHandle;
+
+	UPROPERTY(Replicated)
+	bool bUnlimitedBirdMeter = false;
 	
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
@@ -180,27 +233,15 @@ protected:
 	void Unique2Pressed();
 	UFUNCTION()
 	void Unique2Released();
-
-	UFUNCTION(Server, Reliable)
-	void SER_DebugInvincibility();
-	UFUNCTION(Server, Reliable)
-	void SER_DebugKillAllSnappers();
-	UFUNCTION(Server, Reliable)
-	void SER_DebugKillAllBurrowers();
-	UFUNCTION(Server, Reliable)
-	void SER_DebugKillAllHunters();
-	UFUNCTION(Server, Reliable)
-	void SER_DamageSelf(); 
-	UFUNCTION(Server, Reliable)
-	void SER_DamageShrine();
-	UFUNCTION(Server, Reliable)
-	void SER_ShrineInvincibility(); 
+	
 
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
 	ABlindEyePlayerState* GetAllyPlayerState();
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:
 	/** Returns CameraBoom subobject **/

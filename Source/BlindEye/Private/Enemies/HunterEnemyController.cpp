@@ -7,13 +7,38 @@
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
+#include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Net/UnrealNetwork.h"
+
+AHunterEnemyController::AHunterEnemyController()
+{
+}
 
 void AHunterEnemyController::BeginPlay()
 {
 	Super::BeginPlay();
-	SpawnOnDelay(nullptr);
+	OnHunterDeath(nullptr);
+}
+
+void AHunterEnemyController::SetAlwaysVisible(bool IsAlwaysVisible)
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	AGameStateBase* GameState = UGameplayStatics::GetGameState(World);
+	if (GameState)
+	{
+		if (ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState))
+		{
+			BlindEyeGameState->bHunterAlwaysVisible = IsAlwaysVisible;
+			if (Hunter)
+			{
+				Hunter->TryTurnVisible();
+			}
+		}
+	}
 }
 
 void AHunterEnemyController::SetTargetEnemy(AActor* target)
@@ -51,6 +76,18 @@ void AHunterEnemyController::PerformBasicAttack()
 	GetWorldTimerManager().SetTimer(BasicAttackDelayTimerHandle, this, &AHunterEnemyController::SetCanBasicAttack, BasicAttackDelay, false);
 }
 
+void AHunterEnemyController::DebugSpawnHunter()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	if (Hunter) return;
+
+	SpawnHunter();
+	World->GetTimerManager().ClearTimer(SpawnDelayTimerHandle);
+	
+}
+
 void AHunterEnemyController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
@@ -62,7 +99,7 @@ void AHunterEnemyController::OnPossess(APawn* InPawn)
 	
 	if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(Hunter))
 	{
-		HealthInterface->Execute_GetHealthComponent(Hunter)->OnDeathDelegate.AddUFunction(this, FName("SpawnOnDelay"));
+		HealthInterface->Execute_GetHealthComponent(Hunter)->OnDeathDelegate.AddUFunction(this, FName("OnHunterDeath"));
 	}
 
 	// Get random player to attack
@@ -85,21 +122,22 @@ void AHunterEnemyController::SetCanBasicAttack()
 	IsBasicAttackOnDelay = false;
 }
 
-void AHunterEnemyController::SpawnOnDelay(AActor* HunterKilled)
+void AHunterEnemyController::OnHunterDeath(AActor* HunterKilled)
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
 
 	world->GetTimerManager().SetTimer(SpawnDelayTimerHandle, this, &AHunterEnemyController::SpawnHunter, SpawnDelay, false);
+	Hunter = nullptr;
 }
 
 void AHunterEnemyController::SpawnHunter() 
 {
-	UWorld* world = GetWorld();
-	if (!world) return;
+	UWorld* World = GetWorld();
+	if (!World) return;
 
 	TArray<AActor*> SpawnPoints;
-	UGameplayStatics::GetAllActorsOfClass(world, ABurrowerSpawnPoint::StaticClass(),SpawnPoints);
+	UGameplayStatics::GetAllActorsOfClass(World, ABurrowerSpawnPoint::StaticClass(),SpawnPoints);
 	if (SpawnPoints.Num() == 0) return;
 	AActor* SpawnPoint = SpawnPoints[UKismetMathLibrary::RandomIntegerInRange(0, SpawnPoints.Num() - 1)];
 	
@@ -107,6 +145,23 @@ void AHunterEnemyController::SpawnHunter()
 	FRotator Rotation = SpawnPoint->GetActorRotation();
 	FActorSpawnParameters params; 
 	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-	AHunterEnemy* SpawnedHunter = world->SpawnActor<AHunterEnemy>(HunterType, SpawnLocation, Rotation, params);
+	AHunterEnemy* SpawnedHunter = World->SpawnActor<AHunterEnemy>(HunterType, SpawnLocation, Rotation, params);
+
+	bool bAlwaysVisible = false;
+	AGameStateBase* GameState = UGameplayStatics::GetGameState(World);
+	if (GameState)
+	{
+		if (ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState))
+		{
+			bAlwaysVisible = BlindEyeGameState->bHunterAlwaysVisible;
+		}
+	}
+	
+	// if debugger for always visible, spawn hunter visible
+	if (bAlwaysVisible)
+	{
+		SpawnedHunter->TryTurnVisible();
+	}
+	
 	Possess(SpawnedHunter);
 }

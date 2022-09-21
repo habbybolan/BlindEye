@@ -35,6 +35,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AHunterEnemyController> HunterControllerType;
 
+	void PauseWinCondition(bool IsPauseWinCond);
+
 protected:
 	virtual void BeginPlay() override;
 	

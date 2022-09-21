@@ -74,6 +74,23 @@ void ABlindEyeGameMode::RestartGame()
 	GetWorld()->ServerTravel("?Restart",false);
 }
 
+void ABlindEyeGameMode::PauseWinCondition(bool IsPauseWinCond)
+{
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+	ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState);
+	BlindEyeGameState->bWinConditionPaused = IsPauseWinCond;
+	
+	if (IsPauseWinCond)
+	{
+		World->GetTimerManager().PauseTimer(GameWinTimerHandle);
+	} else
+	{
+		World->GetTimerManager().UnPauseTimer(GameWinTimerHandle);
+	}
+}
+
 void ABlindEyeGameMode::BeginPlay()
 {
 	Super::BeginPlay();

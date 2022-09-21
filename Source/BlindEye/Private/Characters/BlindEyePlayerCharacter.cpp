@@ -20,6 +20,13 @@
 #include "Gameplay/BlindEyePlayerState.h"
 #include "Kismet/GameplayStatics.h"
 #include "BlindEyeUtils.h"
+#include "Enemies/HunterEnemy.h"
+#include "Enemies/HunterEnemyController.h"
+#include "Enemies/Burrower/BurrowerSpawnManager.h"
+#include "Enemies/Burrower/BurrowerSpawnPoint.h"
+#include "Gameplay/BlindEyeGameMode.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ATP_ThirdPersonCharacter
@@ -249,13 +256,9 @@ void ABlindEyePlayerCharacter::Unique2Released()
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Released);
 }
 
-void ABlindEyePlayerCharacter::SER_DebugInvincibility_Implementation()
+void ABlindEyePlayerCharacter::SER_DebugInvincibility_Implementation(bool IsInvincible)
 {
-	HealthComponent->IsInvincible = !HealthComponent->IsInvincible;
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		HealthComponent->OnRep_IsInvincibility();
-	}
+	HealthComponent->IsInvincible = IsInvincible;
 }
 
 void ABlindEyePlayerCharacter::SER_DebugKillAllSnappers_Implementation()
@@ -286,7 +289,55 @@ void ABlindEyePlayerCharacter::SER_DebugKillAllBurrowers_Implementation()
 
 void ABlindEyePlayerCharacter::SER_DebugKillAllHunters_Implementation()
 {
-	// TODO:
+	TArray<AActor*> HunterActors; 
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AHunterEnemy::StaticClass(), HunterActors);
+	for (AActor* HunterActor : HunterActors)
+	{
+		if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(HunterActor))
+		{
+			HealthInterface->Execute_GetHealthComponent(HunterActor)->Kill();
+		}
+	}
+}
+
+void ABlindEyePlayerCharacter::SER_DebugSpawnSnapper_Implementation()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	TArray<AActor*> BurrowerSpawnPoints;
+	UGameplayStatics::GetAllActorsOfClass(World, ABurrowerSpawnPoint::StaticClass(), BurrowerSpawnPoints);
+	if (BurrowerSpawnPoints.Num() == 0) return;
+	
+	ABurrowerSpawnPoint* BurrSpawnPoint = Cast<ABurrowerSpawnPoint>(BurrowerSpawnPoints[UKismetMathLibrary::RandomIntegerInRange(0, BurrowerSpawnPoints.Num() - 1)]);
+	if (BurrSpawnPoint)
+	{
+		World->SpawnActor<ASnapperEnemy>(SnapperType, BurrSpawnPoint->GetActorLocation(), BurrSpawnPoint->GetActorRotation());
+	}
+}
+
+void ABlindEyePlayerCharacter::SER_DebugSpawnBurrower_Implementation()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	if (AActor* BurrowerManager = UGameplayStatics::GetActorOfClass(World, ABurrowerSpawnManager::StaticClass()))
+	{
+		ABurrowerSpawnManager* HunterController = Cast<ABurrowerSpawnManager>(BurrowerManager);
+		HunterController->SpawnBurrower();
+	}
+}
+
+void ABlindEyePlayerCharacter::SER_DebugSpawnHunter_Implementation()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	if (AActor* HunterActorController = UGameplayStatics::GetActorOfClass(World, AHunterEnemyController::StaticClass()))
+	{
+		AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(HunterActorController);
+		HunterController->DebugSpawnHunter();
+	}
 }
 
 void ABlindEyePlayerCharacter::SER_DamageSelf_Implementation()
@@ -307,7 +358,7 @@ void ABlindEyePlayerCharacter::SER_DamageShrine_Implementation()
 	}
 }
 
-void ABlindEyePlayerCharacter::SER_ShrineInvincibility_Implementation()
+void ABlindEyePlayerCharacter::SER_ShrineInvincibility_Implementation(bool IsInvincible)
 {
 	if (ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(GetWorld())))
 	{
@@ -318,14 +369,15 @@ void ABlindEyePlayerCharacter::SER_ShrineInvincibility_Implementation()
 			{
 				UHealthComponent* ShrineHealthComp = ShrineHealthInterface->Execute_GetHealthComponent(Shrine);
 				if (ShrineHealthComp == nullptr) return;
-				ShrineHealthComp->IsInvincible = !ShrineHealthComp->IsInvincible;
-				if (GetLocalRole() == ROLE_Authority)
-				{
-					ShrineHealthComp->OnRep_IsInvincibility();
-				}
+				ShrineHealthComp->IsInvincible = IsInvincible;
 			}
 		}
 	}
+}
+
+void ABlindEyePlayerCharacter::SER_UnlimitedBirdMeter_Implementation(bool IsUnlimited)
+{
+	bUnlimitedBirdMeter = IsUnlimited;
 }
 
 float ABlindEyePlayerCharacter::GetHealth_Implementation()
@@ -357,9 +409,13 @@ void ABlindEyePlayerCharacter::OnDeath_Implementation()
 
 bool ABlindEyePlayerCharacter::TryConsumeBirdMeter_Implementation(float PercentAmount)
 {
+	// Debugger for unlimited bird meter
+	if (bUnlimitedBirdMeter) return true;
+	
 	ABlindEyePlayerState* BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState());
 	if (BlindEyePlayerState == nullptr) return false;
 
+	// Try to consume bird meter, return true if enough remaining
 	float GetExactAmount = BlindEyePlayerState->GetMaxBirdMeter() * (PercentAmount / 100);
 	float RemainingMeter = BlindEyePlayerState->GetBirdMeter();
 	if (RemainingMeter >= GetExactAmount)
@@ -375,6 +431,84 @@ float ABlindEyePlayerCharacter::GetMaxHealth_Implementation()
 	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
 		return BlindEyePS->GetMaxHealth();
 	return 0;
+}
+
+void ABlindEyePlayerCharacter::SER_PauseWinCondition_Implementation(bool IsWinCondPaused)
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	AGameModeBase* GameMode = UGameplayStatics::GetGameMode(World);
+	if (ABlindEyeGameMode* BlindEyeGM = Cast<ABlindEyeGameMode>(GameMode))
+	{
+		BlindEyeGM->PauseWinCondition(IsWinCondPaused);
+	}
+}
+
+
+void ABlindEyePlayerCharacter::SER_HunterAlwaysVisible_Implementation(bool IsHunterAlwaysVisible)
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	if (AActor* HunterActorController = UGameplayStatics::GetActorOfClass(World, AHunterEnemyController::StaticClass()))
+	{
+		AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(HunterActorController);
+		HunterController->SetAlwaysVisible(IsHunterAlwaysVisible);
+	}
+}
+
+bool ABlindEyePlayerCharacter::GetIsInvincible()
+{
+	return HealthComponent->IsInvincible;
+}
+
+bool ABlindEyePlayerCharacter::GetIsShrineInvincible()
+{
+	if (ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(GetWorld())))
+	{
+		AShrine* Shrine = BlindEyeGameState->GetShrine();
+		if (Shrine == nullptr) return false;
+		if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(Shrine))
+		{
+			return HealthInterface->Execute_GetHealthComponent(Shrine)->IsInvincible;
+		}
+	}
+	return false;
+}
+
+bool ABlindEyePlayerCharacter::GetIsUnlimitedBirdMeter()
+{
+	return bUnlimitedBirdMeter;
+}
+
+bool ABlindEyePlayerCharacter::GetIsWinConditionPaused()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return false;
+	
+	AGameStateBase* GameState = UGameplayStatics::GetGameState(World);
+	if (ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState))
+	{ 
+		return BlindEyeGameState->bWinConditionPaused;
+	}
+	return false;
+}
+
+bool ABlindEyePlayerCharacter::GetIsHunterAlwaysVisible()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return false;
+	
+	AGameStateBase* GameState = UGameplayStatics::GetGameState(World);
+	if (GameState)
+	{
+		if (ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState))
+		{
+			return BlindEyeGameState->bHunterAlwaysVisible;
+		}
+	}
+	return false;
 }
 
 void ABlindEyePlayerCharacter::HealthUpdated()
@@ -514,6 +648,12 @@ void ABlindEyePlayerCharacter::MoveRight(float Value)
 	}
 }
 
+void ABlindEyePlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ABlindEyePlayerCharacter, bUnlimitedBirdMeter);
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -541,13 +681,8 @@ void ABlindEyePlayerCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAction("Unique2", IE_Pressed, this, &ABlindEyePlayerCharacter::Unique2Pressed);
 	PlayerInputComponent->BindAction("Unique2", IE_Released, this, &ABlindEyePlayerCharacter::Unique2Released);
 
-	PlayerInputComponent->BindAction("Debug1", IE_Released, this, &ABlindEyePlayerCharacter::SER_DebugInvincibility);
-	PlayerInputComponent->BindAction("Debug2", IE_Released, this, &ABlindEyePlayerCharacter::SER_DebugKillAllSnappers);
-	PlayerInputComponent->BindAction("Debug3", IE_Released, this, &ABlindEyePlayerCharacter::SER_DebugKillAllBurrowers);
-	PlayerInputComponent->BindAction("Debug4", IE_Released, this, &ABlindEyePlayerCharacter::SER_DebugKillAllHunters);
-	PlayerInputComponent->BindAction("Debug5", IE_Released, this, &ABlindEyePlayerCharacter::SER_DamageSelf);
-	PlayerInputComponent->BindAction("Debug6", IE_Released, this, &ABlindEyePlayerCharacter::SER_DamageShrine);
-	PlayerInputComponent->BindAction("Debug7", IE_Released, this, &ABlindEyePlayerCharacter::SER_ShrineInvincibility);
+	PlayerInputComponent->BindAction("Debug1", IE_Released, this, &ABlindEyePlayerCharacter::SER_DamageSelf);
+	PlayerInputComponent->BindAction("Debug2", IE_Released, this, &ABlindEyePlayerCharacter::SER_DamageShrine);
 }
 
 
