@@ -13,7 +13,7 @@
 void AHunterEnemyController::BeginPlay()
 {
 	Super::BeginPlay();
-	SpawnOnDelay(nullptr);
+	OnHunterDeath(nullptr);
 }
 
 void AHunterEnemyController::SetTargetEnemy(AActor* target)
@@ -51,6 +51,18 @@ void AHunterEnemyController::PerformBasicAttack()
 	GetWorldTimerManager().SetTimer(BasicAttackDelayTimerHandle, this, &AHunterEnemyController::SetCanBasicAttack, BasicAttackDelay, false);
 }
 
+void AHunterEnemyController::DebugSpawnHunter()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	if (Hunter) return;
+
+	SpawnHunter();
+	World->GetTimerManager().ClearTimer(SpawnDelayTimerHandle);
+	
+}
+
 void AHunterEnemyController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
@@ -62,7 +74,7 @@ void AHunterEnemyController::OnPossess(APawn* InPawn)
 	
 	if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(Hunter))
 	{
-		HealthInterface->Execute_GetHealthComponent(Hunter)->OnDeathDelegate.AddUFunction(this, FName("SpawnOnDelay"));
+		HealthInterface->Execute_GetHealthComponent(Hunter)->OnDeathDelegate.AddUFunction(this, FName("OnHunterDeath"));
 	}
 
 	// Get random player to attack
@@ -85,12 +97,13 @@ void AHunterEnemyController::SetCanBasicAttack()
 	IsBasicAttackOnDelay = false;
 }
 
-void AHunterEnemyController::SpawnOnDelay(AActor* HunterKilled)
+void AHunterEnemyController::OnHunterDeath(AActor* HunterKilled)
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
 
 	world->GetTimerManager().SetTimer(SpawnDelayTimerHandle, this, &AHunterEnemyController::SpawnHunter, SpawnDelay, false);
+	Hunter = nullptr;
 }
 
 void AHunterEnemyController::SpawnHunter() 

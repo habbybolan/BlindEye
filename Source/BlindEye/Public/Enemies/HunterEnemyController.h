@@ -39,6 +39,10 @@ public:
 	bool CanBasicAttack();
 	bool IsInBasicAttackRange();
 	void PerformBasicAttack();
+
+	// Debugger functionality for spawning a hunter
+	//	If a hunter is already alive, then dont do anything
+	void DebugSpawnHunter();
 	
 protected:
 	TWeakObjectPtr<AActor> Target;
@@ -55,7 +59,7 @@ protected:
 	void SetCanBasicAttack();
 
 	UFUNCTION()
-	void SpawnOnDelay(AActor* HunterKilled);
+	void OnHunterDeath(AActor* HunterKilled);
 	UFUNCTION()
 	void SpawnHunter();
 	

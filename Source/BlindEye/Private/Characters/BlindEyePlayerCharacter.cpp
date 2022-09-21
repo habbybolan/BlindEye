@@ -329,14 +329,14 @@ void ABlindEyePlayerCharacter::SER_DebugSpawnBurrower_Implementation()
 
 void ABlindEyePlayerCharacter::SER_DebugSpawnHunter_Implementation()
 {
-	// UWorld* World = GetWorld();
-	// if (World == nullptr) return;
-	//
-	// if (AActor* HunterActorController = UGameplayStatics::GetActorOfClass(World, AHunterEnemyController::StaticClass()))
-	// {
-	// 	AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(HunterActorController);
-	// 	HunterController->
-	// }
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	if (AActor* HunterActorController = UGameplayStatics::GetActorOfClass(World, AHunterEnemyController::StaticClass()))
+	{
+		AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(HunterActorController);
+		HunterController->DebugSpawnHunter();
+	}
 }
 
 void ABlindEyePlayerCharacter::SER_DamageSelf_Implementation()
