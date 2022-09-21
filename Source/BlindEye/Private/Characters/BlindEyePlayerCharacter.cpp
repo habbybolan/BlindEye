@@ -21,7 +21,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "BlindEyeUtils.h"
 #include "Enemies/HunterEnemy.h"
+#include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "Gameplay/BlindEyeGameMode.h"
+#include "Kismet/KismetMathLibrary.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ATP_ThirdPersonCharacter
@@ -295,6 +297,32 @@ void ABlindEyePlayerCharacter::SER_DebugKillAllHunters_Implementation()
 	}
 }
 
+void ABlindEyePlayerCharacter::SER_DebugSpawnSnapper_Implementation()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	TArray<AActor*> BurrowerSpawnPoints;
+	UGameplayStatics::GetAllActorsOfClass(World, ABurrowerSpawnPoint::StaticClass(), BurrowerSpawnPoints);
+	if (BurrowerSpawnPoints.Num() == 0) return;
+	
+	ABurrowerSpawnPoint* BurrSpawnPoint = Cast<ABurrowerSpawnPoint>(BurrowerSpawnPoints[UKismetMathLibrary::RandomIntegerInRange(0, BurrowerSpawnPoints.Num() - 1)]);
+	if (BurrSpawnPoint)
+	{
+		World->SpawnActor<ASnapperEnemy>(SnapperType, BurrSpawnPoint->GetActorLocation(), BurrSpawnPoint->GetActorRotation());
+	}
+}
+
+void ABlindEyePlayerCharacter::SER_DebugSpawnBurrower_Implementation()
+{
+	// TODO:
+}
+
+void ABlindEyePlayerCharacter::SER_DebugSpawnHunter_Implementation()
+{
+	// TODO
+}
+
 void ABlindEyePlayerCharacter::SER_DamageSelf_Implementation()
 {
 	UGameplayStatics::ApplyPointDamage(this, 10, FVector::ZeroVector, FHitResult(),
@@ -400,6 +428,7 @@ void ABlindEyePlayerCharacter::SER_PauseWinCondition_Implementation(bool IsWinCo
 		BlindEyeGM->PauseWinCondition(IsWinCondPaused);
 	}
 }
+
 
 bool ABlindEyePlayerCharacter::GetIsInvincible()
 {

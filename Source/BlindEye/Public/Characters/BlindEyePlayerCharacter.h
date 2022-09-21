@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BlindEyeBaseCharacter.h"
+#include "Enemies/SnapperEnemy.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/AbilityUserInterface.h"
 #include "Interfaces/HealthInterface.h"
@@ -86,12 +87,20 @@ public:
 
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void SER_DebugInvincibility(bool IsInvincible);
+	// Kill Debuggers
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void SER_DebugKillAllSnappers();
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void SER_DebugKillAllBurrowers();
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void SER_DebugKillAllHunters();
+	// Spawn Debuggers
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_DebugSpawnSnapper();
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_DebugSpawnBurrower();
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_DebugSpawnHunter();
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void SER_DamageSelf(); 
 	UFUNCTION(Server, Reliable, BlueprintCallable)
@@ -111,6 +120,9 @@ public:
 	bool GetIsUnlimitedBirdMeter();
 	UFUNCTION(BlueprintCallable) 
 	bool GetIsWinConditionPaused();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<ASnapperEnemy> SnapperType;
 
 	// End Debugger Functionality *********
 
