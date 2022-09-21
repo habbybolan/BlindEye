@@ -103,6 +103,7 @@ public:
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void SER_DebugSpawnHunter();
 	UFUNCTION(Server, Reliable, BlueprintCallable)
+	
 	void SER_DamageSelf(); 
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void SER_DamageShrine();
@@ -181,6 +182,7 @@ protected:
 	const float RegenHealthCallDelay = 0.2f;	// Delay on timer call for regen-ing bird meter
 	FTimerHandle HealthRegenTimerHandle;
 
+	UPROPERTY(Replicated)
 	bool bUnlimitedBirdMeter = false;
 	
 	/** Called for forwards/backward input */
@@ -238,6 +240,8 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
 	ABlindEyePlayerState* GetAllyPlayerState();
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:
 	/** Returns CameraBoom subobject **/

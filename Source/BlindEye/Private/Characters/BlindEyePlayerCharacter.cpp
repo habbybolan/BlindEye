@@ -26,6 +26,7 @@
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "Gameplay/BlindEyeGameMode.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ATP_ThirdPersonCharacter
@@ -642,6 +643,12 @@ void ABlindEyePlayerCharacter::MoveRight(float Value)
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
+}
+
+void ABlindEyePlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ABlindEyePlayerCharacter, bUnlimitedBirdMeter);
 }
 
 //////////////////////////////////////////////////////////////////////////
