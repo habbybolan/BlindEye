@@ -21,6 +21,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "BlindEyeUtils.h"
 #include "Enemies/HunterEnemy.h"
+#include "Gameplay/BlindEyeGameMode.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ATP_ThirdPersonCharacter
@@ -387,6 +388,19 @@ float ABlindEyePlayerCharacter::GetMaxHealth_Implementation()
 	return 0;
 }
 
+void ABlindEyePlayerCharacter::SER_PauseWinCondition_Implementation(bool IsWinCondPaused)
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+
+	bWinConditionPaused = IsWinCondPaused;
+	AGameModeBase* GameMode = UGameplayStatics::GetGameMode(World);
+	if (ABlindEyeGameMode* BlindEyeGM = Cast<ABlindEyeGameMode>(GameMode))
+	{
+		BlindEyeGM->PauseWinCondition(IsWinCondPaused);
+	}
+}
+
 bool ABlindEyePlayerCharacter::GetIsInvincible()
 {
 	return HealthComponent->IsInvincible;
@@ -409,6 +423,11 @@ bool ABlindEyePlayerCharacter::GetIsShrineInvincible()
 bool ABlindEyePlayerCharacter::GetIsUnlimitedBirdMeter()
 {
 	return bUnlimitedBirdMeter;
+}
+
+bool ABlindEyePlayerCharacter::GetIsWinConditionPaused()
+{
+	return bWinConditionPaused;
 }
 
 void ABlindEyePlayerCharacter::HealthUpdated()

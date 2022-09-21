@@ -99,7 +99,9 @@ public:
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void SER_ShrineInvincibility(bool IsInvincible);
 	UFUNCTION(Server, Reliable, BlueprintCallable)
-	void SER_UnlimitedBirdMeter(bool IsUnlimited); 
+	void SER_UnlimitedBirdMeter(bool IsUnlimited);
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_PauseWinCondition(bool IsWinCondPaused);  
 
 	UFUNCTION(BlueprintCallable)
 	bool GetIsInvincible();
@@ -107,6 +109,8 @@ public:
 	bool GetIsShrineInvincible();
 	UFUNCTION(BlueprintCallable)
 	bool GetIsUnlimitedBirdMeter();
+	UFUNCTION(BlueprintCallable) 
+	bool GetIsWinConditionPaused();
 
 	// End Debugger Functionality *********
 
@@ -161,6 +165,7 @@ protected:
 	FTimerHandle HealthRegenTimerHandle;
 
 	bool bUnlimitedBirdMeter = false;
+	bool bWinConditionPaused = false;
 	
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
