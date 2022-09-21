@@ -30,6 +30,10 @@ public:
 	UPROPERTY(Replicated)
 	bool bWinConditionPaused = false;
 
+	// debugger flag for making hunter visible
+	UPROPERTY(Replicated)
+	bool bHunterAlwaysVisible = false;
+
 protected:
 	TWeakObjectPtr<AShrine> Shrine;
 

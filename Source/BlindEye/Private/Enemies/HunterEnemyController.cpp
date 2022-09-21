@@ -7,8 +7,14 @@
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
+#include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Net/UnrealNetwork.h"
+
+AHunterEnemyController::AHunterEnemyController()
+{
+}
 
 void AHunterEnemyController::BeginPlay()
 {
@@ -18,20 +24,21 @@ void AHunterEnemyController::BeginPlay()
 
 void AHunterEnemyController::SetAlwaysVisible(bool IsAlwaysVisible)
 {
-	DebugAlwaysVisible = IsAlwaysVisible;
-	// Try to set current hunter visible if existing
-	if (DebugAlwaysVisible)
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	AGameStateBase* GameState = UGameplayStatics::GetGameState(World);
+	if (GameState)
 	{
-		if (Hunter)
+		if (ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState))
 		{
-			Hunter->TryTurnVisible();
+			BlindEyeGameState->bHunterAlwaysVisible = IsAlwaysVisible;
+			if (Hunter)
+			{
+				Hunter->TryTurnVisible();
+			}
 		}
 	}
-}
-
-bool AHunterEnemyController::GetAlwaysVisible()
-{
-	return DebugAlwaysVisible;
 }
 
 void AHunterEnemyController::SetTargetEnemy(AActor* target)
@@ -126,11 +133,11 @@ void AHunterEnemyController::OnHunterDeath(AActor* HunterKilled)
 
 void AHunterEnemyController::SpawnHunter() 
 {
-	UWorld* world = GetWorld();
-	if (!world) return;
+	UWorld* World = GetWorld();
+	if (!World) return;
 
 	TArray<AActor*> SpawnPoints;
-	UGameplayStatics::GetAllActorsOfClass(world, ABurrowerSpawnPoint::StaticClass(),SpawnPoints);
+	UGameplayStatics::GetAllActorsOfClass(World, ABurrowerSpawnPoint::StaticClass(),SpawnPoints);
 	if (SpawnPoints.Num() == 0) return;
 	AActor* SpawnPoint = SpawnPoints[UKismetMathLibrary::RandomIntegerInRange(0, SpawnPoints.Num() - 1)];
 	
@@ -138,10 +145,20 @@ void AHunterEnemyController::SpawnHunter()
 	FRotator Rotation = SpawnPoint->GetActorRotation();
 	FActorSpawnParameters params; 
 	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-	AHunterEnemy* SpawnedHunter = world->SpawnActor<AHunterEnemy>(HunterType, SpawnLocation, Rotation, params);
+	AHunterEnemy* SpawnedHunter = World->SpawnActor<AHunterEnemy>(HunterType, SpawnLocation, Rotation, params);
 
+	bool bAlwaysVisible = false;
+	AGameStateBase* GameState = UGameplayStatics::GetGameState(World);
+	if (GameState)
+	{
+		if (ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState))
+		{
+			bAlwaysVisible = BlindEyeGameState->bHunterAlwaysVisible;
+		}
+	}
+	
 	// if debugger for always visible, spawn hunter visible
-	if (DebugAlwaysVisible)
+	if (bAlwaysVisible)
 	{
 		SpawnedHunter->TryTurnVisible();
 	}

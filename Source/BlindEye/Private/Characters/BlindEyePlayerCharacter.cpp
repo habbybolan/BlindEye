@@ -500,10 +500,13 @@ bool ABlindEyePlayerCharacter::GetIsHunterAlwaysVisible()
 	UWorld* World = GetWorld();
 	if (World == nullptr) return false;
 	
-	if (AActor* HunterActorController = UGameplayStatics::GetActorOfClass(World, AHunterEnemyController::StaticClass()))
+	AGameStateBase* GameState = UGameplayStatics::GetGameState(World);
+	if (GameState)
 	{
-		AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(HunterActorController);
-		return HunterController->GetAlwaysVisible();
+		if (ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState))
+		{
+			return BlindEyeGameState->bHunterAlwaysVisible;
+		}
 	}
 	return false;
 }

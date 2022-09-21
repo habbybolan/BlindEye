@@ -30,13 +30,14 @@ void AHunterEnemy::TryTurnVisible()
 	if (IsVisible) return;
 
 	IsVisible = true;
-	TurnVisible();
+	MULT_TurnVisible();
 }
 
 void AHunterEnemy::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	// TODO: Move to timer for optimization
 	if (IsVisible == false)
 	{
 		UWorld* World = GetWorld();
@@ -51,4 +52,9 @@ void AHunterEnemy::Tick(float DeltaSeconds)
 		}
 	}
 	
+}
+
+void AHunterEnemy::MULT_TurnVisible_Implementation()
+{
+	TurnVisible();
 }

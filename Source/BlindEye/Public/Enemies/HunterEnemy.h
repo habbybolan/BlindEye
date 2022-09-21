@@ -43,6 +43,10 @@ protected:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	// Intermediary method to make RPC call to blueprint implementable method
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_TurnVisible();
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void TurnVisible();
 	

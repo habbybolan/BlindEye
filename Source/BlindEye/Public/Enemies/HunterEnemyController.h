@@ -16,6 +16,7 @@ class BLINDEYE_API AHunterEnemyController : public ABlindEyeEnemyController
 	GENERATED_BODY()
 
 public:
+	AHunterEnemyController();
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
@@ -31,7 +32,6 @@ public:
 	TSubclassOf<AHunterEnemy> HunterType;
 
 	void SetAlwaysVisible(bool IsAlwaysVisible);
-	bool GetAlwaysVisible();
 
 	// Calls blueprint to initialize behavior tree
 	UFUNCTION(BlueprintImplementableEvent)
@@ -58,9 +58,6 @@ protected:
 	UPROPERTY() 
 	AHunterEnemy* Hunter;
 
-	UPROPERTY()
-	bool DebugAlwaysVisible = false;
-
 	virtual void OnPossess(APawn* InPawn) override;
 	void SetCanBasicAttack();
 
@@ -68,5 +65,4 @@ protected:
 	void OnHunterDeath(AActor* HunterKilled);
 	UFUNCTION()
 	void SpawnHunter();
-	
 };
