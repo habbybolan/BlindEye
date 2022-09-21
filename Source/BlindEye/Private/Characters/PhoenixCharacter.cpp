@@ -3,3 +3,4 @@
 
 #include "Characters/PhoenixCharacter.h"
 
+APhoenixCharacter::APhoenixCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}

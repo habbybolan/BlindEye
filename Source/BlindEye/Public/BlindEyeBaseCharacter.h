@@ -19,7 +19,7 @@ class BLINDEYE_API ABlindEyeBaseCharacter : public ACharacter, public IHealthInt
 
 public:
 	// Sets default values for this character's properties
-	ABlindEyeBaseCharacter();
+	ABlindEyeBaseCharacter(const FObjectInitializer& ObjectInitializer);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UMarkerComponent* MarkerComponent;

@@ -23,12 +23,12 @@ class BLINDEYE_API ABurrowerEnemy : public ABlindEyeEnemyBase
 
 public:
 
-	ABurrowerEnemy();
+	ABurrowerEnemy(const FObjectInitializer& ObjectInitializer);
 
 	// Spawn the burrower at a point, and either attack or spawn snappers depending on action state
-	void SpawnAction(FTransform SpawnLocation);
-
-	void AttackAction(ABlindEyePlayerCharacter* target);
+	// void SpawnAction(FTransform SpawnLocation);
+	//
+	// void AttackAction(ABlindEyePlayerCharacter* target);
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	uint8 MinSnappersSpawn = 2;
@@ -48,20 +48,26 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<ASnapperEnemy> SnapperType;
 
-	FOnTimelineFloat SpawnUpdateEvent; 
-	FOnTimelineEvent SpawnFinishedEvent;
+	FOnTimelineFloat SurfacingUpdateEvent; 
+	FOnTimelineEvent SurfacingFinishedEvent;
 
 	FOnTimelineFloat HideUpdateEvent; 
 	FOnTimelineEvent HideFinishedEvent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UTimelineComponent* SpawnTimelineComponent;
+	UTimelineComponent* SurfacingTimelineComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UTimelineComponent* HideTimelineComponent;
 
 	DECLARE_DELEGATE(FActionStateFinishedSignature)
 	FActionStateFinishedSignature ActionStateFinished;
+
+	DECLARE_DELEGATE(FSurfacingFinishedSignature)
+	FSurfacingFinishedSignature SurfacingFinished;
+
+	DECLARE_DELEGATE(FHidingFinishedSignature)
+	FHidingFinishedSignature HidingFinished; 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float AttackDelayBeforeEmerging = 1.f;
@@ -74,6 +80,33 @@ public:
  
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UNiagaraSystem* FollowParticle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=SurfacingDamage)
+	TSubclassOf<UBaseDamageType> SurfacingDamageType;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=SurfacingDamage)
+	TArray<TEnumAsByte<EObjectTypeQuery>> SurfacingObjectTypes;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=SurfacingDamage)
+	float SurfacingRadius = 200.f;
+ 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=SurfacingDamage)
+	float SurfacingDamage = 20.f;
+	
+	void StartSurfacing();
+	void PerformSurfacingDamage();
+	void StartHiding();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_SetBurrowerState(bool isHidden, bool bFollowing);
+
+	UFUNCTION()
+	void SpawnSnappers(); 
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_SpawnWarningParticle();
+	UFUNCTION(NetMulticast, Reliable) 
+	void MULT_DespawnWarningParticle();
  
 protected:
 
@@ -91,23 +124,23 @@ protected:
 	UPROPERTY()
 	UNiagaraComponent* SpawnedFollowParticle;
 
-	UFUNCTION()
-	void StartAttackAppearance();
-	UFUNCTION()
-	void PerformAttackAppearance();
+	// UFUNCTION()
+	// void StartAttackAppearance();
+	// UFUNCTION()
+	// void PerformAttackAppearance();
 
 	// Timeline functions for burrower appearing
 
 	UFUNCTION()
-	void TimelineSpawnMovement();
+	void TimelineSurfacingMovement(float Value);
 
 	UFUNCTION()
-	void TimelineSpawnFinished();
+	void TimelineSurfacingFinished();
 
 	// Timeline functions for hiding burrower
 
 	UFUNCTION()
-	void TimelineHideMovement();
+	void TimelineHideMovement(float Value);
 
 	UFUNCTION()
 	void TimelineHideFinished();
@@ -116,12 +149,12 @@ protected:
 	void StartHideLogic();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UCurveFloat* SpawnCurve;
+	UCurveFloat* SurfacingCurve;
  
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UCurveFloat* HideCurve;
 
-	FTimerHandle HideTimerHandle;
+	// FTimerHandle HideTimerHandle;
 	FVector CachedSpawnLocation;
 
 	FVector CachedBeforeHidePosition;
@@ -131,22 +164,12 @@ protected:
 	// Used in expiring the burrower from following player forever and delay on re-emerging from ground
 	FTimerHandle AttackTimerHandle;
 	
-	UFUNCTION()
-	void SpawnSnappers();
+	void SetSurfacingHiding();
+	void SetDisappeared();
+	void SetAppeared();
+	void SetFollowing();
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SetAppearingHiding();
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SetDisappeared();
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SetAppeared();
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SetFollowing();
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SpawnWarningParticle();
-	UFUNCTION(NetMulticast, Reliable) 
-	void MULT_DespawnWarningParticle();
+	
 
 	
 	UFUNCTION(NetMulticast, Reliable)

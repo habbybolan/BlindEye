@@ -5,6 +5,8 @@
 #include "DamageTypes/BaseDamageType.h"
 #include "Kismet/GameplayStatics.h"
 
+AHunterEnemy::AHunterEnemy(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}
+
 void AHunterEnemy::PerformBasicAttack()
 {
 	UWorld* world = GetWorld();
