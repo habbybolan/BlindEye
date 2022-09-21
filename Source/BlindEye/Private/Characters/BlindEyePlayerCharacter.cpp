@@ -21,6 +21,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "BlindEyeUtils.h"
 #include "Enemies/HunterEnemy.h"
+#include "Enemies/HunterEnemyController.h"
+#include "Enemies/Burrower/BurrowerSpawnManager.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "Gameplay/BlindEyeGameMode.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -315,12 +317,26 @@ void ABlindEyePlayerCharacter::SER_DebugSpawnSnapper_Implementation()
 
 void ABlindEyePlayerCharacter::SER_DebugSpawnBurrower_Implementation()
 {
-	// TODO:
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	if (AActor* BurrowerManager = UGameplayStatics::GetActorOfClass(World, ABurrowerSpawnManager::StaticClass()))
+	{
+		ABurrowerSpawnManager* HunterController = Cast<ABurrowerSpawnManager>(BurrowerManager);
+		HunterController->SpawnBurrower();
+	}
 }
 
 void ABlindEyePlayerCharacter::SER_DebugSpawnHunter_Implementation()
 {
-	// TODO
+	// UWorld* World = GetWorld();
+	// if (World == nullptr) return;
+	//
+	// if (AActor* HunterActorController = UGameplayStatics::GetActorOfClass(World, AHunterEnemyController::StaticClass()))
+	// {
+	// 	AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(HunterActorController);
+	// 	HunterController->
+	// }
 }
 
 void ABlindEyePlayerCharacter::SER_DamageSelf_Implementation()

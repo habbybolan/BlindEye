@@ -22,6 +22,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<ABurrowerEnemy> BurrowerType;
 
+	void SpawnBurrower();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -33,8 +35,7 @@ protected:
 
 	UFUNCTION()
 	void OnBurrowerDeath(AActor* BurrowerActor);
-
-	void SpawnBurrower();
+	
 	FTransform FindRandomSpawnPoint();
 	void CacheSpawnPoints();
 

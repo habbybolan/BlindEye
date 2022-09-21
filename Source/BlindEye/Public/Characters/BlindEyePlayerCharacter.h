@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "BlindEyeBaseCharacter.h"
 #include "Enemies/SnapperEnemy.h"
+#include "Enemies/Burrower/BurrowerEnemy.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/AbilityUserInterface.h"
 #include "Interfaces/HealthInterface.h"
@@ -227,7 +228,6 @@ protected:
 	void Unique2Pressed();
 	UFUNCTION()
 	void Unique2Released();
-
 	
 
 protected:
