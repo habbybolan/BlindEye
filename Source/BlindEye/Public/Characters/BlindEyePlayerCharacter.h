@@ -99,12 +99,14 @@ public:
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void SER_ShrineInvincibility(bool IsInvincible);
 	UFUNCTION(Server, Reliable, BlueprintCallable)
-	void SER_UnlimitedBirdMeter();
+	void SER_UnlimitedBirdMeter(bool IsUnlimited); 
 
 	UFUNCTION(BlueprintCallable)
 	bool GetIsInvincible();
 	UFUNCTION(BlueprintCallable)
 	bool GetIsShrineInvincible();
+	UFUNCTION(BlueprintCallable)
+	bool GetIsUnlimitedBirdMeter();
 
 	// End Debugger Functionality *********
 
@@ -158,7 +160,7 @@ protected:
 	const float RegenHealthCallDelay = 0.2f;	// Delay on timer call for regen-ing bird meter
 	FTimerHandle HealthRegenTimerHandle;
 
-	bool bUnlimitedBirdMeter = true;
+	bool bUnlimitedBirdMeter = false;
 	
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);

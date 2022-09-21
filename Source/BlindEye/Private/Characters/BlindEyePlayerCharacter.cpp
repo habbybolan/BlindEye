@@ -329,9 +329,9 @@ void ABlindEyePlayerCharacter::SER_ShrineInvincibility_Implementation(bool IsInv
 	}
 }
 
-void ABlindEyePlayerCharacter::SER_UnlimitedBirdMeter_Implementation()
+void ABlindEyePlayerCharacter::SER_UnlimitedBirdMeter_Implementation(bool IsUnlimited)
 {
-	
+	bUnlimitedBirdMeter = IsUnlimited;
 }
 
 float ABlindEyePlayerCharacter::GetHealth_Implementation()
@@ -404,6 +404,11 @@ bool ABlindEyePlayerCharacter::GetIsShrineInvincible()
 		}
 	}
 	return false;
+}
+
+bool ABlindEyePlayerCharacter::GetIsUnlimitedBirdMeter()
+{
+	return bUnlimitedBirdMeter;
 }
 
 void ABlindEyePlayerCharacter::HealthUpdated()
