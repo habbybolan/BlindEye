@@ -42,6 +42,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Range = 400;
 
+	UPROPERTY(EditDefaultsOnly)
+	TEnumAsByte<ETraceTypeQuery> MouseRayTrace;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<	EObjectTypeQuery>> ObjectTypes;
 

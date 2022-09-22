@@ -46,14 +46,31 @@ void APhoenixDive::HangInAirTimer()
 
 void APhoenixDive::LaunchToGround()
 {
+	UWorld* world = GetWorld();
+	if (!world) return;
+	
+	FVector InstigatorFwd;
+	APlayerController* PlayerController = Cast<APlayerController>(GetInstigator()->GetController());
+	FVector Position;
+	FVector Rotation;
+	if (PlayerController->DeprojectMousePositionToWorld(Position, Rotation))
+	{
+		FHitResult Hit;
+		if (UKismetSystemLibrary::LineTraceSingle(world, Position, Position + Rotation * 10000, MouseRayTrace,
+			false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, Hit, true))
+		{
+			FVector HitLocation = Hit.Location + FVector::UpVector * 100;
+			InstigatorFwd = HitLocation - GetOwner()->GetActorLocation();
+		}
+	}
+	
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
 	Character->GetCharacterMovement()->GravityScale = 1.f;
 
-	FRotator LaunchRotation = Character->GetControlRotation();
+	FRotator LaunchRotation = InstigatorFwd.Rotation();
 	Character->GetCharacterMovement()->AddImpulse(LaunchRotation.Vector() * 200000);
 
-	UWorld* world = GetWorld();
-	if (!world) return;
+	
 
 	// prevent hanging in air
 	world->GetTimerManager().ClearTimer(HangInAirTimerHandle);

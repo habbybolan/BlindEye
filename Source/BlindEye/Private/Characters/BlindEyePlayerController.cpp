@@ -83,3 +83,10 @@ void ABlindEyePlayerController::CLI_GameWon_Implementation()
 		BlindEyeCharacter->OnGameWon();
 	}
 }
+
+void ABlindEyePlayerController::BeginPlay()
+{
+
+	Super::BeginPlay();
+	SetShowMouseCursor(true);
+}

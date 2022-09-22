@@ -61,6 +61,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<EObjectTypeQuery>> ConeTraceObjectTypes;
 
+	UPROPERTY(EditDefaultsOnly)
+	TEnumAsByte<ETraceTypeQuery> MouseRayTrace;
+
 	// Deals with damage from the cone and the fireball. Fireball sends its damage event to this
 	void DealWithDamage(AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit, float Damage);
 

@@ -32,6 +32,8 @@ public:
 private:
 	UPROPERTY()
 	ABlindEyePlayerCharacter* OwningCharacter;
+
+	virtual void BeginPlay() override;
 	
 };
 

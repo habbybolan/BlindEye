@@ -20,8 +20,21 @@ void ACrowFlurry::StartCrowFlurry()
 	UWorld* world = GetWorld();
 	if (!world) return;
 	world->GetTimerManager().SetTimer(CrowFlurryTimerHandle, this, &ACrowFlurry::PerformCrowFlurry, 0.2f, true);
-	
-	MULT_SpawnCrowFlurry(GetInstigator()->GetControlRotation());
+
+	APlayerController* PlayerController = Cast<APlayerController>(GetInstigator()->GetController());
+	FVector Position;
+	FVector Rotation;
+	if (PlayerController->DeprojectMousePositionToWorld(Position, Rotation))
+	{
+		FHitResult Hit;
+		if (UKismetSystemLibrary::LineTraceSingle(world, Position, Position + Rotation * 1000, MouseRayTrace,
+			false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, Hit, true))
+		{
+			FVector HitLocation = Hit.Location + FVector::UpVector * 30;
+			FRotator rotation = (HitLocation - GetOwner()->GetActorLocation()).Rotation();
+			MULT_SpawnCrowFlurry(rotation);
+		}
+	}
 }
 
 void ACrowFlurry::MULT_SpawnCrowFlurry_Implementation(FRotator rotation)
@@ -33,8 +46,22 @@ void ACrowFlurry::PerformCrowFlurry()
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
+
+	FVector InstigatorFwd;
+	APlayerController* PlayerController = Cast<APlayerController>(GetInstigator()->GetController());
+	FVector Position;
+	FVector Rotation;
+	if (PlayerController->DeprojectMousePositionToWorld(Position, Rotation))
+	{
+		FHitResult Hit;
+		if (UKismetSystemLibrary::LineTraceSingle(world, Position, Position + Rotation * 10000, MouseRayTrace,
+			false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, Hit, true))
+		{
+			FVector HitLocation = Hit.Location + FVector::UpVector * 100;
+			InstigatorFwd = HitLocation - GetOwner()->GetActorLocation();
+		}
+	}
  
-	FVector InstigatorFwd =  GetInstigator()->GetControlRotation().Vector() * Range;
 	FVector TargetLocation = GetInstigator()->GetActorLocation() + InstigatorFwd;
 
 	TArray<FHitResult> OutHits;

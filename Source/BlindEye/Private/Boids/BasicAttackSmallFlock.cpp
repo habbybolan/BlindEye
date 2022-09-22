@@ -23,15 +23,34 @@ void ABasicAttackSmallFlock::Tick(float DeltaSeconds)
 
 void ABasicAttackSmallFlock::BeginPlay()
 {
-	if (GetLocalRole() < ROLE_Authority) return;
 	
+	if (GetLocalRole() < ROLE_Authority) return;
 	Super::BeginPlay();
-	// TODO: Spawn Target point distance from Instigator, using their forward position
-	FVector InstigatorFwd =  GetInstigator()->GetControlRotation().Vector() * TargetDistanceFromInstigator;
-	FVector SpawnLocation = GetInstigator()->GetActorLocation() + InstigatorFwd;
 
 	UWorld* world = GetWorld();
 	if (!world) return;
+	
+	// TODO: Spawn Target point distance from Instigator, using their forward position
+
+	FVector InstigatorFwd; // =  GetInstigator()->GetControlRotation().Vector() * TargetDistanceFromInstigator;
+	
+	APlayerController* PlayerController = Cast<APlayerController>(GetInstigator()->GetController());
+	FVector Position;
+	FVector Rotation;
+	if (PlayerController->DeprojectMousePositionToWorld(Position, Rotation))
+	{
+		FHitResult Hit;
+		if (UKismetSystemLibrary::LineTraceSingle(world, Position, Position + Rotation * 10000, MouseRayTrace,
+			false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, Hit, true))
+		{
+			FVector HitLocation = Hit.Location + FVector::UpVector * 100;
+			InstigatorFwd = HitLocation - GetOwner()->GetActorLocation();
+		}
+	}
+	
+	
+	FVector SpawnLocation = GetInstigator()->GetActorLocation() + InstigatorFwd;
+	
 	
 	Target = world->SpawnActor<AActor>(TargetType, SpawnLocation, FRotator::ZeroRotator);
 	// manually call initialize flock if server, client calls once target is replicated

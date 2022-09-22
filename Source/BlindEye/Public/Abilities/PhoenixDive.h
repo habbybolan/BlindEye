@@ -76,6 +76,9 @@ public:
 	FTimerHandle HangInAirTimerHandle;
 	FTimerHandle MaxHangingTimerHandle;
 
+	UPROPERTY(EditDefaultsOnly)
+	TEnumAsByte<ETraceTypeQuery> MouseRayTrace;
+
 protected:
 
 	void hangingInAirExpired();
