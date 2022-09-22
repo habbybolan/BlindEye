@@ -3,6 +3,7 @@
 
 #include "Abilities/PhoenixDive.h"
 
+#include "NiagaraFunctionLibrary.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -13,6 +14,7 @@ APhoenixDive::APhoenixDive() : AAbilityBase()
 {
 	AbilityStates.Add(new FJumpState(this));
 	AbilityStates.Add(new FInAirState(this));
+	AbilityStates.Add(new FHangingState(this));
 }
 
 void APhoenixDive::LaunchPlayerUpwards()
@@ -20,6 +22,10 @@ void APhoenixDive::LaunchPlayerUpwards()
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
 	Character->GetCharacterMovement()->StopMovementImmediately();
 	Character->GetCharacterMovement()->AddImpulse(FVector::UpVector * 100000);
+
+	UWorld* world = GetWorld();
+	if (!world) return;
+	world->GetTimerManager().SetTimer(MaxHangingTimerHandle, this, &APhoenixDive::hangingInAirExpired, MaxTimeHanging, false);
 }
 
 void APhoenixDive::HangInAir()
@@ -27,6 +33,7 @@ void APhoenixDive::HangInAir()
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
 	Character->GetCharacterMovement()->GravityScale = 0.f;
 	Character->GetCharacterMovement()->StopMovementImmediately();
+	AbilityStates[CurrState]->ExitState();
 }
 
 void APhoenixDive::HangInAirTimer()
@@ -50,8 +57,16 @@ void APhoenixDive::LaunchToGround()
 
 	// prevent hanging in air
 	world->GetTimerManager().ClearTimer(HangInAirTimerHandle);
+	// remove hanging expiration
+	world->GetTimerManager().ClearTimer(MaxHangingTimerHandle);
 
 	Character->GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &APhoenixDive::CollisionWithGround);
+}
+
+void APhoenixDive::hangingInAirExpired()
+{
+	// force a user input to launch to ground after time expired
+	AbilityStates[CurrState]->TryEnterState(EAbilityInputTypes::Pressed);
 }
 
 void APhoenixDive::EndLaunchUp()
@@ -75,6 +90,9 @@ void APhoenixDive::CollisionWithGround(UPrimitiveComponent* HitComponent, AActor
 		GetInstigator()->GetController(), GetInstigator(), DamageType);
 	// Apply damage to rest of enemies
 	UGameplayStatics::ApplyRadialDamage(world, Damage, Hit.Location, Radius, DamageType, TArray<AActor*>(), GetInstigator());
+
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(world, CollisionParticle, GetOwner()->GetActorLocation(), FRotator::ZeroRotator);
+	
 	UnsubscribeToGroundCollision();
 }
 
@@ -84,7 +102,13 @@ void APhoenixDive::UnsubscribeToGroundCollision()
 	if (!Character) return;
 	
 	// unbind delegate
-	Character->GetCapsuleComponent()->OnComponentHit.Remove(this, FName("CollisionWithGround"));
+	Character->GetCapsuleComponent()->OnComponentHit.Remove(this, TEXT("CollisionWithGround"));
+	AbilityStates[CurrState]->ExitState();
+}
+
+void APhoenixDive::EndAbilityLogic()
+{
+	Super::EndAbilityLogic();
 }
 
 // **** States *******
@@ -124,6 +148,7 @@ void FJumpState::ExitState()
 	if (!Ability) return;
 
 	Ability->EndCurrState();
+	// enter next state
 	Ability->UseAbility(EAbilityInputTypes::None);
 }
 
@@ -139,6 +164,7 @@ void FInAirState::TryEnterState(EAbilityInputTypes abilityUsageType)
 
 void FInAirState::RunState(EAbilityInputTypes abilityUsageType)
 {
+	if (abilityUsageType > EAbilityInputTypes::None) return;
 	FAbilityState::RunState(abilityUsageType);
 	
 	if (!Ability) return;
@@ -148,15 +174,8 @@ void FInAirState::RunState(EAbilityInputTypes abilityUsageType)
 	Ability->Blockers.IsMovementBlocked = true;
 	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 
-	if (abilityUsageType == EAbilityInputTypes::Released)
-	{
-		PhoenixDive->LaunchToGround();
-		ExitState();
-	} else
-	{
-		PhoenixDive->HangInAirTimer();
-	}
-}
+	PhoenixDive->HangInAirTimer();
+} 
 
 void FInAirState::ExitState()
 {
@@ -164,4 +183,36 @@ void FInAirState::ExitState()
 	if (!Ability) return;
 	Ability->EndCurrState();
 }
+
+// Hanging State **********
+
+FHangingState::FHangingState(AAbilityBase* ability) : FAbilityState(ability) {}
+
+void FHangingState::TryEnterState(EAbilityInputTypes abilityUsageType)
+{
+	FAbilityState::TryEnterState(abilityUsageType);
+	if (abilityUsageType == EAbilityInputTypes::Pressed)
+	{
+		RunState();
+	}
+}
+
+void FHangingState::RunState(EAbilityInputTypes abilityUsageType)
+{
+	if (abilityUsageType > EAbilityInputTypes::None) return;
+	FAbilityState::RunState(abilityUsageType);
+	if (!Ability) return;
+	APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability);
+	if (!PhoenixDive) return;
+	
+	PhoenixDive->LaunchToGround();
+}
+
+void FHangingState::ExitState()
+{
+	FAbilityState::ExitState();
+	if (!Ability) return;
+	Ability->EndCurrState();
+}
+
 
