@@ -78,9 +78,6 @@ public:
 
 protected:
 
-	UPROPERTY()
-	TArray<UNiagaraComponent*> SpawnedCollisionParticle;
-
 	void hangingInAirExpired();
 	
 	void EndLaunchUp();
