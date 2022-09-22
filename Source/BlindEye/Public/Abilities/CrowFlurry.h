@@ -61,9 +61,7 @@ public:
 	void StopCrowFlurry();
 
 protected:
-
-	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
-
+	
 	FTimerHandle CrowFlurryTimerHandle;
 
 	UFUNCTION()

@@ -52,7 +52,7 @@ void ACrowFlurry::PerformCrowFlurry()
 	if (!TryConsumeBirdMeter(CostPercentPerSec * 0.2f))
 	{
 		// if out of bird meter, simulate releasing button
-		AbilityStates[CurrState]->HandleInput(EAbilityInputTypes::Released);
+		AbilityStates[CurrState]->HandleInput(EAbilityInputTypes::Pressed);
 	}
 }
 
@@ -98,13 +98,15 @@ UFirstCrowFlurryState::UFirstCrowFlurryState(AAbilityBase* ability) : FAbilitySt
 void UFirstCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState();
+	if (abilityUsageType != EAbilityInputTypes::Pressed) return;
+	
 	// apply initial cost
 	if (!Ability) return;
 	if (ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability))
 	{
 		if (!CrowFlurry->TryConsumeBirdMeter(CrowFlurry->InitialCostPercent)) return;
+		CrowFlurry->StartCrowFlurry();
 	}
-	if (CurrInnerState > EInnerState::None) return;
 	RunState();
 }
 
@@ -118,16 +120,12 @@ void UFirstCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
 	
 	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);
 	if (!CrowFlurry) return;
-	
 
 	// leave running state on ability released
-	if (abilityUsageType == EAbilityInputTypes::Released)
+	if (abilityUsageType == EAbilityInputTypes::Pressed)
 	{
 		CrowFlurry->StopCrowFlurry();
 		ExitState();
-	} else
-	{
-		CrowFlurry->StartCrowFlurry();
 	}
 }
 
@@ -135,11 +133,6 @@ void UFirstCrowFlurryState::ExitState()
 {
 	FAbilityState::ExitState();
 	Ability->EndCurrState();
-}
-
-void ACrowFlurry::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
 
