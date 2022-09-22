@@ -16,11 +16,21 @@ public:
 	virtual void ExitState() override;
 };
  
-// Extended in air state and launching to ground
+// Extended in air state 
 class BLINDEYE_API FInAirState : public FAbilityState
 {
 public:
 	FInAirState(AAbilityBase* ability);
+	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void ExitState() override;
+};
+
+// Hanging in the air, waiting for input to launch to ground
+class BLINDEYE_API FHangingState : public FAbilityState
+{
+public:
+	FHangingState(AAbilityBase* ability);
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
@@ -58,9 +68,10 @@ public:
 	FTimerHandle HangInAirTimerHandle;
 
 protected:
-
+	
 	void EndLaunchUp();
 	UFUNCTION()
 	void CollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 	void UnsubscribeToGroundCollision();
+	virtual void EndAbilityLogic() override;
 };
