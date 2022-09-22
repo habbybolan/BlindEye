@@ -37,6 +37,8 @@ public:
 };
 
 class UBaseDamageType;
+class UNiagaraComponent;
+class UNiagaraSystem;
 
 /**
  * 
@@ -59,6 +61,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=100))
 	float CostPercent = 30;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0))
+	float MaxTimeHanging = 2.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraSystem* CollisionParticle;
+ 
 	// launches character upwards and sets transition
 	void LaunchPlayerUpwards();
 	void HangInAir();
@@ -66,8 +74,14 @@ public:
 	void LaunchToGround();
 	
 	FTimerHandle HangInAirTimerHandle;
+	FTimerHandle MaxHangingTimerHandle;
 
 protected:
+
+	UPROPERTY()
+	TArray<UNiagaraComponent*> SpawnedCollisionParticle;
+
+	void hangingInAirExpired();
 	
 	void EndLaunchUp();
 	UFUNCTION()

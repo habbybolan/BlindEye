@@ -21,6 +21,10 @@ void APhoenixDive::LaunchPlayerUpwards()
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
 	Character->GetCharacterMovement()->StopMovementImmediately();
 	Character->GetCharacterMovement()->AddImpulse(FVector::UpVector * 100000);
+
+	UWorld* world = GetWorld();
+	if (!world) return;
+	world->GetTimerManager().SetTimer(MaxHangingTimerHandle, this, &APhoenixDive::hangingInAirExpired, MaxTimeHanging, false);
 }
 
 void APhoenixDive::HangInAir()
@@ -52,8 +56,16 @@ void APhoenixDive::LaunchToGround()
 
 	// prevent hanging in air
 	world->GetTimerManager().ClearTimer(HangInAirTimerHandle);
+	// remove hanging expiration
+	world->GetTimerManager().ClearTimer(MaxHangingTimerHandle);
 
 	Character->GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &APhoenixDive::CollisionWithGround);
+}
+
+void APhoenixDive::hangingInAirExpired()
+{
+	// force a user input to launch to ground after time expired
+	AbilityStates[CurrState]->TryEnterState(EAbilityInputTypes::Pressed);
 }
 
 void APhoenixDive::EndLaunchUp()
