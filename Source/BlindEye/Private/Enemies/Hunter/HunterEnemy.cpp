@@ -1,7 +1,7 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
-#include "Enemies/HunterEnemy.h"
+#include "Enemies/Hunter/HunterEnemy.h"
 #include "DamageTypes/BaseDamageType.h"
 #include "Kismet/GameplayStatics.h"
 

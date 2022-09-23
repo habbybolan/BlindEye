@@ -1,9 +1,9 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
-#include "Enemies/BTS_HunterTryAttack.h"
+#include "Enemies/Hunter/BTS_HunterTryAttack.h"
 
-#include "Enemies/HunterEnemyController.h"
+#include "Enemies/Hunter/HunterEnemyController.h"
 
 void UBTS_HunterTryAttack::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {

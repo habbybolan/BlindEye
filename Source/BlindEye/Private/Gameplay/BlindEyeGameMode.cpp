@@ -5,7 +5,7 @@
 
 #include "EngineUtils.h"
 #include "Characters/BlindEyePlayerController.h"
-#include "Enemies/HunterEnemyController.h"
+#include "Enemies/Hunter/HunterEnemyController.h"
 #include "GameFramework/PlayerStart.h"
 #include "Gameplay/BlindEyeGameState.h"
 

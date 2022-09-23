@@ -1,7 +1,7 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
-#include "Enemies/HunterEnemyController.h"
+#include "Enemies/Hunter/HunterEnemyController.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
