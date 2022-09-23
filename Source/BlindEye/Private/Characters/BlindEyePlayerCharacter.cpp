@@ -616,11 +616,11 @@ void ABlindEyePlayerCharacter::MoveForward(float Value)
 {
 	if (IsActionsBlocked()) return;
 	
-	if (AbilityManager->IsMovementBlocked()) return;
-	float MovementAlter = AbilityManager->IsMovementSlowBlocked();
-	
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
+		if (AbilityManager->IsMovementBlocked()) return;
+		float MovementAlter = AbilityManager->IsMovementSlowBlocked();
+		
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -635,11 +635,11 @@ void ABlindEyePlayerCharacter::MoveRight(float Value)
 {
 	if (IsActionsBlocked()) return;
 	
-	if (AbilityManager->IsMovementBlocked()) return;
-	float MovementAlter = AbilityManager->IsMovementSlowBlocked();
-	
 	if ( (Controller != nullptr) && (Value != 0.0f) )
 	{
+		if (AbilityManager->IsMovementBlocked()) return;
+		float MovementAlter = AbilityManager->IsMovementSlowBlocked();
+		
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
