@@ -67,6 +67,9 @@ protected:
 	
 	FTimerHandle CrowFlurryTimerHandle;
 
+	UPROPERTY(BlueprintReadOnly)
+	FRotator CurrFlurryRotation;
+
 	UFUNCTION()
 	void PerformCrowFlurry();
 

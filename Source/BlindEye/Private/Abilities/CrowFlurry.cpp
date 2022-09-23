@@ -8,6 +8,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 
 ACrowFlurry::ACrowFlurry()
@@ -19,6 +20,8 @@ void ACrowFlurry::StartCrowFlurry()
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
+
+	CurrFlurryRotation = GetInstigator()->GetControlRotation();
 	world->GetTimerManager().SetTimer(CrowFlurryTimerHandle, this, &ACrowFlurry::PerformCrowFlurry, 0.2f, true);
 	
 	MULT_SpawnCrowFlurry(GetInstigator()->GetControlRotation());
@@ -33,8 +36,12 @@ void ACrowFlurry::PerformCrowFlurry()
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
+
+	FRotator TargetRotation = GetInstigator()->GetControlRotation();
+
+	CurrFlurryRotation = UKismetMathLibrary::RLerp(CurrFlurryRotation, TargetRotation, 0.5, true);
  
-	FVector InstigatorFwd =  GetInstigator()->GetControlRotation().Vector() * Range;
+	FVector InstigatorFwd =  CurrFlurryRotation.Vector() * Range;
 	FVector TargetLocation = GetInstigator()->GetActorLocation() + InstigatorFwd;
 
 	TArray<FHitResult> OutHits;
