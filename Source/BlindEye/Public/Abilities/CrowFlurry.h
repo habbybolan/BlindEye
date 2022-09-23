@@ -42,6 +42,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Range = 400;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=1))
+	float MovementSlowAmount = 0.5f;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<	EObjectTypeQuery>> ObjectTypes;
 
