@@ -9,13 +9,13 @@ void UBTS_HunterTryAttack::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* No
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 	
-	AAIController* AIOwner = OwnerComp.GetAIOwner();
-	if (!AIOwner) return;
-	AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(AIOwner);
-	if (HunterController == nullptr) return;
-
-	if (HunterController->CanBasicAttack() && HunterController->IsInBasicAttackRange())
-	{
-		HunterController->PerformBasicAttack();
-	}
+	// AAIController* AIOwner = OwnerComp.GetAIOwner();
+	// if (!AIOwner) return;
+	// AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(AIOwner);
+	// if (HunterController == nullptr) return;
+	//
+	// if (HunterController->CanBasicAttack() && HunterController->IsInBasicAttackRange())
+	// {
+	// 	HunterController->PerformBasicAttack();
+	// }
 }
