@@ -37,17 +37,17 @@ public:
 
 	void PerformBasicAttack();
 
-	void TryTurnVisible();
-
+	void TrySetVisibility(bool visibility);
+ 
 protected:
-
+ 
 	virtual void Tick(float DeltaSeconds) override;
 
 	// Intermediary method to make RPC call to blueprint implementable method
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_TurnVisible();
-
+	void MULT_TurnVisible(bool visibility);
+ 
 	UFUNCTION(BlueprintImplementableEvent)
-	void TurnVisible();
+	void TrySetVisibiltiyHelper(bool visibility);
 	
 };

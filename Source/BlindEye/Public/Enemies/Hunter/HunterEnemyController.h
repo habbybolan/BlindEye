@@ -7,6 +7,14 @@
 #include "Enemies/BlindEyeEnemyController.h"
 #include "HunterEnemyController.generated.h"
 
+UENUM(BlueprintType)
+enum class EStrafeDirection : uint8
+{
+	Left,
+	Right,
+	Backwards
+};
+
 /**
  * 
  */
@@ -37,18 +45,16 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void InitializeBehaviorTree();
 	
-	void SetTargetEnemy(AActor* target);
-
 	bool CanBasicAttack();
-	bool IsInBasicAttackRange();
 	void PerformBasicAttack();
 
 	// Debugger functionality for spawning a hunter
 	//	If a hunter is already alive, then dont do anything
 	void DebugSpawnHunter();
+
+	void TrySetVisibility(bool visibility);
 	
 protected:
-	TWeakObjectPtr<AActor> Target;
 
 	bool IsBasicAttackOnDelay = false;
 	FTimerHandle BasicAttackDelayTimerHandle;

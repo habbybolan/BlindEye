@@ -25,12 +25,12 @@ void AHunterEnemy::PerformBasicAttack()
 	}
 }
 
-void AHunterEnemy::TryTurnVisible()
+void AHunterEnemy::TrySetVisibility(bool visibility)
 {
-	if (IsVisible) return;
+	if (IsVisible == visibility) return;
 
-	IsVisible = true;
-	MULT_TurnVisible();
+	IsVisible = visibility;
+	MULT_TurnVisible(visibility);
 }
 
 void AHunterEnemy::Tick(float DeltaSeconds)
@@ -38,23 +38,25 @@ void AHunterEnemy::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	// TODO: Move to timer for optimization
-	if (IsVisible == false)
-	{
-		UWorld* World = GetWorld();
-		if (World == nullptr) return;
-
-		TArray<AActor*> OutActors;
-		if (UKismetSystemLibrary::SphereOverlapActors(World, GetActorLocation(), RadiusToTurnVisible,
-			ObjectTypes, nullptr, TArray<AActor*>(), OutActors))
-		{
-			// Player close, turn visible
-			TryTurnVisible();
-		}
-	}
+	//	make run only on server
+	 // if (IsVisible == false)
+	 // {
+	 // 	UWorld* World = GetWorld();
+	 // 	if (World == nullptr) return;
+	 //
+	 // 	TArray<AActor*> OutActors;
+	 // 	if (UKismetSystemLibrary::SphereOverlapActors(World, GetActorLocation(), RadiusToTurnVisible,
+	 // 		ObjectTypes, nullptr, TArray<AActor*>(), OutActors))
+	 // 	{
+	 // 		// Player close, turn visible
+	 // 		TrySetVisibility(true);
+	 // 	}
+	 // }
 	
 }
 
-void AHunterEnemy::MULT_TurnVisible_Implementation()
+void AHunterEnemy::MULT_TurnVisible_Implementation(bool visibility)
 {
-	TurnVisible();
+	TrySetVisibiltiyHelper(visibility);
 }
+

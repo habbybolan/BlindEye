@@ -35,36 +35,15 @@ void AHunterEnemyController::SetAlwaysVisible(bool IsAlwaysVisible)
 			BlindEyeGameState->bHunterAlwaysVisible = IsAlwaysVisible;
 			if (Hunter)
 			{
-				Hunter->TryTurnVisible();
+				Hunter->TrySetVisibility(true);
 			}
 		}
 	}
 }
 
-void AHunterEnemyController::SetTargetEnemy(AActor* target)
-{
-	UBlackboardComponent* BlackboardComp = GetBlackboardComponent();
-	if (BlackboardComp == nullptr) return;
-	
-	GetBlackboardComponent()->SetValueAsObject(TEXT("EnemyActor"), target);
-	Target = MakeWeakObjectPtr<AActor>(target);
-}
-
 bool AHunterEnemyController::CanBasicAttack()
 {
 	return !IsBasicAttackOnDelay;
-}
-
-bool AHunterEnemyController::IsInBasicAttackRange()
-{
-	if (Target.IsValid())
-	{
-		FVector TargetLocation = Target->GetActorLocation();
-
-		if (!Hunter) return false;
-		return FVector::Distance(TargetLocation, Hunter->GetActorLocation()) < DistanceToBasicAttack;
-	}
-	return false;
 }
 
 void AHunterEnemyController::PerformBasicAttack()
@@ -86,6 +65,12 @@ void AHunterEnemyController::DebugSpawnHunter()
 	SpawnHunter();
 	World->GetTimerManager().ClearTimer(SpawnDelayTimerHandle);
 	
+}
+
+void AHunterEnemyController::TrySetVisibility(bool visibility)
+{
+	if (!Hunter) return;
+	Hunter->TrySetVisibility(visibility);
 }
 
 void AHunterEnemyController::OnPossess(APawn* InPawn)
@@ -114,7 +99,6 @@ void AHunterEnemyController::OnPossess(APawn* InPawn)
 		RandPlayerTarget = GameState->PlayerArray[UKismetMathLibrary::RandomIntegerInRange(0, 1)]->GetPawn();
 	}
 	InitializeBehaviorTree();
-	SetTargetEnemy(RandPlayerTarget);
 }
 
 void AHunterEnemyController::SetCanBasicAttack()
@@ -160,7 +144,7 @@ void AHunterEnemyController::SpawnHunter()
 	// if debugger for always visible, spawn hunter visible
 	if (bAlwaysVisible)
 	{
-		SpawnedHunter->TryTurnVisible();
+		SpawnedHunter->TrySetVisibility(true);
 	}
 	
 	Possess(SpawnedHunter);
