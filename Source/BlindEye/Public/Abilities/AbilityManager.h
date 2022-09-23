@@ -52,6 +52,8 @@ public:
 	bool IsAbilityUnavailable();
 	bool IsReceiveDamageBlocked();
 	bool IsDamageFeedbackBlocked();
+	// Returns 1 if no movement slow applied, otherwise alter movement speed with stored ability slow movement blocker property
+	float IsMovementSlowBlocked(); 
 
 	// Called from ability to signal ability in use
 	void SetAbilityInUse(AAbilityBase* abilityInUse);

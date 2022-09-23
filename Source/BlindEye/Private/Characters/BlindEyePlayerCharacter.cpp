@@ -617,6 +617,7 @@ void ABlindEyePlayerCharacter::MoveForward(float Value)
 	if (IsActionsBlocked()) return;
 	
 	if (AbilityManager->IsMovementBlocked()) return;
+	float MovementAlter = AbilityManager->IsMovementSlowBlocked();
 	
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
@@ -626,7 +627,7 @@ void ABlindEyePlayerCharacter::MoveForward(float Value)
 
 		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value);
+		AddMovementInput(Direction, Value * MovementAlter);
 	}
 }
 
@@ -635,6 +636,8 @@ void ABlindEyePlayerCharacter::MoveRight(float Value)
 	if (IsActionsBlocked()) return;
 	
 	if (AbilityManager->IsMovementBlocked()) return;
+	float MovementAlter = AbilityManager->IsMovementSlowBlocked();
+	
 	if ( (Controller != nullptr) && (Value != 0.0f) )
 	{
 		// find out which way is right
@@ -644,7 +647,7 @@ void ABlindEyePlayerCharacter::MoveRight(float Value)
 		// get right vector 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		// add movement in that direction
-		AddMovementInput(Direction, Value);
+		AddMovementInput(Direction, Value * MovementAlter);
 	}
 }
 
