@@ -8,6 +8,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 
 ACrowFlurry::ACrowFlurry()
@@ -19,7 +20,14 @@ void ACrowFlurry::StartCrowFlurry()
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
+
+	bFlurryActive = true;
+	CurrFlurryRotation = GetInstigator()->GetControlRotation();
 	world->GetTimerManager().SetTimer(CrowFlurryTimerHandle, this, &ACrowFlurry::PerformCrowFlurry, 0.2f, true);
+	// Lerp the flurry rotation towards controller rotation
+	world->GetTimerManager().SetTimer(CalculateRotationTimerHandle, this, &ACrowFlurry::CalcFlurryRotation, CalcRotationDelay, true);
+	// flurry rotation separate for replication reasons
+	world->GetTimerManager().SetTimer(RotateFlurryTimerHandle, this, &ACrowFlurry::MULT_RotateFlurry, CalcRotationDelay, true);
 	
 	MULT_SpawnCrowFlurry(GetInstigator()->GetControlRotation());
 }
@@ -29,12 +37,17 @@ void ACrowFlurry::MULT_SpawnCrowFlurry_Implementation(FRotator rotation)
 	MULT_SpawnCrowFlurryHelper();
 }
 
+void ACrowFlurry::MULT_RotateFlurry_Implementation()
+{
+	RotateFlurryHelper();
+}
+
 void ACrowFlurry::PerformCrowFlurry()
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
  
-	FVector InstigatorFwd =  GetInstigator()->GetControlRotation().Vector() * Range;
+	FVector InstigatorFwd =  CurrFlurryRotation.Vector() * Range;
 	FVector TargetLocation = GetInstigator()->GetActorLocation() + InstigatorFwd;
 
 	TArray<FHitResult> OutHits;
@@ -52,8 +65,14 @@ void ACrowFlurry::PerformCrowFlurry()
 	if (!TryConsumeBirdMeter(CostPercentPerSec * 0.2f))
 	{
 		// if out of bird meter, simulate releasing button
-		AbilityStates[CurrState]->HandleInput(EAbilityInputTypes::Released);
+		AbilityStates[CurrState]->HandleInput(EAbilityInputTypes::Pressed);
 	}
+}
+
+void ACrowFlurry::CalcFlurryRotation()
+{
+	FRotator TargetRotation = GetInstigator()->GetControlRotation();
+	CurrFlurryRotation = UKismetMathLibrary::RLerp(CurrFlurryRotation, TargetRotation, 0.15, true);
 }
 
 void ACrowFlurry::MULT_DestroyCrowFlurry_Implementation()
@@ -82,11 +101,13 @@ void ACrowFlurry::DestroyParticles()
 void ACrowFlurry::EndAbilityLogic()
 {
 	Super::EndAbilityLogic();
+	bFlurryActive = false;
 
 	UWorld* world = GetWorld();
 	if (!world) return;
 	world->GetTimerManager().ClearTimer(CrowFlurryTimerHandle);
 	world->GetTimerManager().ClearTimer(CrowFlurryParticleDestroyTimerHandle);
+	world->GetTimerManager().ClearTimer(CalculateRotationTimerHandle);
 }
 
 // **** States *******
@@ -98,13 +119,15 @@ UFirstCrowFlurryState::UFirstCrowFlurryState(AAbilityBase* ability) : FAbilitySt
 void UFirstCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState();
+	if (abilityUsageType != EAbilityInputTypes::Pressed) return;
+	
 	// apply initial cost
 	if (!Ability) return;
 	if (ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability))
 	{
 		if (!CrowFlurry->TryConsumeBirdMeter(CrowFlurry->InitialCostPercent)) return;
+		CrowFlurry->StartCrowFlurry();
 	}
-	if (CurrInnerState > EInnerState::None) return;
 	RunState();
 }
 
@@ -113,21 +136,18 @@ void UFirstCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
 	FAbilityState::RunState();
 	
 	if (!Ability) return;
-	Ability->Blockers.IsMovementBlocked = true;
-	Ability->Blockers.IsOtherAbilitiesBlocked = true;
-	
 	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);
 	if (!CrowFlurry) return;
-	
+
+	Ability->Blockers.IsMovementSlowBlocked = true;
+	Ability->Blockers.MovementSlowAmount = CrowFlurry->MovementSlowAmount;
+	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 
 	// leave running state on ability released
-	if (abilityUsageType == EAbilityInputTypes::Released)
+	if (abilityUsageType == EAbilityInputTypes::Pressed)
 	{
 		CrowFlurry->StopCrowFlurry();
 		ExitState();
-	} else
-	{
-		CrowFlurry->StartCrowFlurry();
 	}
 }
 
@@ -137,9 +157,11 @@ void UFirstCrowFlurryState::ExitState()
 	Ability->EndCurrState();
 }
 
+
 void ACrowFlurry::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ACrowFlurry, CurrFlurryRotation);
 }
 
 

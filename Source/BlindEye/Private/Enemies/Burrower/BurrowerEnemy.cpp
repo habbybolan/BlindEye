@@ -112,7 +112,7 @@ void ABurrowerEnemy::SpawnSnappers()
 		if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(SpawnedSnapper))
 		{
 			HealthInterface->Execute_GetHealthComponent(SpawnedSnapper)->OnDeathDelegate.AddUFunction<ABurrowerEnemy>(this, FName("OnSnapperDeath"));
-		}
+		} 
 	}
 
 	//world->GetTimerManager().SetTimer(HideTimerHandle, this, &ABurrowerEnemy::StartHideLogic, SpawnTimeAppearingLength, false);

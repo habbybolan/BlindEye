@@ -78,6 +78,18 @@ bool UAbilityManager::IsDamageFeedbackBlocked()
 	return false;
 }
 
+float UAbilityManager::IsMovementSlowBlocked()
+{
+	if (CurrUsedAbility)
+	{
+		if (CurrUsedAbility->Blockers.IsMovementSlowBlocked)
+		{
+			return CurrUsedAbility->Blockers.MovementSlowAmount;
+		}
+	}
+	return 1;
+}
+
 void UAbilityManager::SetAbilityInUse(AAbilityBase* abilityInUse)
 {
 	if (CurrUsedAbility == nullptr)

@@ -20,12 +20,19 @@ struct FBlockers
 	UPROPERTY()
 	bool IsOtherAbilitiesBlocked = false;
 
+	UPROPERTY()
+	bool IsMovementSlowBlocked = false;
+	UPROPERTY()
+	float MovementSlowAmount = 1;
+
 	void Reset()
 	{
 		IsMovementBlocked = false;
 		IsDamageReceivedBlocked = false;
 		IsDamageFeedbackBlocked = false;
 		IsOtherAbilitiesBlocked = false;
+		IsMovementSlowBlocked = false;
+		MovementSlowAmount = 1;
 	}
 };
 
