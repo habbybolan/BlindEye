@@ -15,6 +15,16 @@ enum class EStrafeDirection : uint8
 	Backwards
 };
 
+
+UENUM(BlueprintType) 
+enum class EHunterStates : uint8
+{
+	Taunting,
+	Stalking,
+	Attacking,
+	Running
+};
+
 /**
  * 
  */
