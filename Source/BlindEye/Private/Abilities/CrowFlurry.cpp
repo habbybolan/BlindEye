@@ -21,8 +21,13 @@ void ACrowFlurry::StartCrowFlurry()
 	UWorld* world = GetWorld();
 	if (!world) return;
 
+	bFlurryActive = true;
 	CurrFlurryRotation = GetInstigator()->GetControlRotation();
 	world->GetTimerManager().SetTimer(CrowFlurryTimerHandle, this, &ACrowFlurry::PerformCrowFlurry, 0.2f, true);
+	// Lerp the flurry rotation towards controller rotation
+	world->GetTimerManager().SetTimer(CalculateRotationTimerHandle, this, &ACrowFlurry::CalcFlurryRotation, CalcRotationDelay, true);
+	// flurry rotation separate for replication reasons
+	world->GetTimerManager().SetTimer(RotateFlurryTimerHandle, this, &ACrowFlurry::MULT_RotateFlurry, CalcRotationDelay, true);
 	
 	MULT_SpawnCrowFlurry(GetInstigator()->GetControlRotation());
 }
@@ -32,14 +37,15 @@ void ACrowFlurry::MULT_SpawnCrowFlurry_Implementation(FRotator rotation)
 	MULT_SpawnCrowFlurryHelper();
 }
 
+void ACrowFlurry::MULT_RotateFlurry_Implementation()
+{
+	RotateFlurryHelper();
+}
+
 void ACrowFlurry::PerformCrowFlurry()
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
-
-	FRotator TargetRotation = GetInstigator()->GetControlRotation();
-
-	CurrFlurryRotation = UKismetMathLibrary::RLerp(CurrFlurryRotation, TargetRotation, 0.5, true);
  
 	FVector InstigatorFwd =  CurrFlurryRotation.Vector() * Range;
 	FVector TargetLocation = GetInstigator()->GetActorLocation() + InstigatorFwd;
@@ -61,6 +67,12 @@ void ACrowFlurry::PerformCrowFlurry()
 		// if out of bird meter, simulate releasing button
 		AbilityStates[CurrState]->HandleInput(EAbilityInputTypes::Pressed);
 	}
+}
+
+void ACrowFlurry::CalcFlurryRotation()
+{
+	FRotator TargetRotation = GetInstigator()->GetControlRotation();
+	CurrFlurryRotation = UKismetMathLibrary::RLerp(CurrFlurryRotation, TargetRotation, 0.15, true);
 }
 
 void ACrowFlurry::MULT_DestroyCrowFlurry_Implementation()
@@ -89,11 +101,13 @@ void ACrowFlurry::DestroyParticles()
 void ACrowFlurry::EndAbilityLogic()
 {
 	Super::EndAbilityLogic();
+	bFlurryActive = false;
 
 	UWorld* world = GetWorld();
 	if (!world) return;
 	world->GetTimerManager().ClearTimer(CrowFlurryTimerHandle);
 	world->GetTimerManager().ClearTimer(CrowFlurryParticleDestroyTimerHandle);
+	world->GetTimerManager().ClearTimer(CalculateRotationTimerHandle);
 }
 
 // **** States *******
@@ -141,6 +155,13 @@ void UFirstCrowFlurryState::ExitState()
 {
 	FAbilityState::ExitState();
 	Ability->EndCurrState();
+}
+
+
+void ACrowFlurry::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ACrowFlurry, CurrFlurryRotation);
 }
 
 

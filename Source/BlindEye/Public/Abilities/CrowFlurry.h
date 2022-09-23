@@ -60,6 +60,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UNiagaraSystem* CrowFlurryParticle;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=1))
+	float CrowFlurryLerpSpeed = 0.15;
+
 	void StartCrowFlurry();
 	void StopCrowFlurry();
 
@@ -67,11 +70,28 @@ protected:
 	
 	FTimerHandle CrowFlurryTimerHandle;
 
-	UPROPERTY(BlueprintReadOnly)
+	// For calculating crow flurry rotation lerping to control rotation
+	FTimerHandle CalculateRotationTimerHandle;
+	float CalcRotationDelay = 0.05f;
+
+	FTimerHandle RotateFlurryTimerHandle;
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MULT_RotateFlurry(); 
+ 
+	UFUNCTION(BlueprintImplementableEvent)
+	void RotateFlurryHelper();
+
+	UPROPERTY(Replicated, BlueprintReadOnly)
 	FRotator CurrFlurryRotation;
+
+	bool bFlurryActive = false;
 
 	UFUNCTION()
 	void PerformCrowFlurry();
+
+	UFUNCTION()
+	void CalcFlurryRotation();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_SpawnCrowFlurry(FRotator FlurryRotation);
@@ -90,4 +110,6 @@ protected:
 	void DestroyParticles();
 
 	virtual void EndAbilityLogic() override;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };
