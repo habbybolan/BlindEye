@@ -19,7 +19,6 @@ enum class EStrafeDirection : uint8
 UENUM(BlueprintType) 
 enum class EHunterStates : uint8
 {
-	Taunting,
 	Stalking,
 	Attacking,
 	Running
