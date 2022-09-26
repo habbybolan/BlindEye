@@ -395,7 +395,15 @@ void ABlindEyePlayerCharacter::SetHealth_Implementation(float NewHealth)
 
 void ABlindEyePlayerCharacter::OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType,
 	AActor* DamageCauser)
-{}
+{
+	CLI_OnTakeDamageHelper(Damage, HitLocation, DamageType, DamageCauser);
+}
+
+void ABlindEyePlayerCharacter::CLI_OnTakeDamageHelper_Implementation(float Damage, FVector HitLocation,
+	const UDamageType* DamageType, AActor* DamageCauser)
+{
+	BP_OnTakeDamage(Damage, HitLocation, DamageType, DamageCauser);
+}
 
 void ABlindEyePlayerCharacter::OnDeath_Implementation() 
 {

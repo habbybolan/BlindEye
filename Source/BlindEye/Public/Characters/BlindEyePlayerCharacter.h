@@ -57,6 +57,14 @@ public:
 
 	virtual void OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
 
+	// Helper method to notify all clients damage taken
+	UFUNCTION(Client, Reliable)
+	void CLI_OnTakeDamageHelper(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
+
+	// Notify Blueprint damage taken
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
+
 	virtual void OnDeath_Implementation() override;
 
 	virtual bool TryConsumeBirdMeter_Implementation(float PercentAmount) override;
