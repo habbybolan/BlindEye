@@ -2,8 +2,9 @@
 
 
 #include "Enemies/Hunter/HunterEnemy.h"
-#include "DamageTypes/BaseDamageType.h"
 #include "Kismet/GameplayStatics.h"
+#include "Enemies/Hunter/HunterEnemyController.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 AHunterEnemy::AHunterEnemy(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}
 
@@ -31,6 +32,22 @@ void AHunterEnemy::TrySetVisibility(bool visibility)
 
 	IsVisible = visibility;
 	MULT_TurnVisible(visibility);
+}
+
+void AHunterEnemy::UpdateMovementSpeed(EHunterStates NewHunterState)
+{
+	switch (NewHunterState)
+	{
+	case EHunterStates::Attacking:
+		GetCharacterMovement()->MaxWalkSpeed = AttackMaxWalkSpeed;
+		break;
+	case EHunterStates::Running:
+		GetCharacterMovement()->MaxWalkSpeed = RunningMaxWalkSpeed;
+		break;
+	case EHunterStates::Stalking:
+		GetCharacterMovement()->MaxWalkSpeed = StalkingMaxWalkSpeed;
+		break;
+	}
 }
 
 void AHunterEnemy::Tick(float DeltaSeconds)

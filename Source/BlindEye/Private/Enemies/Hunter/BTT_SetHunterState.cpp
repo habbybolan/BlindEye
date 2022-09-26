@@ -9,5 +9,12 @@ EBTNodeResult::Type UBTT_SetHunterState::ExecuteTask(UBehaviorTreeComponent& Own
 {
 	UBlackboardComponent* BBComp = OwnerComp.GetBlackboardComponent();
 	BBComp->SetValueAsEnum(HunterStateKey.SelectedKeyName, (uint8)NextHunterState);
+
+	// Update speed based on new state
+	if (AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(OwnerComp.GetAIOwner()))
+	{
+		HunterController->UpdateMovementSpeed(NextHunterState);
+	}
+	
 	return EBTNodeResult::Succeeded;
 }

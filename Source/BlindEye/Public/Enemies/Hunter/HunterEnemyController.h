@@ -62,6 +62,8 @@ public:
 	void DebugSpawnHunter();
 
 	void TrySetVisibility(bool visibility);
+
+	void UpdateMovementSpeed(EHunterStates NewHunterState);
 	
 protected:
 

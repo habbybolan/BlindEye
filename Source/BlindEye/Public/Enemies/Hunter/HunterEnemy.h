@@ -7,6 +7,7 @@
 #include "HunterEnemy.generated.h"
 
 class UBaseDamageType;
+enum class EHunterStates : uint8;
 
 /**
  * 
@@ -19,6 +20,15 @@ class BLINDEYE_API AHunterEnemy : public ABlindEyeEnemyBase
 public:
 
 	AHunterEnemy(const FObjectInitializer& ObjectInitializer);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Movement)
+	float AttackMaxWalkSpeed = 450;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Movement)
+	float StalkingMaxWalkSpeed = 200;
+ 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Movement)
+	float RunningMaxWalkSpeed = 600;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<	EObjectTypeQuery>> ObjectTypes;
@@ -38,6 +48,8 @@ public:
 	void PerformBasicAttack();
 
 	void TrySetVisibility(bool visibility);
+
+	void UpdateMovementSpeed(EHunterStates NewHunterState);
  
 protected:
  

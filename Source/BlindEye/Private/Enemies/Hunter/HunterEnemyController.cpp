@@ -71,6 +71,12 @@ void AHunterEnemyController::TrySetVisibility(bool visibility)
 	Hunter->TrySetVisibility(visibility);
 }
 
+void AHunterEnemyController::UpdateMovementSpeed(EHunterStates NewHunterState)
+{
+	if (!Hunter) return;
+	Hunter->UpdateMovementSpeed(NewHunterState);
+}
+
 void AHunterEnemyController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
