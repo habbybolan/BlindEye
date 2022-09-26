@@ -80,4 +80,7 @@ protected:
 	void OnHunterDeath(AActor* HunterKilled);
 	UFUNCTION()
 	void SpawnHunter();
+
+	UFUNCTION()
+	void OnTakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
 };

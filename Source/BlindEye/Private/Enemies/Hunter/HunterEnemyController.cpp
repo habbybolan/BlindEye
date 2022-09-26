@@ -10,7 +10,6 @@
 #include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Net/UnrealNetwork.h"
 
 AHunterEnemyController::AHunterEnemyController()
 {
@@ -64,7 +63,6 @@ void AHunterEnemyController::DebugSpawnHunter()
 
 	SpawnHunter();
 	World->GetTimerManager().ClearTimer(SpawnDelayTimerHandle);
-	
 }
 
 void AHunterEnemyController::TrySetVisibility(bool visibility)
@@ -99,6 +97,8 @@ void AHunterEnemyController::OnPossess(APawn* InPawn)
 		RandPlayerTarget = GameState->PlayerArray[UKismetMathLibrary::RandomIntegerInRange(0, 1)]->GetPawn();
 	}
 	InitializeBehaviorTree();
+
+	InPawn->OnTakeAnyDamage.AddDynamic(this, &AHunterEnemyController::OnTakeDamage);
 }
 
 void AHunterEnemyController::SetCanBasicAttack()
@@ -148,4 +148,13 @@ void AHunterEnemyController::SpawnHunter()
 	}
 	
 	Possess(SpawnedHunter);
+}
+
+void AHunterEnemyController::OnTakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
+	AController* InstigatedBy, AActor* DamageCauser)
+{
+	if (UBlackboardComponent* BBComp = GetBlackboardComponent())
+	{
+		BBComp->SetValueAsBool("bDamaged", true);
+	}
 }
