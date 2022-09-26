@@ -132,6 +132,7 @@ void FJumpState::RunState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::RunState(abilityUsageType);
 	if (!Ability) return;
+	Ability->BP_AbilityStarted();
 	APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability);
 	if (!PhoenixDive) return;
 
@@ -206,6 +207,7 @@ void FHangingState::RunState(EAbilityInputTypes abilityUsageType)
 	if (!PhoenixDive) return;
 	
 	PhoenixDive->LaunchToGround();
+	Ability->BP_AbilityInnerState(1);
 }
 
 void FHangingState::ExitState()

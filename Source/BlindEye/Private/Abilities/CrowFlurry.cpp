@@ -136,6 +136,7 @@ void UFirstCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
 	FAbilityState::RunState();
 	
 	if (!Ability) return;
+	Ability->BP_AbilityStarted();
 	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);
 	if (!CrowFlurry) return;
 
