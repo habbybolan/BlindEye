@@ -21,6 +21,12 @@ class BLINDEYE_API UBTT_SetHunterState : public UBTTaskNode
 	UPROPERTY(EditAnywhere)
 	EHunterStates NextHunterState;
 
+	UPROPERTY(EditAnywhere, Category=BlackBoard)
+	FBlackboardKeySelector bDamagedKey;
+  
+	UPROPERTY(EditAnywhere, Category=BlackBoard) 
+	FBlackboardKeySelector StrafingDirection;
+
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	
 };

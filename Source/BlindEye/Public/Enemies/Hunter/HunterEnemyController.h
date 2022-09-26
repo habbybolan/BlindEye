@@ -10,9 +10,9 @@
 UENUM(BlueprintType)
 enum class EStrafeDirection : uint8
 {
+	None,
 	Left,
-	Right,
-	Backwards
+	Right
 };
 
 

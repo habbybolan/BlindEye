@@ -15,6 +15,18 @@ EBTNodeResult::Type UBTT_SetHunterState::ExecuteTask(UBehaviorTreeComponent& Own
 	{
 		HunterController->UpdateMovementSpeed(NextHunterState);
 	}
+	switch (NextHunterState)
+	{
+	case EHunterStates::Attacking:
+		break;
+	case EHunterStates::Stalking:
+		BBComp->SetValueAsBool(bDamagedKey.SelectedKeyName, false);
+		BBComp->SetValueAsEnum(StrafingDirection.SelectedKeyName, (uint8)EStrafeDirection::Left);
+		break;
+	case EHunterStates::Running:
+		break;
+	}
+	
 	
 	return EBTNodeResult::Succeeded;
 }
