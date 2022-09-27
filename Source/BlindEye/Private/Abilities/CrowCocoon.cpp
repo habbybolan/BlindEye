@@ -59,7 +59,7 @@ void ACrowCocoon::PerformPulse()
 	if (!world) return;
 	
 	uint8 pulseIndex = CalcPulseIndex();
-	BP_AbilityInnerState(pulseIndex);
+	BP_AbilityInnerState(pulseIndex + 1);
 	// perform taunt on first pulse index
 	if (pulseIndex == 0)
 	{

@@ -85,6 +85,8 @@ void APhoenixDive::CollisionWithGround(UPrimitiveComponent* HitComponent, AActor
 	UWorld* world = GetWorld();
 	if (!world) return;
 
+	BP_AbilityInnerState(2);
+
 	// Apply damage to self for detonation effect
 	UGameplayStatics::ApplyPointDamage(GetInstigator(), Damage, FVector::ZeroVector, FHitResult(),
 		GetInstigator()->GetController(), GetInstigator(), DamageType);
