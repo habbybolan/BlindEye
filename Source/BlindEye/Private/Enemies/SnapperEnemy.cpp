@@ -116,14 +116,8 @@ void ASnapperEnemy::StartRagdoll()
 void ASnapperEnemy::StopRagdoll()
 {
 	GetWorldTimerManager().ClearTimer(ColliderOnMeshTimerHandle);
-	bRagdolling = false;
-	GetMesh()->SetSimulatePhysics(false);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GetCharacterMovement()->GravityScale = 1;
 
-	GetMesh()->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
-	GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -50.0), FRotator(0, 0, -90));
-
+	// Play getup montage
 	float TimeForGetup;
 	if (IsLayingOnFront())
 	{
@@ -133,6 +127,16 @@ void ASnapperEnemy::StopRagdoll()
 		TimeForGetup = PlayAnimMontage(GetUpFromBehindMontage);
 	}
 	GetWorldTimerManager().SetTimer(GetupAnimTimerHandle, this, &ASnapperEnemy::FinishGettingUp, TimeForGetup, false);
+
+	// return to normal settings and reattach
+	bRagdolling = false;
+	GetMesh()->SetSimulatePhysics(false);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetCharacterMovement()->GravityScale = 1;
+
+	FAttachmentTransformRules Rules(EAttachmentRule::KeepRelative, true);
+	GetMesh()->AttachToComponent(GetCapsuleComponent(), Rules);
+	GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -50.0), FRotator::ZeroRotator);
 }
 
 void ASnapperEnemy::FinishGettingUp()
