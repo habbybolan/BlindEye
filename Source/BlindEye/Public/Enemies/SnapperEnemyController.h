@@ -21,10 +21,10 @@ public:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
-	float DistanceToBasicAttack = 200.f;
+	float DistanceToJumpAttack = 200.f;
  
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
-	float BasicAttackDelay = 3.f;
+	float JumpAttackDelay = 3.f;
 
 	// Calls blueprint to initialize behavior tree
 	UFUNCTION(BlueprintImplementableEvent)
@@ -32,14 +32,14 @@ public:
 	
 	void SetTargetEnemy(AActor* target);
 
-	bool CanBasicAttack();
-	bool IsInBasicAttackRange(AActor* Target);
-	void PerformBasicAttack();
-	
+	bool CanJumpAttack();
+	bool IsInJumpAttackRange(AActor* Target);
+	void PerformJumpAttack();
+
 protected:
 
-	bool IsBasicAttackOnDelay = false;
-	FTimerHandle BasicAttackDelayTimerHandle;
+	bool IsJumpAttackOnDelay = false;
+	FTimerHandle JumpAttackDelayTimerHandle;
 
 	UPROPERTY()
 	ASnapperEnemy* Snapper;

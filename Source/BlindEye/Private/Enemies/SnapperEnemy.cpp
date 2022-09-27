@@ -30,7 +30,7 @@ void ASnapperEnemy::MYOnTakeDamage_Implementation(float Damage, FVector HitLocat
 	}
 }
 
-void ASnapperEnemy::PerformBasicAttack()
+void ASnapperEnemy::PerformJumpAttack()
 {
 	if (bRagdolling) return;
 	TempLaunch();

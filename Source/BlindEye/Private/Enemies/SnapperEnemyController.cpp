@@ -34,30 +34,30 @@ void ASnapperEnemyController::SetTargetEnemy(AActor* target)
 	GetBlackboardComponent()->SetValueAsObject(TEXT("EnemyActor"), target);
 }
 
-bool ASnapperEnemyController::CanBasicAttack()
+bool ASnapperEnemyController::CanJumpAttack()
 {
-	return !IsBasicAttackOnDelay;
+	return !IsJumpAttackOnDelay;
 }
 
-bool ASnapperEnemyController::IsInBasicAttackRange(AActor* Target) 
+bool ASnapperEnemyController::IsInJumpAttackRange(AActor* Target) 
 {
 	if (Target != nullptr)
 	{
 		FVector TargetLocation = Target->GetActorLocation();
 
 		if (!Snapper) return false;
-		return FVector::Distance(TargetLocation, Snapper->GetActorLocation()) < DistanceToBasicAttack;
+		return FVector::Distance(TargetLocation, Snapper->GetActorLocation()) < DistanceToJumpAttack;
 	}
 	return false;
 }
 
-void ASnapperEnemyController::PerformBasicAttack()
+void ASnapperEnemyController::PerformJumpAttack()
 {
-	if (!CanBasicAttack()) return;
+	if (!CanJumpAttack()) return;
 	
-	Snapper->PerformBasicAttack();
-	IsBasicAttackOnDelay = true;
-	GetWorldTimerManager().SetTimer(BasicAttackDelayTimerHandle, this, &ASnapperEnemyController::SetCanBasicAttack, BasicAttackDelay, false);
+	Snapper->PerformJumpAttack();
+	IsJumpAttackOnDelay = true;
+	GetWorldTimerManager().SetTimer(JumpAttackDelayTimerHandle, this, &ASnapperEnemyController::SetCanBasicAttack, JumpAttackDelay, false);
 }
 
 void ASnapperEnemyController::OnPossess(APawn* InPawn)
@@ -68,7 +68,7 @@ void ASnapperEnemyController::OnPossess(APawn* InPawn)
 
 void ASnapperEnemyController::SetCanBasicAttack()
 {
-	IsBasicAttackOnDelay = false;
+	IsJumpAttackOnDelay = false;
 }
 
 void ASnapperEnemyController::OnTauntStart(float Duration, AActor* Taunter)

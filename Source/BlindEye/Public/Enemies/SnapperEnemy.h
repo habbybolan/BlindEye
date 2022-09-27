@@ -35,7 +35,7 @@ public:
 	UPROPERTY(EditDefaultsOnly) 
 	UAnimMontage* GetUpFromInFrontMontage;
 
-	void PerformBasicAttack();
+	void PerformJumpAttack();
 
 	void TryRagdoll(bool SimulatePhysics);
 
