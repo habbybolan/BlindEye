@@ -45,8 +45,8 @@ void ASnapperEnemy::TempLaunch()
 		{
 			FVector Direction = Target->GetActorLocation() - GetActorLocation();
 			Direction.Normalize();
-			Direction += FVector::UpVector * 1;
-			GetCharacterMovement()->AddImpulse(Direction * 30000);
+			Direction += FVector::UpVector * .4f;
+			GetCharacterMovement()->AddImpulse(Direction * 50000);
 		}
 	}
 }
@@ -98,6 +98,7 @@ void ASnapperEnemy::TeleportColliderToMesh()
 {
 	FVector TeleportLocation = GetMesh()->GetSocketLocation(TEXT("Hips"));
 	GetCapsuleComponent()->SetWorldLocation(TeleportLocation);
+	IsLayingOnFront();
 }
 
 void ASnapperEnemy::StartRagdoll()
@@ -117,19 +118,6 @@ void ASnapperEnemy::StopRagdoll()
 {
 	GetWorldTimerManager().ClearTimer(ColliderOnMeshTimerHandle);
 
-	// return to normal settings and reattach
-	bRagdolling = false;
-	GetMesh()->SetSimulatePhysics(false);
-
-	FRotator HipRotation = GetMesh()->GetSocketRotation("Hips");
-	//GetCapsuleComponent()->SetWorldRotation(FRotator(0, 0, HipRotation.Yaw));
-	GetCharacterMovement()->GravityScale = 1;
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
-	FAttachmentTransformRules Rules(EAttachmentRule::SnapToTarget, true);
-	GetMesh()->AttachToComponent(GetCapsuleComponent(), Rules);
-	GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -50.0), FRotator(0, -90, 0));
-
 	// Play getup montage
 	float TimeForGetup;
 	if (IsLayingOnFront())
@@ -140,11 +128,26 @@ void ASnapperEnemy::StopRagdoll()
 	{
 		TimeForGetup = PlayAnimMontage(GetUpFromBehindMontage);
 	}
+
+	// return to normal settings and reattach
+	GetMesh()->SetSimulatePhysics(false);
+
+	FRotator HipRotation = GetMesh()->GetSocketRotation("Hips");
+	GetCapsuleComponent()->SetWorldRotation(FRotator(0, HipRotation.Yaw, 0));
+	GetCharacterMovement()->GravityScale = 1;
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+	FAttachmentTransformRules Rules(EAttachmentRule::SnapToTarget, true);
+	GetMesh()->AttachToComponent(GetCapsuleComponent(), Rules);
+	GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -50.0), FRotator(0, -90, 0));
+
+	
 	GetWorldTimerManager().SetTimer(GetupAnimTimerHandle, this, &ASnapperEnemy::FinishGettingUp, TimeForGetup, false);
 }
 
 void ASnapperEnemy::FinishGettingUp()
 {
+	bRagdolling = false;
 	AAIController* AIController = Cast<AAIController>(GetController());
 	AIController->GetBrainComponent()->ResumeLogic(TEXT("AnimationMontage"));
 }
