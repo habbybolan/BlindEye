@@ -38,12 +38,13 @@ public:
 	
 	void SetTargetEnemy(AActor* target);
 
-	bool CanJumpAttack();
+	bool CanJumpAttack(AActor* target); 
 	bool IsInJumpAttackRange(AActor* Target);
 	void PerformJumpAttack();
 
 	bool CanBasicAttack(AActor* target);
-	void PerformBasicAttack(); 
+	void PerformBasicAttack();
+	bool IsInBasicAttackRange(AActor* Target);
 	
 protected:
 
@@ -52,7 +53,6 @@ protected:
 
 	bool IsBasicAttackOnDelay = false;
 	FTimerHandle BasicAttackDelayTimerHandle;
-	bool IsInBasicAttackRange(AActor* Target);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<	EObjectTypeQuery>> ObjectTypes;

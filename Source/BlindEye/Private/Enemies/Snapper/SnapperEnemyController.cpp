@@ -34,9 +34,9 @@ void ASnapperEnemyController::SetTargetEnemy(AActor* target)
 	GetBlackboardComponent()->SetValueAsObject(TEXT("EnemyActor"), target);
 }
 
-bool ASnapperEnemyController::CanJumpAttack()
-{
-	return !IsJumpAttackOnDelay;
+bool ASnapperEnemyController::CanJumpAttack(AActor* target)
+{ 
+	return !IsJumpAttackOnDelay && IsInJumpAttackRange(target);
 }
 
 bool ASnapperEnemyController::IsInJumpAttackRange(AActor* Target) 
@@ -53,8 +53,6 @@ bool ASnapperEnemyController::IsInJumpAttackRange(AActor* Target)
 
 void ASnapperEnemyController::PerformJumpAttack()
 {
-	if (!CanJumpAttack()) return;
-	
 	Snapper->PerformJumpAttack();
 	IsJumpAttackOnDelay = true;
 	GetWorldTimerManager().SetTimer(JumpAttackDelayTimerHandle, this, &ASnapperEnemyController::SetCanJumpAttack, JumpAttackDelay, false);

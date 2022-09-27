@@ -20,8 +20,9 @@ void UBTS_TryAttack::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
 	UBlackboardComponent* BlackboardComponent = OwnerComp.GetBlackboardComponent();
 	UObject* TargetObject = BlackboardComponent->GetValueAsObject(TargetKey.SelectedKeyName);
 	if (TargetObject == nullptr) return;
-	AActor* Target = Cast<AActor>(TargetObject);
+	AActor* Target = Cast<AActor>(TargetObject); 
 
+	// perform different ability based on if attacking shrine vs player
 	if (AShrine* Shrine = Cast<AShrine>(Target))
 	{
 		if (SnapperController->CanBasicAttack(Shrine))
@@ -30,10 +31,9 @@ void UBTS_TryAttack::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
 		}
 	} else
 	{
-		if (SnapperController->CanJumpAttack() && SnapperController->IsInJumpAttackRange(Target))
+		if (SnapperController->CanJumpAttack(Target))
 		{
 			SnapperController->PerformJumpAttack();
 		}
 	}
-	
 }
