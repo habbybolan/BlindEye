@@ -3,8 +3,10 @@
 
 #include "Enemies/SnapperEnemy.h"
 #include "Characters/BlindEyePlayerCharacter.h"
+#include "Components/CapsuleComponent.h"
 #include "Enemies/BlindEyeEnemyController.h"
 #include "Enemies/SnapperEnemyController.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -27,18 +29,76 @@ void ASnapperEnemy::MYOnTakeDamage_Implementation(float Damage, FVector HitLocat
 
 void ASnapperEnemy::PerformBasicAttack()
 {
+	TempLaunch();
+	GetWorldTimerManager().SetTimer(LaunchSwingTimerHandle, this, &ASnapperEnemy::LaunchSwing, 0.4, false);
+}
+
+void ASnapperEnemy::TempLaunch()
+{
+	if (ABlindEyeEnemyController* BlindEyeController = Cast<ABlindEyeEnemyController>(GetController()))
+	{
+		if (AActor* Target = BlindEyeController->GetBTTarget())
+		{
+			FVector Direction = Target->GetActorLocation() - GetActorLocation();
+			Direction.Normalize();
+			Direction += FVector::UpVector * 1;
+			GetCharacterMovement()->AddImpulse(Direction * 30000);
+		}
+	}
+}
+
+void ASnapperEnemy::LaunchSwing()
+{
 	UWorld* world = GetWorld();
 	if (!world) return;
+
+	ABlindEyeEnemyController* BlindEyeController = Cast<ABlindEyeEnemyController>(GetController());
+	if (BlindEyeController == nullptr) return;
+
+	AActor* Target = BlindEyeController->GetBTTarget();
+	if (Target == nullptr) return;
+
+	FVector Direction = Target->GetActorLocation() - GetActorLocation();
+	Direction.Normalize();
 	
 	TArray<FHitResult> OutHits;
-	UKismetSystemLibrary::BoxTraceMultiForObjects(world, GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 300, FVector(0, 100 / 2, 100 / 2),
+	UKismetSystemLibrary::BoxTraceMultiForObjects(world, GetActorLocation(), GetActorLocation() + Direction * 300, FVector(0, 100 / 2, 100 / 2),
 		GetActorRotation(), ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, OutHits, true);
-
+	
 	for (FHitResult Hit : OutHits)
 	{
 		AActor* HitActor = Hit.GetActor();
 		if (!HitActor) continue;
-
+	
 		UGameplayStatics::ApplyPointDamage(HitActor, BasicAttackDamage, Hit.ImpactNormal, Hit, GetController(), this, BasicAttackDamageType);
 	}
+
+	//TryRagdoll(true);
+}
+
+void ASnapperEnemy::TryRagdoll(bool SimulatePhysics)
+{
+	// prevent setting ragdoll state if already set
+	if (bRagdolling == SimulatePhysics) return;
+
+	if (SimulatePhysics)
+	{
+		StartRagdoll();
+	} else
+	{
+		StopRagdoll();
+	}
+}
+
+void ASnapperEnemy::StartRagdoll()
+{
+	bRagdolling = true;
+	GetMesh()->SetSimulatePhysics(true);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void ASnapperEnemy::StopRagdoll()
+{
+	bRagdolling = false;
+	// TODO:
 }

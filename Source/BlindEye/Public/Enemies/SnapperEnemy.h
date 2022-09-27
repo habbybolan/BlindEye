@@ -31,6 +31,17 @@ public:
 
 	void PerformBasicAttack();
 
+	void TryRagdoll(bool SimulatePhysics);
+
+	void TempLaunch();
+	void LaunchSwing();
+
 protected:
+
+	bool bRagdolling = false;
+	FTimerHandle LaunchSwingTimerHandle;
+
+	void StartRagdoll();
+	void StopRagdoll();
 	
 };
