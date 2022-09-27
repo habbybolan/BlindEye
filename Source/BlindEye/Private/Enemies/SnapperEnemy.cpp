@@ -29,8 +29,9 @@ void ASnapperEnemy::MYOnTakeDamage_Implementation(float Damage, FVector HitLocat
 
 void ASnapperEnemy::PerformBasicAttack()
 {
+	if (bRagdolling) return;
 	TempLaunch();
-	GetWorldTimerManager().SetTimer(LaunchSwingTimerHandle, this, &ASnapperEnemy::LaunchSwing, 0.4, false);
+	GetWorldTimerManager().SetTimer(LaunchSwingTimerHandle, this, &ASnapperEnemy::LaunchSwing, 0.2, false);
 }
 
 void ASnapperEnemy::TempLaunch()
@@ -73,7 +74,7 @@ void ASnapperEnemy::LaunchSwing()
 		UGameplayStatics::ApplyPointDamage(HitActor, BasicAttackDamage, Hit.ImpactNormal, Hit, GetController(), this, BasicAttackDamageType);
 	}
 
-	//TryRagdoll(true);
+	TryRagdoll(true);
 }
 
 void ASnapperEnemy::TryRagdoll(bool SimulatePhysics)
@@ -90,15 +91,23 @@ void ASnapperEnemy::TryRagdoll(bool SimulatePhysics)
 	}
 }
 
+void ASnapperEnemy::TeleportColliderToMesh()
+{
+	FVector TeleportLocation = GetMesh()->GetSocketLocation(TEXT("Hips"));
+	GetCapsuleComponent()->SetWorldLocation(TeleportLocation);
+}
+
 void ASnapperEnemy::StartRagdoll()
 {
 	bRagdolling = true;
 	GetMesh()->SetSimulatePhysics(true);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetWorldTimerManager().SetTimer(ColliderOnMeshTimerHandle, this, &ASnapperEnemy::TeleportColliderToMesh, 0.05, true);
 }
 
 void ASnapperEnemy::StopRagdoll()
 {
 	bRagdolling = false;
+	GetWorldTimerManager().ClearTimer(ColliderOnMeshTimerHandle);
 	// TODO:
 }

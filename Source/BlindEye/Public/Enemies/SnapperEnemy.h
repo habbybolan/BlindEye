@@ -40,6 +40,9 @@ protected:
 
 	bool bRagdolling = false;
 	FTimerHandle LaunchSwingTimerHandle;
+	FTimerHandle ColliderOnMeshTimerHandle;
+
+	void TeleportColliderToMesh();
 
 	void StartRagdoll();
 	void StopRagdoll();
