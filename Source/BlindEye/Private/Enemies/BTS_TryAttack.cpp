@@ -22,9 +22,12 @@ void UBTS_TryAttack::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
 	if (TargetObject == nullptr) return;
 	AActor* Target = Cast<AActor>(TargetObject);
 
-	if (const AShrine* Shrine = Cast<AShrine>(Target))
+	if (AShrine* Shrine = Cast<AShrine>(Target))
 	{
-		
+		if (SnapperController->CanBasicAttack(Shrine))
+		{
+			SnapperController->PerformBasicAttack();
+		}
 	} else
 	{
 		if (SnapperController->CanJumpAttack() && SnapperController->IsInJumpAttackRange(Target))

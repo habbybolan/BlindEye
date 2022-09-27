@@ -37,6 +37,36 @@ void ASnapperEnemy::PerformJumpAttack()
 	GetWorldTimerManager().SetTimer(LaunchSwingTimerHandle, this, &ASnapperEnemy::LaunchSwing, 0.2, false);
 }
 
+void ASnapperEnemy::PerformBasicAttack()
+{
+	if (bRagdolling) return;
+
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	ABlindEyeEnemyController* BlindEyeController = Cast<ABlindEyeEnemyController>(GetController());
+	if (BlindEyeController == nullptr) return;
+
+	AActor* Target = BlindEyeController->GetBTTarget();
+	if (Target == nullptr) return;
+
+	FVector Direction = Target->GetActorLocation() - GetActorLocation();
+	Direction.Normalize();
+	
+	TArray<FHitResult> OutHits;
+	UKismetSystemLibrary::BoxTraceMultiForObjects(world, GetActorLocation(), GetActorForwardVector() * 300, FVector(0, 100 / 2, 100 / 2),
+		GetActorRotation(), ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, OutHits, true);
+	
+	for (FHitResult Hit : OutHits)
+	{
+		AActor* HitActor = Hit.GetActor();
+		if (!HitActor) continue;
+	
+		UGameplayStatics::ApplyPointDamage(HitActor, BasicAttackDamage
+			, Hit.ImpactNormal, Hit, GetController(), this, BasicAttackDamageType);
+	}
+}
+
 void ASnapperEnemy::TempLaunch()
 {
 	if (ABlindEyeEnemyController* BlindEyeController = Cast<ABlindEyeEnemyController>(GetController()))
@@ -74,7 +104,7 @@ void ASnapperEnemy::LaunchSwing()
 		AActor* HitActor = Hit.GetActor();
 		if (!HitActor) continue;
 	
-		UGameplayStatics::ApplyPointDamage(HitActor, BasicAttackDamage, Hit.ImpactNormal, Hit, GetController(), this, BasicAttackDamageType);
+		UGameplayStatics::ApplyPointDamage(HitActor, JumpAttackDamage, Hit.ImpactNormal, Hit, GetController(), this, JumpAttackDamageType);
 	}
 
 	TryRagdoll(true);

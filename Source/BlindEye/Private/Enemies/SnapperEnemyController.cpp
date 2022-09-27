@@ -57,7 +57,35 @@ void ASnapperEnemyController::PerformJumpAttack()
 	
 	Snapper->PerformJumpAttack();
 	IsJumpAttackOnDelay = true;
-	GetWorldTimerManager().SetTimer(JumpAttackDelayTimerHandle, this, &ASnapperEnemyController::SetCanBasicAttack, JumpAttackDelay, false);
+	GetWorldTimerManager().SetTimer(JumpAttackDelayTimerHandle, this, &ASnapperEnemyController::SetCanJumpAttack, JumpAttackDelay, false);
+}
+
+bool ASnapperEnemyController::CanBasicAttack(AActor* target)
+{
+	return !IsBasicAttackOnDelay && IsInBasicAttackRange(target);
+}
+
+bool ASnapperEnemyController::IsInBasicAttackRange(AActor* Target)
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return false;
+
+	if (!Snapper) return false;
+
+	FHitResult OutHit;
+	if (UKismetSystemLibrary::LineTraceSingleForObjects(World, Snapper->GetActorLocation(), Snapper->GetActorLocation() + Snapper->GetActorForwardVector() * 300,
+		ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, OutHit, true))
+	{
+		return OutHit.Actor == Target;
+	}
+	return false;
+}
+
+void ASnapperEnemyController::PerformBasicAttack()
+{
+	Snapper->PerformBasicAttack();
+	IsBasicAttackOnDelay = true;
+	GetWorldTimerManager().SetTimer(BasicAttackDelayTimerHandle, this, &ASnapperEnemyController::SetCanBasicAttack, BasicAttackDelay, false);
 }
 
 void ASnapperEnemyController::OnPossess(APawn* InPawn)
@@ -66,9 +94,14 @@ void ASnapperEnemyController::OnPossess(APawn* InPawn)
 	Snapper = Cast<ASnapperEnemy>(InPawn);
 }
 
-void ASnapperEnemyController::SetCanBasicAttack()
+void ASnapperEnemyController::SetCanJumpAttack()
 {
 	IsJumpAttackOnDelay = false;
+}
+
+void ASnapperEnemyController::SetCanBasicAttack()
+{
+	IsBasicAttackOnDelay = false;
 }
 
 void ASnapperEnemyController::OnTauntStart(float Duration, AActor* Taunter)

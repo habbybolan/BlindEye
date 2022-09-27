@@ -24,7 +24,13 @@ public:
 	TArray<TEnumAsByte<	EObjectTypeQuery>> ObjectTypes;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float BasicAttackDamage = 5;
+	float JumpAttackDamage = 5;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UBaseDamageType> JumpAttackDamageType;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float BasicAttackDamage = 5; 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UBaseDamageType> BasicAttackDamageType;
@@ -36,6 +42,7 @@ public:
 	UAnimMontage* GetUpFromInFrontMontage;
 
 	void PerformJumpAttack();
+	void PerformBasicAttack(); 
 
 	void TryRagdoll(bool SimulatePhysics);
 
