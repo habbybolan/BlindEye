@@ -29,6 +29,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UBaseDamageType> BasicAttackDamageType;
 
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* GetUpFromBehindMontage;
+
+	UPROPERTY(EditDefaultsOnly) 
+	UAnimMontage* GetUpFromInFrontMontage;
+
 	void PerformBasicAttack();
 
 	void TryRagdoll(bool SimulatePhysics);
@@ -41,10 +47,15 @@ protected:
 	bool bRagdolling = false;
 	FTimerHandle LaunchSwingTimerHandle;
 	FTimerHandle ColliderOnMeshTimerHandle;
+	FTimerHandle StopRagdollTimerHandle;
+	FTimerHandle GetupAnimTimerHandle;
 
 	void TeleportColliderToMesh();
 
 	void StartRagdoll();
 	void StopRagdoll();
+	void FinishGettingUp();
+
+	bool IsLayingOnFront();
 	
 };
