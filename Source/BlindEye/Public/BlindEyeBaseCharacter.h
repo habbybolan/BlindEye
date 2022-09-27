@@ -39,11 +39,26 @@ protected:
 	virtual void BeginPlay() override;
 
 
+	// mark added
 	UFUNCTION()
 	void OnMarkAdded(PlayerType MarkerType);
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_OnMarkAddedHelper(PlayerType MarkerType);
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnMarkAdded(PlayerType MarkerType);
+	// mark removed
 	UFUNCTION()
 	void OnMarkRemoved();
-	UFUNCTION()
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_OnMarkRemovedHelper();
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnMarkRemoved();
+	// mark detonated
+	UFUNCTION() 
 	void OnMarkDetonated();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_OnMarkDetonatedHelper(); 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnMarkDetonated();
 
 };
