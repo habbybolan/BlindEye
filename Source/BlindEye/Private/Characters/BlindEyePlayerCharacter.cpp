@@ -395,7 +395,7 @@ void ABlindEyePlayerCharacter::SetHealth_Implementation(float NewHealth)
 	}
 }
 
-void ABlindEyePlayerCharacter::OnTakeDamage_Implementation(float Damage, FVector HitLocation,
+void ABlindEyePlayerCharacter::MYOnTakeDamage_Implementation(float Damage, FVector HitLocation,
 	const UDamageType* DamageType, AActor* DamageCauser)
 {
 	// TODO: THIS IS BROKEN - Wont get called on player?????

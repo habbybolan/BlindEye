@@ -46,7 +46,7 @@ public:
 
 	// Any extra specific logic, outside of damage logic, for actor to perform on taking damage
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void OnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
+	void MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	UHealthComponent* GetHealthComponent();
