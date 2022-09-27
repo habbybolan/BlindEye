@@ -83,15 +83,15 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 		{
 			// TODO: Check if player character or enemy
 			// TODO: If enemy delete, if player, do extra work on player and send to GameMode for any state change
-			OnDeath();
+			OnDeath(DamageCauser->GetInstigator());
 		}
 	}
 }
 
-void UHealthComponent::OnDeath()
+void UHealthComponent::OnDeath(AActor* ActorThatKilled)
 {
 	OnDeathDelegate.Broadcast(GetOwner());
-	OwnerHealth->Execute_OnDeath(GetOwner());
+	OwnerHealth->Execute_OnDeath(GetOwner(), ActorThatKilled);
 }
 
 void UHealthComponent::Stun_Implementation(float StunDuration, AActor* DamageCause)
@@ -283,7 +283,7 @@ void UHealthComponent::DetonateMark()
 
 void UHealthComponent::Kill()
 {
-	OnDeath();
+	OnDeath(nullptr);
 }
 
 void UHealthComponent::ImprovedHealing_Implementation(float HealPercentIncrease, float Duration)

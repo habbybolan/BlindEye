@@ -22,6 +22,11 @@ void ABlindEyeBaseCharacter::BeginPlay()
 	HealthComponent->DetonateDelegate.AddUFunction(this, TEXT("OnMarkDetonated"));
 }
 
+void ABlindEyeBaseCharacter::MULT_OnDeathHelper_Implementation(AActor* ActorThatKilled)
+{
+	BP_OnDeath(ActorThatKilled);
+}
+
 TEAMS ABlindEyeBaseCharacter::GetTeam_Implementation()
 {
 	return Team;
@@ -39,16 +44,34 @@ UMarkerComponent* ABlindEyeBaseCharacter::GetMarkerComponent_Implementation()
 
 void ABlindEyeBaseCharacter::OnMarkAdded(PlayerType MarkType)
 { 
-	MarkerComponent->MULT_AddMark(MarkType);
+	MULT_OnMarkAddedHelper(MarkType);
+}
+
+void ABlindEyeBaseCharacter::MULT_OnMarkAddedHelper_Implementation(PlayerType MarkerType)
+{
+	BP_OnMarkAdded(MarkerType);
+	MarkerComponent->AddMark(MarkerType);
 }
 
 void ABlindEyeBaseCharacter::OnMarkRemoved()
 {
-	MarkerComponent->MULT_RemoveMark();
+	MULT_OnMarkRemovedHelper();
+}
+
+void ABlindEyeBaseCharacter::MULT_OnMarkRemovedHelper_Implementation()
+{
+	BP_OnMarkRemoved();
+	MarkerComponent->RemoveMark();
 }
 
 void ABlindEyeBaseCharacter::OnMarkDetonated()
 {
-	MarkerComponent->MULT_DetonateMark();
+	MULT_OnMarkDetonatedHelper();
+}
+
+void ABlindEyeBaseCharacter::MULT_OnMarkDetonatedHelper_Implementation()
+{
+	BP_OnMarkDetonated();
+	MarkerComponent->DetonateMark();
 }
 

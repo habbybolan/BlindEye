@@ -38,12 +38,32 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_OnDeathHelper(AActor* ActorThatKilled);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnDeath(AActor* ActorThatKilled);
+
+	// mark added
 	UFUNCTION()
 	void OnMarkAdded(PlayerType MarkerType);
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_OnMarkAddedHelper(PlayerType MarkerType);
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnMarkAdded(PlayerType MarkerType);
+	// mark removed
 	UFUNCTION()
 	void OnMarkRemoved();
-	UFUNCTION()
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_OnMarkRemovedHelper();
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnMarkRemoved();
+	// mark detonated
+	UFUNCTION() 
 	void OnMarkDetonated();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_OnMarkDetonatedHelper(); 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnMarkDetonated();
 
 };

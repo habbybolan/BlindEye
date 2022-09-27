@@ -50,9 +50,9 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	UHealthComponent* GetHealthComponent();
-
+ 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void OnDeath();
+	void OnDeath(AActor* ActorThatKilled);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	bool GetIsDead();

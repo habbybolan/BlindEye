@@ -409,8 +409,9 @@ void ABlindEyePlayerCharacter::CLI_OnTakeDamageHelper_Implementation(float Damag
 	BP_OnTakeDamage(Damage, HitLocation, DamageType, DamageCauser);
 }
 
-void ABlindEyePlayerCharacter::OnDeath_Implementation() 
+void ABlindEyePlayerCharacter::OnDeath_Implementation(AActor* ActorThatKilled) 
 {
+	Super::OnDeath(ActorThatKilled);
 	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
 	{
 		BlindEyePS->SetIsDead(true);
