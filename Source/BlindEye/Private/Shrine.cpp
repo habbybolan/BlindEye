@@ -49,7 +49,7 @@ float AShrine::GetHealthPercent_Implementation()
 	return CurrShrineHealth / MaxShrineHealth;
 }
 
-void AShrine::OnDeath_Implementation()
+void AShrine::OnDeath_Implementation(AActor* ActorThatKilled)
 {
 	UWorld* world = GetWorld();
 	if (!world) return;

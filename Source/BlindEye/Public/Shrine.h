@@ -39,7 +39,7 @@ public:
 	virtual TEAMS GetTeam_Implementation() override;
 	virtual float GetHealthPercent_Implementation() override;
 
-	virtual void OnDeath_Implementation() override;
+	virtual void OnDeath_Implementation(AActor* ActorThatKilled) override;
 	virtual bool GetIsDead_Implementation() override;
 	virtual UHealthComponent* GetHealthComponent_Implementation() override;
 

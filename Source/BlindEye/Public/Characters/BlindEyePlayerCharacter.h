@@ -65,8 +65,8 @@ public:
 	// Notify Blueprint damage taken
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
-
-	virtual void OnDeath_Implementation() override;
+ 
+	virtual void OnDeath_Implementation(AActor* ActorThatKilled) override;
 
 	virtual bool TryConsumeBirdMeter_Implementation(float PercentAmount) override;
 

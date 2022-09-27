@@ -46,7 +46,7 @@ public:
 
 	virtual void MYOnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
 
-	virtual void OnDeath_Implementation() override;
+	virtual void OnDeath_Implementation(AActor* ActorThatKilled) override;
 	virtual float GetHealthPercent_Implementation() override;
 	virtual float GetMaxHealth_Implementation() override;
 	

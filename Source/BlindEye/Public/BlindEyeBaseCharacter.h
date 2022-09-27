@@ -38,6 +38,11 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_OnDeathHelper(AActor* ActorThatKilled);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnDeath(AActor* ActorThatKilled);
 
 	// mark added
 	UFUNCTION()

@@ -54,7 +54,7 @@ void ABlindEyeEnemyBase::MYOnTakeDamage_Implementation(float Damage, FVector Hit
 	AActor* DamageCauser)
 {}
 
-void ABlindEyeEnemyBase::OnDeath_Implementation()
+void ABlindEyeEnemyBase::OnDeath_Implementation(AActor* ActorThatKilled)
 {
 	UnPossessed();
 	Destroy();
