@@ -399,6 +399,7 @@ void ABlindEyePlayerCharacter::OnTakeDamage_Implementation(float Damage, FVector
 	const UDamageType* DamageType, AActor* DamageCauser)
 {
 	// TODO: THIS IS BROKEN - Wont get called on player?????
+	CLI_OnTakeDamageHelper(Damage, HitLocation, DamageType, DamageCauser);
 }
 
 
