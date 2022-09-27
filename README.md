@@ -1,4 +1,4 @@
-# GAME TITLE
+# Blind Eye
 
 ### High Concept
 
@@ -17,15 +17,29 @@ Blind Eye is a two player, 3D, third person, cooperative battle arena defense ga
 
 ### Documents
 
-[Game Design](<https://docs.google.com/document/d/1v6Kb8D5iBFX2CARsvLRC01mK8gDOMmLfhdmhwX2aG-E/edit?usp=sharing>)
+[Game Design Document](<https://docs.google.com/document/d/1v6Kb8D5iBFX2CARsvLRC01mK8gDOMmLfhdmhwX2aG-E/edit?usp=sharing>)
+
+[Level Design Document](<https://docs.google.com/document/d/1roQ3wO4u3DfY_e0xRNNjT790BjSBD0Q3b03pxDe3Muc/edit?usp=sharing>)
+
+[Level Design Factors](<???>)
 
 [Fresh Eyes Playtest Feedback Form](<https://docs.google.com/forms/d/1EpBZoUvKfLMMF3GaZU68zBlcoBp9yx0hS8Al0QKMMKw/edit?usp=sharing>)
 
-[G Drive Folder](<https://drive.google.com/drive/folders/1hjaj08cCvYL3Be4o2cc4maj_e3tBocap?usp=sharing>)
+[Meda Design Document](<https://miro.com/app/board/uXjVOpPOsmM=/?share_link_id=994276187786>)
+
+[Paint Over Proxy](<???>)
+
+[Milestone Report](<https://docs.google.com/document/d/1K73V15MdtJuQGsLiJoxIn5og0Oes6zCeDTwmnhxSfb0/edit?usp=sharing>)
+
+[ClickUp](<https://sharing.clickup.com/36275028/l/h/7-36275028-1/c9451079576f585>)
 
 [ClickUp Bug Tracking](<https://sharing.clickup.com/36275028/l/h/4-66055448-1/f02f6ce478cad62>)
 
+[Task List](<https://docs.google.com/spreadsheets/d/1aE1CwJExc6e-ufWwJ5Wjcxcs_S_H9AzUSZRLkWGL6Ek/edit?usp=sharing>)
+
 [M1 Build](<https://drive.vfs.com/index.php/apps/files/?dir=/VFSSTORAGE10%20Dropbox%20GDPGSD/Builds/GD66PG22/BlindEye/M1&fileid=75792717>)
+
+No Script or Dialogue required
 
 ### Controls
 
