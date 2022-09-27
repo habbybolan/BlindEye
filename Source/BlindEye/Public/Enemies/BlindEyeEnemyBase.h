@@ -40,11 +40,11 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
+ 
 	virtual float GetHealth_Implementation() override;
 	virtual void SetHealth_Implementation(float NewHealth) override;
 
-	virtual void OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
+	virtual void MYOnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
 
 	virtual void OnDeath_Implementation() override;
 	virtual float GetHealthPercent_Implementation() override;

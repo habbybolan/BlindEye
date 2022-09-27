@@ -85,6 +85,9 @@ void UFirstAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 void UFirstAttackState::RunState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::RunState();
+	if (!Ability) return;
+	Ability->BP_AbilityStarted();
+	Ability->BP_AbilityInnerState(1);
 	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
 	if (SharedAbility)
 	{
@@ -124,6 +127,8 @@ void USecondAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 void USecondAttackState::RunState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::RunState();
+	if (!Ability) return;
+	Ability->BP_AbilityInnerState(2);
 	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
 	if (SharedAbility)
 	{
@@ -163,6 +168,8 @@ void ULastAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 void ULastAttackState::RunState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::RunState();
+	if (!Ability) return;
+	Ability->BP_AbilityInnerState(3);
 	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
 	if (SharedAbility)
 	{

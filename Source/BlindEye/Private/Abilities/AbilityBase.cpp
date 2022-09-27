@@ -82,6 +82,7 @@ void AAbilityBase::EndAbilityLogic()
 	AbilityStates[CurrState]->ResetState();
 	bIsRunning = false;
 	AbilityEndedDelegate.ExecuteIfBound();
+	BP_AbilityEnded();
 	SetOnCooldown();
 }
 

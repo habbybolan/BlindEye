@@ -50,7 +50,7 @@ void ABlindEyeEnemyBase::SetHealth_Implementation(float NewHealth)
 	CurrHealth = NewHealth;
 }
 
-void ABlindEyeEnemyBase::OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType,
+void ABlindEyeEnemyBase::MYOnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType,
 	AActor* DamageCauser)
 {}
 

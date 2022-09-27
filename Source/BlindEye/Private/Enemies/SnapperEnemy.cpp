@@ -10,10 +10,10 @@
 
 ASnapperEnemy::ASnapperEnemy(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}
 
-void ASnapperEnemy::OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType,
+void ASnapperEnemy::MYOnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType,
                                                 AActor* DamageCauser)
 {
-	Super::OnTakeDamage_Implementation(Damage, HitLocation, DamageType, DamageCauser);
+	Super::MYOnTakeDamage_Implementation(Damage, HitLocation, DamageType, DamageCauser);
 
 	// If taken damage from player, set Target as player
 	if (ABlindEyePlayerCharacter* BlindEyeCharacter = Cast<ABlindEyePlayerCharacter>(DamageCauser))

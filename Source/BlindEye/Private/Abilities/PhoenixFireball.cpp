@@ -121,6 +121,7 @@ void FPhoenixFireballCastState::RunState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::RunState(abilityUsageType);
 	if (!Ability) return;
+	Ability->BP_AbilityStarted();
 	APhoenixFireball* PhoenixFireball = Cast<APhoenixFireball>(Ability);
 	if (!PhoenixFireball) return;
 
