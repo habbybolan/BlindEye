@@ -1,12 +1,12 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
-#include "Enemies/SnapperEnemyController.h"
+#include "Enemies/Snapper/SnapperEnemyController.h"
 
 #include "Shrine.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Enemies/SnapperEnemy.h"
+#include "Enemies/Snapper/SnapperEnemy.h"
 #include "Kismet/GameplayStatics.h"
 
 void ASnapperEnemyController::BeginPlay()

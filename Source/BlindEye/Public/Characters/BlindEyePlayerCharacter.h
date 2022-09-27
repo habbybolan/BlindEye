@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BlindEyeBaseCharacter.h"
-#include "Enemies/SnapperEnemy.h"
+#include "Enemies/Snapper/SnapperEnemy.h"
 #include "Enemies/Burrower/BurrowerEnemy.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/AbilityUserInterface.h"

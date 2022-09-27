@@ -1,13 +1,13 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
-#include "Enemies/SnapperEnemy.h"
+#include "Enemies/Snapper/SnapperEnemy.h"
 
 #include "BrainComponent.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "Enemies/BlindEyeEnemyController.h"
-#include "Enemies/SnapperEnemyController.h"
+#include "Enemies/Snapper/SnapperEnemyController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
