@@ -59,6 +59,7 @@ void ACrowCocoon::PerformPulse()
 	if (!world) return;
 	
 	uint8 pulseIndex = CalcPulseIndex();
+	BP_AbilityInnerState(pulseIndex);
 	// perform taunt on first pulse index
 	if (pulseIndex == 0)
 	{
@@ -135,6 +136,8 @@ void UCrowCocoonStart::TryEnterState(EAbilityInputTypes abilityUsageType)
 void UCrowCocoonStart::RunState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::RunState(abilityUsageType);
+	if (!Ability) return;
+	Ability->BP_AbilityStarted();
 	Ability->Blockers.IsMovementBlocked = true;
 	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 	if (abilityUsageType == EAbilityInputTypes::Released)
@@ -143,7 +146,6 @@ void UCrowCocoonStart::RunState(EAbilityInputTypes abilityUsageType)
 	} else
 	{
 		// perform holding logic
-		if (!Ability) return;
 		if (ACrowCocoon* Cocoon = Cast<ACrowCocoon>(Ability))
 		{
 			Cocoon->StartHoldLogic();

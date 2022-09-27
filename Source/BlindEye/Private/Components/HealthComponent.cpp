@@ -71,6 +71,9 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 
 		// Debug invincibility
 		if (IsInvincible) damageMultiplied = 0;
+
+		// Prevent calling any damage method if no damage applied
+		if (damageMultiplied <= 0) return;
 		
 		OwnerHealth->Execute_SetHealth(GetOwner(), OwnerHealth->Execute_GetHealth(GetOwner()) - damageMultiplied);
 		// send callback to owning actor for any additional logic
