@@ -390,17 +390,20 @@ float ABlindEyePlayerCharacter::GetHealth_Implementation()
 void ABlindEyePlayerCharacter::SetHealth_Implementation(float NewHealth)
 {
 	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
+	{
 		return BlindEyePS->SetHealth(NewHealth);
+	}
 }
 
-void ABlindEyePlayerCharacter::OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType,
-	AActor* DamageCauser)
+void ABlindEyePlayerCharacter::OnTakeDamage_Implementation(float Damage, FVector HitLocation,
+	const UDamageType* DamageType, AActor* DamageCauser)
 {
-	CLI_OnTakeDamageHelper(Damage, HitLocation, DamageType, DamageCauser);
+	// TODO: THIS IS BROKEN - Wont get called on player?????
 }
+
 
 void ABlindEyePlayerCharacter::CLI_OnTakeDamageHelper_Implementation(float Damage, FVector HitLocation,
-	const UDamageType* DamageType, AActor* DamageCauser)
+                                                                     const UDamageType* DamageType, AActor* DamageCauser)
 {
 	BP_OnTakeDamage(Damage, HitLocation, DamageType, DamageCauser);
 }
