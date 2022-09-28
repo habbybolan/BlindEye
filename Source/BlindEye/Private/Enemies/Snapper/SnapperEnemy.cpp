@@ -9,6 +9,7 @@
 #include "Components/PoseableMeshComponent.h"
 #include "Enemies/BlindEyeEnemyController.h"
 #include "Enemies/Snapper/SnapperEnemyController.h"
+#include "Enemies/Snapper/SnapperHealthComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -16,7 +17,11 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
 
-ASnapperEnemy::ASnapperEnemy(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}
+ASnapperEnemy::ASnapperEnemy(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<USnapperHealthComponent>(TEXT("HealthComponent")))
+{
+	bReplicates = true;
+}
 
 void ASnapperEnemy::MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType,
                                                 AActor* DamageCauser)
@@ -111,8 +116,12 @@ void ASnapperEnemy::LaunchSwing()
 
 void ASnapperEnemy::TryRagdoll(bool SimulatePhysics)
 {
-	// prevent setting ragdoll state if already set
-	if (bRagdolling == SimulatePhysics) return;
+	// Prevent calling ragdoll again, reset timer to get up
+	if (bRagdolling == SimulatePhysics)
+	{
+		BeginStopRagdollTimer();
+		return;
+	}
 
 	if (SimulatePhysics)
 	{
@@ -121,6 +130,11 @@ void ASnapperEnemy::TryRagdoll(bool SimulatePhysics)
 	{
 		MULT_StopRagdoll();
 	}
+}
+
+void ASnapperEnemy::BeginStopRagdollTimer()
+{
+	GetWorldTimerManager().SetTimer(StopRagdollTimerHandle, this, &ASnapperEnemy::MULT_StopRagdoll, 5, false);
 }
 
 void ASnapperEnemy::TeleportColliderToMesh()
@@ -152,7 +166,7 @@ void ASnapperEnemy::MULT_StartRagdoll_Implementation()
 		AAIController* AIController = Cast<AAIController>(GetController());
 		AIController->GetBrainComponent()->PauseLogic(TEXT("AnimationMontage"));
 		GetWorldTimerManager().SetTimer(ColliderOnMeshTimerHandle, this, &ASnapperEnemy::TeleportColliderToMesh, 0.05, true);
-		GetWorldTimerManager().SetTimer(StopRagdollTimerHandle, this, &ASnapperEnemy::MULT_StopRagdoll, 5, false);
+		BeginStopRagdollTimer();
 	} else
 	{
 		GetWorldTimerManager().SetTimer(ColliderOnMeshTimerHandle, this, &ASnapperEnemy::UpdateHipLocation, 0.05, true);

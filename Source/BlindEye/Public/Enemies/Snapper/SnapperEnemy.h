@@ -58,6 +58,8 @@ protected:
 	FTimerHandle StopRagdollTimerHandle;
 	FTimerHandle GetupAnimTimerHandle;
 
+	void BeginStopRagdollTimer();
+
 	void TeleportColliderToMesh();
 
 	UPROPERTY(Replicated)
