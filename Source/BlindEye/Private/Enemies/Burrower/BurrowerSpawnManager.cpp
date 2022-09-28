@@ -44,9 +44,9 @@ void ABurrowerSpawnManager::SpawnBurrower()
 	if (SpawnedBurrower)
 	{
 		SpawnedBurrowers.Add(SpawnedBurrower->GetUniqueID(), MakeWeakObjectPtr(SpawnedBurrower));
-		if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(SpawnedBurrower))
+		if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(SpawnedBurrower))
 		{
-			HealthInterface->Execute_GetHealthComponent(SpawnedBurrower)->OnDeathDelegate.AddUFunction(this, FName("OnBurrowerDeath"));
+			HealthInterface->GetHealthComponent()->OnDeathDelegate.AddUFunction(this, FName("OnBurrowerDeath"));
 		}
 	}
 }

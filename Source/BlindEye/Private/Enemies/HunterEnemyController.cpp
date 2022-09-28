@@ -97,9 +97,9 @@ void AHunterEnemyController::OnPossess(APawn* InPawn)
 	
 	Hunter = Cast<AHunterEnemy>(InPawn);
 	
-	if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(Hunter))
+	if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(Hunter))
 	{
-		HealthInterface->Execute_GetHealthComponent(Hunter)->OnDeathDelegate.AddUFunction(this, FName("OnHunterDeath"));
+		HealthInterface->GetHealthComponent()->OnDeathDelegate.AddUFunction(this, FName("OnHunterDeath"));
 	}
 
 	// Get random player to attack

@@ -52,25 +52,24 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UAbilityManager* AbilityManager;
 
-	virtual float GetHealth_Implementation() override;
-	virtual void SetHealth_Implementation(float NewHealth) override;
+	virtual float GetHealth() override;
+	virtual void SetHealth(float NewHealth) override;
 
-	virtual void MYOnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
+	virtual void MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
 	
 
 	// Helper method to notify all clients damage taken
 	UFUNCTION(Client, Reliable)
 	void CLI_OnTakeDamageHelper(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
 
-	// Notify Blueprint damage taken
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_OnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
+	void BP_OnTakeDamageClient(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
  
-	virtual void OnDeath_Implementation(AActor* ActorThatKilled) override;
+	virtual void OnDeath(AActor* ActorThatKilled) override;
 
-	virtual bool TryConsumeBirdMeter_Implementation(float PercentAmount) override;
+	virtual bool TryConsumeBirdMeter(float PercentAmount) override;
 
-	virtual float GetMaxHealth_Implementation() override;
+	virtual float GetMaxHealth() override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=100))
 	float BirdMeterRegenPercentPerSec = 5.f;
@@ -154,17 +153,17 @@ public:
 	void BirdMeterUpdated(); 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void UpdateBirdMeterUI();
-	float GetBirdMeterPercent_Implementation() override;
-	virtual float GetBirdMeter_Implementation() override;
+	float GetBirdMeterPercent() override;
+	virtual float GetBirdMeter() override;
 
 	void OnGameLost();
 	void OnGameWon();
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void UpdateShrineHealthUI(); 
-	float GetHealthPercent_Implementation() override;
+	float GetHealthPercent() override;
 
-	virtual bool GetIsDead_Implementation() override;
+	virtual bool GetIsDead() override;
 	
 	bool IsActionsBlocked();
 
