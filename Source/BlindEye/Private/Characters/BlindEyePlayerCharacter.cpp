@@ -410,8 +410,8 @@ void ABlindEyePlayerCharacter::CLI_OnTakeDamageHelper_Implementation(float Damag
 }
 
 void ABlindEyePlayerCharacter::OnDeath_Implementation(AActor* ActorThatKilled) 
-{
-	Super::OnDeath(ActorThatKilled);
+{ 
+	Super::OnDeath_Implementation(ActorThatKilled);
 	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
 	{
 		BlindEyePS->SetIsDead(true);

@@ -38,6 +38,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void OnDeath_Implementation(AActor* ActorThatKilled) override;
+
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_OnDeathHelper(AActor* ActorThatKilled);
 

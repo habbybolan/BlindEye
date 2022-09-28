@@ -22,6 +22,11 @@ void ABlindEyeBaseCharacter::BeginPlay()
 	HealthComponent->DetonateDelegate.AddUFunction(this, TEXT("OnMarkDetonated"));
 }
 
+void ABlindEyeBaseCharacter::OnDeath_Implementation(AActor* ActorThatKilled)
+{
+	MULT_OnDeathHelper(ActorThatKilled);
+}
+
 void ABlindEyeBaseCharacter::MULT_OnDeathHelper_Implementation(AActor* ActorThatKilled)
 {
 	BP_OnDeath(ActorThatKilled);
