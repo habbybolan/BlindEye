@@ -134,6 +134,9 @@ void ASnapperEnemy::UpdateHipLocation()
 {
 	FVector HipForceDirection = HipLocation - GetMesh()->GetSocketLocation(TEXT("Hips"));
 	GetMesh()->AddForceToAllBodiesBelow(HipForceDirection * 150, "Hips");
+	
+	// TODO: Apply rotational force to align with capsule?
+	// TODO: Apply more force while in the air, so relatively similar once hit the ground?
 
 	float Dist = UKismetMathLibrary::Vector_Distance(GetMesh()->GetComponentLocation(), GetCapsuleComponent()->GetComponentLocation());
 	if (Dist < 50) return;
