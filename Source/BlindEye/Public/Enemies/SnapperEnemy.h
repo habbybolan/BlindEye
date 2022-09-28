@@ -18,7 +18,7 @@ class BLINDEYE_API ASnapperEnemy : public ABlindEyeEnemyBase
 public:
 	ASnapperEnemy(const FObjectInitializer& ObjectInitializer);
 	
-	virtual void MYOnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
+	virtual void MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<	EObjectTypeQuery>> ObjectTypes;

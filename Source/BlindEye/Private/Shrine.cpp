@@ -25,12 +25,12 @@ AShrine::AShrine()
 	CurrShrineHealth = MaxShrineHealth;
 }
 
-float AShrine::GetHealth_Implementation()
+float AShrine::GetHealth()
 {
 	return CurrShrineHealth;
 }
 
-void AShrine::SetHealth_Implementation(float NewHealth)
+void AShrine::SetHealth(float NewHealth)
 {
 	CurrShrineHealth = NewHealth;
 	if (GetLocalRole() == ROLE_Authority)
@@ -39,17 +39,17 @@ void AShrine::SetHealth_Implementation(float NewHealth)
 	}
 }
 
-TEAMS AShrine::GetTeam_Implementation()
+TEAMS AShrine::GetTeam()
 {
 	return TEAMS::Player;
 }
 
-float AShrine::GetHealthPercent_Implementation()
+float AShrine::GetHealthPercent()
 {
 	return CurrShrineHealth / MaxShrineHealth;
 }
 
-void AShrine::OnDeath_Implementation(AActor* ActorThatKilled)
+void AShrine::OnDeath(AActor* ActorThatKilled)
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
@@ -61,12 +61,12 @@ void AShrine::OnDeath_Implementation(AActor* ActorThatKilled)
 	}
 }
 
-bool AShrine::GetIsDead_Implementation()
+bool AShrine::GetIsDead()
 {
 	return CurrShrineHealth <= 0;
 }
 
-UHealthComponent* AShrine::GetHealthComponent_Implementation()
+UHealthComponent* AShrine::GetHealthComponent()
 {
 	return HealthComponent;
 }
@@ -86,5 +86,19 @@ void AShrine::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AShrine, CurrShrineHealth);
+}
+
+float AShrine::GetMaxHealth()
+{
+	return MaxShrineHealth;
+}
+
+void AShrine::MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser)
+{
+}
+
+UMarkerComponent* AShrine::GetMarkerComponent()
+{
+	return nullptr;
 }
 

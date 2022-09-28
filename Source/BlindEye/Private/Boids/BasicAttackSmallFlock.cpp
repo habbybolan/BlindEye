@@ -51,14 +51,14 @@ void ABasicAttackSmallFlock::CheckForDamage()
 	TArray<AActor*> OutActors;
 	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), CalcAveragePosition(), DamageRadius, ObjectTypes, ABlindEyeEnemyBase::StaticClass(), ActorsToIgnore, OutActors);
 
-	const IHealthInterface* InstigatorHealthInterface = Cast<IHealthInterface>(GetInstigator());
-	TEAMS InstigatorTeam = InstigatorHealthInterface->Execute_GetTeam(GetInstigator());
+	IHealthInterface* InstigatorHealthInterface = Cast<IHealthInterface>(GetInstigator());
+	TEAMS InstigatorTeam = InstigatorHealthInterface->GetTeam();
 	
 	for (AActor* HitActor : OutActors)
 	{
-		if (const IHealthInterface* HitHealthInterface = Cast<IHealthInterface>(HitActor))
+		if (IHealthInterface* HitHealthInterface = Cast<IHealthInterface>(HitActor))
 		{
-			TEAMS HitTeam = HitHealthInterface->Execute_GetTeam(HitActor);
+			TEAMS HitTeam = HitHealthInterface->GetTeam();
 			if (InstigatorTeam != HitTeam)
 			{
 				UGameplayStatics::ApplyPointDamage(HitActor, DamageAmount, FVector::ZeroVector, FHitResult(), GetInstigator()->Controller, this, DamageType);

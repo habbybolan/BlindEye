@@ -28,8 +28,8 @@ public:
 	UHealthComponent* HealthComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TEAMS Team;
-	virtual TEAMS GetTeam_Implementation() override;
+	TEAMS Team; 
+	virtual TEAMS GetTeam() override;
 
 	// Notify Blueprint damage taken
 	UFUNCTION(BlueprintImplementableEvent)
@@ -38,16 +38,16 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_OnTakeDamageHelper(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
 
-	virtual void MYOnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
+	virtual void MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
 
-	virtual UHealthComponent* GetHealthComponent_Implementation() override;
-	virtual UMarkerComponent* GetMarkerComponent_Implementation() override;
+	virtual UHealthComponent* GetHealthComponent() override;
+	virtual UMarkerComponent* GetMarkerComponent() override;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	virtual void OnDeath_Implementation(AActor* ActorThatKilled) override;
+	virtual void OnDeath(AActor* ActorThatKilled) override;
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_OnDeathHelper(AActor* ActorThatKilled);
@@ -76,5 +76,10 @@ protected:
 	void MULT_OnMarkDetonatedHelper(); 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnMarkDetonated();
-
+public:
+	virtual float GetHealth() override;
+	virtual float GetMaxHealth() override;
+	virtual void SetHealth(float NewHealth) override;
+	virtual float GetHealthPercent() override;
+	virtual bool GetIsDead() override;
 };

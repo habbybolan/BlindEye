@@ -34,14 +34,14 @@ public:
 	DECLARE_MULTICAST_DELEGATE(FShrineHealthChangeSignature)
 	FShrineHealthChangeSignature ShrineHealthChange;
 	
-	virtual float GetHealth_Implementation() override;
-	virtual void SetHealth_Implementation(float NewHealth) override;
-	virtual TEAMS GetTeam_Implementation() override;
-	virtual float GetHealthPercent_Implementation() override;
+	virtual float GetHealth() override;
+	virtual void SetHealth(float NewHealth) override;
+	virtual TEAMS GetTeam() override;
+	virtual float GetHealthPercent() override;
 
-	virtual void OnDeath_Implementation(AActor* ActorThatKilled) override;
-	virtual bool GetIsDead_Implementation() override;
-	virtual UHealthComponent* GetHealthComponent_Implementation() override;
+	virtual void OnDeath(AActor* ActorThatKilled) override;
+	virtual bool GetIsDead() override;
+	virtual UHealthComponent* GetHealthComponent() override;
 
 protected:
 	// Called when the game starts or when spawned
@@ -54,5 +54,11 @@ protected:
 	void OnRep_HealthUpdated();
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
+	
+public:
+	
+	virtual float GetMaxHealth() override;
+	virtual void MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType,
+		AActor* DamageCauser) override;
+	virtual UMarkerComponent* GetMarkerComponent() override;
 };

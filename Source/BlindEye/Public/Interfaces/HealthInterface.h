@@ -6,7 +6,7 @@
 #include "UObject/Interface.h"
 #include "HealthInterface.generated.h"
 
-UINTERFACE(MinimalAPI)
+UINTERFACE(MinimalAPI, meta=(CannotImplementInterfaceInBlueprint))
 class UHealthInterface : public UInterface
 {
 	GENERATED_BODY()
@@ -32,31 +32,31 @@ class BLINDEYE_API IHealthInterface
 
 public:
 
-	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
-	float GetHealth();
-	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
-	float GetMaxHealth();
-	UFUNCTION(BlueprintNativeEvent,BlueprintCallable) 
-	void SetHealth(float NewHealth);
-	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
-	float GetHealthPercent();
+	UFUNCTION(BlueprintCallable)
+	virtual float GetHealth() = 0;
+	UFUNCTION(BlueprintCallable)
+	virtual float GetMaxHealth() = 0;
+	UFUNCTION(BlueprintCallable) 
+	virtual void SetHealth(float NewHealth) = 0;
+	UFUNCTION(BlueprintCallable)
+	virtual float GetHealthPercent() = 0;
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	TEAMS GetTeam();
+	UFUNCTION(BlueprintCallable)
+	virtual TEAMS GetTeam() = 0;
 
 	// Any extra specific logic, outside of damage logic, for actor to perform on taking damage
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
+	UFUNCTION(BlueprintCallable) 
+	virtual void MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) = 0;
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	UHealthComponent* GetHealthComponent();
- 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void OnDeath(AActor* ActorThatKilled);
+	UFUNCTION(BlueprintCallable)
+	virtual UHealthComponent* GetHealthComponent() = 0;
+  
+	UFUNCTION(BlueprintCallable)
+	virtual void OnDeath(AActor* ActorThatKilled) = 0;
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	bool GetIsDead();
+	UFUNCTION(BlueprintCallable)
+	virtual bool GetIsDead() = 0;
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	UMarkerComponent* GetMarkerComponent();
+	UFUNCTION(BlueprintCallable)
+	virtual UMarkerComponent* GetMarkerComponent() = 0;
 };

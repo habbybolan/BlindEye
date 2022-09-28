@@ -75,11 +75,11 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 		// Prevent calling any damage method if no damage applied
 		if (damageMultiplied <= 0) return;
 		
-		OwnerHealth->Execute_SetHealth(GetOwner(), OwnerHealth->Execute_GetHealth(GetOwner()) - damageMultiplied);
+		OwnerHealth->SetHealth(OwnerHealth->GetHealth() - damageMultiplied);
 		// send callback to owning actor for any additional logic
-		OwnerHealth->Execute_MYOnTakeDamage(GetOwner(), Damage, HitLocation, DamageType, DamageCauser->GetInstigator());
-		
-		if (OwnerHealth->Execute_GetHealth(GetOwner()) <= 0)
+		OwnerHealth->MYOnTakeDamage(Damage, HitLocation, DamageType, DamageCauser->GetInstigator());
+		 
+		if (OwnerHealth->GetHealth() <= 0)
 		{
 			// TODO: Check if player character or enemy
 			// TODO: If enemy delete, if player, do extra work on player and send to GameMode for any state change
@@ -91,7 +91,7 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 void UHealthComponent::OnDeath(AActor* ActorThatKilled)
 {
 	OnDeathDelegate.Broadcast(GetOwner());
-	OwnerHealth->Execute_OnDeath(GetOwner(), ActorThatKilled);
+	OwnerHealth->OnDeath(ActorThatKilled);
 }
 
 void UHealthComponent::Stun_Implementation(float StunDuration, AActor* DamageCause)
@@ -324,9 +324,9 @@ void UHealthComponent::PerformHeal()
 	{
 		HealAmountPerSec += HealAmountPerSec * AppliedStatusEffects.HealPercentIncrease;
 	}
-	float NewHealth = OwnerHealth->Execute_GetHealth(GetOwner()) + ((HealAmountPerSec / 100) * PerformHealDelay);
-	NewHealth = FMath::Min(OwnerHealth->Execute_GetMaxHealth(GetOwner()), NewHealth);
-	OwnerHealth->Execute_SetHealth(GetOwner(), NewHealth);
+	float NewHealth = OwnerHealth->GetHealth() + ((HealAmountPerSec / 100) * PerformHealDelay);
+	NewHealth = FMath::Min(OwnerHealth->GetMaxHealth(), NewHealth);
+	OwnerHealth->SetHealth(NewHealth);
 }
 
 void UHealthComponent::RemoveStun()

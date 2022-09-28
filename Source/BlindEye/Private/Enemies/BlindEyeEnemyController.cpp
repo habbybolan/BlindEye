@@ -26,9 +26,9 @@ void ABlindEyeEnemyController::BeginPlay()
 void ABlindEyeEnemyController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
-	if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(InPawn))
+	if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(InPawn))
 	{ 
-		UHealthComponent* HealthComponent = HealthInterface->Execute_GetHealthComponent(InPawn); 
+		UHealthComponent* HealthComponent = HealthInterface->GetHealthComponent(); 
 		if (!HealthComponent) return;
 		HealthComponent->StunStartDelegate.AddUFunction(this, TEXT("OnStunStart"));
 		HealthComponent->StunEndDelegate.AddUFunction(this, TEXT("OnStunEnd"));

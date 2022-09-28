@@ -52,10 +52,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UAbilityManager* AbilityManager;
 
-	virtual float GetHealth_Implementation() override;
-	virtual void SetHealth_Implementation(float NewHealth) override;
+	virtual float GetHealth() override;
+	virtual void SetHealth(float NewHealth) override;
 
-	virtual void MYOnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
+	virtual void MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
 	
 
 	// Helper method to notify all clients damage taken
@@ -65,11 +65,11 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnTakeDamageClient(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
  
-	virtual void OnDeath_Implementation(AActor* ActorThatKilled) override;
+	virtual void OnDeath(AActor* ActorThatKilled) override;
 
 	virtual bool TryConsumeBirdMeter_Implementation(float PercentAmount) override;
 
-	virtual float GetMaxHealth_Implementation() override;
+	virtual float GetMaxHealth() override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=100))
 	float BirdMeterRegenPercentPerSec = 5.f;
@@ -161,9 +161,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void UpdateShrineHealthUI(); 
-	float GetHealthPercent_Implementation() override;
+	float GetHealthPercent() override;
 
-	virtual bool GetIsDead_Implementation() override;
+	virtual bool GetIsDead() override;
 	
 	bool IsActionsBlocked();
 

@@ -109,9 +109,9 @@ void ABurrowerEnemy::SpawnSnappers()
 		SpawnedSnappers.Add(SpawnedSnapper->GetUniqueID(), SpawnedSnapper);
 		spawnPoints.RemoveAt(randSpawnIndex);
 		// TODO: subscribe to death event on snapper to remove from list
-		if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(SpawnedSnapper))
+		if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(SpawnedSnapper))
 		{
-			HealthInterface->Execute_GetHealthComponent(SpawnedSnapper)->OnDeathDelegate.AddUFunction<ABurrowerEnemy>(this, FName("OnSnapperDeath"));
+			HealthInterface->GetHealthComponent()->OnDeathDelegate.AddUFunction<ABurrowerEnemy>(this, FName("OnSnapperDeath"));
 		} 
 	}
 

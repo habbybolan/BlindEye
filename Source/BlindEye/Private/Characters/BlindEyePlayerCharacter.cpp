@@ -267,9 +267,9 @@ void ABlindEyePlayerCharacter::SER_DebugKillAllSnappers_Implementation()
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASnapperEnemy::StaticClass(), SnapperActors);
 	for (AActor* SnapperActor : SnapperActors)
 	{
-		if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(SnapperActor))
+		if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(SnapperActor))
 		{
-			HealthInterface->Execute_GetHealthComponent(SnapperActor)->Kill();
+			HealthInterface->GetHealthComponent()->Kill();
 		}
 	}
 }
@@ -280,9 +280,9 @@ void ABlindEyePlayerCharacter::SER_DebugKillAllBurrowers_Implementation()
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABurrowerEnemy::StaticClass(), BurrowerActors);
 	for (AActor* BurrowerActor : BurrowerActors)
 	{
-		if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(BurrowerActor))
+		if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(BurrowerActor))
 		{
-			HealthInterface->Execute_GetHealthComponent(BurrowerActor)->Kill();
+			HealthInterface->GetHealthComponent()->Kill();
 		}
 	}
 }
@@ -293,9 +293,9 @@ void ABlindEyePlayerCharacter::SER_DebugKillAllHunters_Implementation()
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AHunterEnemy::StaticClass(), HunterActors);
 	for (AActor* HunterActor : HunterActors)
 	{
-		if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(HunterActor))
+		if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(HunterActor))
 		{
-			HealthInterface->Execute_GetHealthComponent(HunterActor)->Kill();
+			HealthInterface->GetHealthComponent()->Kill();
 		}
 	}
 }
@@ -365,9 +365,9 @@ void ABlindEyePlayerCharacter::SER_ShrineInvincibility_Implementation(bool IsInv
 		AShrine* Shrine = BlindEyeGameState->GetShrine();
 		if (Shrine != nullptr)
 		{
-			if (const IHealthInterface* ShrineHealthInterface = Cast<IHealthInterface>(Shrine))
+			if (IHealthInterface* ShrineHealthInterface = Cast<IHealthInterface>(Shrine))
 			{
-				UHealthComponent* ShrineHealthComp = ShrineHealthInterface->Execute_GetHealthComponent(Shrine);
+				UHealthComponent* ShrineHealthComp = ShrineHealthInterface->GetHealthComponent();
 				if (ShrineHealthComp == nullptr) return;
 				ShrineHealthComp->IsInvincible = IsInvincible;
 			}
@@ -380,14 +380,14 @@ void ABlindEyePlayerCharacter::SER_UnlimitedBirdMeter_Implementation(bool IsUnli
 	bUnlimitedBirdMeter = IsUnlimited;
 }
 
-float ABlindEyePlayerCharacter::GetHealth_Implementation()
+float ABlindEyePlayerCharacter::GetHealth()
 {
 	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
 		return BlindEyePS->GetHealth();
 	return 0;
 }
 
-void ABlindEyePlayerCharacter::SetHealth_Implementation(float NewHealth)
+void ABlindEyePlayerCharacter::SetHealth(float NewHealth)
 {
 	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
 	{
@@ -395,10 +395,10 @@ void ABlindEyePlayerCharacter::SetHealth_Implementation(float NewHealth)
 	}
 }
 
-void ABlindEyePlayerCharacter::MYOnTakeDamage_Implementation(float Damage, FVector HitLocation,
+void ABlindEyePlayerCharacter::MYOnTakeDamage(float Damage, FVector HitLocation,
 	const UDamageType* DamageType, AActor* DamageCauser)
 {
-	Super::MYOnTakeDamage_Implementation(Damage, HitLocation, DamageType, DamageCauser);
+	Super::MYOnTakeDamage(Damage, HitLocation, DamageType, DamageCauser);
 	CLI_OnTakeDamageHelper(Damage, HitLocation, DamageType, DamageCauser);
 } 
 
@@ -409,9 +409,9 @@ void ABlindEyePlayerCharacter::CLI_OnTakeDamageHelper_Implementation(float Damag
 	BP_OnTakeDamageClient(Damage, HitLocation, DamageType, DamageCauser);
 }
 
-void ABlindEyePlayerCharacter::OnDeath_Implementation(AActor* ActorThatKilled) 
+void ABlindEyePlayerCharacter::OnDeath(AActor* ActorThatKilled) 
 { 
-	Super::OnDeath_Implementation(ActorThatKilled);
+	Super::OnDeath(ActorThatKilled);
 	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
 	{
 		BlindEyePS->SetIsDead(true);
@@ -439,7 +439,7 @@ bool ABlindEyePlayerCharacter::TryConsumeBirdMeter_Implementation(float PercentA
 	return false;
 }
 
-float ABlindEyePlayerCharacter::GetMaxHealth_Implementation()
+float ABlindEyePlayerCharacter::GetMaxHealth()
 {
 	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
 		return BlindEyePS->GetMaxHealth();
@@ -482,9 +482,9 @@ bool ABlindEyePlayerCharacter::GetIsShrineInvincible()
 	{
 		AShrine* Shrine = BlindEyeGameState->GetShrine();
 		if (Shrine == nullptr) return false;
-		if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(Shrine))
+		if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(Shrine))
 		{
-			return HealthInterface->Execute_GetHealthComponent(Shrine)->IsInvincible;
+			return HealthInterface->GetHealthComponent()->IsInvincible;
 		}
 	}
 	return false;
@@ -577,7 +577,7 @@ void ABlindEyePlayerCharacter::OnGameWon()
 	OnGameWonUI();
 }
 
-float ABlindEyePlayerCharacter::GetHealthPercent_Implementation()
+float ABlindEyePlayerCharacter::GetHealthPercent()
 {
 	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
 	{
@@ -586,7 +586,7 @@ float ABlindEyePlayerCharacter::GetHealthPercent_Implementation()
 	return 0;
 }
 
-bool ABlindEyePlayerCharacter::GetIsDead_Implementation()
+bool ABlindEyePlayerCharacter::GetIsDead()
 {
 	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
 	{
@@ -618,9 +618,9 @@ float ABlindEyePlayerCharacter::GetShrineHealthPercent()
 	ABlindEyeGameState* BlindGameState = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(GetWorld()));
 	AShrine* Shrine = BlindGameState->GetShrine();
 	if (Shrine == nullptr) return 0;
-	if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(Shrine))
+	if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(Shrine))
 	{
-		return HealthInterface->Execute_GetHealthPercent(Shrine);
+		return HealthInterface->GetHealthPercent();
 	}
 	return 0;
 }
