@@ -51,6 +51,7 @@ public:
 
 protected:
 
+	UPROPERTY(Replicated)
 	bool bRagdolling = false;
 	FTimerHandle LaunchSwingTimerHandle;
 	FTimerHandle ColliderOnMeshTimerHandle;
@@ -59,10 +60,20 @@ protected:
 
 	void TeleportColliderToMesh();
 
-	void StartRagdoll();
-	void StopRagdoll();
+	UPROPERTY(Replicated)
+	FVector HipLocation;
+
+	// Only called from client to replicate the hip location while ragdolling
+	void UpdateHipLocation();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_StartRagdoll();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_StopRagdoll();
 	void FinishGettingUp();
 
 	bool IsLayingOnFront();
+
+	void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const;
 	
 };
