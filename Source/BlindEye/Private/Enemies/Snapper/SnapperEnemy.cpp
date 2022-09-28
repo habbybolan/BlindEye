@@ -1,40 +1,74 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
-#include "Enemies/SnapperEnemy.h"
+#include "Enemies/Snapper/SnapperEnemy.h"
 
 #include "BrainComponent.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/PoseableMeshComponent.h"
 #include "Enemies/BlindEyeEnemyController.h"
-#include "Enemies/SnapperEnemyController.h"
+#include "Enemies/Snapper/SnapperEnemyController.h"
+#include "Enemies/Snapper/SnapperHealthComponent.h"
+#include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Net/UnrealNetwork.h"
 
-ASnapperEnemy::ASnapperEnemy(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}
+ASnapperEnemy::ASnapperEnemy(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<USnapperHealthComponent>(TEXT("HealthComponent")))
+{
+	bReplicates = true;
+}
 
 void ASnapperEnemy::MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType,
                                                 AActor* DamageCauser)
 {
 	Super::MYOnTakeDamage(Damage, HitLocation, DamageType, DamageCauser);
 
-	// If taken damage from player, set Target as player
-	if (ABlindEyePlayerCharacter* BlindEyeCharacter = Cast<ABlindEyePlayerCharacter>(DamageCauser))
+	if (ASnapperEnemyController* SnapperController = Cast<ASnapperEnemyController>(GetController()))
 	{
-		if (ASnapperEnemyController* SnapperController = Cast<ASnapperEnemyController>(GetController()))
-		{
-			SnapperController->SetTargetEnemy(BlindEyeCharacter);
-		}
+		SnapperController->DamageTaken(Damage, HitLocation, DamageType, DamageCauser);
 	}
+}
+
+void ASnapperEnemy::PerformJumpAttack()
+{
+	if (bRagdolling) return;
+	TempLaunch();
+	GetWorldTimerManager().SetTimer(LaunchSwingTimerHandle, this, &ASnapperEnemy::LaunchSwing, 0.2, false);
 }
 
 void ASnapperEnemy::PerformBasicAttack()
 {
 	if (bRagdolling) return;
-	TempLaunch();
-	GetWorldTimerManager().SetTimer(LaunchSwingTimerHandle, this, &ASnapperEnemy::LaunchSwing, 0.2, false);
+
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	ABlindEyeEnemyController* BlindEyeController = Cast<ABlindEyeEnemyController>(GetController());
+	if (BlindEyeController == nullptr) return;
+
+	AActor* Target = BlindEyeController->GetBTTarget();
+	if (Target == nullptr) return;
+
+	FVector Direction = Target->GetActorLocation() - GetActorLocation();
+	Direction.Normalize();
+	
+	TArray<FHitResult> OutHits;
+	UKismetSystemLibrary::BoxTraceMultiForObjects(world, GetActorLocation(), GetActorForwardVector() * 300, FVector(0, 100 / 2, 100 / 2),
+		GetActorRotation(), ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, OutHits, true);
+	
+	for (FHitResult Hit : OutHits)
+	{
+		AActor* HitActor = Hit.GetActor();
+		if (!HitActor) continue;
+	
+		UGameplayStatics::ApplyPointDamage(HitActor, BasicAttackDamage
+			, Hit.ImpactNormal, Hit, GetController(), this, BasicAttackDamageType);
+	}
 }
 
 void ASnapperEnemy::TempLaunch()
@@ -74,7 +108,7 @@ void ASnapperEnemy::LaunchSwing()
 		AActor* HitActor = Hit.GetActor();
 		if (!HitActor) continue;
 	
-		UGameplayStatics::ApplyPointDamage(HitActor, BasicAttackDamage, Hit.ImpactNormal, Hit, GetController(), this, BasicAttackDamageType);
+		UGameplayStatics::ApplyPointDamage(HitActor, JumpAttackDamage, Hit.ImpactNormal, Hit, GetController(), this, JumpAttackDamageType);
 	}
 
 	TryRagdoll(true);
@@ -82,42 +116,70 @@ void ASnapperEnemy::LaunchSwing()
 
 void ASnapperEnemy::TryRagdoll(bool SimulatePhysics)
 {
-	// prevent setting ragdoll state if already set
-	if (bRagdolling == SimulatePhysics) return;
+	// Prevent calling ragdoll again, reset timer to get up
+	if (bRagdolling == SimulatePhysics)
+	{
+		BeginStopRagdollTimer();
+		return;
+	}
 
 	if (SimulatePhysics)
 	{
-		StartRagdoll();
+		MULT_StartRagdoll();
 	} else
 	{
-		StopRagdoll();
+		MULT_StopRagdoll();
 	}
+}
+
+void ASnapperEnemy::BeginStopRagdollTimer()
+{
+	GetWorldTimerManager().SetTimer(StopRagdollTimerHandle, this, &ASnapperEnemy::MULT_StopRagdoll, 5, false);
 }
 
 void ASnapperEnemy::TeleportColliderToMesh()
 {
 	FVector TeleportLocation = GetMesh()->GetSocketLocation(TEXT("Hips"));
 	GetCapsuleComponent()->SetWorldLocation(TeleportLocation);
-	IsLayingOnFront();
+	HipLocation = TeleportLocation;
 }
 
-void ASnapperEnemy::StartRagdoll()
+void ASnapperEnemy::UpdateHipLocation()
 {
-	bRagdolling = true;
-	AAIController* AIController = Cast<AAIController>(GetController());
-	AIController->GetBrainComponent()->PauseLogic(TEXT("AnimationMontage"));
+	FVector HipForceDirection = HipLocation - GetMesh()->GetSocketLocation(TEXT("Hips"));
+	GetMesh()->AddForceToAllBodiesBelow(HipForceDirection * 150, "Hips");
+	
+	// TODO: Apply rotational force to align with capsule?
+	// TODO: Apply more force while in the air, so relatively similar once hit the ground?
+
+	float Dist = UKismetMathLibrary::Vector_Distance(GetMesh()->GetComponentLocation(), GetCapsuleComponent()->GetComponentLocation());
+	if (Dist < 50) return;
+	FVector LerpedLocation = UKismetMathLibrary::VLerp(GetMesh()->GetComponentLocation(), GetCapsuleComponent()->GetComponentLocation(), 0.05);
+	GetMesh()->SetWorldLocation(LerpedLocation, false, nullptr, ETeleportType::TeleportPhysics);
+}
+
+void ASnapperEnemy::MULT_StartRagdoll_Implementation()
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		bRagdolling = true;
+		AAIController* AIController = Cast<AAIController>(GetController());
+		AIController->GetBrainComponent()->PauseLogic(TEXT("AnimationMontage"));
+		GetWorldTimerManager().SetTimer(ColliderOnMeshTimerHandle, this, &ASnapperEnemy::TeleportColliderToMesh, 0.05, true);
+		BeginStopRagdollTimer();
+	} else
+	{
+		GetWorldTimerManager().SetTimer(ColliderOnMeshTimerHandle, this, &ASnapperEnemy::UpdateHipLocation, 0.05, true);
+	}
 	
 	GetMesh()->SetSimulatePhysics(true);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetCharacterMovement()->GravityScale = 0;
-	GetWorldTimerManager().SetTimer(ColliderOnMeshTimerHandle, this, &ASnapperEnemy::TeleportColliderToMesh, 0.05, true);
-	GetWorldTimerManager().SetTimer(StopRagdollTimerHandle, this, &ASnapperEnemy::StopRagdoll, 5, false);
+	
 }
 
-void ASnapperEnemy::StopRagdoll()
+void ASnapperEnemy::MULT_StopRagdoll_Implementation() 
 {
-	GetWorldTimerManager().ClearTimer(ColliderOnMeshTimerHandle);
-
 	// Play getup montage
 	float TimeForGetup;
 	if (IsLayingOnFront())
@@ -141,8 +203,11 @@ void ASnapperEnemy::StopRagdoll()
 	GetMesh()->AttachToComponent(GetCapsuleComponent(), Rules);
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -50.0), FRotator(0, -90, 0));
 
-	
-	GetWorldTimerManager().SetTimer(GetupAnimTimerHandle, this, &ASnapperEnemy::FinishGettingUp, TimeForGetup, false);
+	GetWorldTimerManager().ClearTimer(ColliderOnMeshTimerHandle);
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		GetWorldTimerManager().SetTimer(GetupAnimTimerHandle, this, &ASnapperEnemy::FinishGettingUp, TimeForGetup, false);
+	}
 }
 
 void ASnapperEnemy::FinishGettingUp()
@@ -164,7 +229,14 @@ bool ASnapperEnemy::IsLayingOnFront()
 	FVector ProperFwd = UKismetMathLibrary::RotateAngleAxis(HipsFwd, -90, HipsDown);
 	ProperFwd.Normalize();
  
-	FHitResult OutHit;
+	FHitResult OutHit; 
 	return UKismetSystemLibrary::LineTraceSingle(World, HipsLocation, HipsLocation + ProperFwd * 50, ETraceTypeQuery::TraceTypeQuery1, false, TArray<AActor*>(),
 		EDrawDebugTrace::ForDuration, OutHit, true);
+}
+
+void ASnapperEnemy::GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME( ASnapperEnemy, bRagdolling );
+	DOREPLIFETIME( ASnapperEnemy, HipLocation );
 }

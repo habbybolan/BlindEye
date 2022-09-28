@@ -14,7 +14,7 @@
 #include "DamageTypes/DebugDamageType.h"
 #include "Enemies/BlindEyeEnemyController.h"
 #include "Enemies/Burrower/BurrowerEnemy.h"
-#include "Enemies/SnapperEnemy.h"
+#include "Enemies/Snapper/SnapperEnemy.h"
 #include "GameFramework/PlayerStart.h"
 #include "Gameplay/BlindEyeGameState.h"
 #include "Gameplay/BlindEyePlayerState.h"
