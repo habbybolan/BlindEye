@@ -94,7 +94,7 @@ void UHealthComponent::OnDeath(AActor* ActorThatKilled)
 	OwnerHealth->OnDeath(ActorThatKilled);
 }
 
-void UHealthComponent::Stun_Implementation(float StunDuration, AActor* DamageCause)
+void UHealthComponent::Stun(float StunDuration, AActor* DamageCause)
 {
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
@@ -113,7 +113,7 @@ void UHealthComponent::Stun_Implementation(float StunDuration, AActor* DamageCau
 	StunStartDelegate.Broadcast(StunDuration);
 }
 
-void UHealthComponent::KnockBack_Implementation(FVector KnockBackForce, AActor* DamageCause)
+void UHealthComponent::KnockBack(FVector KnockBackForce, AActor* DamageCause)
 {
 	ACharacter* Character = Cast<ACharacter>(GetOwner());
 	if (Character)
@@ -124,7 +124,7 @@ void UHealthComponent::KnockBack_Implementation(FVector KnockBackForce, AActor* 
 	}
 }
 
-void UHealthComponent::Burn_Implementation(float DamagePerSec, float Duration, AActor* DamageCause)
+void UHealthComponent::Burn(float DamagePerSec, float Duration, AActor* DamageCause)
 {
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
@@ -148,14 +148,14 @@ void UHealthComponent::Burn_Implementation(float DamagePerSec, float Duration, A
 	BurnDelegateStart.Broadcast(DamagePerSec, Duration);
 }
 
-void UHealthComponent::Stagger_Implementation(AActor* DamageCause)
+void UHealthComponent::Stagger(AActor* DamageCause)
 {
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Silver, "Stagger");
 	// TODO: probably call stun?
 	// ...
 }
 
-void UHealthComponent::TryApplyMarker_Implementation(PlayerType Player, AActor* DamageCause)
+void UHealthComponent::TryApplyMarker(PlayerType Player, AActor* DamageCause)
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
@@ -181,7 +181,7 @@ void UHealthComponent::TryApplyMarker_Implementation(PlayerType Player, AActor* 
 	}
 }
 
-void UHealthComponent::TryDetonation_Implementation(PlayerType Player, AActor* DamageCause)
+void UHealthComponent::TryDetonation(PlayerType Player, AActor* DamageCause)
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
@@ -245,7 +245,7 @@ void UHealthComponent::PerformDetonationEffect(AActor* DamageCause)
 	}
 }
 
-void UHealthComponent::TryTaunt_Implementation(float Duration, AActor* Taunter)
+void UHealthComponent::TryTaunt(float Duration, AActor* Taunter)
 {
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
@@ -286,7 +286,7 @@ void UHealthComponent::Kill()
 	OnDeath(nullptr);
 }
 
-void UHealthComponent::ImprovedHealing_Implementation(float HealPercentIncrease, float Duration)
+void UHealthComponent::ImprovedHealing(float HealPercentIncrease, float Duration)
 {
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;

@@ -46,9 +46,9 @@ void AHealingWell::PerformHealCheck()
 			if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(Actor))
 			{
 				UHealthComponent* HealthComponent = HealthInterface->GetHealthComponent();
-				if (const IDamageInterface* DamageInterface = Cast<IDamageInterface>(HealthComponent))
+				if (IDamageInterface* DamageInterface = Cast<IDamageInterface>(HealthComponent))
 				{
-					DamageInterface->Execute_ImprovedHealing(HealthComponent, HealPercentIncr, HealCheckDelay * 2);
+					DamageInterface->ImprovedHealing(HealPercentIncr, HealCheckDelay * 2);
 				}
 			}
 		}
