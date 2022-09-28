@@ -37,6 +37,18 @@ TEAMS ABlindEyeBaseCharacter::GetTeam_Implementation()
 	return Team;
 }
 
+void ABlindEyeBaseCharacter::MULT_OnTakeDamageHelper_Implementation(float Damage, FVector HitLocation,
+	const UDamageType* DamageType, AActor* DamageCauser)
+{
+	BP_OnTakeDamage(Damage, HitLocation, DamageType, DamageCauser);
+}
+
+void ABlindEyeBaseCharacter::MYOnTakeDamage_Implementation(float Damage, FVector HitLocation,
+                                                           const UDamageType* DamageType, AActor* DamageCauser)
+{
+	MULT_OnTakeDamageHelper(Damage, HitLocation, DamageType, DamageCauser);
+}
+
 UHealthComponent* ABlindEyeBaseCharacter::GetHealthComponent_Implementation()
 {
 	return HealthComponent;

@@ -31,6 +31,15 @@ public:
 	TEAMS Team;
 	virtual TEAMS GetTeam_Implementation() override;
 
+	// Notify Blueprint damage taken
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_OnTakeDamageHelper(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
+
+	virtual void MYOnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
+
 	virtual UHealthComponent* GetHealthComponent_Implementation() override;
 	virtual UMarkerComponent* GetMarkerComponent_Implementation() override;
 

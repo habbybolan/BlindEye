@@ -398,15 +398,15 @@ void ABlindEyePlayerCharacter::SetHealth_Implementation(float NewHealth)
 void ABlindEyePlayerCharacter::MYOnTakeDamage_Implementation(float Damage, FVector HitLocation,
 	const UDamageType* DamageType, AActor* DamageCauser)
 {
-	// TODO: THIS IS BROKEN - Wont get called on player?????
+	Super::MYOnTakeDamage_Implementation(Damage, HitLocation, DamageType, DamageCauser);
 	CLI_OnTakeDamageHelper(Damage, HitLocation, DamageType, DamageCauser);
-}
+} 
 
 
 void ABlindEyePlayerCharacter::CLI_OnTakeDamageHelper_Implementation(float Damage, FVector HitLocation,
                                                                      const UDamageType* DamageType, AActor* DamageCauser)
 {
-	BP_OnTakeDamage(Damage, HitLocation, DamageType, DamageCauser);
+	BP_OnTakeDamageClient(Damage, HitLocation, DamageType, DamageCauser);
 }
 
 void ABlindEyePlayerCharacter::OnDeath_Implementation(AActor* ActorThatKilled) 

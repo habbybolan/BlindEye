@@ -62,9 +62,8 @@ public:
 	UFUNCTION(Client, Reliable)
 	void CLI_OnTakeDamageHelper(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
 
-	// Notify Blueprint damage taken
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_OnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
+	void BP_OnTakeDamageClient(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
  
 	virtual void OnDeath_Implementation(AActor* ActorThatKilled) override;
 

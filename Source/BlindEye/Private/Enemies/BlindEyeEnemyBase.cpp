@@ -52,7 +52,9 @@ void ABlindEyeEnemyBase::SetHealth_Implementation(float NewHealth)
 
 void ABlindEyeEnemyBase::MYOnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType,
 	AActor* DamageCauser)
-{}
+{
+	Super::MYOnTakeDamage_Implementation(Damage, HitLocation, DamageType, DamageCauser);
+}
 
 void ABlindEyeEnemyBase::OnDeath_Implementation(AActor* ActorThatKilled)
 {
