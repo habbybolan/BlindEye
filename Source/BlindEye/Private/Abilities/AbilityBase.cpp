@@ -23,9 +23,9 @@ bool AAbilityBase::TryConsumeBirdMeter(float BirdMeterAmount)
 	if (BirdMeterAmount == 0) return true;
 
 	if (GetInstigator() == nullptr) return false;
-	if (const IAbilityUserInterface* AbilityUserInterface = Cast<IAbilityUserInterface>(GetInstigator()))
+	if (IAbilityUserInterface* AbilityUserInterface = Cast<IAbilityUserInterface>(GetInstigator()))
 	{
-		return AbilityUserInterface->Execute_TryConsumeBirdMeter(GetInstigator(), BirdMeterAmount);
+		return AbilityUserInterface->TryConsumeBirdMeter(BirdMeterAmount);
 	}
 	return true;
 }
@@ -82,6 +82,7 @@ void AAbilityBase::EndAbilityLogic()
 	AbilityStates[CurrState]->ResetState();
 	bIsRunning = false;
 	AbilityEndedDelegate.ExecuteIfBound();
+	BP_AbilityEnded();
 	SetOnCooldown();
 }
 

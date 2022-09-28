@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BlindEyeBaseCharacter.h"
-#include "Enemies/SnapperEnemy.h"
+#include "Enemies/Snapper/SnapperEnemy.h"
 #include "Enemies/Burrower/BurrowerEnemy.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/AbilityUserInterface.h"
@@ -52,16 +52,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UAbilityManager* AbilityManager;
 
-	virtual float GetHealth_Implementation() override;
-	virtual void SetHealth_Implementation(float NewHealth) override;
+	virtual float GetHealth() override;
+	virtual void SetHealth(float NewHealth) override;
+	
+	virtual void OnDeath(AActor* ActorThatKilled) override;
 
-	virtual void OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
+	virtual bool TryConsumeBirdMeter(float PercentAmount) override;
 
-	virtual void OnDeath_Implementation() override;
-
-	virtual bool TryConsumeBirdMeter_Implementation(float PercentAmount) override;
-
-	virtual float GetMaxHealth_Implementation() override;
+	virtual float GetMaxHealth() override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=100))
 	float BirdMeterRegenPercentPerSec = 5.f;
@@ -145,17 +143,17 @@ public:
 	void BirdMeterUpdated(); 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void UpdateBirdMeterUI();
-	float GetBirdMeterPercent_Implementation() override;
-	virtual float GetBirdMeter_Implementation() override;
+	float GetBirdMeterPercent() override;
+	virtual float GetBirdMeter() override;
 
 	void OnGameLost();
 	void OnGameWon();
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void UpdateShrineHealthUI(); 
-	float GetHealthPercent_Implementation() override;
+	float GetHealthPercent() override;
 
-	virtual bool GetIsDead_Implementation() override;
+	virtual bool GetIsDead() override;
 	
 	bool IsActionsBlocked();
 

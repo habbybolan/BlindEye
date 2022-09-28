@@ -119,6 +119,11 @@ void APhoenixFireballCast::CollisionLogic()
 			true, ENCPoolMethod::AutoRelease);
 		world->GetTimerManager().SetTimer(BurnTimerHandle, this, &APhoenixFireballCast::BurnLogic, 0.2, true);
 	}
+	
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(world, ExplosionParticle,
+				GetActorLocation(), FRotator::ZeroRotator, FVector::OneVector, EAttachLocation::KeepWorldPosition,
+				true, ENCPoolMethod::AutoRelease);
+	
 
 	// Destroy after burning finished
 	world->GetTimerManager().SetTimer(DelayedDestroyTimerHandle, this, &APhoenixFireballCast::DelayedDestruction, BurningDuration, false);

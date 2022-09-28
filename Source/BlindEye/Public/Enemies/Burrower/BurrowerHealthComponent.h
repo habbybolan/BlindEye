@@ -16,6 +16,6 @@ class BLINDEYE_API UBurrowerHealthComponent : public UHealthComponent
 
 protected:
 
-	virtual void KnockBack_Implementation(FVector KnockBackForce, AActor* DamageCause) override;
+	virtual void KnockBack(FVector KnockBackForce, AActor* DamageCause) override;
 	
 };

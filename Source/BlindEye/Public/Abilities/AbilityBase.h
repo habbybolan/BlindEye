@@ -64,6 +64,15 @@ public:
 	bool GetIsOnCooldown();
 
 	bool TryConsumeBirdMeter(float BirdMeterAmount);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_AbilityStarted();
+
+	UFUNCTION(BlueprintImplementableEvent) 
+	void BP_AbilityEnded();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_AbilityInnerState(uint8 innerStateNum);
 	
 protected:
 	// Called when the game starts
