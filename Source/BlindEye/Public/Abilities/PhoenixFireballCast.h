@@ -63,6 +63,9 @@ public:
 	UNiagaraSystem* GroundBurnParticle;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraSystem* ExplosionParticle; 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float CustomLifespan = 4.0f;
 
 	USphereComponent* GetSphereComponent();

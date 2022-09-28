@@ -54,17 +54,7 @@ public:
 
 	virtual float GetHealth() override;
 	virtual void SetHealth(float NewHealth) override;
-
-	virtual void MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
 	
-
-	// Helper method to notify all clients damage taken
-	UFUNCTION(Client, Reliable)
-	void CLI_OnTakeDamageHelper(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_OnTakeDamageClient(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
- 
 	virtual void OnDeath(AActor* ActorThatKilled) override;
 
 	virtual bool TryConsumeBirdMeter(float PercentAmount) override;
