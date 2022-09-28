@@ -32,6 +32,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
 	float BasicAttackDelay = 3.f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float DelayUntilAttackShrineAgain = 3.0f;
+
 	// Calls blueprint to initialize behavior tree
 	UFUNCTION(BlueprintImplementableEvent)
 	void InitializeBehaviorTree();
@@ -45,6 +48,8 @@ public:
 	bool CanBasicAttack(AActor* target);
 	void PerformBasicAttack();
 	bool IsInBasicAttackRange(AActor* Target);
+
+	void DamageTaken(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
 	
 protected:
 
@@ -53,6 +58,10 @@ protected:
 
 	bool IsBasicAttackOnDelay = false;
 	FTimerHandle BasicAttackDelayTimerHandle;
+
+	FTimerHandle CooldownToAttackShrineTimerHandle;
+
+	void SetShrineAsTarget();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<	EObjectTypeQuery>> ObjectTypes;

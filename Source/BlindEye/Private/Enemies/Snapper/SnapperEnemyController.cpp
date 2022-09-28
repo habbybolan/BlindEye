@@ -6,6 +6,7 @@
 #include "Shrine.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Characters/BlindEyePlayerCharacter.h"
 #include "Enemies/Snapper/SnapperEnemy.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -14,16 +15,7 @@ void ASnapperEnemyController::BeginPlay()
 	Super::BeginPlay();
 
 	InitializeBehaviorTree();
-	
-	UWorld* world = GetWorld();
-	if (!world) return;
-	
-	AActor* ShrineActor = UGameplayStatics::GetActorOfClass(world, AShrine::StaticClass());
-	
-	if (ShrineActor)
-	{
-		SetTargetEnemy(ShrineActor);
-	}
+	SetShrineAsTarget();
 }
 
 void ASnapperEnemyController::SetTargetEnemy(AActor* target)
@@ -79,11 +71,48 @@ bool ASnapperEnemyController::IsInBasicAttackRange(AActor* Target)
 	return false;
 }
 
+void ASnapperEnemyController::DamageTaken(float Damage, FVector HitLocation, const UDamageType* DamageType,
+	AActor* DamageCauser)
+{
+	if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(DamageCauser))
+	{
+		AActor* BBTarget = GetBTTarget();
+
+		// if targeting shrine or no target selected
+		ABlindEyePlayerCharacter* TargetPlayer = Cast<ABlindEyePlayerCharacter>(BBTarget);
+		if (BBTarget == nullptr || TargetPlayer == nullptr)
+		{
+			SetTargetEnemy(DamageCauser);
+		}
+		// if different player hitting snapper
+		else if (BBTarget != BlindEyePlayer)
+		{
+			return;
+		}
+		
+		GetWorldTimerManager().SetTimer(CooldownToAttackShrineTimerHandle,
+			this, &ASnapperEnemyController::SetShrineAsTarget, DelayUntilAttackShrineAgain, false);
+	}
+}
+
 void ASnapperEnemyController::PerformBasicAttack()
 {
 	Snapper->PerformBasicAttack();
 	IsBasicAttackOnDelay = true;
 	GetWorldTimerManager().SetTimer(BasicAttackDelayTimerHandle, this, &ASnapperEnemyController::SetCanBasicAttack, BasicAttackDelay, false);
+}
+
+void ASnapperEnemyController::SetShrineAsTarget()
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
+	
+	AActor* ShrineActor = UGameplayStatics::GetActorOfClass(world, AShrine::StaticClass());
+	
+	if (ShrineActor)
+	{
+		SetTargetEnemy(ShrineActor);
+	}
 }
 
 void ASnapperEnemyController::OnPossess(APawn* InPawn)

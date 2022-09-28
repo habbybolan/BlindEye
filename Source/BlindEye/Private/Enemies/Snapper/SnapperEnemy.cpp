@@ -20,13 +20,9 @@ void ASnapperEnemy::MYOnTakeDamage_Implementation(float Damage, FVector HitLocat
 {
 	Super::MYOnTakeDamage_Implementation(Damage, HitLocation, DamageType, DamageCauser);
 
-	// If taken damage from player, set Target as player
-	if (ABlindEyePlayerCharacter* BlindEyeCharacter = Cast<ABlindEyePlayerCharacter>(DamageCauser))
+	if (ASnapperEnemyController* SnapperController = Cast<ASnapperEnemyController>(GetController()))
 	{
-		if (ASnapperEnemyController* SnapperController = Cast<ASnapperEnemyController>(GetController()))
-		{
-			SnapperController->SetTargetEnemy(BlindEyeCharacter);
-		}
+		SnapperController->DamageTaken(Damage, HitLocation, DamageType, DamageCauser);
 	}
 }
 
