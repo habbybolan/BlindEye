@@ -420,7 +420,7 @@ void ABlindEyePlayerCharacter::OnDeath(AActor* ActorThatKilled)
 	GetWorldTimerManager().SetTimer(AllyHealingCheckTimerHandle, this, &ABlindEyePlayerCharacter::SER_OnCheckAllyHealing, AllyHealCheckDelay, true);
 }
 
-bool ABlindEyePlayerCharacter::TryConsumeBirdMeter_Implementation(float PercentAmount)
+bool ABlindEyePlayerCharacter::TryConsumeBirdMeter(float PercentAmount)
 {
 	// Debugger for unlimited bird meter
 	if (bUnlimitedBirdMeter) return true;
@@ -549,16 +549,16 @@ void ABlindEyePlayerCharacter::BirdMeterUpdated()
 	}
 }
 
-float ABlindEyePlayerCharacter::GetBirdMeterPercent_Implementation()
+float ABlindEyePlayerCharacter::GetBirdMeterPercent()
 {
 	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
 	{
 		return BlindEyePS->GetBirdMeter() / BlindEyePS->GetMaxBirdMeter();
 	}
-	return 0;
+	return 0; 
 }
 
-float ABlindEyePlayerCharacter::GetBirdMeter_Implementation()
+float ABlindEyePlayerCharacter::GetBirdMeter()
 {
 	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
 	{

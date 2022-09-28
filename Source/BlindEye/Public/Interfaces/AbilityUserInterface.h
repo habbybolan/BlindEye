@@ -6,7 +6,7 @@
 #include "UObject/Interface.h"
 #include "AbilityUserInterface.generated.h"
 
-UINTERFACE(MinimalAPI)
+UINTERFACE(MinimalAPI, meta=(CannotImplementInterfaceInBlueprint))
 class UAbilityUserInterface : public UInterface
 {
 	GENERATED_BODY()
@@ -21,14 +21,14 @@ class BLINDEYE_API IAbilityUserInterface
 
 public:
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	bool TryConsumeBirdMeter(float PercentAmount);
+	UFUNCTION(BlueprintCallable)
+	virtual bool TryConsumeBirdMeter(float PercentAmount) = 0;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	float GetBirdMeter();
+	UFUNCTION(BlueprintCallable)
+	virtual float GetBirdMeter() = 0;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	float GetBirdMeterPercent(); 
+	UFUNCTION(BlueprintCallable)
+	virtual float GetBirdMeterPercent() = 0; 
 
 	
 };

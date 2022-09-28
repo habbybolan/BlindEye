@@ -67,7 +67,7 @@ public:
  
 	virtual void OnDeath(AActor* ActorThatKilled) override;
 
-	virtual bool TryConsumeBirdMeter_Implementation(float PercentAmount) override;
+	virtual bool TryConsumeBirdMeter(float PercentAmount) override;
 
 	virtual float GetMaxHealth() override;
 
@@ -153,8 +153,8 @@ public:
 	void BirdMeterUpdated(); 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void UpdateBirdMeterUI();
-	float GetBirdMeterPercent_Implementation() override;
-	virtual float GetBirdMeter_Implementation() override;
+	float GetBirdMeterPercent() override;
+	virtual float GetBirdMeter() override;
 
 	void OnGameLost();
 	void OnGameWon();
