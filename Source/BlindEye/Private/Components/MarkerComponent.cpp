@@ -33,7 +33,7 @@ void UMarkerComponent::BeginPlay()
 	GetOwner()->OnDestroyed.AddDynamic(this, &UMarkerComponent::OnOwnerDestroyed);
 } 
 
-void UMarkerComponent::MULT_RemoveMark_Implementation()
+void UMarkerComponent::RemoveMark()
 {
 	// TODO: play particle effect/shader
 	CrowMark->GetStaticMeshComponent()->SetVisibility(false);
@@ -41,7 +41,7 @@ void UMarkerComponent::MULT_RemoveMark_Implementation()
 	bMarked = false;
 }
 
-void UMarkerComponent::MULT_DetonateMark_Implementation()
+void UMarkerComponent::DetonateMark()
 {
 	// TODO: play particle effect/shader
 	CrowMark->GetStaticMeshComponent()->SetVisibility(false);
@@ -49,7 +49,7 @@ void UMarkerComponent::MULT_DetonateMark_Implementation()
 	bMarked = false; 
 }
 
-void UMarkerComponent::MULT_AddMark_Implementation(PlayerType PlayerMarkToSet)
+void UMarkerComponent::AddMark(PlayerType PlayerMarkToSet)
 {
 	if (bMarked) return;
 	CrowMark->GetStaticMeshComponent()->SetVisibility(PlayerMarkToSet == PlayerType::CrowPlayer);

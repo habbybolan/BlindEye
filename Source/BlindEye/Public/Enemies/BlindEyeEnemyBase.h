@@ -41,13 +41,13 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
  
-	virtual float GetHealth_Implementation() override;
-	virtual void SetHealth_Implementation(float NewHealth) override;
+	virtual float GetHealth() override;
+	virtual void SetHealth(float NewHealth) override;
 
-	virtual void MYOnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
+	virtual void MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
 
-	virtual void OnDeath_Implementation() override;
-	virtual float GetHealthPercent_Implementation() override;
-	virtual float GetMaxHealth_Implementation() override;
+	virtual void OnDeath(AActor* ActorThatKilled) override;
+	virtual float GetHealthPercent() override;
+	virtual float GetMaxHealth() override;
 	
 };

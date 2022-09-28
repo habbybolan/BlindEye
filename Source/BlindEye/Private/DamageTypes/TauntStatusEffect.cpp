@@ -11,12 +11,12 @@ void UTauntStatusEffect::ProcessEffect(AActor* Owner, AActor* HitCharacter, FVec
                                        UHealthComponent* HealthComponent) const
 {
 	if (Owner->GetInstigator() == HitCharacter) return;
-	if (const IDamageInterface* DamageInterface = Cast<IDamageInterface>(HealthComponent))
+	if (IDamageInterface* DamageInterface = Cast<IDamageInterface>(HealthComponent))
 	{
 		if (const ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Owner->GetInstigator()))
 		{
 			// TODO: Pass player into taunt
-			DamageInterface->Execute_TryTaunt(HealthComponent, Duration, Owner);
+			DamageInterface->TryTaunt(Duration, Owner);
 		}
 	}
 }

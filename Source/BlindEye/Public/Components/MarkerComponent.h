@@ -22,12 +22,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AStaticMeshActor> PhoenixMarkType;
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_RemoveMark();
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_DetonateMark();
-	UFUNCTION(NetMulticast, Reliable) 
-	void MULT_AddMark(PlayerType PlayerMarkToSet); 
+	void RemoveMark();
+	void DetonateMark();
+	void AddMark(PlayerType PlayerMarkToSet); 
 
 protected:
 	// Called when the game starts or when spawned

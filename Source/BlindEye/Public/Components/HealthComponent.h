@@ -104,7 +104,7 @@ public:
 	DECLARE_MULTICAST_DELEGATE(FImprovedHealingEndSignature)  
 	FImprovedHealingEndSignature ImprovedHealingEndDelegate;
 
-	virtual void ImprovedHealing_Implementation(float HealPercentIncrease, float Duration) override;
+	virtual void ImprovedHealing(float HealPercentIncrease, float Duration) override;
 	FTimerHandle ImprovedHealingTimerHandle;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -116,7 +116,7 @@ protected:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	void OnDeath();
+	void OnDeath(AActor* ActorThatKilled);
 
 	// cached owners health interface
 	IHealthInterface* OwnerHealth;
@@ -163,19 +163,19 @@ protected:
 
 	void SetDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
 
-	virtual void Stun_Implementation(float StunDuration, AActor* DamageCause) override;
+	virtual void Stun(float StunDuration, AActor* DamageCause) override;
 
-	virtual void KnockBack_Implementation(FVector KnockBackForce, AActor* DamageCause) override;
+	virtual void KnockBack(FVector KnockBackForce, AActor* DamageCause) override;
 
-	virtual void Burn_Implementation(float DamagePerSec, float Duration, AActor* DamageCause) override;
+	virtual void Burn(float DamagePerSec, float Duration, AActor* DamageCause) override;
 
-	virtual void Stagger_Implementation(AActor* DamageCause) override;
+	virtual void Stagger(AActor* DamageCause) override;
 
-	virtual void TryApplyMarker_Implementation(PlayerType Player, AActor* DamageCause) override;
+	virtual void TryApplyMarker(PlayerType Player, AActor* DamageCause) override;
 
-	virtual void TryDetonation_Implementation(PlayerType Player, AActor* DamageCause) override;
+	virtual void TryDetonation(PlayerType Player, AActor* DamageCause) override;
  
-	virtual void TryTaunt_Implementation(float Duration, AActor* Taunter) override;
+	virtual void TryTaunt(float Duration, AActor* Taunter) override;
 
 	// Detonation Effect properties *********
 	

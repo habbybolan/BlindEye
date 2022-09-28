@@ -22,33 +22,96 @@ void ABlindEyeBaseCharacter::BeginPlay()
 	HealthComponent->DetonateDelegate.AddUFunction(this, TEXT("OnMarkDetonated"));
 }
 
-TEAMS ABlindEyeBaseCharacter::GetTeam_Implementation()
+void ABlindEyeBaseCharacter::OnDeath(AActor* ActorThatKilled)
+{
+	MULT_OnDeathHelper(ActorThatKilled);
+}
+
+void ABlindEyeBaseCharacter::MULT_OnDeathHelper_Implementation(AActor* ActorThatKilled)
+{
+	BP_OnDeath(ActorThatKilled);
+}
+
+TEAMS ABlindEyeBaseCharacter::GetTeam()
 {
 	return Team;
 }
 
-UHealthComponent* ABlindEyeBaseCharacter::GetHealthComponent_Implementation()
+void ABlindEyeBaseCharacter::MULT_OnTakeDamageHelper_Implementation(float Damage, FVector HitLocation,
+	const UDamageType* DamageType, AActor* DamageCauser)
+{
+	BP_OnTakeDamage(Damage, HitLocation, DamageType, DamageCauser);
+}
+
+void ABlindEyeBaseCharacter::MYOnTakeDamage(float Damage, FVector HitLocation,
+                                                           const UDamageType* DamageType, AActor* DamageCauser)
+{
+	MULT_OnTakeDamageHelper(Damage, HitLocation, DamageType, DamageCauser);
+}
+
+UHealthComponent* ABlindEyeBaseCharacter::GetHealthComponent()
 {
 	return HealthComponent;
 }
 
-UMarkerComponent* ABlindEyeBaseCharacter::GetMarkerComponent_Implementation()
+UMarkerComponent* ABlindEyeBaseCharacter::GetMarkerComponent()
 {
 	return MarkerComponent;
 }
 
 void ABlindEyeBaseCharacter::OnMarkAdded(PlayerType MarkType)
 { 
-	MarkerComponent->MULT_AddMark(MarkType);
+	MULT_OnMarkAddedHelper(MarkType);
+}
+
+void ABlindEyeBaseCharacter::MULT_OnMarkAddedHelper_Implementation(PlayerType MarkerType)
+{
+	BP_OnMarkAdded(MarkerType);
+	MarkerComponent->AddMark(MarkerType);
 }
 
 void ABlindEyeBaseCharacter::OnMarkRemoved()
 {
-	MarkerComponent->MULT_RemoveMark();
+	MULT_OnMarkRemovedHelper();
+}
+
+void ABlindEyeBaseCharacter::MULT_OnMarkRemovedHelper_Implementation()
+{
+	BP_OnMarkRemoved();
+	MarkerComponent->RemoveMark();
 }
 
 void ABlindEyeBaseCharacter::OnMarkDetonated()
 {
-	MarkerComponent->MULT_DetonateMark();
+	MULT_OnMarkDetonatedHelper();
+}
+
+float ABlindEyeBaseCharacter::GetHealth()
+{
+	return 0;
+}
+
+float ABlindEyeBaseCharacter::GetMaxHealth()
+{
+	return 0;
+}
+
+void ABlindEyeBaseCharacter::SetHealth(float NewHealth)
+{}
+
+float ABlindEyeBaseCharacter::GetHealthPercent()
+{
+	return 0;
+}
+
+bool ABlindEyeBaseCharacter::GetIsDead()
+{
+	return false;
+}
+
+void ABlindEyeBaseCharacter::MULT_OnMarkDetonatedHelper_Implementation()
+{
+	BP_OnMarkDetonated();
+	MarkerComponent->DetonateMark();
 }
 

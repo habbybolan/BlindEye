@@ -10,8 +10,8 @@ void UBurnStatusEffect::ProcessEffect(AActor* Owner, AActor* HitCharacter, FVect
                                      UHealthComponent* HealthComponent) const
 {
 	if (Owner->GetInstigator() == HitCharacter) return;
-	if (const IDamageInterface* DamageInterface = Cast<IDamageInterface>(HealthComponent))
+	if (IDamageInterface* DamageInterface = Cast<IDamageInterface>(HealthComponent))
 	{
-		DamageInterface->Execute_Burn(HealthComponent, DamagePerSec, Duration, Owner);
+		DamageInterface->Burn(DamagePerSec, Duration, Owner);
 	}
 }
