@@ -395,20 +395,6 @@ void ABlindEyePlayerCharacter::SetHealth(float NewHealth)
 	}
 }
 
-void ABlindEyePlayerCharacter::MYOnTakeDamage(float Damage, FVector HitLocation,
-	const UDamageType* DamageType, AActor* DamageCauser)
-{
-	Super::MYOnTakeDamage(Damage, HitLocation, DamageType, DamageCauser);
-	CLI_OnTakeDamageHelper(Damage, HitLocation, DamageType, DamageCauser);
-} 
-
-
-void ABlindEyePlayerCharacter::CLI_OnTakeDamageHelper_Implementation(float Damage, FVector HitLocation,
-                                                                     const UDamageType* DamageType, AActor* DamageCauser)
-{
-	BP_OnTakeDamageClient(Damage, HitLocation, DamageType, DamageCauser);
-}
-
 void ABlindEyePlayerCharacter::OnDeath(AActor* ActorThatKilled) 
 { 
 	Super::OnDeath(ActorThatKilled);

@@ -35,9 +35,6 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_OnTakeDamageHelper(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
-
 	virtual void MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
 
 	virtual UHealthComponent* GetHealthComponent() override;
@@ -48,9 +45,6 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void OnDeath(AActor* ActorThatKilled) override;
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_OnDeathHelper(AActor* ActorThatKilled);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnDeath(AActor* ActorThatKilled);
