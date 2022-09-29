@@ -40,7 +40,7 @@ public:
 	float DistanceToJumpAttack = 200.f;
  
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
-	float JumpAttackDelay = 3.f;
+	float JumpAttackDelay = 1.5f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float SpawnDelay = 15.f;

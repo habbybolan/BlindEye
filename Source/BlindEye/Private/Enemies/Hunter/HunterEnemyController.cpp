@@ -49,7 +49,7 @@ void AHunterEnemyController::PerformJumpAttack()
 {
 	IsJumpAttackOnDelay = true;
 	GetBlackboardComponent()->SetValueAsBool("bAttacking", true);
-	//Hunter->PerformJumpAttack();
+	Hunter->PerformJumpAttack();
 	GetWorldTimerManager().SetTimer(JumpAttackDelayTimerHandle, this, &AHunterEnemyController::SetCanBasicAttack, JumpAttackDelay, false);
 }
 

@@ -29,6 +29,12 @@ public:
  
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Movement)
 	float RunningMaxWalkSpeed = 600;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=10))
+	float JumpUpForce = 0.7;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=200000))
+	float ForceApplied = 60000; 
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<	EObjectTypeQuery>> ObjectTypes;
@@ -45,7 +51,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float RadiusToTurnVisible = 500;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float JumpAttackSwingDelay = 0.3f;
+
 	void PerformJumpAttack();
+	void JumpAttackSwing();
 
 	void TrySetVisibility(bool visibility);
 
@@ -54,6 +64,8 @@ public:
 protected:
  
 	virtual void Tick(float DeltaSeconds) override;
+
+	FTimerHandle JumpAttackSwingDelayTimerHandle;
 
 	// Intermediary method to make RPC call to blueprint implementable method
 	UFUNCTION(NetMulticast, Reliable)

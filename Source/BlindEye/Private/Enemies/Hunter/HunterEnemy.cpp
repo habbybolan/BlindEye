@@ -10,6 +10,21 @@ AHunterEnemy::AHunterEnemy(const FObjectInitializer& ObjectInitializer) : Super(
 
 void AHunterEnemy::PerformJumpAttack()
 {
+	if (ABlindEyeEnemyController* BlindEyeController = Cast<ABlindEyeEnemyController>(GetController()))
+	{
+		if (AActor* Target = BlindEyeController->GetBTTarget())
+		{
+			FVector Direction = Target->GetActorLocation() - GetActorLocation();
+			Direction.Normalize();
+			Direction += FVector::UpVector * JumpUpForce;
+			GetCharacterMovement()->AddImpulse(Direction * ForceApplied);
+			GetWorldTimerManager().SetTimer(JumpAttackSwingDelayTimerHandle, this, &AHunterEnemy::JumpAttackSwing, JumpAttackSwingDelay, false);
+		}
+	}
+}
+
+void AHunterEnemy::JumpAttackSwing()
+{
 	UWorld* world = GetWorld();
 	if (!world) return;
 	
