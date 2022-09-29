@@ -27,7 +27,7 @@ Blind Eye is a two player, 3D, third person, cooperative battle arena defense ga
 
 [Meda Design Document](<https://miro.com/app/board/uXjVOpPOsmM=/?share_link_id=994276187786>)
 
-[Paint Over Proxy](<???>)
+[Paint Over Proxy](<https://miro.com/app/board/uXjVOUxW1fA=/>)
 
 [Milestone Report](<https://docs.google.com/document/d/1K73V15MdtJuQGsLiJoxIn5og0Oes6zCeDTwmnhxSfb0/edit?usp=sharing>)
 
