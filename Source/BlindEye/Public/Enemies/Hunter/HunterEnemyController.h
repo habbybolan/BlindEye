@@ -54,7 +54,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void InitializeBehaviorTree();
 	
-	bool CanJumpAttack();
+	bool CanJumpAttack(AActor* Target);
 	void PerformJumpAttack();
 
 	// Debugger functionality for spawning a hunter
@@ -71,8 +71,8 @@ protected:
 	FTimerHandle JumpAttackDelayTimerHandle;
 
 	FTimerHandle SpawnDelayTimerHandle;
-
-	bool IsInJumpAttackRange();
+ 
+	bool IsInJumpAttackRange(AActor* Target);
 
 	UPROPERTY() 
 	AHunterEnemy* Hunter;

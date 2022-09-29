@@ -10,20 +10,24 @@ EBTNodeResult::Type UBTT_SetHunterState::ExecuteTask(UBehaviorTreeComponent& Own
 	UBlackboardComponent* BBComp = OwnerComp.GetBlackboardComponent();
 	BBComp->SetValueAsEnum(HunterStateKey.SelectedKeyName, (uint8)NextHunterState);
 
+	AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(OwnerComp.GetAIOwner());
+	if (HunterController == nullptr) return EBTNodeResult::Failed;
+	
 	// Update speed based on new state
-	if (AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(OwnerComp.GetAIOwner()))
-	{
-		HunterController->UpdateMovementSpeed(NextHunterState);
-	}
+	HunterController->UpdateMovementSpeed(NextHunterState);
+	
 	switch (NextHunterState)
 	{
 	case EHunterStates::Attacking:
+		HunterController->TrySetVisibility(true);
 		break;
 	case EHunterStates::Stalking:
+		HunterController->TrySetVisibility(false);
 		BBComp->SetValueAsBool(bDamagedKey.SelectedKeyName, false);
 		BBComp->SetValueAsEnum(StrafingDirection.SelectedKeyName, (uint8)EStrafeDirection::Left);
 		break;
 	case EHunterStates::Running:
+		HunterController->TrySetVisibility(false);
 		break;
 	}
 	

@@ -40,17 +40,16 @@ void AHunterEnemyController::SetAlwaysVisible(bool IsAlwaysVisible)
 	}
 }
 
-bool AHunterEnemyController::CanJumpAttack()
+bool AHunterEnemyController::CanJumpAttack(AActor* Target)
 {
-	return !IsJumpAttackOnDelay;
+	return !IsJumpAttackOnDelay && IsInJumpAttackRange(Target);
 }
 
 void AHunterEnemyController::PerformJumpAttack()
 {
-	if (!CanJumpAttack()) return;
-	
-	Hunter->PerformJumpAttack();
 	IsJumpAttackOnDelay = true;
+	GetBlackboardComponent()->SetValueAsBool("bAttacking", true);
+	//Hunter->PerformJumpAttack();
 	GetWorldTimerManager().SetTimer(JumpAttackDelayTimerHandle, this, &AHunterEnemyController::SetCanBasicAttack, JumpAttackDelay, false);
 }
 
@@ -77,9 +76,12 @@ void AHunterEnemyController::UpdateMovementSpeed(EHunterStates NewHunterState)
 	Hunter->UpdateMovementSpeed(NewHunterState);
 }
 
-bool AHunterEnemyController::IsInJumpAttackRange()
+bool AHunterEnemyController::IsInJumpAttackRange(AActor* Target)
 {
-	return false;
+	if (GetPawn() == nullptr) return false;
+	
+	float Distance = FVector::Distance(Target->GetActorLocation(), GetPawn()->GetActorLocation());
+	return Distance < DistanceToJumpAttack;
 }
 
 void AHunterEnemyController::OnPossess(APawn* InPawn)
@@ -114,6 +116,10 @@ void AHunterEnemyController::OnPossess(APawn* InPawn)
 
 void AHunterEnemyController::SetCanBasicAttack()
 {
+	// DELETE THIS
+	GetBlackboardComponent()->SetValueAsBool("bAttacking", false);
+	// DELETE THIS
+	
 	IsJumpAttackOnDelay = false;
 }
 
