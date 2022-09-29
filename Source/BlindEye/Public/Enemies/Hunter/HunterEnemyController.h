@@ -37,10 +37,10 @@ public:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
-	float DistanceToBasicAttack = 200.f;
+	float DistanceToJumpAttack = 200.f;
  
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
-	float BasicAttackDelay = 3.f;
+	float JumpAttackDelay = 3.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float SpawnDelay = 15.f;
@@ -54,8 +54,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void InitializeBehaviorTree();
 	
-	bool CanBasicAttack();
-	void PerformBasicAttack();
+	bool CanJumpAttack();
+	void PerformJumpAttack();
 
 	// Debugger functionality for spawning a hunter
 	//	If a hunter is already alive, then dont do anything
@@ -67,10 +67,12 @@ public:
 	
 protected:
 
-	bool IsBasicAttackOnDelay = false;
-	FTimerHandle BasicAttackDelayTimerHandle;
+	bool IsJumpAttackOnDelay = false;
+	FTimerHandle JumpAttackDelayTimerHandle;
 
 	FTimerHandle SpawnDelayTimerHandle;
+
+	bool IsInJumpAttackRange();
 
 	UPROPERTY() 
 	AHunterEnemy* Hunter;

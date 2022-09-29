@@ -34,10 +34,10 @@ public:
 	TArray<TEnumAsByte<	EObjectTypeQuery>> ObjectTypes;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float BasicAttackDamage = 5;
+	float JumpAttackDamage = 5;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UBaseDamageType> BasicAttackDamageType;
+	TSubclassOf<UBaseDamageType> JumpAttackDamageType;
 
 	UPROPERTY(BlueprintReadWrite)
 	bool IsVisible = false;
@@ -45,7 +45,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float RadiusToTurnVisible = 500;
 
-	void PerformBasicAttack();
+	void PerformJumpAttack();
 
 	void TrySetVisibility(bool visibility);
 

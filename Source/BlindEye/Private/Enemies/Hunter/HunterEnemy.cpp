@@ -8,7 +8,7 @@
 
 AHunterEnemy::AHunterEnemy(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}
 
-void AHunterEnemy::PerformBasicAttack()
+void AHunterEnemy::PerformJumpAttack()
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
@@ -22,7 +22,7 @@ void AHunterEnemy::PerformBasicAttack()
 		AActor* HitActor = Hit.GetActor();
 		if (!HitActor) continue;
 
-		UGameplayStatics::ApplyPointDamage(HitActor, BasicAttackDamage, Hit.ImpactNormal, Hit, GetController(), this, BasicAttackDamageType);
+		UGameplayStatics::ApplyPointDamage(HitActor, JumpAttackDamage, Hit.ImpactNormal, Hit, GetController(), this, JumpAttackDamageType);
 	}
 }
 

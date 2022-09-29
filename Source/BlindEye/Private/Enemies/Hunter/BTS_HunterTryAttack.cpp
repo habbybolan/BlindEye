@@ -14,8 +14,8 @@ void UBTS_HunterTryAttack::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* No
 	// AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(AIOwner);
 	// if (HunterController == nullptr) return;
 	//
-	// if (HunterController->CanBasicAttack() && HunterController->IsInBasicAttackRange())
+	// if (HunterController->CanJumpAttack() && HunterController->IsInBasicAttackRange())
 	// {
-	// 	HunterController->PerformBasicAttack();
+	// 	HunterController->PerformJumpAttack();
 	// }
 }

@@ -40,18 +40,18 @@ void AHunterEnemyController::SetAlwaysVisible(bool IsAlwaysVisible)
 	}
 }
 
-bool AHunterEnemyController::CanBasicAttack()
+bool AHunterEnemyController::CanJumpAttack()
 {
-	return !IsBasicAttackOnDelay;
+	return !IsJumpAttackOnDelay;
 }
 
-void AHunterEnemyController::PerformBasicAttack()
+void AHunterEnemyController::PerformJumpAttack()
 {
-	if (!CanBasicAttack()) return;
+	if (!CanJumpAttack()) return;
 	
-	Hunter->PerformBasicAttack();
-	IsBasicAttackOnDelay = true;
-	GetWorldTimerManager().SetTimer(BasicAttackDelayTimerHandle, this, &AHunterEnemyController::SetCanBasicAttack, BasicAttackDelay, false);
+	Hunter->PerformJumpAttack();
+	IsJumpAttackOnDelay = true;
+	GetWorldTimerManager().SetTimer(JumpAttackDelayTimerHandle, this, &AHunterEnemyController::SetCanBasicAttack, JumpAttackDelay, false);
 }
 
 void AHunterEnemyController::DebugSpawnHunter()
@@ -75,6 +75,11 @@ void AHunterEnemyController::UpdateMovementSpeed(EHunterStates NewHunterState)
 {
 	if (!Hunter) return;
 	Hunter->UpdateMovementSpeed(NewHunterState);
+}
+
+bool AHunterEnemyController::IsInJumpAttackRange()
+{
+	return false;
 }
 
 void AHunterEnemyController::OnPossess(APawn* InPawn)
@@ -109,7 +114,7 @@ void AHunterEnemyController::OnPossess(APawn* InPawn)
 
 void AHunterEnemyController::SetCanBasicAttack()
 {
-	IsBasicAttackOnDelay = false;
+	IsJumpAttackOnDelay = false;
 }
 
 void AHunterEnemyController::OnHunterDeath(AActor* HunterKilled)
