@@ -7,6 +7,23 @@
 #include "Enemies/BlindEyeEnemyController.h"
 #include "HunterEnemyController.generated.h"
 
+UENUM(BlueprintType)
+enum class EStrafeDirection : uint8
+{
+	None,
+	Left,
+	Right
+};
+
+
+UENUM(BlueprintType) 
+enum class EHunterStates : uint8
+{
+	Stalking,
+	Attacking,
+	Running
+};
+
 /**
  * 
  */
@@ -20,10 +37,10 @@ public:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
-	float DistanceToBasicAttack = 200.f;
+	float DistanceToJumpAttack = 200.f;
  
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
-	float BasicAttackDelay = 3.f;
+	float JumpAttackDelay = 1.5f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float SpawnDelay = 15.f;
@@ -37,23 +54,25 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void InitializeBehaviorTree();
 	
-	void SetTargetEnemy(AActor* target);
-
-	bool CanBasicAttack();
-	bool IsInBasicAttackRange();
-	void PerformBasicAttack();
+	bool CanJumpAttack(AActor* Target);
+	void PerformJumpAttack();
 
 	// Debugger functionality for spawning a hunter
 	//	If a hunter is already alive, then dont do anything
 	void DebugSpawnHunter();
+
+	void TrySetVisibility(bool visibility);
+
+	void UpdateMovementSpeed(EHunterStates NewHunterState);
 	
 protected:
-	TWeakObjectPtr<AActor> Target;
 
-	bool IsBasicAttackOnDelay = false;
-	FTimerHandle BasicAttackDelayTimerHandle;
+	bool IsJumpAttackOnDelay = false;
+	FTimerHandle JumpAttackDelayTimerHandle;
 
 	FTimerHandle SpawnDelayTimerHandle;
+ 
+	bool IsInJumpAttackRange(AActor* Target);
 
 	UPROPERTY() 
 	AHunterEnemy* Hunter;
@@ -65,4 +84,7 @@ protected:
 	void OnHunterDeath(AActor* HunterKilled);
 	UFUNCTION()
 	void SpawnHunter();
+
+	UFUNCTION()
+	void OnTakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
 };
