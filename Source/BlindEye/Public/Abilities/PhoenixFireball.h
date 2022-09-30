@@ -47,9 +47,6 @@ public:
 	float CostPercent = 30;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UNiagaraSystem* FireConeParticle;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UBaseDamageType> DamageType;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -60,7 +57,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<EObjectTypeQuery>> ConeTraceObjectTypes;
-
+	
 	// Deals with damage from the cone and the fireball. Fireball sends its damage event to this
 	void DealWithDamage(AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit, float Damage);
 
@@ -69,15 +66,9 @@ public:
 
 	UFUNCTION()
 	void OnFireballCastHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SpawnFireballCone(FRotator rotator);
 	
 	
 protected:
-
-	UPROPERTY()
-	UNiagaraComponent* SpawnedFireConeParticle;
 	 
 	TSet<uint32> IDsOfHitActors;
 	UPROPERTY()
