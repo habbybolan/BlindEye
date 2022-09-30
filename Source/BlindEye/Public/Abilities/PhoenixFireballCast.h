@@ -55,17 +55,17 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UNiagaraSystem* FireTrailParticle;
- 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UNiagaraSystem* GroundBurnParticle;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UNiagaraSystem* ExplosionParticle; 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float CustomLifespan = 4.0f;
 
 	USphereComponent* GetSphereComponent();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_Explosion();
+ 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_GroundBurning(FVector LocationForGroundBurn, float Duration);
 
 protected:
 	
@@ -85,9 +85,6 @@ protected:
 
 	UPROPERTY()
 	UNiagaraComponent* SpawnedFireTrailParticle;
- 
-	UPROPERTY()
-	UNiagaraComponent* SpawnedGroundBurnParticle;
 
 	UFUNCTION()
 	void OnCollision(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
