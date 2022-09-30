@@ -199,7 +199,7 @@ TArray<FVector> ABurrowerEnemy::GetSnapperSpawnPoints()
 void ABurrowerEnemy::TimelineSurfacingMovement(float Value)
 {
 	SetActorLocation(FMath::Lerp(CachedSpawnLocation, CachedSpawnLocation +
-		(FVector::UpVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2 + 50)), Value));
+		(FVector::UpVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2 - 15)), Value));
 }
 
 void ABurrowerEnemy::TimelineSurfacingFinished()
