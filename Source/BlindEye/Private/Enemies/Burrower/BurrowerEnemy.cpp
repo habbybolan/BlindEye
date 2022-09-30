@@ -70,8 +70,8 @@ void ABurrowerEnemy::PerformSurfacingDamage()
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
 	
-	FVector StartPosition = GetActorLocation() + FVector::UpVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
-	FVector EndPosition = StartPosition + FVector::DownVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
+	FVector StartPosition = CachedSpawnLocation;
+	FVector EndPosition = CachedSpawnLocation + FVector::UpVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
 
 	TArray<FHitResult> OutHits;
 	UKismetSystemLibrary::SphereTraceMultiForObjects(World, StartPosition, EndPosition, SurfacingRadius, SurfacingObjectTypes,
