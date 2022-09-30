@@ -35,9 +35,6 @@ public:
 	float FireballSpeed = 100;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float BurnDamagePerSec = 10.f;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float BurningDuration = 4.5f;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float BurningRadius = 400.f;

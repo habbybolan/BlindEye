@@ -85,7 +85,7 @@ void APhoenixFireballCast::BurnLogic()
 		BurnObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true);
 	for (FHitResult Hit : OutHits)
 	{ 
-		UGameplayStatics::ApplyPointDamage(Hit.GetActor(), BurnDamagePerSec * 0.2, FVector::ZeroVector,
+		UGameplayStatics::ApplyPointDamage(Hit.GetActor(), 0.01, FVector::ZeroVector,
 			Hit, GetInstigator()->GetController(),GetInstigator(), BurnDamageType);
 	}
 }
