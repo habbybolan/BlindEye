@@ -77,10 +77,19 @@ void APhoenixFireball::CastFireball()
 void APhoenixFireball::OnFireballCastHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (!OtherActor) return;
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
 	if (GetLocalRole() < ROLE_Authority) return;
 	if (!FireballCast) return;
-	DealWithDamage(OtherActor, Hit.ImpactNormal, Hit, FireballCast->Damage);
+
+	// Area damage from fireball cast colliding / expiring and exploding
+	TArray<FHitResult> OutHits;
+	UKismetSystemLibrary::SphereTraceMultiForObjects(World, FireballCast->GetActorLocation(), FireballCast->GetActorLocation() + FireballCast->GetActorForwardVector() * 5,
+		Damage, ConeTraceObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, OutHits, true);
+	for (FHitResult ExplosionHit : OutHits)
+	{
+		DealWithDamage(ExplosionHit.Actor.Get(), ExplosionHit.ImpactNormal, ExplosionHit, Damage);
+	}
 }
 
 void APhoenixFireball::MULT_SpawnFireballCone_Implementation(FRotator rotation)

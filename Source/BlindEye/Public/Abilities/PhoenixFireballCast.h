@@ -35,9 +35,6 @@ public:
 	float FireballSpeed = 100;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float Damage = 60;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float BurnDamagePerSec = 10.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
