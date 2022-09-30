@@ -28,7 +28,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UBaseDamageType> JumpAttackDamageType;
-
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float BasicAttackDamage = 5; 
 

@@ -67,7 +67,7 @@ void ASnapperEnemy::PerformBasicAttack()
 		if (!HitActor) continue;
 	
 		UGameplayStatics::ApplyPointDamage(HitActor, BasicAttackDamage
-			, Hit.ImpactNormal, Hit, GetController(), this, BasicAttackDamageType);
+			, Hit.ImpactNormal, Hit, GetController(), this, JumpAttackDamageType);
 	}
 }
 
