@@ -57,7 +57,6 @@ void APhoenixFireball::CastFireCone()
 			DealWithDamage(ConeHit.GetActor(), ConeHit.ImpactNormal, ConeHit, Damage);
 		}
 	}
-	MULT_SpawnFireballCone(GetInstigator()->GetControlRotation());
 }
 
 void APhoenixFireball::CastFireball()
@@ -90,16 +89,6 @@ void APhoenixFireball::OnFireballCastHit(UPrimitiveComponent* HitComponent, AAct
 	{
 		DealWithDamage(ExplosionHit.Actor.Get(), ExplosionHit.ImpactNormal, ExplosionHit, Damage);
 	}
-}
-
-void APhoenixFireball::MULT_SpawnFireballCone_Implementation(FRotator rotation)
-{
-	UWorld* world = GetWorld();
-	if (!world) return;
-	
-	SpawnedFireConeParticle = UNiagaraFunctionLibrary::SpawnSystemAttached(FireConeParticle, GetInstigator()->GetRootComponent(), NAME_None,
-		GetInstigator()->GetActorLocation(), rotation, FVector::OneVector,
-		EAttachLocation::KeepWorldPosition, false, ENCPoolMethod::AutoRelease);
 }
 
 void APhoenixFireball::EndAbilityLogic()

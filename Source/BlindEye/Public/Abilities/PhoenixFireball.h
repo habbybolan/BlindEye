@@ -47,9 +47,6 @@ public:
 	float CostPercent = 30;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UNiagaraSystem* FireConeParticle;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UBaseDamageType> DamageType;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -69,15 +66,9 @@ public:
 
 	UFUNCTION()
 	void OnFireballCastHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SpawnFireballCone(FRotator rotator);
 	
 	
 protected:
-
-	UPROPERTY()
-	UNiagaraComponent* SpawnedFireConeParticle;
 	 
 	TSet<uint32> IDsOfHitActors;
 	UPROPERTY()
