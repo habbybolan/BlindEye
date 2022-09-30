@@ -70,8 +70,8 @@ void ABurrowerEnemy::PerformSurfacingDamage()
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
 	
-	FVector StartPosition = GetActorLocation() + FVector::UpVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
-	FVector EndPosition = StartPosition + FVector::DownVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
+	FVector StartPosition = CachedSpawnLocation;
+	FVector EndPosition = CachedSpawnLocation + FVector::UpVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
 
 	TArray<FHitResult> OutHits;
 	UKismetSystemLibrary::SphereTraceMultiForObjects(World, StartPosition, EndPosition, SurfacingRadius, SurfacingObjectTypes,
@@ -199,7 +199,7 @@ TArray<FVector> ABurrowerEnemy::GetSnapperSpawnPoints()
 void ABurrowerEnemy::TimelineSurfacingMovement(float Value)
 {
 	SetActorLocation(FMath::Lerp(CachedSpawnLocation, CachedSpawnLocation +
-		(FVector::UpVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2 + 50)), Value));
+		(FVector::UpVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2 - 15)), Value));
 }
 
 void ABurrowerEnemy::TimelineSurfacingFinished()
