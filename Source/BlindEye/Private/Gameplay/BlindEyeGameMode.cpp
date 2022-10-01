@@ -13,6 +13,8 @@ void ABlindEyeGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
+	PrimaryActorTick.bStartWithTickEnabled = true;
+
 	if (ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(NewPlayer))
 	{
 		BlindEyeController->SER_SpawnPlayer();
@@ -64,6 +66,21 @@ void ABlindEyeGameMode::OnGameWon()
 		if (ABlindEyePlayerController* BlindEyePlayerController = Cast<ABlindEyePlayerController>(PlayerController))
 		{
 			BlindEyePlayerController->CLI_GameWon();
+		}
+	}
+}
+
+void ABlindEyeGameMode::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	// Level shift check
+	if (bHasLevelShifted == false)
+	{
+		if (GetGameTimeSinceCreation() > TimeUntilLevelShift)
+		{
+			BP_LevelShift();
+			bHasLevelShifted = true;
 		}
 	}
 }
