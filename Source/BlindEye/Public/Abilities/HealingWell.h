@@ -19,13 +19,10 @@ public:
 	float HealPercentIncr = 1000;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float HealCheckDelay = 0.2f;
+	float HealDuration = 4;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Radius = 450;
- 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float Duration = 4;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
@@ -36,7 +33,5 @@ protected:
 
 	void PerformHealCheck();
 	FTimerHandle HealingCheckTimerHandle;
-
-	virtual void BeginDestroy() override;
 
 };
