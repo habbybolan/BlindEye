@@ -9,7 +9,7 @@
 enum class PlayerType : uint8;
 
 // This class does not need to be modified.
-UINTERFACE(MinimalAPI)
+UINTERFACE(MinimalAPI, meta=(CannotImplementInterfaceInBlueprint))
 class UDamageInterface : public UInterface
 {
 	GENERATED_BODY()
@@ -25,27 +25,27 @@ class BLINDEYE_API IDamageInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void Stun(float StunDuration, AActor* DamageCause);
- 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void KnockBack(FVector KnockBackForce, AActor* DamageCause);
-
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void Burn(float DamagePerSec, float Duration, AActor* DamageCause);
-
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void Stagger(AActor* DamageCause);
-
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void TryApplyMarker(PlayerType Player, AActor* DamageCause);
-
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void TryDetonation(PlayerType Player, AActor* DamageCause);
+	UFUNCTION()
+	virtual void Stun(float StunDuration, AActor* DamageCause) = 0;
   
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void TryTaunt(float Duration, AActor* Taunter);
+	UFUNCTION()
+	virtual void KnockBack(FVector KnockBackForce, AActor* DamageCause) = 0;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void ImprovedHealing(float HealPercentIncrease, float Duration);
+	UFUNCTION()
+	virtual void Burn(float DamagePerSec, float Duration, AActor* DamageCause) = 0;
+
+	UFUNCTION()
+	virtual void Stagger(AActor* DamageCause) = 0;
+
+	UFUNCTION()
+	virtual void TryApplyMarker(PlayerType Player, AActor* DamageCause) = 0;
+
+	UFUNCTION()
+	virtual void TryDetonation(PlayerType Player, AActor* DamageCause) = 0;
+  
+	UFUNCTION()
+	virtual void TryTaunt(float Duration, AActor* Taunter) = 0;
+
+	UFUNCTION()
+	virtual void ImprovedHealing(float HealPercentIncrease, float Duration) = 0;
 };

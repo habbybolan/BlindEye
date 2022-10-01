@@ -8,12 +8,12 @@
 void UKnockBackStatusEffect::ProcessEffect(AActor* Owner, AActor* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const
 {
 	if (Owner->GetInstigator() == HitCharacter) return;
-	if (const IDamageInterface* DamageInterface = Cast<IDamageInterface>(HealthComponent))
+	if (IDamageInterface* DamageInterface = Cast<IDamageInterface>(HealthComponent))
 	{
 		FVector direction = HitCharacter->GetActorLocation() - HitLocation;
 		direction.Normalize();
 		direction *= KnockBackForce;
 		direction.Z = KnockUpForce;
-		DamageInterface->Execute_KnockBack(HealthComponent, direction, Owner);
+		DamageInterface->KnockBack(direction, Owner);
 	}
 }

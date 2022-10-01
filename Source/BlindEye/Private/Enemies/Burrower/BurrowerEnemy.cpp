@@ -7,11 +7,11 @@
 #include "NiagaraFunctionLibrary.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/HealthComponent.h"
-#include "Enemies/SnapperEnemy.h"
+#include "Enemies/Snapper/SnapperEnemy.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Enemies/Burrower/BurrowerEnemyController.h"
-#include "Enemies/SnapperEnemyController.h"
+#include "Enemies/Snapper/SnapperEnemyController.h"
 #include "Enemies/Burrower/BurrowerHealthComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Interfaces/HealthInterface.h"
@@ -70,8 +70,8 @@ void ABurrowerEnemy::PerformSurfacingDamage()
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
 	
-	FVector StartPosition = GetActorLocation() + FVector::UpVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
-	FVector EndPosition = StartPosition + FVector::DownVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
+	FVector StartPosition = CachedSpawnLocation;
+	FVector EndPosition = CachedSpawnLocation + FVector::UpVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
 
 	TArray<FHitResult> OutHits;
 	UKismetSystemLibrary::SphereTraceMultiForObjects(World, StartPosition, EndPosition, SurfacingRadius, SurfacingObjectTypes,
@@ -109,9 +109,9 @@ void ABurrowerEnemy::SpawnSnappers()
 		SpawnedSnappers.Add(SpawnedSnapper->GetUniqueID(), SpawnedSnapper);
 		spawnPoints.RemoveAt(randSpawnIndex);
 		// TODO: subscribe to death event on snapper to remove from list
-		if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(SpawnedSnapper))
+		if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(SpawnedSnapper))
 		{
-			HealthInterface->Execute_GetHealthComponent(SpawnedSnapper)->OnDeathDelegate.AddUFunction<ABurrowerEnemy>(this, FName("OnSnapperDeath"));
+			HealthInterface->GetHealthComponent()->OnDeathDelegate.AddUFunction<ABurrowerEnemy>(this, FName("OnSnapperDeath"));
 		} 
 	}
 
@@ -199,7 +199,7 @@ TArray<FVector> ABurrowerEnemy::GetSnapperSpawnPoints()
 void ABurrowerEnemy::TimelineSurfacingMovement(float Value)
 {
 	SetActorLocation(FMath::Lerp(CachedSpawnLocation, CachedSpawnLocation +
-		(FVector::UpVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2 + 50)), Value));
+		(FVector::UpVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2 - 15)), Value));
 }
 
 void ABurrowerEnemy::TimelineSurfacingFinished()

@@ -1,7 +1,7 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
-#include "Enemies/HunterEnemyController.h"
+#include "Enemies/Hunter/HunterEnemyController.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
@@ -10,7 +10,6 @@
 #include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Net/UnrealNetwork.h"
 
 AHunterEnemyController::AHunterEnemyController()
 {
@@ -35,45 +34,23 @@ void AHunterEnemyController::SetAlwaysVisible(bool IsAlwaysVisible)
 			BlindEyeGameState->bHunterAlwaysVisible = IsAlwaysVisible;
 			if (Hunter)
 			{
-				Hunter->TryTurnVisible();
+				Hunter->TrySetVisibility(true);
 			}
 		}
 	}
 }
 
-void AHunterEnemyController::SetTargetEnemy(AActor* target)
+bool AHunterEnemyController::CanJumpAttack(AActor* Target)
 {
-	UBlackboardComponent* BlackboardComp = GetBlackboardComponent();
-	if (BlackboardComp == nullptr) return;
-	
-	GetBlackboardComponent()->SetValueAsObject(TEXT("EnemyActor"), target);
-	Target = MakeWeakObjectPtr<AActor>(target);
+	return !IsJumpAttackOnDelay && IsInJumpAttackRange(Target);
 }
 
-bool AHunterEnemyController::CanBasicAttack()
+void AHunterEnemyController::PerformJumpAttack()
 {
-	return !IsBasicAttackOnDelay;
-}
-
-bool AHunterEnemyController::IsInBasicAttackRange()
-{
-	if (Target.IsValid())
-	{
-		FVector TargetLocation = Target->GetActorLocation();
-
-		if (!Hunter) return false;
-		return FVector::Distance(TargetLocation, Hunter->GetActorLocation()) < DistanceToBasicAttack;
-	}
-	return false;
-}
-
-void AHunterEnemyController::PerformBasicAttack()
-{
-	if (!CanBasicAttack()) return;
-	
-	Hunter->PerformBasicAttack();
-	IsBasicAttackOnDelay = true;
-	GetWorldTimerManager().SetTimer(BasicAttackDelayTimerHandle, this, &AHunterEnemyController::SetCanBasicAttack, BasicAttackDelay, false);
+	IsJumpAttackOnDelay = true;
+	GetBlackboardComponent()->SetValueAsBool("bAttacking", true);
+	Hunter->PerformJumpAttack();
+	GetWorldTimerManager().SetTimer(JumpAttackDelayTimerHandle, this, &AHunterEnemyController::SetCanBasicAttack, JumpAttackDelay, false);
 }
 
 void AHunterEnemyController::DebugSpawnHunter()
@@ -85,7 +62,26 @@ void AHunterEnemyController::DebugSpawnHunter()
 
 	SpawnHunter();
 	World->GetTimerManager().ClearTimer(SpawnDelayTimerHandle);
+}
+
+void AHunterEnemyController::TrySetVisibility(bool visibility)
+{
+	if (!Hunter) return;
+	Hunter->TrySetVisibility(visibility);
+}
+
+void AHunterEnemyController::UpdateMovementSpeed(EHunterStates NewHunterState)
+{
+	if (!Hunter) return;
+	Hunter->UpdateMovementSpeed(NewHunterState);
+}
+
+bool AHunterEnemyController::IsInJumpAttackRange(AActor* Target)
+{
+	if (GetPawn() == nullptr) return false;
 	
+	float Distance = FVector::Distance(Target->GetActorLocation(), GetPawn()->GetActorLocation());
+	return Distance < DistanceToJumpAttack;
 }
 
 void AHunterEnemyController::OnPossess(APawn* InPawn)
@@ -97,9 +93,9 @@ void AHunterEnemyController::OnPossess(APawn* InPawn)
 	
 	Hunter = Cast<AHunterEnemy>(InPawn);
 	
-	if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(Hunter))
+	if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(Hunter))
 	{
-		HealthInterface->Execute_GetHealthComponent(Hunter)->OnDeathDelegate.AddUFunction(this, FName("OnHunterDeath"));
+		HealthInterface->GetHealthComponent()->OnDeathDelegate.AddUFunction(this, FName("OnHunterDeath"));
 	}
 
 	// Get random player to attack
@@ -114,12 +110,17 @@ void AHunterEnemyController::OnPossess(APawn* InPawn)
 		RandPlayerTarget = GameState->PlayerArray[UKismetMathLibrary::RandomIntegerInRange(0, 1)]->GetPawn();
 	}
 	InitializeBehaviorTree();
-	SetTargetEnemy(RandPlayerTarget);
+
+	InPawn->OnTakeAnyDamage.AddDynamic(this, &AHunterEnemyController::OnTakeDamage);
 }
 
 void AHunterEnemyController::SetCanBasicAttack()
 {
-	IsBasicAttackOnDelay = false;
+	// DELETE THIS
+	GetBlackboardComponent()->SetValueAsBool("bAttacking", false);
+	// DELETE THIS
+	
+	IsJumpAttackOnDelay = false;
 }
 
 void AHunterEnemyController::OnHunterDeath(AActor* HunterKilled)
@@ -160,8 +161,17 @@ void AHunterEnemyController::SpawnHunter()
 	// if debugger for always visible, spawn hunter visible
 	if (bAlwaysVisible)
 	{
-		SpawnedHunter->TryTurnVisible();
+		SpawnedHunter->TrySetVisibility(true);
 	}
 	
 	Possess(SpawnedHunter);
+}
+
+void AHunterEnemyController::OnTakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
+	AController* InstigatedBy, AActor* DamageCauser)
+{
+	if (UBlackboardComponent* BBComp = GetBlackboardComponent())
+	{
+		BBComp->SetValueAsBool("bDamaged", true);
+	}
 }

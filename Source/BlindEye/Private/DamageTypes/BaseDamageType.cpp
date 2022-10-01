@@ -22,14 +22,14 @@ float UBaseDamageType::ProcessDamage(AActor* Owner, AActor* HitCharacter, FVecto
 	TEAMS HitTeam; 
 	TEAMS InstigatorTeam; 
 	
-	if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(Owner->GetInstigator()))
+	if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(Owner->GetInstigator()))
 	{
-		HitTeam = HealthInterface->Execute_GetTeam(Owner->GetInstigator());
+		HitTeam = HealthInterface->GetTeam();
 	} else return 0;
 
-	if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(HitCharacter))
+	if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(HitCharacter))
 	{
-		InstigatorTeam = HealthInterface->Execute_GetTeam(HitCharacter);
+		InstigatorTeam = HealthInterface->GetTeam();
 	} else return 0;
 	
 	for (TSubclassOf<UBaseStatusEffect> statusEffectType : StatusEffects)

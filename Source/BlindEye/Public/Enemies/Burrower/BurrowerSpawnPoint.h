@@ -12,7 +12,7 @@ class BLINDEYE_API ABurrowerSpawnPoint : public AActor
 {
 	GENERATED_BODY()
 
-	UArrowComponent* ArrowComponent;
+	//UArrowComponent* ArrowComponent;
 
 	
 public:	

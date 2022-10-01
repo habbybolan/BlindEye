@@ -18,13 +18,19 @@ class BLINDEYE_API ASnapperEnemy : public ABlindEyeEnemyBase
 public:
 	ASnapperEnemy(const FObjectInitializer& ObjectInitializer);
 	
-	virtual void MYOnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
+	virtual void MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<	EObjectTypeQuery>> ObjectTypes;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float BasicAttackDamage = 5;
+	float JumpAttackDamage = 5;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UBaseDamageType> JumpAttackDamageType;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float BasicAttackDamage = 5; 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UBaseDamageType> BasicAttackDamageType;
@@ -35,7 +41,8 @@ public:
 	UPROPERTY(EditDefaultsOnly) 
 	UAnimMontage* GetUpFromInFrontMontage;
 
-	void PerformBasicAttack();
+	void PerformJumpAttack();
+	void PerformBasicAttack(); 
 
 	void TryRagdoll(bool SimulatePhysics);
 
@@ -44,18 +51,31 @@ public:
 
 protected:
 
+	UPROPERTY(Replicated)
 	bool bRagdolling = false;
 	FTimerHandle LaunchSwingTimerHandle;
 	FTimerHandle ColliderOnMeshTimerHandle;
 	FTimerHandle StopRagdollTimerHandle;
 	FTimerHandle GetupAnimTimerHandle;
 
+	void BeginStopRagdollTimer();
+
 	void TeleportColliderToMesh();
 
-	void StartRagdoll();
-	void StopRagdoll();
+	UPROPERTY(Replicated)
+	FVector HipLocation;
+
+	// Only called from client to replicate the hip location while ragdolling
+	void UpdateHipLocation();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_StartRagdoll();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_StopRagdoll();
 	void FinishGettingUp();
 
 	bool IsLayingOnFront();
+
+	void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const;
 	
 };

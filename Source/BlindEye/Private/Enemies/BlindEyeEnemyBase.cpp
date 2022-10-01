@@ -40,33 +40,35 @@ void ABlindEyeEnemyBase::Tick(float DeltaTime)
 
 }
 
-float ABlindEyeEnemyBase::GetHealth_Implementation()
+float ABlindEyeEnemyBase::GetHealth()
 {
 	return CurrHealth;
 }
 
-void ABlindEyeEnemyBase::SetHealth_Implementation(float NewHealth)
+void ABlindEyeEnemyBase::SetHealth(float NewHealth)
 {
 	CurrHealth = NewHealth;
 }
 
-void ABlindEyeEnemyBase::MYOnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType,
+void ABlindEyeEnemyBase::MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType,
 	AActor* DamageCauser)
-{}
-
-void ABlindEyeEnemyBase::OnDeath_Implementation(AActor* ActorThatKilled)
 {
-	Super::OnDeath_Implementation(ActorThatKilled);
+	Super::MYOnTakeDamage(Damage, HitLocation, DamageType, DamageCauser);
+}
+
+void ABlindEyeEnemyBase::OnDeath(AActor* ActorThatKilled)
+{
+	Super::OnDeath(ActorThatKilled);
 	UnPossessed();
 	Destroy();
 }
 
-float ABlindEyeEnemyBase::GetHealthPercent_Implementation()
+float ABlindEyeEnemyBase::GetHealthPercent()
 {
 	return CurrHealth / MaxHealth;
 }
 
-float ABlindEyeEnemyBase::GetMaxHealth_Implementation()
+float ABlindEyeEnemyBase::GetMaxHealth()
 {
 	return MaxHealth;
 }

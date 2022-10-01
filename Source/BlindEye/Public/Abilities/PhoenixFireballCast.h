@@ -35,12 +35,6 @@ public:
 	float FireballSpeed = 100;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float Damage = 60;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float BurnDamagePerSec = 10.f;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float BurningDuration = 4.5f;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float BurningRadius = 400.f;
@@ -58,14 +52,17 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UNiagaraSystem* FireTrailParticle;
- 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UNiagaraSystem* GroundBurnParticle;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float CustomLifespan = 4.0f;
 
 	USphereComponent* GetSphereComponent();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_Explosion();
+ 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_GroundBurning(FVector LocationForGroundBurn, float Duration);
 
 protected:
 	
@@ -85,9 +82,6 @@ protected:
 
 	UPROPERTY()
 	UNiagaraComponent* SpawnedFireTrailParticle;
- 
-	UPROPERTY()
-	UNiagaraComponent* SpawnedGroundBurnParticle;
 
 	UFUNCTION()
 	void OnCollision(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);

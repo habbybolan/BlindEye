@@ -12,6 +12,7 @@ AHealingWell::AHealingWell()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
 	InitialLifeSpan = Duration;
 }
 
@@ -43,12 +44,12 @@ void AHealingWell::PerformHealCheck()
 	{
 		for (AActor* Actor : OutActors)
 		{
-			if (const IHealthInterface* HealthInterface = Cast<IHealthInterface>(Actor))
+			if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(Actor))
 			{
-				UHealthComponent* HealthComponent = HealthInterface->Execute_GetHealthComponent(Actor);
-				if (const IDamageInterface* DamageInterface = Cast<IDamageInterface>(HealthComponent))
+				UHealthComponent* HealthComponent = HealthInterface->GetHealthComponent();
+				if (IDamageInterface* DamageInterface = Cast<IDamageInterface>(HealthComponent))
 				{
-					DamageInterface->Execute_ImprovedHealing(HealthComponent, HealPercentIncr, HealCheckDelay * 2);
+					DamageInterface->ImprovedHealing(HealPercentIncr, HealCheckDelay * 2);
 				}
 			}
 		}
