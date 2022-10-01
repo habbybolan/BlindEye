@@ -28,13 +28,6 @@ void ACrowFlurry::StartCrowFlurry()
 	world->GetTimerManager().SetTimer(CalculateRotationTimerHandle, this, &ACrowFlurry::CalcFlurryRotation, CalcRotationDelay, true);
 	// flurry rotation separate for replication reasons
 	world->GetTimerManager().SetTimer(RotateFlurryTimerHandle, this, &ACrowFlurry::MULT_RotateFlurry, CalcRotationDelay, true);
-	
-	MULT_SpawnCrowFlurry(GetInstigator()->GetControlRotation());
-}
-
-void ACrowFlurry::MULT_SpawnCrowFlurry_Implementation(FRotator rotation)
-{
-	MULT_SpawnCrowFlurryHelper();
 }
 
 void ACrowFlurry::MULT_RotateFlurry_Implementation()
@@ -75,29 +68,6 @@ void ACrowFlurry::CalcFlurryRotation()
 	CurrFlurryRotation = UKismetMathLibrary::RLerp(CurrFlurryRotation, TargetRotation, 0.15, true);
 }
 
-void ACrowFlurry::MULT_DestroyCrowFlurry_Implementation()
-{
-	MULT_DestroyCrowFlurryHelper();
-}
-
-void ACrowFlurry::StopCrowFlurry()
-{
-	UWorld* world = GetWorld();
-	if (!world) return;
-
-	MULT_DestroyCrowFlurry();
-	
-	// TODO: Stop particles/sound...
-}
-
-void ACrowFlurry::DestroyParticles()
-{
-	if (SpawnedCrowFlurryParticle)
-	{
-		SpawnedCrowFlurryParticle->DestroyComponent();
-	}
-}
-
 void ACrowFlurry::EndAbilityLogic()
 {
 	Super::EndAbilityLogic();
@@ -106,7 +76,6 @@ void ACrowFlurry::EndAbilityLogic()
 	UWorld* world = GetWorld();
 	if (!world) return;
 	world->GetTimerManager().ClearTimer(CrowFlurryTimerHandle);
-	world->GetTimerManager().ClearTimer(CrowFlurryParticleDestroyTimerHandle);
 	world->GetTimerManager().ClearTimer(CalculateRotationTimerHandle);
 }
 
@@ -147,7 +116,6 @@ void UFirstCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
 	// leave running state on ability released
 	if (abilityUsageType == EAbilityInputTypes::Pressed)
 	{
-		CrowFlurry->StopCrowFlurry();
 		ExitState();
 	}
 }
