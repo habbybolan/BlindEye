@@ -62,6 +62,12 @@ public:
 	float MaxTimeHanging = 2.f;
 
 	UPROPERTY(EditDefaultsOnly)
+	float LaunchDownForcePower = 200000;
+ 
+	UPROPERTY(EditDefaultsOnly) 
+	float LaunchUpForcePower = 100000;
+
+	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AGroundTarget> GroundTargetType;
 
 	UPROPERTY(EditDefaultsOnly)

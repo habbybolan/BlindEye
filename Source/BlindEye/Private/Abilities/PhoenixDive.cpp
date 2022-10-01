@@ -22,7 +22,7 @@ void APhoenixDive::LaunchPlayerUpwards()
 {
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
 	Character->GetCharacterMovement()->StopMovementImmediately();
-	Character->GetCharacterMovement()->AddImpulse(FVector::UpVector * 100000);
+	Character->GetCharacterMovement()->AddImpulse(FVector::UpVector * LaunchUpForcePower);
 
 	UWorld* world = GetWorld();
 	if (!world) return;
@@ -56,7 +56,7 @@ void APhoenixDive::LaunchToGround()
 
 	FVector LaunchVector = GroundTarget->GetActorLocation() - Character->GetActorLocation();
 	LaunchVector.Normalize();
-	Character->GetCharacterMovement()->AddImpulse(LaunchVector * 200000);
+	Character->GetCharacterMovement()->AddImpulse(LaunchVector * LaunchDownForcePower);
 
 	UWorld* world = GetWorld();
 	if (!world) return;
