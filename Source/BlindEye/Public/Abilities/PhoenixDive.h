@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GroundTarget.h"
 #include "Abilities/AbilityBase.h"
 #include "PhoenixDive.generated.h"
 
@@ -59,17 +60,35 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0))
 	float MaxTimeHanging = 2.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AGroundTarget> GroundTargetType;
+
+	UPROPERTY(EditDefaultsOnly)
+	TArray<TEnumAsByte<EObjectTypeQuery>> GroundObjectTypes;
  
 	// launches character upwards and sets transition
 	void LaunchPlayerUpwards();
 	void HangInAir();
 	void HangInAirTimer();
 	void LaunchToGround();
-	
-	FTimerHandle HangInAirTimerHandle;
-	FTimerHandle MaxHangingTimerHandle;
+
+	UPROPERTY()
+	AGroundTarget* GroundTarget;
 
 protected:
+
+	FTimerHandle HangInAirTimerHandle;
+	FTimerHandle MaxHangingTimerHandle;
+	
+	FTimerHandle UpdateGroundTargetPositionTimerHandle;
+	void UpdateGroundTargetPosition();
+
+	UFUNCTION(Client, Reliable)
+	void CLI_SpawnGroundTarget();
+
+	UFUNCTION(Client, Reliable) 
+	void CLI_StopGroundTarget();
 
 	void hangingInAirExpired();
 	

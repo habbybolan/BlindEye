@@ -33,6 +33,10 @@ void APhoenixDive::HangInAir()
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
 	Character->GetCharacterMovement()->GravityScale = 0.f;
 	Character->GetCharacterMovement()->StopMovementImmediately();
+
+	// Ground Target
+	CLI_SpawnGroundTarget();
+	
 	AbilityStates[CurrState]->ExitState();
 }
 
@@ -60,7 +64,50 @@ void APhoenixDive::LaunchToGround()
 	// remove hanging expiration
 	world->GetTimerManager().ClearTimer(MaxHangingTimerHandle);
 
+	CLI_StopGroundTarget();
+
 	Character->GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &APhoenixDive::CollisionWithGround);
+}
+
+void APhoenixDive::UpdateGroundTargetPosition()
+{
+	if (GroundTarget == nullptr) return;
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	ACharacter* Character = Cast<ACharacter>(GetInstigator());
+	if (Character == nullptr) return;
+	
+	FRotator LaunchRotation = Character->GetControlRotation();
+	FVector EndLineCheck = Character->GetActorLocation() + LaunchRotation.Vector() * 10000;
+
+	FHitResult OutHit;
+	if (UKismetSystemLibrary::LineTraceSingleForObjects(World, Character->GetActorLocation(), EndLineCheck, GroundObjectTypes,
+		false, TArray<AActor*>(), EDrawDebugTrace::None, OutHit, true))
+	{
+		GroundTarget->SetActorLocation(OutHit.Location);
+	}
+}
+
+void APhoenixDive::CLI_SpawnGroundTarget_Implementation()
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
+	GroundTarget = world->SpawnActor<AGroundTarget>(GroundTargetType);
+	world->GetTimerManager().SetTimer(UpdateGroundTargetPositionTimerHandle, this, &APhoenixDive::UpdateGroundTargetPosition, 0.02, true);
+}
+
+void APhoenixDive::CLI_StopGroundTarget_Implementation()
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
+	
+	world->GetTimerManager().ClearTimer(UpdateGroundTargetPositionTimerHandle);
+	if (GroundTarget != nullptr)
+	{
+		GroundTarget->Destroy();
+		GroundTarget = nullptr;
+	}
 }
 
 void APhoenixDive::hangingInAirExpired()
