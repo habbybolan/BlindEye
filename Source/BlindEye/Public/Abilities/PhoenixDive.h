@@ -100,6 +100,8 @@ protected:
 	void CLI_StopGroundTarget();
 
 	void hangingInAirExpired();
+
+	FRotator CalculateLaunchViewPoint(FVector& ViewportLocation, FRotator& ViewportRotation); 
 	
 	void EndLaunchUp();
 	UFUNCTION()

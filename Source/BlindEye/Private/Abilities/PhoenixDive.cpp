@@ -53,10 +53,12 @@ void APhoenixDive::LaunchToGround()
 {
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
 	Character->GetCharacterMovement()->GravityScale = 1.f;
+	
+	FVector ViewportLocation;
+	FRotator ViewportRotation;
+	CalculateLaunchViewPoint(ViewportLocation, ViewportRotation);
 
-	FVector LaunchVector = GroundTarget->GetActorLocation() - Character->GetActorLocation();
-	LaunchVector.Normalize();
-	Character->GetCharacterMovement()->AddImpulse(LaunchVector * LaunchDownForcePower);
+	Character->GetCharacterMovement()->AddImpulse(ViewportRotation.Vector() * LaunchDownForcePower);
 
 	UWorld* world = GetWorld();
 	if (!world) return;
@@ -82,9 +84,7 @@ void APhoenixDive::UpdateGroundTargetPosition()
 
 	FVector ViewportLocation;
 	FRotator ViewportRotation;
-	GetInstigator()->GetController()->GetPlayerViewPoint(OUT ViewportLocation, OUT ViewportRotation);
-
-	ViewportRotation.Pitch = FMath::ClampAngle(ViewportRotation.Pitch, -90, -90 + ClampPitchDegrees);
+	CalculateLaunchViewPoint(ViewportLocation, ViewportRotation);
 	
 	FVector EndLineCheck = ViewportLocation + ViewportRotation.Vector() * 10000;
 
@@ -121,6 +121,13 @@ void APhoenixDive::hangingInAirExpired()
 {
 	// force a user input to launch to ground after time expired
 	AbilityStates[CurrState]->TryEnterState(EAbilityInputTypes::Pressed);
+}
+
+FRotator APhoenixDive::CalculateLaunchViewPoint(FVector& ViewportLocation, FRotator& ViewportRotation)
+{
+	GetInstigator()->GetController()->GetPlayerViewPoint(OUT ViewportLocation, OUT ViewportRotation);
+	ViewportRotation.Pitch = FMath::ClampAngle(ViewportRotation.Pitch, -90, -90 + ClampPitchDegrees);
+	return ViewportRotation;
 }
 
 void APhoenixDive::EndLaunchUp()
