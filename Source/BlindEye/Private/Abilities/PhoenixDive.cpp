@@ -92,8 +92,6 @@ void APhoenixDive::CollisionWithGround(UPrimitiveComponent* HitComponent, AActor
 		GetInstigator()->GetController(), GetInstigator(), DamageType);
 	// Apply damage to rest of enemies
 	UGameplayStatics::ApplyRadialDamage(world, Damage, Hit.Location, Radius, DamageType, TArray<AActor*>(), GetInstigator());
-
-	UNiagaraFunctionLibrary::SpawnSystemAtLocation(world, CollisionParticle, GetOwner()->GetActorLocation(), FRotator::ZeroRotator);
 	
 	UnsubscribeToGroundCollision();
 }

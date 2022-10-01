@@ -63,9 +63,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0))
 	float MaxTimeHanging = 2.f;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UNiagaraSystem* CollisionParticle;
  
 	// launches character upwards and sets transition
 	void LaunchPlayerUpwards();
