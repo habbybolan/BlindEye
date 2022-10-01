@@ -9,6 +9,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 APhoenixDive::APhoenixDive() : AAbilityBase()
 {
@@ -77,9 +78,12 @@ void APhoenixDive::UpdateGroundTargetPosition()
 	
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
 	if (Character == nullptr) return;
+
+	FVector ViewportLocation;
+	FRotator ViewportRotation;
+	GetInstigator()->GetController()->GetPlayerViewPoint(OUT ViewportLocation, OUT ViewportRotation);
 	
-	FRotator LaunchRotation = Character->GetControlRotation();
-	FVector EndLineCheck = Character->GetActorLocation() + LaunchRotation.Vector() * 10000;
+	FVector EndLineCheck = ViewportLocation + ViewportRotation.Vector() * 10000;
 
 	FHitResult OutHit;
 	if (UKismetSystemLibrary::LineTraceSingleForObjects(World, Character->GetActorLocation(), EndLineCheck, GroundObjectTypes,
