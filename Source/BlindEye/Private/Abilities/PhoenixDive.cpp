@@ -54,8 +54,9 @@ void APhoenixDive::LaunchToGround()
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
 	Character->GetCharacterMovement()->GravityScale = 1.f;
 
-	FRotator LaunchRotation = Character->GetControlRotation();
-	Character->GetCharacterMovement()->AddImpulse(LaunchRotation.Vector() * 200000);
+	FVector LaunchVector = GroundTarget->GetActorLocation() - Character->GetActorLocation();
+	LaunchVector.Normalize();
+	Character->GetCharacterMovement()->AddImpulse(LaunchVector * 200000);
 
 	UWorld* world = GetWorld();
 	if (!world) return;
@@ -82,6 +83,8 @@ void APhoenixDive::UpdateGroundTargetPosition()
 	FVector ViewportLocation;
 	FRotator ViewportRotation;
 	GetInstigator()->GetController()->GetPlayerViewPoint(OUT ViewportLocation, OUT ViewportRotation);
+
+	ViewportRotation.Pitch = FMath::ClampAngle(ViewportRotation.Pitch, -90, -90 + ClampPitchDegrees);
 	
 	FVector EndLineCheck = ViewportLocation + ViewportRotation.Vector() * 10000;
 
