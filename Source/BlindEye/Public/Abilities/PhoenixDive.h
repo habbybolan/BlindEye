@@ -36,10 +36,6 @@ public:
 	virtual void ExitState() override;
 };
 
-class UBaseDamageType;
-class UNiagaraComponent;
-class UNiagaraSystem;
-
 /**
  * 
  */

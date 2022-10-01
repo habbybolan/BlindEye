@@ -7,9 +7,6 @@
 #include "DamageTypes/BaseDamageType.h"
 #include "CrowFlurry.generated.h"
 
-class UNiagaraComponent;
-class UNiagaraSystem;
-
 class BLINDEYE_API UFirstCrowFlurryState : public FAbilityState
 {
 public:  

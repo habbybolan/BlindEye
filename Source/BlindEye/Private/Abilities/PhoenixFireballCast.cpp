@@ -10,8 +10,7 @@
 // Sets default values
 APhoenixFireballCast::APhoenixFireballCast()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	InitialLifeSpan = 0; // infinite lifespan
 	
 	bReplicates = true;
