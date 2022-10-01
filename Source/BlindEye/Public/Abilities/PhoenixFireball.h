@@ -18,9 +18,6 @@ public:
 	virtual void ExitState() override;
 };
 
-class UNiagaraComponent;
-class UNiagaraSystem;
-
 /**
  * 
  */

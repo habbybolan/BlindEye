@@ -26,7 +26,6 @@ void AHealingWell::BeginPlay()
 
 	World->GetTimerManager().SetTimer(HealingCheckTimerHandle, this, &AHealingWell::PerformHealCheck
 		, HealCheckDelay, true);
-	SpawnParticles();
 }
 
 void AHealingWell::PerformHealCheck()
@@ -56,20 +55,9 @@ void AHealingWell::PerformHealCheck()
 	}
 }
 
-void AHealingWell::SpawnParticles()
-{
-	// TODO:
-}
-
-void AHealingWell::KillParticles()
-{
-	// TODO:
-}
-
 void AHealingWell::BeginDestroy()
 {
 	Super::BeginDestroy();
-	KillParticles();
 }
 
 

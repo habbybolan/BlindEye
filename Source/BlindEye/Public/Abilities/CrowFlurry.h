@@ -7,9 +7,6 @@
 #include "DamageTypes/BaseDamageType.h"
 #include "CrowFlurry.generated.h"
 
-class UNiagaraComponent;
-class UNiagaraSystem;
-
 class BLINDEYE_API UFirstCrowFlurryState : public FAbilityState
 {
 public:  
@@ -57,14 +54,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UBaseDamageType> DamageType;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UNiagaraSystem* CrowFlurryParticle;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=1))
 	float CrowFlurryLerpSpeed = 0.15;
 
 	void StartCrowFlurry();
-	void StopCrowFlurry();
 
 protected:
 	
@@ -76,6 +69,8 @@ protected:
 
 	FTimerHandle RotateFlurryTimerHandle;
 
+	bool bFlurryActive = false;
+
 	UFUNCTION(NetMulticast, Unreliable)
 	void MULT_RotateFlurry(); 
  
@@ -85,30 +80,12 @@ protected:
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	FRotator CurrFlurryRotation;
 
-	bool bFlurryActive = false;
-
 	UFUNCTION()
 	void PerformCrowFlurry();
 
 	UFUNCTION()
 	void CalcFlurryRotation();
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SpawnCrowFlurry(FRotator FlurryRotation);
-	UFUNCTION(BlueprintImplementableEvent)
-	void MULT_SpawnCrowFlurryHelper();
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_DestroyCrowFlurry();
-	UFUNCTION(blueprintImplementableEvent)
-	void MULT_DestroyCrowFlurryHelper(); 
-
-	UPROPERTY()
-	UNiagaraComponent* SpawnedCrowFlurryParticle;
-
-	FTimerHandle CrowFlurryParticleDestroyTimerHandle;
-	void DestroyParticles();
-
+	
 	virtual void EndAbilityLogic() override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
