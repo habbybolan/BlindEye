@@ -37,9 +37,6 @@ protected:
 	void PerformHealCheck();
 	FTimerHandle HealingCheckTimerHandle;
 
-	void SpawnParticles();
-	void KillParticles();
-
 	virtual void BeginDestroy() override;
 
 };
