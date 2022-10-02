@@ -84,6 +84,7 @@ void ABlindEyeGameMode::Tick(float DeltaSeconds)
 
 	ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState);
 
+	// Increment game timer if not paused
 	if (!BlindEyeGameState->bWinConditionPaused)
 	{
 		GameTimer += DeltaSeconds;
@@ -99,6 +100,7 @@ void ABlindEyeGameMode::Tick(float DeltaSeconds)
 		}
 	}
 
+	// Won condition check
 	if (BlindEyeGameState->GameOverState == EGameOverState::InProgress)
 	{
 		if (GameTimer > TimerUntilGameWon)
