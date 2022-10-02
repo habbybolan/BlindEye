@@ -78,6 +78,7 @@ void AHunterEnemy::OnDeath(AActor* ActorThatKilled)
 		HunterController->OnHunterDeath(nullptr);
 	}
 	Super::OnDeath(ActorThatKilled);
+	UnPossessed();
 	Destroy();
 }
 
