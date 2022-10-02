@@ -2,8 +2,12 @@
 
 
 #include "BlindEyeBaseCharacter.h"
+
+#include "Characters/CrowCharacter.h"
+#include "Characters/PhoenixCharacter.h"
 #include "Components/HealthComponent.h"
 #include "Components/MarkerComponent.h"
+#include "Enemies/Hunter/HunterEnemy.h"
 
 // Sets default values
 ABlindEyeBaseCharacter::ABlindEyeBaseCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -46,6 +50,32 @@ UHealthComponent* ABlindEyeBaseCharacter::GetHealthComponent()
 UMarkerComponent* ABlindEyeBaseCharacter::GetMarkerComponent()
 {
 	return MarkerComponent;
+}
+
+ECharacterTypes ABlindEyeBaseCharacter::GetCharacterType(AActor* Character)
+{
+	if (Character == nullptr) return ECharacterTypes::Other;
+
+	if (const ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(Character))
+	{
+		if (PlayerCharacter->PlayerType == PlayerType::CrowPlayer)
+		{
+			return ECharacterTypes::Crow;
+		} else
+		{
+			return ECharacterTypes::Phoenix;
+		}
+	} else if (const ASnapperEnemy* SnapperEnemy = Cast<ASnapperEnemy>(Character))
+	{
+		return ECharacterTypes::Snapper;
+	} else if (const ABurrowerEnemy* BurrowerEnemy = Cast<ABurrowerEnemy>(Character))
+	{
+		return ECharacterTypes::Burrower;
+	} else if (const AHunterEnemy* HunterEnemy = Cast<AHunterEnemy>(Character))
+	{
+		return ECharacterTypes::Hunter;
+	} 
+	return ECharacterTypes::Other;
 }
 
 void ABlindEyeBaseCharacter::OnMarkAdded(PlayerType MarkType)

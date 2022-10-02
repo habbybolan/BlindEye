@@ -11,6 +11,17 @@
 class UMarkerComponent;
 class UHealthComponent;
 enum class PlayerType : uint8;
+
+UENUM(BlueprintType)
+enum class ECharacterTypes : uint8
+{
+	Crow,
+	Phoenix,
+	Snapper,
+	Hunter,
+	Burrower,
+	Other	// Environmental / Debug killed
+};	
  
 UCLASS(Abstract)
 class BLINDEYE_API ABlindEyeBaseCharacter : public ACharacter, public IHealthInterface
@@ -39,6 +50,9 @@ public:
 
 	virtual UHealthComponent* GetHealthComponent() override;
 	virtual UMarkerComponent* GetMarkerComponent() override;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	ECharacterTypes GetCharacterType(AActor* Character);
 
 protected:
 	// Called when the game starts or when spawned
