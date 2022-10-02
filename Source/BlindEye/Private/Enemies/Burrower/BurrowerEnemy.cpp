@@ -175,6 +175,7 @@ void ABurrowerEnemy::TimelineHideFinished()
 {
 	SetDisappeared();
 	HidingFinished.ExecuteIfBound();
+	SetActorLocation(FVector::ZeroVector);
 	HealthComponent->RemoveMark();
 }
  
