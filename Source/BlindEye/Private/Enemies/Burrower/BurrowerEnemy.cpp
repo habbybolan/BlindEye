@@ -56,13 +56,16 @@ void ABurrowerEnemy::BeginPlay()
 
 void ABurrowerEnemy::StartSurfacing()
 {
+	MULT_StartSurfacingHelper();
+	PerformSurfacingDamage();
+}
+
+void ABurrowerEnemy::MULT_StartSurfacingHelper_Implementation()
+{
 	CachedSpawnLocation = GetActorLocation() + FVector::DownVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
 	SetActorLocation(CachedSpawnLocation);
 	SetSurfacingHiding();
 	SurfacingTimelineComponent->PlayFromStart();
-	PerformSurfacingDamage();
-
-	
 }
 
 void ABurrowerEnemy::PerformSurfacingDamage()
@@ -84,6 +87,11 @@ void ABurrowerEnemy::PerformSurfacingDamage()
 }
 
 void ABurrowerEnemy::StartHiding()
+{
+	MULT_StartHidingHelper();
+}
+
+void ABurrowerEnemy::MULT_StartHidingHelper_Implementation()
 {
 	CachedBeforeHidePosition = GetActorLocation();
 	HideTimelineComponent->PlayFromStart();
@@ -240,13 +248,6 @@ void ABurrowerEnemy::TimelineHideFinished()
 	SetDisappeared();
 	HidingFinished.ExecuteIfBound();
 	HealthComponent->RemoveMark();
-}
-
-void ABurrowerEnemy::StartHideLogic()
-{
-	CachedBeforeHidePosition = GetActorLocation();
-	HideTimelineComponent->PlayFromStart();
-	SetSurfacingHiding();
 }
  
 void ABurrowerEnemy::MULT_SetBurrowerState_Implementation(bool isHidden, bool bFollowing)
