@@ -116,10 +116,6 @@ void AHunterEnemyController::OnPossess(APawn* InPawn)
 
 void AHunterEnemyController::SetCanBasicAttack()
 {
-	// DELETE THIS
-	GetBlackboardComponent()->SetValueAsBool("bAttacking", false);
-	// DELETE THIS
-	
 	IsJumpAttackOnDelay = false;
 }
 
