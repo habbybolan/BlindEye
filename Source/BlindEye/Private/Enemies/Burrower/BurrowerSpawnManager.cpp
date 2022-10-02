@@ -12,7 +12,7 @@ ABurrowerSpawnManager::ABurrowerSpawnManager()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-
+	bNetLoadOnClient = false;
 }
 
 // Called when the game starts or when spawned
@@ -20,16 +20,12 @@ void ABurrowerSpawnManager::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Only run manager logic on the server
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		CacheSpawnPoints();
+	CacheSpawnPoints();
 
-		UWorld* world = GetWorld();
-		if (!world) return;
+	UWorld* world = GetWorld();
+	if (!world) return;
 
-		world->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ABurrowerSpawnManager::SpawnBurrower, SpawnDelay, true, 0.1);
-	}
+	world->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ABurrowerSpawnManager::SpawnBurrower, SpawnDelay, true, 0.1);
 }
 
 void ABurrowerSpawnManager::OnBurrowerDeath(AActor* BurrowerActor)
