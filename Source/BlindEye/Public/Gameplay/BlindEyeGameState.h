@@ -7,6 +7,14 @@
 #include "GameFramework/GameState.h"
 #include "BlindEyeGameState.generated.h"
 
+UENUM(BlueprintType)
+enum class EGameOverState : uint8
+{
+	InProgress, 
+	Won,
+	Lost
+};
+
 class ABlindEyePlayerCharacter;
 /**
  * 
@@ -33,6 +41,12 @@ public:
 	// debugger flag for making hunter visible
 	UPROPERTY(Replicated)
 	bool bHunterAlwaysVisible = false;
+
+	UPROPERTY(Replicated)
+	bool bHasLevelShifted = false;
+
+	UPROPERTY(Replicated)
+	EGameOverState GameOverState = EGameOverState::InProgress;
 
 protected:
 	TWeakObjectPtr<AShrine> Shrine;

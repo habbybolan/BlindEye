@@ -457,6 +457,15 @@ void ABlindEyePlayerCharacter::SER_HunterAlwaysVisible_Implementation(bool IsHun
 	}
 }
 
+void ABlindEyePlayerCharacter::SER_IncrementTimeByAMinute_Implementation()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+
+	ABlindEyeGameMode* BlindEyeGameMode = Cast<ABlindEyeGameMode>(UGameplayStatics::GetGameMode(World));
+	BlindEyeGameMode->IncrementTimeByAMinute();
+}
+
 bool ABlindEyePlayerCharacter::GetIsInvincible()
 {
 	return HealthComponent->IsInvincible;

@@ -40,6 +40,8 @@ public:
 
 	void PauseWinCondition(bool IsPauseWinCond);
 
+	void IncrementTimeByAMinute();
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_LevelShift();
 
@@ -48,11 +50,8 @@ protected:
 	
 	void OnGameEnded();
 	void OnGameWon();
-
-	FTimerHandle GameRestartTimerHandle;
-	FTimerHandle GameWinTimerHandle;
-
-	bool bHasLevelShifted = false;
+ 
+	float GameTimer = 0;
 
 	virtual void Tick(float DeltaSeconds) override;
 	
