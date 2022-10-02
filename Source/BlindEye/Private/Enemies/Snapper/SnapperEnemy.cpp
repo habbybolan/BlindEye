@@ -235,6 +235,8 @@ bool ASnapperEnemy::IsLayingOnFront()
 
 void ASnapperEnemy::OnDeath(AActor* ActorThatKilled)
 {
+	if (bIsDead) return;
+	
 	Super::OnDeath(ActorThatKilled);
 
 	if (ASnapperEnemyController* SnapperController = Cast<ASnapperEnemyController>(Controller))
