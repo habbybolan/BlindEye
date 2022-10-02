@@ -72,3 +72,12 @@ float ABlindEyeEnemyBase::GetMaxHealth()
 {
 	return MaxHealth;
 }
+
+void ABlindEyeEnemyBase::FellOutOfWorld(const UDamageType& dmgType)
+{
+	// reset player to a playerStart on killz reached
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		OnDeath(nullptr);
+	}
+}

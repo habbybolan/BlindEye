@@ -71,6 +71,15 @@ void AHunterEnemy::UpdateMovementSpeed(EHunterStates NewHunterState)
 	}
 }
 
+void AHunterEnemy::OnDeath(AActor* ActorThatKilled)
+{
+	if (AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(GetController()))
+	{
+		HunterController->OnHunterDeath(nullptr);
+	}
+	Super::OnDeath(ActorThatKilled);
+}
+
 void AHunterEnemy::MULT_TurnVisible_Implementation(bool visibility)
 {
 	TrySetVisibiltiyHelper(visibility);

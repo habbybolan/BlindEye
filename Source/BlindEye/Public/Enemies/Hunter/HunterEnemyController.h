@@ -64,6 +64,9 @@ public:
 	void TrySetVisibility(bool visibility);
 
 	void UpdateMovementSpeed(EHunterStates NewHunterState);
+
+	UFUNCTION()
+	void OnHunterDeath(AActor* HunterKilled);
 	
 protected:
 
@@ -79,9 +82,7 @@ protected:
 
 	virtual void OnPossess(APawn* InPawn) override;
 	void SetCanBasicAttack();
-
-	UFUNCTION()
-	void OnHunterDeath(AActor* HunterKilled);
+	
 	UFUNCTION()
 	void SpawnHunter();
 

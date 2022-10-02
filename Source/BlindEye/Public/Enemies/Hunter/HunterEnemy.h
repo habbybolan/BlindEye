@@ -60,6 +60,8 @@ public:
 	void TrySetVisibility(bool visibility);
 
 	void UpdateMovementSpeed(EHunterStates NewHunterState);
+
+	virtual void OnDeath(AActor* ActorThatKilled) override;
  
 protected:
 	
