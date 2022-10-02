@@ -101,10 +101,13 @@ public:
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void SER_DebugSpawnHunter();
 	UFUNCTION(Server, Reliable, BlueprintCallable)
-	
 	void SER_DamageSelf(); 
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void SER_DamageShrine();
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_IncrementTimeByAMinute(); 
+
+	
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void SER_ShrineInvincibility(bool IsInvincible);
 	UFUNCTION(Server, Reliable, BlueprintCallable)

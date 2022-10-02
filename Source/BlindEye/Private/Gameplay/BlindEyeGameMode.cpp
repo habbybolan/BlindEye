@@ -13,6 +13,10 @@ void ABlindEyeGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
+	
+
 	if (ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(NewPlayer))
 	{
 		BlindEyeController->SER_SpawnPlayer();
@@ -42,6 +46,9 @@ void ABlindEyeGameMode::OnGameEnded()
 {
 	UWorld* World = GetWorld();
 	if (!World) return;
+
+	ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState);
+	BlindEyeGameState->GameOverState = EGameOverState::Lost;
 	
 	for (FConstPlayerControllerIterator Iterator = World->GetPlayerControllerIterator(); Iterator; ++Iterator)
 	{
@@ -57,6 +64,9 @@ void ABlindEyeGameMode::OnGameWon()
 {
 	UWorld* World = GetWorld();
 	if (!World) return;
+
+	ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState);
+	BlindEyeGameState->GameOverState = EGameOverState::Won;
 	
 	for (FConstPlayerControllerIterator Iterator = World->GetPlayerControllerIterator(); Iterator; ++Iterator)
 	{
@@ -64,6 +74,38 @@ void ABlindEyeGameMode::OnGameWon()
 		if (ABlindEyePlayerController* BlindEyePlayerController = Cast<ABlindEyePlayerController>(PlayerController))
 		{
 			BlindEyePlayerController->CLI_GameWon();
+		}
+	}
+}
+
+void ABlindEyeGameMode::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState);
+
+	// Increment game timer if not paused
+	if (!BlindEyeGameState->bWinConditionPaused)
+	{
+		GameTimer += DeltaSeconds;
+	}
+	
+	// Level shift check
+	if (BlindEyeGameState->bHasLevelShifted == false)
+	{
+		if (GameTimer > TimeUntilLevelShift)
+		{
+			BP_LevelShift();
+			BlindEyeGameState->bHasLevelShifted = true;
+		}
+	}
+
+	// Won condition check
+	if (BlindEyeGameState->GameOverState == EGameOverState::InProgress)
+	{
+		if (GameTimer > TimerUntilGameWon)
+		{
+			OnGameWon();
 		}
 	}
 }
@@ -81,14 +123,11 @@ void ABlindEyeGameMode::PauseWinCondition(bool IsPauseWinCond)
 
 	ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState);
 	BlindEyeGameState->bWinConditionPaused = IsPauseWinCond;
-	
-	if (IsPauseWinCond)
-	{
-		World->GetTimerManager().PauseTimer(GameWinTimerHandle);
-	} else
-	{
-		World->GetTimerManager().UnPauseTimer(GameWinTimerHandle);
-	}
+}
+
+void ABlindEyeGameMode::IncrementTimeByAMinute()
+{
+	GameTimer += 60;
 }
 
 void ABlindEyeGameMode::BeginPlay()
@@ -97,8 +136,6 @@ void ABlindEyeGameMode::BeginPlay()
 
 	UWorld* world = GetWorld();
 	if (!world) return;
-
-	world->GetTimerManager().SetTimer(GameWinTimerHandle, this, &ABlindEyeGameMode::OnGameWon, TimerUntilGameWon, false);
 
 	world->SpawnActor(HunterControllerType);
 
