@@ -49,5 +49,7 @@ public:
 	virtual void OnDeath(AActor* ActorThatKilled) override;
 	virtual float GetHealthPercent() override;
 	virtual float GetMaxHealth() override;
+
+	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
 	
 };
