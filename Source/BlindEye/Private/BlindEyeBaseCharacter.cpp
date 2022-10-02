@@ -9,7 +9,7 @@
 ABlindEyeBaseCharacter::ABlindEyeBaseCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	MarkerComponent = CreateDefaultSubobject<UMarkerComponent>("MarkerComponent");
-	MarkerComponent->SetupAttachment(RootComponent);
+	MarkerComponent->SetupAttachment(GetMesh());
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 }
