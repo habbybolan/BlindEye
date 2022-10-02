@@ -3,6 +3,7 @@
 
 #include "Enemies/Hunter/HunterEnemyController.h"
 
+#include "BrainComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "GameFramework/GameStateBase.h"
@@ -18,7 +19,6 @@ AHunterEnemyController::AHunterEnemyController()
 void AHunterEnemyController::BeginPlay()
 {
 	Super::BeginPlay();
-	OnHunterDeath(nullptr);
 }
 
 void AHunterEnemyController::SetAlwaysVisible(bool IsAlwaysVisible)
@@ -109,7 +109,9 @@ void AHunterEnemyController::OnPossess(APawn* InPawn)
 	{
 		RandPlayerTarget = GameState->PlayerArray[UKismetMathLibrary::RandomIntegerInRange(0, 1)]->GetPawn();
 	}
+	
 	InitializeBehaviorTree();
+	GetBrainComponent()->GetBlackboardComponent()->SetValueAsBool("bDead", false);
 
 	InPawn->OnTakeAnyDamage.AddDynamic(this, &AHunterEnemyController::OnTakeDamage);
 }
@@ -126,6 +128,10 @@ void AHunterEnemyController::OnHunterDeath(AActor* HunterKilled)
 
 	world->GetTimerManager().SetTimer(SpawnDelayTimerHandle, this, &AHunterEnemyController::SpawnHunter, SpawnDelay, false);
 	Hunter = nullptr;
+
+	GetBrainComponent()->GetBlackboardComponent()->SetValueAsBool("bDead", false);
+	GetBrainComponent()->GetBlackboardComponent()->SetValueAsBool("IsFirstRun", false);
+	GetBrainComponent()->StopLogic(TEXT("HunterDeath"));
 }
 
 void AHunterEnemyController::SpawnHunter() 

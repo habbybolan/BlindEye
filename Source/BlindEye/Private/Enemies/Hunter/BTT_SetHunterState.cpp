@@ -28,6 +28,7 @@ EBTNodeResult::Type UBTT_SetHunterState::ExecuteTask(UBehaviorTreeComponent& Own
 		break;
 	case EHunterStates::Running:
 		HunterController->TrySetVisibility(false);
+		BBComp->SetValueAsBool(IsAttackingKey.SelectedKeyName, false);
 		break;
 	}
 	
