@@ -4,9 +4,14 @@
 #include "Enemies/Hunter/HunterEnemy.h"
 #include "Kismet/GameplayStatics.h"
 #include "Enemies/Hunter/HunterEnemyController.h"
+#include "Enemies/Hunter/HunterHealthComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-AHunterEnemy::AHunterEnemy(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}
+AHunterEnemy::AHunterEnemy(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UHunterHealthComponent>(TEXT("HealthComponent")))
+{
+	bReplicates = true;
+}
 
 void AHunterEnemy::PerformJumpAttack()
 {
