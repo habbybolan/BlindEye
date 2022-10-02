@@ -11,6 +11,7 @@ AHunterEnemy::AHunterEnemy(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UHunterHealthComponent>(TEXT("HealthComponent")))
 {
 	bReplicates = true;
+	PrimaryActorTick.bCanEverTick = false;
 }
 
 void AHunterEnemy::PerformJumpAttack()
@@ -68,28 +69,6 @@ void AHunterEnemy::UpdateMovementSpeed(EHunterStates NewHunterState)
 		GetCharacterMovement()->MaxWalkSpeed = StalkingMaxWalkSpeed;
 		break;
 	}
-}
-
-void AHunterEnemy::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-
-	// TODO: Move to timer for optimization
-	//	make run only on server
-	 // if (IsVisible == false)
-	 // {
-	 // 	UWorld* World = GetWorld();
-	 // 	if (World == nullptr) return;
-	 //
-	 // 	TArray<AActor*> OutActors;
-	 // 	if (UKismetSystemLibrary::SphereOverlapActors(World, GetActorLocation(), RadiusToTurnVisible,
-	 // 		ObjectTypes, nullptr, TArray<AActor*>(), OutActors))
-	 // 	{
-	 // 		// Player close, turn visible
-	 // 		TrySetVisibility(true);
-	 // 	}
-	 // }
-	
 }
 
 void AHunterEnemy::MULT_TurnVisible_Implementation(bool visibility)
