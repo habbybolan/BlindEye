@@ -41,6 +41,9 @@ public:
 	UPROPERTY(EditDefaultsOnly) 
 	UAnimMontage* GetUpFromInFrontMontage;
 
+	UPROPERTY(EditDefaultsOnly)
+	float DeathDelay = 1.0f;
+
 	void PerformJumpAttack();
 	void PerformBasicAttack(); 
 
@@ -57,6 +60,7 @@ protected:
 	FTimerHandle ColliderOnMeshTimerHandle;
 	FTimerHandle StopRagdollTimerHandle;
 	FTimerHandle GetupAnimTimerHandle;
+	FTimerHandle DeathTimerHandle;
 
 	void BeginStopRagdollTimer();
 
@@ -75,6 +79,9 @@ protected:
 	void FinishGettingUp();
 
 	bool IsLayingOnFront();
+
+	virtual void OnDeath(AActor* ActorThatKilled) override;
+	void DestroySnapper();
 
 	void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const;
 	

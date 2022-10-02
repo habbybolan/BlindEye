@@ -117,6 +117,8 @@ public:
 protected:
 
 	virtual void BeginPlay() override;
+
+	virtual void OnDeath(AActor* ActorThatKilled) override;
 	
 	TMap<uint32, ASnapperEnemy*> SpawnedSnappers;
 	

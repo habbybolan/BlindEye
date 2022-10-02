@@ -59,8 +59,6 @@ void ABlindEyeEnemyBase::MYOnTakeDamage(float Damage, FVector HitLocation, const
 void ABlindEyeEnemyBase::OnDeath(AActor* ActorThatKilled)
 {
 	Super::OnDeath(ActorThatKilled);
-	UnPossessed();
-	Destroy();
 }
 
 float ABlindEyeEnemyBase::GetHealthPercent()

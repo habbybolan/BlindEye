@@ -78,6 +78,7 @@ void AHunterEnemy::OnDeath(AActor* ActorThatKilled)
 		HunterController->OnHunterDeath(nullptr);
 	}
 	Super::OnDeath(ActorThatKilled);
+	Destroy();
 }
 
 void AHunterEnemy::MULT_TurnVisible_Implementation(bool visibility)
