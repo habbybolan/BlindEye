@@ -39,6 +39,7 @@ TEAMS ABlindEyeBaseCharacter::GetTeam()
 void ABlindEyeBaseCharacter::MYOnTakeDamage(float Damage, FVector HitLocation,
                                                            const UDamageType* DamageType, AActor* DamageCauser)
 {
+	if (GetIsDead()) return;
 	BP_OnTakeDamage(Damage, HitLocation, DamageType, DamageCauser);
 }
 
