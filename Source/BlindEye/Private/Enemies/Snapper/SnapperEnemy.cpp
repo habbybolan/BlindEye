@@ -239,6 +239,8 @@ void ASnapperEnemy::OnDeath(AActor* ActorThatKilled)
 	
 	Super::OnDeath(ActorThatKilled);
 
+	TryRagdoll(true);
+
 	if (ASnapperEnemyController* SnapperController = Cast<ASnapperEnemyController>(Controller))
 	{
 		SnapperController->OnSnapperDeath();
