@@ -25,11 +25,19 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 
+	UPROPERTY(EditDefaultsOnly)
+	float UpForceOnTargetReached = 100000.f;
+
 protected:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void BeginPlay() override;
 
 	void CheckForDamage();
-	void CheckRemoveTarget();
+	void CheckGoBackToPlayer();
+	void CheckReturnedToPlayer();
+
+	void SendEachBoidUp();
+
+	bool bHasReachedTarget = false;
 	
 };

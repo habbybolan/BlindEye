@@ -3,12 +3,12 @@
 
 #include "Boids/BasicAttackSmallFlock.h"
 
+#include "Boids/Boid.h"
 #include "Components/HealthComponent.h"
 #include "Enemies/BlindEyeEnemybase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Interfaces/HealthInterface.h"
-#include "DamageTypes/BaseDamageType.h"
 
 void ABasicAttackSmallFlock::Tick(float DeltaSeconds)
 {
@@ -16,8 +16,15 @@ void ABasicAttackSmallFlock::Tick(float DeltaSeconds)
 
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		CheckRemoveTarget();
 		CheckForDamage();
+	}
+
+	if (!bHasReachedTarget)
+	{
+		CheckGoBackToPlayer();
+	} else
+	{
+		CheckReturnedToPlayer();
 	}
 }
 
@@ -67,15 +74,33 @@ void ABasicAttackSmallFlock::CheckForDamage()
 	}
 }
 
-void ABasicAttackSmallFlock::CheckRemoveTarget()
+void ABasicAttackSmallFlock::CheckGoBackToPlayer()
 {
 	if (CheckInRangeOfTarget())
 	{
+		bHasReachedTarget = true;
 		Target->Destroy();
 		Target = nullptr;
-		
-		// TODO: Temp destroy, remove later
+
+		SendEachBoidUp();
+		Target = GetInstigator();
+	}
+}
+
+void ABasicAttackSmallFlock::CheckReturnedToPlayer()
+{
+	if (CheckInRangeOfTarget())
+	{
 		Destroy();
+	}
+}
+
+void ABasicAttackSmallFlock::SendEachBoidUp()
+{
+	for (ABoid* boid : BoidsInFlock)
+	{
+		FVector UpForce = FVector::UpVector * UpForceOnTargetReached;
+		boid->AddForce(UpForce);
 	}
 }
 			

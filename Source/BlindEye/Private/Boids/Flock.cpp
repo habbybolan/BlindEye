@@ -75,7 +75,7 @@ void AFlock::SpawnBoidRand()
 	FRotator direction;
 
 	// if a target is set, set spawn direction towards target
-	if (Target.IsValid())
+	if (Target.IsValid()) 
 	{
 		// FVector directionVec = Target->GetActorLocation() - GetActorLocation();
 		// directionVec.Normalize();

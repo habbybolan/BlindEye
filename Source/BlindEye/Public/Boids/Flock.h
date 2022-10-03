@@ -96,6 +96,7 @@ public:
 protected:
 
 	bool bCanAttack = true;
+	TArray<ABoid*> BoidsInFlock;
 
 	FTimerHandle FlockSpawnTimerHandle;
 	FTimerHandle CanAttackTimerHandle;
@@ -127,7 +128,6 @@ private:
 
 	int currFlocksSpawned = 0;
 	
-	TArray<ABoid*> BoidsInFlock;
 	void SpawnFlockWave();
 
 	FVector Separation(ABoid* boid);
