@@ -46,9 +46,13 @@ protected:
 	void CheckForDamage();
 	void CheckGoBackToPlayer();
 	void CheckReturnedToPlayer();
-	
-	void SendEachBoidUp();
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_SendEachBoidUp();
+
+	UPROPERTY(Replicated)
 	bool bHasReachedTarget = false;
+
+	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
 	
 };

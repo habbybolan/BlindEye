@@ -18,11 +18,6 @@ AFlock::AFlock()
 	bReplicates = true;
 }
 
-void AFlock::OnRep_Target()
-{
-	InitializeFlock();
-}
-
 // Called when the game starts or when spawned
 void AFlock::BeginPlay()
 {
@@ -40,11 +35,10 @@ void AFlock::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// TODO: Put on Timer
-	MULT_PerformFlock();
+	PerformFlock();
 }
 
-void AFlock::InitializeFlock()
+void AFlock::MULT_InitializeFlock_Implementation() 
 { 
 	SpawnFlockWave();
 }
@@ -205,7 +199,7 @@ FVector AFlock::ObstacleAvoidance(ABoid* boid)
 	return ObstacleAvoidVec;
 }
 
-void AFlock::MULT_PerformFlock_Implementation()
+void AFlock::PerformFlock()
 {
 	for (ABoid* boid : BoidsInFlock)
 	{

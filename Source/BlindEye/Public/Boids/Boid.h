@@ -29,6 +29,9 @@ public:
  
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Movement", meta=(ClampMin=0.001, ClampMax=1))
 	float RollRotationToRestingSpeed = 0.01;
+
+	UPROPERTY(EditDefaultsOnly, Category="Movement")
+	float MaxRotationAmount = 0.004f;
  
 	FVector GetVelocity() const;
 	void SetVelocity(FVector& velocity);

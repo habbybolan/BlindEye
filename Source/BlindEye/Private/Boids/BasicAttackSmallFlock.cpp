@@ -10,6 +10,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Interfaces/HealthInterface.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 void ABasicAttackSmallFlock::Tick(float DeltaSeconds)
 {
@@ -23,24 +24,21 @@ void ABasicAttackSmallFlock::Tick(float DeltaSeconds)
 		TargetStrength = BaseSeekingStrength * StrengthIncrease;
 	}
 	
-	if (GetLocalRole() == ROLE_Authority && !bHasReachedTarget)
+	if (GetLocalRole() == ROLE_Authority)
 	{
-		CheckForDamage();
-	}
-
-	if (!bHasReachedTarget)
-	{
-		CheckGoBackToPlayer();
-	} else
-	{
-		CheckReturnedToPlayer();
+		if (!bHasReachedTarget)
+		{
+			CheckForDamage();
+			CheckGoBackToPlayer();
+		} else
+		{
+			CheckReturnedToPlayer();
+		}
 	}
 }
 
 void ABasicAttackSmallFlock::BeginPlay()
 {
-	if (GetLocalRole() < ROLE_Authority) return;
-
 	UWorld* world = GetWorld();
 	if (!world) return;
 	
@@ -48,29 +46,27 @@ void ABasicAttackSmallFlock::BeginPlay()
 
 	BaseSeekingStrength = TargetStrength;
 
-	FVector ViewportLocation;
-	FRotator ViewportRotation;
-	GetInstigator()->GetController()->GetPlayerViewPoint(OUT ViewportLocation, OUT ViewportRotation);
-	FVector InstigatorFwd =  ViewportRotation.Vector() * TargetDistanceFromInstigator;
-
-	FVector TargetLocation;
-	FHitResult OutHit;
-	if (UKismetSystemLibrary::LineTraceSingleForObjects(world, ViewportLocation, ViewportLocation + InstigatorFwd, SpawnLineCastObjectTypes,
-		false, TArray<AActor*>(), EDrawDebugTrace::None, OutHit, true))
-	{
-		TargetLocation = OutHit.Location;
-	} else
-	{
-		TargetLocation = ViewportLocation + InstigatorFwd;
-	}
-
-	
-	
-	Target = world->SpawnActor<AActor>(TargetType, TargetLocation, FRotator::ZeroRotator);
-	// manually call initialize flock if server, client calls once target is replicated
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		InitializeFlock();
+		FVector ViewportLocation;
+		FRotator ViewportRotation;
+		GetInstigator()->GetController()->GetPlayerViewPoint(OUT ViewportLocation, OUT ViewportRotation);
+		FVector InstigatorFwd =  ViewportRotation.Vector() * TargetDistanceFromInstigator;
+
+		FVector TargetLocation;
+		FHitResult OutHit;
+		if (UKismetSystemLibrary::LineTraceSingleForObjects(world, ViewportLocation, ViewportLocation + InstigatorFwd, SpawnLineCastObjectTypes,
+			false, TArray<AActor*>(), EDrawDebugTrace::None, OutHit, true))
+		{
+			TargetLocation = OutHit.Location;
+		} else
+		{
+			TargetLocation = ViewportLocation + InstigatorFwd;
+		}
+	
+		Target = world->SpawnActor<AActor>(TargetType, TargetLocation, FRotator::ZeroRotator);
+
+		MULT_InitializeFlock();
 	}
 }
 
@@ -108,7 +104,7 @@ void ABasicAttackSmallFlock::CheckGoBackToPlayer()
 		Target->Destroy();
 		Target = nullptr;
 
-		SendEachBoidUp();
+		MULT_SendEachBoidUp();
 		Target = GetInstigator();
 	}
 }
@@ -121,7 +117,13 @@ void ABasicAttackSmallFlock::CheckReturnedToPlayer()
 	}
 }
 
-void ABasicAttackSmallFlock::SendEachBoidUp()
+void ABasicAttackSmallFlock::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ABasicAttackSmallFlock, bHasReachedTarget);
+}
+
+void ABasicAttackSmallFlock::MULT_SendEachBoidUp_Implementation()
 {
 	for (ABoid* boid : BoidsInFlock)
 	{
