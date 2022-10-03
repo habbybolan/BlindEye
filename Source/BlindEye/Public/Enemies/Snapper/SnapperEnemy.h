@@ -52,6 +52,9 @@ public:
 	void TempLaunch();
 	void LaunchSwing();
 
+	UFUNCTION(BlueprintCallable)
+	bool GetIsRagdolling();
+
 protected:
 
 	UPROPERTY(Replicated)

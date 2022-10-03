@@ -113,6 +113,11 @@ void ASnapperEnemy::LaunchSwing()
 	TryRagdoll(true);
 }
 
+bool ASnapperEnemy::GetIsRagdolling()
+{
+	return bRagdolling;
+}
+
 void ASnapperEnemy::TryRagdoll(bool SimulatePhysics)
 {
 	// Prevent calling ragdoll again, reset timer to get up
