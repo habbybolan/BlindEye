@@ -10,10 +10,9 @@
 // Sets default values
 AHealingWell::AHealingWell()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
-	InitialLifeSpan = 2;
 }
 
 // Called when the game starts or when spawned
@@ -24,14 +23,23 @@ void AHealingWell::BeginPlay()
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
 
-	PerformHealCheck();
+	World->GetTimerManager().SetTimer(HealingCheckTimerHandle, this, &AHealingWell::PerformHealCheck
+		, HealCheckDelay, true);
+
+	World->GetTimerManager().SetTimer(DelayedDestroyTimerHandle, this, &AHealingWell::DelayedDestroy
+	, Duration, false);
 }
 
 void AHealingWell::PerformHealCheck()
 {
+	// TODO: Check overlapped actors with sphere overlap
+	//		Apply improved healing to HealthComponent for HealCheckDelay duration
+
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
-	
+
+	UKismetSystemLibrary::DrawDebugSphere(World, GetActorLocation(), Radius, 12, FColor::Green, HealCheckDelay);
+
 	TArray<AActor*> OutActors;
 	if (UKismetSystemLibrary::SphereOverlapActors(World, GetActorLocation(), Radius, ObjectTypes, nullptr, TArray<AActor*>(),OutActors))
 	{
@@ -41,12 +49,34 @@ void AHealingWell::PerformHealCheck()
 			{
 				UHealthComponent* HealthComponent = HealthInterface->GetHealthComponent();
 				if (IDamageInterface* DamageInterface = Cast<IDamageInterface>(HealthComponent))
-				{ 
-					DamageInterface->ImprovedHealing(HealPercentIncr, HealDuration);
+				{
+					DamageInterface->ImprovedHealing(HealPercentIncr, HealCheckDelay * 2);
 				}
 			}
 		}
 	}
+}
+
+void AHealingWell::BeginDestroy()
+{
+	Super::BeginDestroy();
+}
+
+void AHealingWell::DelayedDestroy()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+
+	World->GetTimerManager().ClearTimer(HealingCheckTimerHandle);
+	
+	BP_HealingWellDestroying();
+	
+	World->GetTimerManager().SetTimer(DelayedDestroyTimerHandle, this, &AHealingWell::DestroyHealingWell, DelayedDestructionTime, false);
+}
+
+void AHealingWell::DestroyHealingWell()
+{
+	Destroy();
 }
 
 
