@@ -30,6 +30,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 
+	UPROPERTY(EditDefaultsOnly)
+	float DelayedDestructionTime = 2;
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_HealingWellDestroying();
 	

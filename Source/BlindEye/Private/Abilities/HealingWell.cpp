@@ -71,7 +71,7 @@ void AHealingWell::DelayedDestroy()
 	
 	BP_HealingWellDestroying();
 	
-	World->GetTimerManager().SetTimer(DelayedDestroyTimerHandle, this, &AHealingWell::DestroyHealingWell, 2, false);
+	World->GetTimerManager().SetTimer(DelayedDestroyTimerHandle, this, &AHealingWell::DestroyHealingWell, DelayedDestructionTime, false);
 }
 
 void AHealingWell::DestroyHealingWell()
