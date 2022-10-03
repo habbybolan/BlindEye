@@ -78,8 +78,6 @@ void ABoid::AddForce(FVector& velocity)
 		LerpPercent = 1;
 	}
 	
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Purple, FString::SanitizeFloat(LerpPercent));
-	 
 	FRotator LerpedRot = UKismetMathLibrary::RLerp(BoidMovement->Velocity.Rotation(), velocity.Rotation(), LerpPercent, true);
 	BoidMovement->AddForce(LerpedRot.Vector() * velocity.Size());
 	//BoidMovement->AddForce(velocity);
