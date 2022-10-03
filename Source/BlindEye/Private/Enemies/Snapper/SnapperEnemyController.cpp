@@ -95,6 +95,11 @@ void ASnapperEnemyController::DamageTaken(float Damage, FVector HitLocation, con
 	}
 }
 
+void ASnapperEnemyController::OnSnapperDeath()
+{
+	GetBrainComponent()->StopLogic("Death");
+}
+
 void ASnapperEnemyController::PerformBasicAttack()
 {
 	Snapper->PerformBasicAttack();

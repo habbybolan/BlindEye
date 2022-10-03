@@ -13,7 +13,7 @@ AHealingWell::AHealingWell()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
-	InitialLifeSpan = Duration;
+	InitialLifeSpan = 2;
 }
 
 // Called when the game starts or when spawned
@@ -24,21 +24,14 @@ void AHealingWell::BeginPlay()
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
 
-	World->GetTimerManager().SetTimer(HealingCheckTimerHandle, this, &AHealingWell::PerformHealCheck
-		, HealCheckDelay, true);
-	SpawnParticles();
+	PerformHealCheck();
 }
 
 void AHealingWell::PerformHealCheck()
 {
-	// TODO: Check overlapped actors with sphere overlap
-	//		Apply improved healing to HealthComponent for HealCheckDelay duration
-
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
-
-	UKismetSystemLibrary::DrawDebugSphere(World, GetActorLocation(), Radius, 12, FColor::Green, HealCheckDelay);
-
+	
 	TArray<AActor*> OutActors;
 	if (UKismetSystemLibrary::SphereOverlapActors(World, GetActorLocation(), Radius, ObjectTypes, nullptr, TArray<AActor*>(),OutActors))
 	{
@@ -48,28 +41,12 @@ void AHealingWell::PerformHealCheck()
 			{
 				UHealthComponent* HealthComponent = HealthInterface->GetHealthComponent();
 				if (IDamageInterface* DamageInterface = Cast<IDamageInterface>(HealthComponent))
-				{
-					DamageInterface->ImprovedHealing(HealPercentIncr, HealCheckDelay * 2);
+				{ 
+					DamageInterface->ImprovedHealing(HealPercentIncr, HealDuration);
 				}
 			}
 		}
 	}
-}
-
-void AHealingWell::SpawnParticles()
-{
-	// TODO:
-}
-
-void AHealingWell::KillParticles()
-{
-	// TODO:
-}
-
-void AHealingWell::BeginDestroy()
-{
-	Super::BeginDestroy();
-	KillParticles();
 }
 
 

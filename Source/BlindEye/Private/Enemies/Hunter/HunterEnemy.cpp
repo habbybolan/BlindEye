@@ -4,9 +4,15 @@
 #include "Enemies/Hunter/HunterEnemy.h"
 #include "Kismet/GameplayStatics.h"
 #include "Enemies/Hunter/HunterEnemyController.h"
+#include "Enemies/Hunter/HunterHealthComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-AHunterEnemy::AHunterEnemy(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}
+AHunterEnemy::AHunterEnemy(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UHunterHealthComponent>(TEXT("HealthComponent")))
+{
+	bReplicates = true;
+	PrimaryActorTick.bCanEverTick = false;
+}
 
 void AHunterEnemy::PerformJumpAttack()
 {
@@ -65,26 +71,15 @@ void AHunterEnemy::UpdateMovementSpeed(EHunterStates NewHunterState)
 	}
 }
 
-void AHunterEnemy::Tick(float DeltaSeconds)
+void AHunterEnemy::OnDeath(AActor* ActorThatKilled)
 {
-	Super::Tick(DeltaSeconds);
-
-	// TODO: Move to timer for optimization
-	//	make run only on server
-	 // if (IsVisible == false)
-	 // {
-	 // 	UWorld* World = GetWorld();
-	 // 	if (World == nullptr) return;
-	 //
-	 // 	TArray<AActor*> OutActors;
-	 // 	if (UKismetSystemLibrary::SphereOverlapActors(World, GetActorLocation(), RadiusToTurnVisible,
-	 // 		ObjectTypes, nullptr, TArray<AActor*>(), OutActors))
-	 // 	{
-	 // 		// Player close, turn visible
-	 // 		TrySetVisibility(true);
-	 // 	}
-	 // }
-	
+	if (AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(GetController()))
+	{
+		HunterController->OnHunterDeath(nullptr);
+	}
+	Super::OnDeath(ActorThatKilled);
+	UnPossessed();
+	Destroy();
 }
 
 void AHunterEnemy::MULT_TurnVisible_Implementation(bool visibility)

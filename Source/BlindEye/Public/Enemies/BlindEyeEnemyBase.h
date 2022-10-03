@@ -24,7 +24,9 @@ public:
 
 	// helper to get status effects from health component
 	UFUNCTION(BlueprintCallable)
-	const FAppliedStatusEffects& GetAppliedStatusEffects(); 
+	const FAppliedStatusEffects& GetAppliedStatusEffects();
+
+	virtual bool GetIsDead() override;
 
 protected:
 	// Called when the game starts or when spawned
@@ -36,6 +38,8 @@ protected:
 	float CurrHealth;
 
 	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
+
+	bool bIsDead = false;
 
 public:	
 	// Called every frame
@@ -49,5 +53,7 @@ public:
 	virtual void OnDeath(AActor* ActorThatKilled) override;
 	virtual float GetHealthPercent() override;
 	virtual float GetMaxHealth() override;
+
+	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
 	
 };

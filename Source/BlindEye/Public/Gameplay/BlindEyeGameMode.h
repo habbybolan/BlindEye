@@ -27,6 +27,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float TimerUntilGameWon = 60;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float TimeUntilLevelShift = 60.f;
+
 	// called by shrine when it's destroyed
 	void OnShrineDeath();
 
@@ -37,14 +40,20 @@ public:
 
 	void PauseWinCondition(bool IsPauseWinCond);
 
+	void IncrementTimeByAMinute();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_LevelShift();
+
 protected:
 	virtual void BeginPlay() override;
 	
 	void OnGameEnded();
 	void OnGameWon();
+ 
+	float GameTimer = 0;
 
-	FTimerHandle GameRestartTimerHandle;
-	FTimerHandle GameWinTimerHandle;
+	virtual void Tick(float DeltaSeconds) override;
 	
 	
 };

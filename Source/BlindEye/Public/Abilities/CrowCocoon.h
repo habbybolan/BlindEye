@@ -16,18 +16,6 @@ public:
 	virtual void ExitState() override;
 };
 
-class BLINDEYE_API UCrowPulseState : public FAbilityState
-{ 
-public:  
-	UCrowPulseState(AAbilityBase* ability);
-	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
-	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
-	virtual void ExitState() override;
-};
-
-class UNiagaraComponent;
-class UNiagaraSystem;
-
 /**
  * 
  */
@@ -67,17 +55,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly) 
 	TSubclassOf<UBaseDamageType> FirstPulseDamageType; 
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<UNiagaraSystem*> PulseParticles;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UNiagaraSystem* FullyChargedParticle;
- 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UNiagaraSystem* ExplosionPulse;
-
 	void StartHoldLogic();
-	void EndHold();
 	virtual void EndAbilityLogic() override;
 	
 	
@@ -86,22 +64,8 @@ protected:
 	FTimerHandle PulseTimerHandle;
 	float TimeHoldStart;
 	const uint8 MaxNumberPulses = 4;
- 
-	UPROPERTY()
-	TArray<UNiagaraComponent*> SpawnedPulseParticles;
-
-	UPROPERTY()
-	UNiagaraComponent* SpawnedFullyChargedParticle;
- 
-	UPROPERTY()
-	UNiagaraComponent* SpawnedExplosionPulse;
 
 	void PerformPulse();
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_PerformPulseParticles(uint8 pulseIndex);
-
-	UFUNCTION(NetMulticast, Reliable) 
-	void MULT_PerformExplosionPulse();
 
 	uint8 CalcPulseIndex();
 	

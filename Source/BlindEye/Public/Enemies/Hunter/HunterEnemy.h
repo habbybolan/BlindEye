@@ -60,11 +60,11 @@ public:
 	void TrySetVisibility(bool visibility);
 
 	void UpdateMovementSpeed(EHunterStates NewHunterState);
+
+	virtual void OnDeath(AActor* ActorThatKilled) override;
  
 protected:
- 
-	virtual void Tick(float DeltaSeconds) override;
-
+	
 	FTimerHandle JumpAttackSwingDelayTimerHandle;
 
 	// Intermediary method to make RPC call to blueprint implementable method

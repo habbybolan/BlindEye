@@ -63,6 +63,9 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 {
 	if (OwnerHealth && GetOwnerRole() == ROLE_Authority)
 	{
+		// prevent damage logic of already dead
+		if (OwnerHealth->GetIsDead()) return;
+			
 		const UBaseDamageType* baseDamageType = Cast<UBaseDamageType>(DamageType);
 		if (!baseDamageType) return;
 

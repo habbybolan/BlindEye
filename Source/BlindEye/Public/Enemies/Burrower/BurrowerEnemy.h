@@ -107,10 +107,18 @@ public:
 	void MULT_SpawnWarningParticle();
 	UFUNCTION(NetMulticast, Reliable) 
 	void MULT_DespawnWarningParticle();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_StartSurfacingHelper();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_StartHidingHelper();
  
 protected:
 
 	virtual void BeginPlay() override;
+
+	virtual void OnDeath(AActor* ActorThatKilled) override;
 	
 	TMap<uint32, ASnapperEnemy*> SpawnedSnappers;
 	
@@ -144,9 +152,6 @@ protected:
 
 	UFUNCTION()
 	void TimelineHideFinished();
-
-	UFUNCTION()
-	void StartHideLogic();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UCurveFloat* SurfacingCurve;

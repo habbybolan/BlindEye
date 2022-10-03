@@ -4,18 +4,22 @@
 #include "Components/MarkerComponent.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "BlindEyeUtils.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 
 
 UMarkerComponent::UMarkerComponent()
 {
-
+	PrimaryComponentTick.bCanEverTick = true;
 }
 
 // Called when the game starts or when spawned
 void UMarkerComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CachedZPosition = GetRelativeLocation().Z;
 
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
@@ -31,7 +35,25 @@ void UMarkerComponent::BeginPlay()
 	PhoenixMark->GetStaticMeshComponent()->SetVisibility(false);
 
 	GetOwner()->OnDestroyed.AddDynamic(this, &UMarkerComponent::OnOwnerDestroyed);
-} 
+}
+
+void UMarkerComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+	FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	
+	SetWorldLocation(GetAttachParent()->GetComponentLocation() + FVector::UpVector * CachedZPosition);
+
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	APlayerController* ClientPlayerController = UGameplayStatics::GetPlayerController(World, 0);
+	
+	FVector ControlVecRot = ClientPlayerController->GetControlRotation().Vector();
+	ControlVecRot = UKismetMathLibrary::RotateAngleAxis(ControlVecRot, 90, FVector::UpVector);
+	FRotator ControlRot = ControlVecRot.Rotation();
+	SetWorldRotation(FRotator(0, ControlRot.Yaw, 0));
+}
 
 void UMarkerComponent::RemoveMark()
 {
