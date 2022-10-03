@@ -89,14 +89,14 @@ void UCrowCocoonStart::TryEnterState(EAbilityInputTypes abilityUsageType)
 	FAbilityState::TryEnterState(abilityUsageType);
 	// apply initial cost
 	if (!Ability) return;
-	if (ACrowCocoon* CrowCocoon = Cast<ACrowCocoon>(Ability))
-	{
-		if (!CrowCocoon->TryConsumeBirdMeter(CrowCocoon->InitialCostPercent)) return;
-	}
 	// only enter ability on pressed
 	if (abilityUsageType == EAbilityInputTypes::Pressed)
 	{
-		RunState();
+		if (ACrowCocoon* CrowCocoon = Cast<ACrowCocoon>(Ability))
+		{
+			if (!CrowCocoon->TryConsumeBirdMeter(CrowCocoon->InitialCostPercent)) return;
+			RunState();
+		}
 	}
 }
 
