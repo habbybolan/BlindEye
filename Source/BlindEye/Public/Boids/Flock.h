@@ -122,19 +122,16 @@ public:
 
 	void SetCanAttack();
 
+	virtual FVector Separation(ABoid* boid);
+	virtual FVector Cohesion(ABoid* boid);
+	virtual FVector Alignment(ABoid* boid);
+	virtual FVector TargetSeeking(ABoid* boid);
+
 private:
-	
-	TArray<class UObstacle*> AllObstacles;
 
 	int currFlocksSpawned = 0;
 	
 	void SpawnFlockWave();
-
-	FVector Separation(ABoid* boid);
-	FVector Cohesion(ABoid* boid);
-	FVector Alignment(ABoid* boid);
-
-	FVector TargetSeeking(ABoid* boid);
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void MULT_PerformFlock();

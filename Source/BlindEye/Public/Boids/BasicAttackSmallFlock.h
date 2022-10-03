@@ -28,14 +28,22 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	float UpForceOnTargetReached = 100000.f;
 
+	UPROPERTY(EditDefaultsOnly)
+	float MaxTargetSeekingStrengthIncrease = 3;
+
+	UPROPERTY(EditDefaultsOnly)
+	float DistToApplyTargetSeekingIncrease = 300;
+
 protected:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void BeginPlay() override;
 
+	float BaseSeekingStrength;
+
 	void CheckForDamage();
 	void CheckGoBackToPlayer();
 	void CheckReturnedToPlayer();
-
+	
 	void SendEachBoidUp();
 
 	bool bHasReachedTarget = false;

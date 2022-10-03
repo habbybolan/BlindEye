@@ -9,11 +9,20 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Interfaces/HealthInterface.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void ABasicAttackSmallFlock::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	// Increase target seeking when getting closer to target
+	if (Target.IsValid())
+	{ 
+		float Percent = FVector::Distance(CalcAveragePosition(), Target.Get()->GetActorLocation()) / DistToApplyTargetSeekingIncrease;
+		float StrengthIncrease = UKismetMathLibrary::FClamp(Percent, 0, 1) * MaxTargetSeekingStrengthIncrease;
+		TargetStrength = BaseSeekingStrength * StrengthIncrease;
+	}
+	
 	if (GetLocalRole() == ROLE_Authority && !bHasReachedTarget)
 	{
 		CheckForDamage();
@@ -33,6 +42,8 @@ void ABasicAttackSmallFlock::BeginPlay()
 	if (GetLocalRole() < ROLE_Authority) return;
 	
 	Super::BeginPlay();
+
+	BaseSeekingStrength = TargetStrength;
 	// TODO: Spawn Target point distance from Instigator, using their forward position
 	FVector InstigatorFwd =  GetInstigator()->GetControlRotation().Vector() * TargetDistanceFromInstigator;
 	FVector SpawnLocation = GetInstigator()->GetActorLocation() + InstigatorFwd;
