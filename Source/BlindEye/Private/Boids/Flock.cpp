@@ -180,6 +180,31 @@ FVector AFlock::TargetSeeking(ABoid* boid)
 	return FVector::ZeroVector;
 }
 
+FVector AFlock::ObstacleAvoidance(ABoid* boid)
+{
+	FVector ObstacleAvoidVec = FVector::ZeroVector;
+
+	UWorld* World = GetWorld();
+	if (World == nullptr) return ObstacleAvoidVec;
+
+	TArray<AActor*> OutActors;
+	if (UKismetSystemLibrary::SphereOverlapActors(World, GetActorLocation(), SphereRadiusCheckObstacleAvoidance,
+		ObjectTypesToAvoid, nullptr, TArray<AActor*>(), OutActors))
+	{
+		for (AActor* obstacle : OutActors)
+		{
+			float dist = FVector::Distance(obstacle->GetActorLocation(), boid->GetActorLocation());
+		
+			if (dist > 0 && dist < ObstacleRadius)
+			{
+				FVector	avoidVec = boid->GetActorLocation() - obstacle->GetActorLocation();
+				ObstacleAvoidVec += avoidVec;
+			}
+		}
+	}
+	return ObstacleAvoidVec;
+}
+
 void AFlock::MULT_PerformFlock_Implementation()
 {
 	for (ABoid* boid : BoidsInFlock)
@@ -189,12 +214,13 @@ void AFlock::MULT_PerformFlock_Implementation()
 		velocityToApply += Separation(boid) * SeparationStrength;
 		velocityToApply += Alignment(boid) * AlignmentStrength;
 		velocityToApply += Cohesion(boid) * CohesionStrength;
+		velocityToApply += ObstacleAvoidance(boid) * ObstacleStrength;
 		velocityToApply += TargetSeeking(boid) * TargetStrength;
 
 		// flock reached target position, send upwards
         if (!Target.IsValid())
         {
-        	velocityToApply += FVector::UpVector * 500.f;
+        	velocityToApply += FVector::UpVector * 1000.f;
         }
 		boid->AddForce(velocityToApply);
 	}

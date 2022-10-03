@@ -93,6 +93,14 @@ public:
 	UPROPERTY(EditInstanceOnly, Category="Developer")
 	bool bSpawnOnBegin = false;
 
+	UPROPERTY(EditDefaultsOnly, Category=ObstacleAvoidance)
+	float SphereRadiusCheckObstacleAvoidance = 250.f;
+
+	UPROPERTY(EditDefaultsOnly, Category=ObstacleAvoidance)
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypesToAvoid;
+
+	
+
 protected:
 
 	bool bCanAttack = true;
@@ -126,6 +134,7 @@ public:
 	virtual FVector Cohesion(ABoid* boid);
 	virtual FVector Alignment(ABoid* boid);
 	virtual FVector TargetSeeking(ABoid* boid);
+	virtual FVector ObstacleAvoidance(ABoid* boid);
 
 private:
 

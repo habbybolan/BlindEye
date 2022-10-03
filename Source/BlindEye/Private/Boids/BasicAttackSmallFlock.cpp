@@ -44,7 +44,6 @@ void ABasicAttackSmallFlock::BeginPlay()
 	Super::BeginPlay();
 
 	BaseSeekingStrength = TargetStrength;
-	// TODO: Spawn Target point distance from Instigator, using their forward position
 	FVector InstigatorFwd =  GetInstigator()->GetControlRotation().Vector() * TargetDistanceFromInstigator;
 	FVector SpawnLocation = GetInstigator()->GetActorLocation() + InstigatorFwd;
 
