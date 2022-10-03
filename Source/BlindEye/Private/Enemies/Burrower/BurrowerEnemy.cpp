@@ -229,7 +229,7 @@ void ABurrowerEnemy::MULT_SpawnWarningParticle_Implementation()
 {
 	UWorld* world = GetWorld();
 	SpawnedWarningParticle = UNiagaraFunctionLibrary::SpawnSystemAtLocation(world, WarningParticle,
-		GetActorLocation(),FRotator::ZeroRotator, FVector::OneVector, true);
+		GetMesh()->GetComponentLocation(),FRotator::ZeroRotator, FVector::OneVector, true);
 }
 
 void ABurrowerEnemy::MULT_DespawnWarningParticle_Implementation()
