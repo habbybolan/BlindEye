@@ -40,17 +40,33 @@ void ABasicAttackSmallFlock::Tick(float DeltaSeconds)
 void ABasicAttackSmallFlock::BeginPlay()
 {
 	if (GetLocalRole() < ROLE_Authority) return;
-	
-	Super::BeginPlay();
-
-	BaseSeekingStrength = TargetStrength;
-	FVector InstigatorFwd =  GetInstigator()->GetControlRotation().Vector() * TargetDistanceFromInstigator;
-	FVector SpawnLocation = GetInstigator()->GetActorLocation() + InstigatorFwd;
 
 	UWorld* world = GetWorld();
 	if (!world) return;
 	
-	Target = world->SpawnActor<AActor>(TargetType, SpawnLocation, FRotator::ZeroRotator);
+	Super::BeginPlay();
+
+	BaseSeekingStrength = TargetStrength;
+
+	FVector ViewportLocation;
+	FRotator ViewportRotation;
+	GetInstigator()->GetController()->GetPlayerViewPoint(OUT ViewportLocation, OUT ViewportRotation);
+	FVector InstigatorFwd =  ViewportRotation.Vector() * TargetDistanceFromInstigator;
+
+	FVector TargetLocation;
+	FHitResult OutHit;
+	if (UKismetSystemLibrary::LineTraceSingleForObjects(world, ViewportLocation, ViewportLocation + InstigatorFwd, SpawnLineCastObjectTypes,
+		false, TArray<AActor*>(), EDrawDebugTrace::None, OutHit, true))
+	{
+		TargetLocation = OutHit.Location;
+	} else
+	{
+		TargetLocation = ViewportLocation + InstigatorFwd;
+	}
+
+	
+	
+	Target = world->SpawnActor<AActor>(TargetType, TargetLocation, FRotator::ZeroRotator);
 	// manually call initialize flock if server, client calls once target is replicated
 	if (GetLocalRole() == ROLE_Authority)
 	{
@@ -66,7 +82,7 @@ void ABasicAttackSmallFlock::CheckForDamage()
 	GetWorld()->GetTimerManager().SetTimer(CanAttackTimerHandle, this, &AFlock::SetCanAttack, DamageCooldown, false);
 	TArray<AActor*> ActorsToIgnore;
 	TArray<AActor*> OutActors;
-	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), CalcAveragePosition(), DamageRadius, ObjectTypes, ABlindEyeEnemyBase::StaticClass(), ActorsToIgnore, OutActors);
+	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), CalcAveragePosition(), DamageRadius, DamageObjectTypes, ABlindEyeEnemyBase::StaticClass(), ActorsToIgnore, OutActors);
 
 	IHealthInterface* InstigatorHealthInterface = Cast<IHealthInterface>(GetInstigator());
 	TEAMS InstigatorTeam = InstigatorHealthInterface->GetTeam();

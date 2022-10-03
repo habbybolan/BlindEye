@@ -23,7 +23,10 @@ public:
 	TSubclassOf<AActor> TargetType;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	TArray<TEnumAsByte<EObjectTypeQuery>> DamageObjectTypes;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly) 
+	TArray<TEnumAsByte<EObjectTypeQuery>> SpawnLineCastObjectTypes;
 
 	UPROPERTY(EditDefaultsOnly)
 	float UpForceOnTargetReached = 100000.f;
