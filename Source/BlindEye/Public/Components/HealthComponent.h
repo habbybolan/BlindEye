@@ -111,6 +111,7 @@ public:
 	TSubclassOf<AHealingWell> HealingWellType;
 
 	void RemoveMark();
+	FMarkData* GetCurrMark();
 
 protected:
 

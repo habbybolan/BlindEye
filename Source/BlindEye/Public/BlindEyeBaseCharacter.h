@@ -83,7 +83,7 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_OnMarkDetonatedHelper(); 
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_OnMarkDetonated();
+	void BP_OnMarkDetonated(PlayerType MarkType);
 public:
 	virtual float GetHealth() override;
 	virtual float GetMaxHealth() override;

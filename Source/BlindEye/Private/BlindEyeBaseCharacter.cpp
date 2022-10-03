@@ -102,9 +102,13 @@ void ABlindEyeBaseCharacter::MULT_OnMarkRemovedHelper_Implementation()
 }
 
 void ABlindEyeBaseCharacter::OnMarkDetonated()
-{
-	BP_OnMarkDetonated();
-	MULT_OnMarkDetonatedHelper();
+{ 
+	if (FMarkData* marker = HealthComponent->GetCurrMark())
+	{
+		BP_OnMarkDetonated(marker->MarkPlayerType);
+		MULT_OnMarkDetonatedHelper();
+	}
+	
 }
 
 void ABlindEyeBaseCharacter::MULT_OnMarkDetonatedHelper_Implementation()
