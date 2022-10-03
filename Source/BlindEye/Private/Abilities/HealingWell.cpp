@@ -13,7 +13,6 @@ AHealingWell::AHealingWell()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
-	InitialLifeSpan = Duration;
 }
 
 // Called when the game starts or when spawned
@@ -26,6 +25,9 @@ void AHealingWell::BeginPlay()
 
 	World->GetTimerManager().SetTimer(HealingCheckTimerHandle, this, &AHealingWell::PerformHealCheck
 		, HealCheckDelay, true);
+
+	World->GetTimerManager().SetTimer(DelayedDestroyTimerHandle, this, &AHealingWell::DelayedDestroy
+	, Duration, false);
 }
 
 void AHealingWell::PerformHealCheck()
@@ -58,6 +60,23 @@ void AHealingWell::PerformHealCheck()
 void AHealingWell::BeginDestroy()
 {
 	Super::BeginDestroy();
+}
+
+void AHealingWell::DelayedDestroy()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+
+	World->GetTimerManager().ClearTimer(HealingCheckTimerHandle);
+	
+	BP_HealingWellDestroying();
+	
+	World->GetTimerManager().SetTimer(DelayedDestroyTimerHandle, this, &AHealingWell::DestroyHealingWell, 2, false);
+}
+
+void AHealingWell::DestroyHealingWell()
+{
+	Destroy();
 }
 
 

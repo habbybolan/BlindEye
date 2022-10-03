@@ -29,14 +29,23 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_HealingWellDestroying();
 	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	void PerformHealCheck();
-	FTimerHandle HealingCheckTimerHandle;
+	FTimerHandle HealingCheckTimerHandle; 
+
+	FTimerHandle DelayedDestroyTimerHandle;
 
 	virtual void BeginDestroy() override;
+
+	void DelayedDestroy();
+
+	void DestroyHealingWell();
 
 };
