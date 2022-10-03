@@ -49,10 +49,18 @@ void ABurrowerEnemy::BeginPlay()
 	}
 }
 
+void ABurrowerEnemy::DestroyBurrower()
+{
+	Destroy();
+}
+
 void ABurrowerEnemy::OnDeath(AActor* ActorThatKilled)
 {
-	Super::OnDeath(ActorThatKilled);
-	Destroy();
+	Super::OnDeath(ActorThatKilled); 
+	
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	World->GetTimerManager().SetTimer(DeathTimerHandle, this, &ABurrowerEnemy::DestroyBurrower, DeathDelay, false);
 }
 
 void ABurrowerEnemy::StartSurfacing()
