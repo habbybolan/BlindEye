@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <objects serializationModel="Studio.02.02.00">
-	<object class="AudioFile" id="{0c8b8b85-97a5-454d-8b57-09dab0a71472}">
+	<object class="AudioFile" id="{95f2bb71-f759-4666-8f05-ff6f418e10db}">
 		<property name="assetPath">
-			<value>Placeholders/CheeseMusic.wav</value>
+			<value>Placeholders/Music/ALL122_019_Book_Of_Secrets_(Alternate)_Alternate.mp3</value>
 		</property>
 		<property name="isStreaming">
 			<value>true</value>
@@ -14,7 +14,7 @@
 			<value>2</value>
 		</property>
 		<property name="length">
-			<value>131.59999999999999</value>
+			<value>155.1934693877551</value>
 		</property>
 		<relationship name="masterAssetFolder">
 			<destination>{ac5f5264-6d3e-4c54-93a0-f535a51777e4}</destination>
