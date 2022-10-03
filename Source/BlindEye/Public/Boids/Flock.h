@@ -101,7 +101,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category=ObstacleAvoidance)
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypesToAvoid;
-
 	
 
 protected:

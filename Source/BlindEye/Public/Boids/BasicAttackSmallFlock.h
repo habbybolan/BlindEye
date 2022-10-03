@@ -37,15 +37,24 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	float DistToApplyTargetSeekingIncrease = 300;
 
+	UPROPERTY(EditDefaultsOnly, Category=Shrinking)
+	float DistToPlayerToStartShrinking = 300;
+
+	UPROPERTY(EditDefaultsOnly, Category=Shrinking)
+	float ShrinkingTime = 1.0f;
+
 protected:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void BeginPlay() override;
 
 	float BaseSeekingStrength;
 
+	float CurrShrinkingTime = 0.f;
+
 	void CheckForDamage();
 	void CheckGoBackToPlayer();
 	void CheckReturnedToPlayer();
+	void CheckShrinking();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_SendEachBoidUp();

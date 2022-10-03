@@ -35,6 +35,11 @@ void ABasicAttackSmallFlock::Tick(float DeltaSeconds)
 			CheckReturnedToPlayer();
 		}
 	}
+
+	if (bHasReachedTarget)
+	{
+		CheckShrinking();
+	}
 }
 
 void ABasicAttackSmallFlock::BeginPlay()
@@ -114,6 +119,21 @@ void ABasicAttackSmallFlock::CheckReturnedToPlayer()
 	if (CheckInRangeOfTarget())
 	{
 		Destroy();
+	}
+}
+
+void ABasicAttackSmallFlock::CheckShrinking()
+{
+	if (CurrShrinkingTime > ShrinkingTime) return;
+	if (FVector::Distance(Target->GetActorLocation(), CalcAveragePosition()) < DistToPlayerToStartShrinking)
+	{
+		CurrShrinkingTime += GetWorld()->GetDeltaSeconds();
+		if (CurrShrinkingTime > ShrinkingTime) CurrShrinkingTime = ShrinkingTime;
+		for (ABoid* boid : BoidsInFlock)
+		{
+			float scale = UKismetMathLibrary::Lerp(1, 0, CurrShrinkingTime / ShrinkingTime);
+			boid->SetActorScale3D(FVector::OneVector * scale);
+		}
 	}
 }
 
