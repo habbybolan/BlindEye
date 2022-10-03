@@ -278,10 +278,15 @@ void UHealthComponent::RemoveMark()
 	MarkedRemovedDelegate.Broadcast();
 }
 
+FMarkData* UHealthComponent::GetCurrMark()
+{
+	return CurrMark;
+}
+
 void UHealthComponent::DetonateMark()
 {
-	CurrMark = nullptr;
 	DetonateDelegate.Broadcast();
+	CurrMark = nullptr;
 }
 
 
