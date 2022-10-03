@@ -15,6 +15,7 @@ APhoenixFireball::APhoenixFireball() : AAbilityBase()
 
 void APhoenixFireball::DealWithDamage(AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit, float DamageToApply)
 {
+	if (OtherActor == nullptr) return;
 	// prevent damage on same actor twice
 	if (IDsOfHitActors.Contains(OtherActor->GetUniqueID())) return;
 	

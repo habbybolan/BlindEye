@@ -20,6 +20,11 @@ const FAppliedStatusEffects& ABlindEyeEnemyBase::GetAppliedStatusEffects()
 	return HealthComponent->GetAppliedStatusEffect();
 }
 
+bool ABlindEyeEnemyBase::GetIsDead()
+{
+	return bIsDead;
+}
+
 // Called when the game starts or when spawned
 void ABlindEyeEnemyBase::BeginPlay()
 {
@@ -59,8 +64,7 @@ void ABlindEyeEnemyBase::MYOnTakeDamage(float Damage, FVector HitLocation, const
 void ABlindEyeEnemyBase::OnDeath(AActor* ActorThatKilled)
 {
 	Super::OnDeath(ActorThatKilled);
-	UnPossessed();
-	Destroy();
+	bIsDead = true;
 }
 
 float ABlindEyeEnemyBase::GetHealthPercent()

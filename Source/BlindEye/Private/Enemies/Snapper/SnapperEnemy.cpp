@@ -6,7 +6,6 @@
 #include "BrainComponent.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Components/CapsuleComponent.h"
-#include "Components/PoseableMeshComponent.h"
 #include "Enemies/BlindEyeEnemyController.h"
 #include "Enemies/Snapper/SnapperEnemyController.h"
 #include "Enemies/Snapper/SnapperHealthComponent.h"
@@ -114,6 +113,11 @@ void ASnapperEnemy::LaunchSwing()
 	TryRagdoll(true);
 }
 
+bool ASnapperEnemy::GetIsRagdolling()
+{
+	return bRagdolling;
+}
+
 void ASnapperEnemy::TryRagdoll(bool SimulatePhysics)
 {
 	// Prevent calling ragdoll again, reset timer to get up
@@ -173,7 +177,7 @@ void ASnapperEnemy::MULT_StartRagdoll_Implementation()
 	}
 	
 	GetMesh()->SetSimulatePhysics(true);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetCharacterMovement()->GravityScale = 0;
 	
 }
@@ -232,6 +236,29 @@ bool ASnapperEnemy::IsLayingOnFront()
 	FHitResult OutHit; 
 	return UKismetSystemLibrary::LineTraceSingle(World, HipsLocation, HipsLocation + ProperFwd * 50, ETraceTypeQuery::TraceTypeQuery1, false, TArray<AActor*>(),
 		EDrawDebugTrace::ForDuration, OutHit, true);
+}
+
+void ASnapperEnemy::OnDeath(AActor* ActorThatKilled)
+{
+	if (bIsDead) return;
+	
+	Super::OnDeath(ActorThatKilled);
+
+	TryRagdoll(true);
+
+	if (ASnapperEnemyController* SnapperController = Cast<ASnapperEnemyController>(Controller))
+	{
+		SnapperController->OnSnapperDeath();
+	}
+
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	World->GetTimerManager().SetTimer(DeathTimerHandle, this, &ASnapperEnemy::DestroySnapper, DeathDelay, false);
+}
+
+void ASnapperEnemy::DestroySnapper()
+{
+	Destroy();
 }
 
 void ASnapperEnemy::GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const

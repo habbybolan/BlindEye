@@ -49,6 +49,12 @@ void ABurrowerEnemy::BeginPlay()
 	}
 }
 
+void ABurrowerEnemy::OnDeath(AActor* ActorThatKilled)
+{
+	Super::OnDeath(ActorThatKilled);
+	Destroy();
+}
+
 void ABurrowerEnemy::StartSurfacing()
 {
 	MULT_StartSurfacingHelper();

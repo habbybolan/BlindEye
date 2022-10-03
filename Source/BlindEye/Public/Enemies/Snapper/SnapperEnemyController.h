@@ -50,6 +50,9 @@ public:
 	bool IsInBasicAttackRange(AActor* Target);
 
 	void DamageTaken(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
+
+	// Called from SnapperEnemy on death event
+	void OnSnapperDeath();
 	
 protected:
 
