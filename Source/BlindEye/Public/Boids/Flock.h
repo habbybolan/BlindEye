@@ -42,6 +42,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Strength")
 	float ObstacleStrength = 2.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Strength")
+	float NoiseStrength = 100.f;
+ 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float NoiseAngleVariation = 25.f; 
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float DesiredSeparation = 100.f;
 	
@@ -56,12 +62,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float ObstacleRadius = 1000.f;
-
-	UPROPERTY(replicated, EditInstanceOnly, ReplicatedUsing = OnRep_Target)
+ 
+	UPROPERTY(replicated, EditInstanceOnly)
 	TWeakObjectPtr<AActor> Target;
-
-	UFUNCTION()
-	void OnRep_Target();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float BoidMaxInitialVertical = 1000.f;
@@ -93,9 +96,17 @@ public:
 	UPROPERTY(EditInstanceOnly, Category="Developer")
 	bool bSpawnOnBegin = false;
 
+	UPROPERTY(EditDefaultsOnly, Category=ObstacleAvoidance)
+	float SphereRadiusCheckObstacleAvoidance = 250.f;
+
+	UPROPERTY(EditDefaultsOnly, Category=ObstacleAvoidance)
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypesToAvoid;
+	
+
 protected:
 
 	bool bCanAttack = true;
+	TArray<ABoid*> BoidsInFlock;
 
 	FTimerHandle FlockSpawnTimerHandle;
 	FTimerHandle CanAttackTimerHandle;
@@ -112,8 +123,8 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
-
-	void InitializeFlock();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_InitializeFlock();
 	
 	void AddBoid(ABoid* newBoid);
 	void SpawnBoidRand();
@@ -121,21 +132,18 @@ public:
 
 	void SetCanAttack();
 
+	virtual FVector Separation(ABoid* boid);
+	virtual FVector Cohesion(ABoid* boid);
+	virtual FVector Alignment(ABoid* boid);
+	virtual FVector TargetSeeking(ABoid* boid);
+	virtual FVector ObstacleAvoidance(ABoid* boid);
+	virtual FVector Noise(ABoid* boid);
+
 private:
-	
-	TArray<class UObstacle*> AllObstacles;
 
 	int currFlocksSpawned = 0;
 	
-	TArray<ABoid*> BoidsInFlock;
 	void SpawnFlockWave();
 
-	FVector Separation(ABoid* boid);
-	FVector Cohesion(ABoid* boid);
-	FVector Alignment(ABoid* boid);
-
-	FVector TargetSeeking(ABoid* boid);
-
-	UFUNCTION(NetMulticast, Unreliable)
-	void MULT_PerformFlock();
+	void PerformFlock();
 };

@@ -58,7 +58,29 @@ void ABoid::SetVelocity(FVector& velocity)
 
 void ABoid::AddForce(FVector& velocity)
 {
-	BoidMovement->AddForce(velocity);
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	FVector CurrVelocity = BoidMovement->Velocity;
+	CurrVelocity.Normalize();
+	
+	FVector TargetVelocity = velocity;
+	TargetVelocity.Normalize();
+	
+	float AimAtAngle = (acosf(FVector::DotProduct(CurrVelocity, TargetVelocity))) * World->GetDeltaSeconds();
+	
+	float LerpPercent;
+	if (AimAtAngle > MaxRotationAmount)
+	{
+		LerpPercent = MaxRotationAmount / AimAtAngle;
+	} else
+	{
+		LerpPercent = 1;
+	}
+	
+	FRotator LerpedRot = UKismetMathLibrary::RLerp(BoidMovement->Velocity.Rotation(), velocity.Rotation(), LerpPercent, true);
+	BoidMovement->AddForce(LerpedRot.Vector() * velocity.Size());
+	//BoidMovement->AddForce(velocity);
 }
 
 // Called when the game starts or when spawned
@@ -66,11 +88,32 @@ void ABoid::BeginPlay()
 {
 	Super::BeginPlay();
 	SetLifeSpan(100);
+	SetActorScale3D(FVector::OneVector * SpawnScaleSize);
 	
 	SetActorRotation(GetActorRotation().Add(0, 0, 90));
 
 	// force tick to occur after Flock tick
 	AddTickPrerequisiteActor(GetInstigator());
+
+	GetWorldTimerManager().SetTimer(SpawnSizeGrowTimerHandle, this, &ABoid::InitialSpawnSizeGrow, SizeGrowTimerDelay, true);
+}
+
+void ABoid::InitialSpawnSizeGrow()
+{
+	CurrTimerSizeGrow += SizeGrowTimerDelay;
+	if (CurrTimerSizeGrow >= TimeUntilFullSizeOnSpawn)
+		CurrTimerSizeGrow = TimeUntilFullSizeOnSpawn;
+
+	// Scale size of boid linearly
+	SetActorScale3D(UKismetMathLibrary::VLerp(FVector::OneVector * SpawnScaleSize, FVector::OneVector, CurrTimerSizeGrow / TimeUntilFullSizeOnSpawn));
+
+	// stop timer if reached max size
+	if (CurrTimerSizeGrow >= TimeUntilFullSizeOnSpawn)
+	{
+		UWorld* World = GetWorld();
+		if (World == nullptr) return;
+		World->GetTimerManager().ClearTimer(SpawnSizeGrowTimerHandle);
+	}
 }
 
 // Called every frame
