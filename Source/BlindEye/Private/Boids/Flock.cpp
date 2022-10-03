@@ -4,6 +4,7 @@
 #include "Boids/Flock.h"
 
 #include "Boids/Boid.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -199,6 +200,15 @@ FVector AFlock::ObstacleAvoidance(ABoid* boid)
 	return ObstacleAvoidVec;
 }
 
+FVector AFlock::Noise(ABoid* boid)
+{
+	FVector CurrForward = boid->BoidMovement->Velocity;
+	float RandRotation = UKismetMathLibrary::RandomFloatInRange(0, NoiseAngleVariation);
+	uint8 RandInt = UKismetMathLibrary::RandomIntegerInRange(0, 1);
+	FVector Axis = RandInt == 0 ? FVector(1, 0, 0) : FVector(0, 1, 0);
+	return CurrForward.RotateAngleAxis(RandRotation, Axis);
+}
+
 void AFlock::PerformFlock()
 {
 	for (ABoid* boid : BoidsInFlock)
@@ -210,6 +220,7 @@ void AFlock::PerformFlock()
 		velocityToApply += Cohesion(boid) * CohesionStrength;
 		velocityToApply += ObstacleAvoidance(boid) * ObstacleStrength;
 		velocityToApply += TargetSeeking(boid) * TargetStrength;
+		velocityToApply += Noise(boid) * NoiseStrength;
 
 		// flock reached target position, send upwards
         if (!Target.IsValid())
