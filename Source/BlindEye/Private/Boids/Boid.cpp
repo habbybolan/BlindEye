@@ -58,31 +58,31 @@ void ABoid::SetVelocity(FVector& velocity)
 
 void ABoid::AddForce(FVector& velocity)
 {
-	// UWorld* World = GetWorld();
-	// if (World == nullptr) return;
-	//
-	// FVector CurrVelocity = BoidMovement->Velocity;
-	// CurrVelocity.Normalize();
-	//
-	// FVector TargetVelocity = velocity;
-	// TargetVelocity.Normalize();
-	//
-	// float AimAtAngle = (acosf(FVector::DotProduct(CurrVelocity, TargetVelocity))) * World->GetDeltaSeconds();
-	//
-	// float LerpPercent;
-	// if (AimAtAngle > MaxRotationAmount)
-	// {
-	// 	LerpPercent = MaxRotationAmount / AimAtAngle;
-	// } else
-	// {
-	// 	LerpPercent = 1;
-	// }
-	//
-	// GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Purple, FString::SanitizeFloat(LerpPercent));
-	//  
-	// FRotator LerpedRot = UKismetMathLibrary::RLerp(BoidMovement->Velocity.Rotation(), velocity.Rotation(), LerpPercent, true);
-	// BoidMovement->AddForce(LerpedRot.Vector() * velocity.Size());
-	BoidMovement->AddForce(velocity);
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	FVector CurrVelocity = BoidMovement->Velocity;
+	CurrVelocity.Normalize();
+	
+	FVector TargetVelocity = velocity;
+	TargetVelocity.Normalize();
+	
+	float AimAtAngle = (acosf(FVector::DotProduct(CurrVelocity, TargetVelocity))) * World->GetDeltaSeconds();
+	
+	float LerpPercent;
+	if (AimAtAngle > MaxRotationAmount)
+	{
+		LerpPercent = MaxRotationAmount / AimAtAngle;
+	} else
+	{
+		LerpPercent = 1;
+	}
+	
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Purple, FString::SanitizeFloat(LerpPercent));
+	 
+	FRotator LerpedRot = UKismetMathLibrary::RLerp(BoidMovement->Velocity.Rotation(), velocity.Rotation(), LerpPercent, true);
+	BoidMovement->AddForce(LerpedRot.Vector() * velocity.Size());
+	//BoidMovement->AddForce(velocity);
 }
 
 // Called when the game starts or when spawned
