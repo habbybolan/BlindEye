@@ -36,14 +36,22 @@ void ACrowCocoon::EndAbilityLogic()
 		FHitResult(), GetInstigator()->GetController(), GetInstigator(), MainDamageType);
 	UGameplayStatics::ApplyRadialDamage(world, DamageTicks[CalcPulseIndex()], GetInstigator()->GetActorLocation(), Radius, MainDamageType,
 		TArray<AActor*>(), GetInstigator());
+	bReachedFinalPulse = false;
 }
 
 void ACrowCocoon::PerformPulse()
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
+
+	if (bReachedFinalPulse) return;
 	
 	uint8 pulseIndex = CalcPulseIndex();
+	if (pulseIndex >= MaxNumberPulses - 1)
+	{
+		bReachedFinalPulse = true;
+	}
+	
 	BP_AbilityInnerState(pulseIndex + 1);
 	// perform taunt on first pulse index
 	if (pulseIndex == 0)
@@ -81,14 +89,14 @@ void UCrowCocoonStart::TryEnterState(EAbilityInputTypes abilityUsageType)
 	FAbilityState::TryEnterState(abilityUsageType);
 	// apply initial cost
 	if (!Ability) return;
-	if (ACrowCocoon* CrowCocoon = Cast<ACrowCocoon>(Ability))
-	{
-		if (!CrowCocoon->TryConsumeBirdMeter(CrowCocoon->InitialCostPercent)) return;
-	}
 	// only enter ability on pressed
 	if (abilityUsageType == EAbilityInputTypes::Pressed)
 	{
-		RunState();
+		if (ACrowCocoon* CrowCocoon = Cast<ACrowCocoon>(Ability))
+		{
+			if (!CrowCocoon->TryConsumeBirdMeter(CrowCocoon->InitialCostPercent)) return;
+			RunState();
+		}
 	}
 }
 

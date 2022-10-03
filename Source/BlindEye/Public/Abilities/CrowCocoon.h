@@ -65,6 +65,8 @@ protected:
 	float TimeHoldStart;
 	const uint8 MaxNumberPulses = 4;
 
+	bool bReachedFinalPulse = false;
+
 	void PerformPulse();
 
 	uint8 CalcPulseIndex();

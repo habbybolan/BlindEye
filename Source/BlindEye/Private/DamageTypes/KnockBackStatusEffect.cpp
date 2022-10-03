@@ -11,6 +11,7 @@ void UKnockBackStatusEffect::ProcessEffect(AActor* Owner, AActor* HitCharacter, 
 	if (IDamageInterface* DamageInterface = Cast<IDamageInterface>(HealthComponent))
 	{
 		FVector direction = HitCharacter->GetActorLocation() - HitLocation;
+		direction.Z = 1;
 		direction.Normalize();
 		direction *= KnockBackForce;
 		direction.Z = KnockUpForce;
