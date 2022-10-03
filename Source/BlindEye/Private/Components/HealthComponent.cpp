@@ -243,7 +243,8 @@ void UHealthComponent::PerformDetonationEffect(AActor* DamageCause)
 			FActorSpawnParameters params;
 			params.Instigator = Cast<APawn>(GetOwner());
 			params.Owner = GetOwner();
-			World->SpawnActor<AHealingWell>(HealingWellType, GetOwner()->GetActorLocation(), FRotator::ZeroRotator, params);
+			AHealingWell* HealingWell = World->SpawnActor<AHealingWell>(HealingWellType, GetOwner()->GetActorLocation(), FRotator::ZeroRotator, params);
+			HealingWell->AttachToActor(GetOwner(), FAttachmentTransformRules::KeepWorldTransform);
 		}
 	}
 }
