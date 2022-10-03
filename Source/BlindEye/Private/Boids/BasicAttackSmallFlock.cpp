@@ -14,7 +14,7 @@ void ABasicAttackSmallFlock::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (GetLocalRole() == ROLE_Authority)
+	if (GetLocalRole() == ROLE_Authority && !bHasReachedTarget)
 	{
 		CheckForDamage();
 	}
