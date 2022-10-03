@@ -66,11 +66,32 @@ void ABoid::BeginPlay()
 {
 	Super::BeginPlay();
 	SetLifeSpan(100);
+	SetActorScale3D(FVector::OneVector * SpawnScaleSize);
 	
 	SetActorRotation(GetActorRotation().Add(0, 0, 90));
 
 	// force tick to occur after Flock tick
 	AddTickPrerequisiteActor(GetInstigator());
+
+	GetWorldTimerManager().SetTimer(SpawnSizeGrowTimerHandle, this, &ABoid::InitialSpawnSizeGrow, SizeGrowTimerDelay, true);
+}
+
+void ABoid::InitialSpawnSizeGrow()
+{
+	CurrTimerSizeGrow += SizeGrowTimerDelay;
+	if (CurrTimerSizeGrow >= TimeUntilFullSizeOnSpawn)
+		CurrTimerSizeGrow = TimeUntilFullSizeOnSpawn;
+
+	// Scale size of boid linearly
+	SetActorScale3D(UKismetMathLibrary::VLerp(FVector::OneVector * SpawnScaleSize, FVector::OneVector, CurrTimerSizeGrow / TimeUntilFullSizeOnSpawn));
+
+	// stop timer if reached max size
+	if (CurrTimerSizeGrow >= TimeUntilFullSizeOnSpawn)
+	{
+		UWorld* World = GetWorld();
+		if (World == nullptr) return;
+		World->GetTimerManager().ClearTimer(SpawnSizeGrowTimerHandle);
+	}
 }
 
 // Called every frame
