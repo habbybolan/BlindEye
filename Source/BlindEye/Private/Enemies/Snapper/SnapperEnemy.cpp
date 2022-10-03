@@ -177,7 +177,7 @@ void ASnapperEnemy::MULT_StartRagdoll_Implementation()
 	}
 	
 	GetMesh()->SetSimulatePhysics(true);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetCharacterMovement()->GravityScale = 0;
 	
 }
