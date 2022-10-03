@@ -23,13 +23,45 @@ public:
 	TSubclassOf<AActor> TargetType;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	TArray<TEnumAsByte<EObjectTypeQuery>> DamageObjectTypes;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly) 
+	TArray<TEnumAsByte<EObjectTypeQuery>> SpawnLineCastObjectTypes;
+
+	UPROPERTY(EditDefaultsOnly)
+	float UpForceOnTargetReached = 100000.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float MaxTargetSeekingStrengthIncrease = 3;
+
+	UPROPERTY(EditDefaultsOnly)
+	float DistToApplyTargetSeekingIncrease = 300;
+
+	UPROPERTY(EditDefaultsOnly, Category=Shrinking)
+	float DistToPlayerToStartShrinking = 300;
+
+	UPROPERTY(EditDefaultsOnly, Category=Shrinking)
+	float ShrinkingTime = 1.0f;
 
 protected:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void BeginPlay() override;
 
+	float BaseSeekingStrength;
+
+	float CurrShrinkingTime = 0.f;
+
 	void CheckForDamage();
-	void CheckRemoveTarget();
+	void CheckGoBackToPlayer();
+	void CheckReturnedToPlayer();
+	void CheckShrinking();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_SendEachBoidUp();
+
+	UPROPERTY(Replicated)
+	bool bHasReachedTarget = false;
+
+	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
 	
 };

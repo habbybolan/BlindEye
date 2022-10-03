@@ -4,6 +4,7 @@
 #include "Boids/Flock.h"
 
 #include "Boids/Boid.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -16,11 +17,6 @@ AFlock::AFlock()
 	PrimaryActorTick.bCanEverTick = true;
 
 	bReplicates = true;
-}
-
-void AFlock::OnRep_Target()
-{
-	InitializeFlock();
 }
 
 // Called when the game starts or when spawned
@@ -40,11 +36,10 @@ void AFlock::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// TODO: Put on Timer
-	MULT_PerformFlock();
+	PerformFlock();
 }
 
-void AFlock::InitializeFlock()
+void AFlock::MULT_InitializeFlock_Implementation() 
 { 
 	SpawnFlockWave();
 }
@@ -75,7 +70,7 @@ void AFlock::SpawnBoidRand()
 	FRotator direction;
 
 	// if a target is set, set spawn direction towards target
-	if (Target.IsValid())
+	if (Target.IsValid()) 
 	{
 		// FVector directionVec = Target->GetActorLocation() - GetActorLocation();
 		// directionVec.Normalize();
@@ -180,7 +175,41 @@ FVector AFlock::TargetSeeking(ABoid* boid)
 	return FVector::ZeroVector;
 }
 
-void AFlock::MULT_PerformFlock_Implementation()
+FVector AFlock::ObstacleAvoidance(ABoid* boid)
+{
+	FVector ObstacleAvoidVec = FVector::ZeroVector;
+
+	UWorld* World = GetWorld();
+	if (World == nullptr) return ObstacleAvoidVec;
+
+	TArray<AActor*> OutActors;
+	if (UKismetSystemLibrary::SphereOverlapActors(World, GetActorLocation(), SphereRadiusCheckObstacleAvoidance,
+		ObjectTypesToAvoid, nullptr, TArray<AActor*>(), OutActors))
+	{
+		for (AActor* obstacle : OutActors)
+		{
+			float dist = FVector::Distance(obstacle->GetActorLocation(), boid->GetActorLocation());
+		
+			if (dist > 0 && dist < ObstacleRadius)
+			{
+				FVector	avoidVec = boid->GetActorLocation() - obstacle->GetActorLocation();
+				ObstacleAvoidVec += avoidVec;
+			}
+		}
+	}
+	return ObstacleAvoidVec;
+}
+
+FVector AFlock::Noise(ABoid* boid)
+{
+	FVector CurrForward = boid->BoidMovement->Velocity;
+	float RandRotation = UKismetMathLibrary::RandomFloatInRange(0, NoiseAngleVariation);
+	uint8 RandInt = UKismetMathLibrary::RandomIntegerInRange(0, 1);
+	FVector Axis = RandInt == 0 ? FVector(1, 0, 0) : FVector(0, 1, 0);
+	return CurrForward.RotateAngleAxis(RandRotation, Axis);
+}
+
+void AFlock::PerformFlock()
 {
 	for (ABoid* boid : BoidsInFlock)
 	{
@@ -189,12 +218,14 @@ void AFlock::MULT_PerformFlock_Implementation()
 		velocityToApply += Separation(boid) * SeparationStrength;
 		velocityToApply += Alignment(boid) * AlignmentStrength;
 		velocityToApply += Cohesion(boid) * CohesionStrength;
+		velocityToApply += ObstacleAvoidance(boid) * ObstacleStrength;
 		velocityToApply += TargetSeeking(boid) * TargetStrength;
+		velocityToApply += Noise(boid) * NoiseStrength;
 
 		// flock reached target position, send upwards
         if (!Target.IsValid())
         {
-        	velocityToApply += FVector::UpVector * 500.f;
+        	velocityToApply += FVector::UpVector * 1000.f;
         }
 		boid->AddForce(velocityToApply);
 	}
