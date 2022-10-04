@@ -194,8 +194,8 @@ void ABurrowerEnemy::TimelineHideFinished()
 }
  
 void ABurrowerEnemy::MULT_SetBurrowerState_Implementation(bool isHidden, bool bFollowing)
-{ 
-	SetActorHiddenInGame(isHidden);
+{
+	GetMesh()->SetHiddenInGame(isHidden);
 	
 	GetCapsuleComponent()->SetEnableGravity(bFollowing);
 	GetCharacterMovement()->GravityScale = bFollowing ? 1 : 0;
@@ -203,10 +203,12 @@ void ABurrowerEnemy::MULT_SetBurrowerState_Implementation(bool isHidden, bool bF
 	{
 		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Block);
 		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+		MULT_SpawnFollowParticle();
 	} else
 	{
 		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
 		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
+		MULT_DespawnFollowParticle();
 	}
 }
 
@@ -242,7 +244,7 @@ void ABurrowerEnemy::MULT_DespawnWarningParticle_Implementation()
 
 void ABurrowerEnemy::MULT_SpawnFollowParticle_Implementation()
 {
-	SpawnedWarningParticle = UNiagaraFunctionLibrary::SpawnSystemAttached(FollowParticle, GetRootComponent(), TEXT("FollowParticle"),
+	SpawnedWarningParticle = UNiagaraFunctionLibrary::SpawnSystemAttached(FollowParticle, GetMesh(), TEXT("FollowParticle"),
 		FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true);
 }
 
