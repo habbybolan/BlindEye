@@ -47,6 +47,7 @@ void APhoenixDive::HangInAirTimer()
 	if (!world) return;
 
 	world->GetTimerManager().SetTimer(HangInAirTimerHandle, this, &APhoenixDive::HangInAir, 1.0f, false);
+	BP_AbilityInnerState(1);
 }
 
 void APhoenixDive::LaunchToGround()
@@ -146,7 +147,7 @@ void APhoenixDive::CollisionWithGround(UPrimitiveComponent* HitComponent, AActor
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	BP_AbilityInnerState(2);
+	BP_AbilityInnerState(3);
 
 	// Apply damage to self for detonation effect
 	UGameplayStatics::ApplyPointDamage(GetInstigator(), Damage, FVector::ZeroVector, FHitResult(),
@@ -278,7 +279,7 @@ void FHangingState::RunState(EAbilityInputTypes abilityUsageType)
 	if (!PhoenixDive) return;
 	
 	PhoenixDive->LaunchToGround();
-	Ability->BP_AbilityInnerState(1);
+	Ability->BP_AbilityInnerState(2);
 }
 
 void FHangingState::ExitState()
