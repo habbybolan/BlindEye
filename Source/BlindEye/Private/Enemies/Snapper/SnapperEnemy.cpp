@@ -58,7 +58,7 @@ void ASnapperEnemy::PerformBasicAttack()
 	
 	TArray<FHitResult> OutHits;
 	UKismetSystemLibrary::BoxTraceMultiForObjects(world, GetActorLocation(), GetActorForwardVector() * 300, FVector(0, 100 / 2, 100 / 2),
-		GetActorRotation(), ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, OutHits, true);
+		GetActorRotation(), ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true);
 	
 	for (FHitResult Hit : OutHits)
 	{
@@ -100,7 +100,7 @@ void ASnapperEnemy::LaunchSwing()
 	
 	TArray<FHitResult> OutHits;
 	UKismetSystemLibrary::BoxTraceMultiForObjects(world, GetActorLocation(), GetActorLocation() + Direction * 300, FVector(0, 100 / 2, 100 / 2),
-		GetActorRotation(), ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, OutHits, true);
+		GetActorRotation(), ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true);
 	
 	for (FHitResult Hit : OutHits)
 	{
@@ -235,7 +235,7 @@ bool ASnapperEnemy::IsLayingOnFront()
  
 	FHitResult OutHit; 
 	return UKismetSystemLibrary::LineTraceSingle(World, HipsLocation, HipsLocation + ProperFwd * 50, ETraceTypeQuery::TraceTypeQuery1, false, TArray<AActor*>(),
-		EDrawDebugTrace::ForDuration, OutHit, true);
+		EDrawDebugTrace::None, OutHit, true);
 }
 
 void ASnapperEnemy::OnDeath(AActor* ActorThatKilled)

@@ -64,7 +64,7 @@ bool ASnapperEnemyController::IsInBasicAttackRange(AActor* Target)
 
 	FHitResult OutHit;
 	if (UKismetSystemLibrary::LineTraceSingleForObjects(World, Snapper->GetActorLocation(), Snapper->GetActorLocation() + Snapper->GetActorForwardVector() * 300,
-		ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, OutHit, true))
+		ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, OutHit, true))
 	{
 		return OutHit.Actor == Target;
 	}
