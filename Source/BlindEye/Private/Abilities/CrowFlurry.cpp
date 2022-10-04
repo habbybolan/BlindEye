@@ -107,8 +107,7 @@ void UFirstCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
 	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);
 	if (!CrowFlurry) return;
 
-	Ability->Blockers.IsMovementSlowBlocked = true;
-	Ability->Blockers.MovementSlowAmount = CrowFlurry->MovementSlowAmount;
+	Ability->Blockers.IsMovementBlocked = true;
 	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 
 	// leave running state on ability released
