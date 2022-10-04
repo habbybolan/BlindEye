@@ -116,6 +116,9 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_StartHidingHelper();
+
+	UPROPERTY(EditDefaultsOnly) 
+	UAnimMontage* SurfacingAnimation;
  
 protected:
 
@@ -132,6 +135,9 @@ protected:
 	void OnSnapperDeath(AActor* SnapperActor);
 	
 	TArray<FVector> GetSnapperSpawnPoints();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_PlaySurfacingAnimation();
 
 	UPROPERTY()
 	UNiagaraComponent* SpawnedWarningParticle;

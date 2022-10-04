@@ -67,6 +67,7 @@ void ABurrowerEnemy::StartSurfacing()
 {
 	MULT_StartSurfacingHelper();
 	PerformSurfacingDamage();
+	MULT_PlaySurfacingAnimation();
 }
 
 void ABurrowerEnemy::MULT_StartSurfacingHelper_Implementation()
@@ -98,6 +99,7 @@ void ABurrowerEnemy::PerformSurfacingDamage()
 void ABurrowerEnemy::StartHiding()
 {
 	MULT_StartHidingHelper();
+	MULT_PlaySurfacingAnimation();
 }
 
 void ABurrowerEnemy::MULT_StartHidingHelper_Implementation()
@@ -165,6 +167,11 @@ TArray<FVector> ABurrowerEnemy::GetSnapperSpawnPoints()
 		}
 	}
 	return SpawnPoints;
+}
+
+void ABurrowerEnemy::MULT_PlaySurfacingAnimation_Implementation()
+{
+	PlayAnimMontage(SurfacingAnimation);
 }
 
 void ABurrowerEnemy::TimelineSurfacingMovement(float Value)
