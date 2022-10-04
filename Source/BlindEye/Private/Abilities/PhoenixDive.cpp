@@ -46,7 +46,7 @@ void APhoenixDive::HangInAirTimer()
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	world->GetTimerManager().SetTimer(HangInAirTimerHandle, this, &APhoenixDive::HangInAir, 1.0f, false);
+	world->GetTimerManager().SetTimer(HangInAirTimerHandle, this, &APhoenixDive::HangInAir, DurationOfUpwardsForce, false);
 	BP_AbilityInnerState(1);
 }
 
