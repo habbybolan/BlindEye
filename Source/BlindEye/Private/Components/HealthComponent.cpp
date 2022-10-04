@@ -153,7 +153,6 @@ void UHealthComponent::Burn(float DamagePerSec, float Duration, AActor* DamageCa
 
 void UHealthComponent::Stagger(AActor* DamageCause)
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Silver, "Stagger");
 	// TODO: probably call stun?
 	// ...
 }
@@ -165,9 +164,6 @@ void UHealthComponent::TryApplyMarker(PlayerType Player, AActor* DamageCause)
 	
 	if (CurrMark != nullptr)
 	{
-		// TODO: Add Mark visual
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Purple, "Already Marked");
-
 		// Refresh the Mark if same mark used on enemy
 		float TimeRemaining = UKismetSystemLibrary::K2_GetTimerRemainingTimeHandle(world, MarkerDecayTimerHandle);
 		float RefreshedTime = UKismetMathLibrary::Min(TimeRemaining + RefreshMarkerAmount, MarkerDecay);
@@ -177,7 +173,6 @@ void UHealthComponent::TryApplyMarker(PlayerType Player, AActor* DamageCause)
 	{
 		// Set the decay timer on marker
 		world->GetTimerManager().SetTimer(MarkerDecayTimerHandle, this, &UHealthComponent::RemoveMark, MarkerDecay, false);
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Purple, "Mark Applied");
 		CurrMark = new FMarkData();
 		CurrMark->InitializeData(Player);
 		MarkedAddedDelegate.Broadcast(Player);
@@ -195,7 +190,6 @@ void UHealthComponent::TryDetonation(PlayerType Player, AActor* DamageCause)
 		if (CurrMark->MarkPlayerType != Player)
 		{
 			world->GetTimerManager().ClearTimer(MarkerDecayTimerHandle);
-			GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Purple, "Marker detonated on: " + GetOwner()->GetName());
 			PerformDetonationEffect(DamageCause);
 			DetonateMark();
 		}
@@ -360,7 +354,6 @@ void UHealthComponent::ApplyBurn()
 	DamageType->DebugDamageEverything = true;
 	// TODO: Apply damage based on damage cause, dont use self with debug param
 	SetDamage(AppliedStatusEffects.BurnDPS * DelayBetweenBurnTicks,FVector::ZeroVector, DamageType, GetOwner());
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, DelayBetweenBurnTicks, FColor::Blue, "Burn: " + FString::SanitizeFloat(AppliedStatusEffects.BurnDPS * DelayBetweenBurnTicks));
 }
 
 void UHealthComponent::RemoveTaunt()
