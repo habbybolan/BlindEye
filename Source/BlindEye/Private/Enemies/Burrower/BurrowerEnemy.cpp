@@ -49,10 +49,18 @@ void ABurrowerEnemy::BeginPlay()
 	}
 }
 
+void ABurrowerEnemy::DestroyBurrower()
+{
+	Destroy();
+}
+
 void ABurrowerEnemy::OnDeath(AActor* ActorThatKilled)
 {
-	Super::OnDeath(ActorThatKilled);
-	Destroy();
+	Super::OnDeath(ActorThatKilled); 
+	
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	World->GetTimerManager().SetTimer(DeathTimerHandle, this, &ABurrowerEnemy::DestroyBurrower, DeathDelay, false);
 }
 
 void ABurrowerEnemy::StartSurfacing()
@@ -221,8 +229,7 @@ void ABurrowerEnemy::MULT_SpawnWarningParticle_Implementation()
 {
 	UWorld* world = GetWorld();
 	SpawnedWarningParticle = UNiagaraFunctionLibrary::SpawnSystemAtLocation(world, WarningParticle,
-		GetActorLocation() + FVector::UpVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2),
-		FRotator::ZeroRotator, FVector::OneVector, true);
+		GetMesh()->GetComponentLocation(),FRotator::ZeroRotator, FVector::OneVector, true);
 }
 
 void ABurrowerEnemy::MULT_DespawnWarningParticle_Implementation()

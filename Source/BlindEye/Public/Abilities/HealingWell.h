@@ -19,19 +19,36 @@ public:
 	float HealPercentIncr = 1000;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float HealDuration = 4;
+	float HealCheckDelay = 0.2f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Radius = 450;
+ 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float Duration = 4;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+
+	UPROPERTY(EditDefaultsOnly)
+	float DelayedDestructionTime = 2;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_HealingWellDestroying();
 	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	void PerformHealCheck();
-	FTimerHandle HealingCheckTimerHandle;
+	FTimerHandle HealingCheckTimerHandle; 
+
+	FTimerHandle DelayedDestroyTimerHandle;
+
+	virtual void BeginDestroy() override;
+
+	void DelayedDestroy();
+
+	void DestroyHealingWell();
 
 };

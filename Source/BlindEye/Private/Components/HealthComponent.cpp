@@ -243,7 +243,8 @@ void UHealthComponent::PerformDetonationEffect(AActor* DamageCause)
 			FActorSpawnParameters params;
 			params.Instigator = Cast<APawn>(GetOwner());
 			params.Owner = GetOwner();
-			World->SpawnActor<AHealingWell>(HealingWellType, GetOwner()->GetActorLocation(), FRotator::ZeroRotator, params);
+			AHealingWell* HealingWell = World->SpawnActor<AHealingWell>(HealingWellType, GetOwner()->GetActorLocation(), FRotator::ZeroRotator, params);
+			HealingWell->AttachToActor(GetOwner(), FAttachmentTransformRules::KeepWorldTransform);
 		}
 	}
 }
@@ -277,10 +278,15 @@ void UHealthComponent::RemoveMark()
 	MarkedRemovedDelegate.Broadcast();
 }
 
+FMarkData* UHealthComponent::GetCurrMark()
+{
+	return CurrMark;
+}
+
 void UHealthComponent::DetonateMark()
 {
-	CurrMark = nullptr;
 	DetonateDelegate.Broadcast();
+	CurrMark = nullptr;
 }
 
 

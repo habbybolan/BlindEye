@@ -3,41 +3,75 @@
 
 #include "Boids/BasicAttackSmallFlock.h"
 
+#include "Boids/Boid.h"
 #include "Components/HealthComponent.h"
 #include "Enemies/BlindEyeEnemybase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Interfaces/HealthInterface.h"
-#include "DamageTypes/BaseDamageType.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 void ABasicAttackSmallFlock::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	// Increase target seeking when getting closer to target
+	if (Target.IsValid())
+	{ 
+		float Percent = FVector::Distance(CalcAveragePosition(), Target.Get()->GetActorLocation()) / DistToApplyTargetSeekingIncrease;
+		float StrengthIncrease = UKismetMathLibrary::FClamp(Percent, 0, 1) * MaxTargetSeekingStrengthIncrease;
+		TargetStrength = BaseSeekingStrength * StrengthIncrease;
+	}
+	
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		CheckRemoveTarget();
-		CheckForDamage();
+		if (!bHasReachedTarget)
+		{
+			CheckForDamage();
+			CheckGoBackToPlayer();
+		} else
+		{
+			CheckReturnedToPlayer();
+		}
+	}
+
+	if (bHasReachedTarget)
+	{
+		CheckShrinking();
 	}
 }
 
 void ABasicAttackSmallFlock::BeginPlay()
 {
-	if (GetLocalRole() < ROLE_Authority) return;
-	
-	Super::BeginPlay();
-	// TODO: Spawn Target point distance from Instigator, using their forward position
-	FVector InstigatorFwd =  GetInstigator()->GetControlRotation().Vector() * TargetDistanceFromInstigator;
-	FVector SpawnLocation = GetInstigator()->GetActorLocation() + InstigatorFwd;
-
 	UWorld* world = GetWorld();
 	if (!world) return;
 	
-	Target = world->SpawnActor<AActor>(TargetType, SpawnLocation, FRotator::ZeroRotator);
-	// manually call initialize flock if server, client calls once target is replicated
+	Super::BeginPlay();
+
+	BaseSeekingStrength = TargetStrength;
+
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		InitializeFlock();
+		FVector ViewportLocation;
+		FRotator ViewportRotation;
+		GetInstigator()->GetController()->GetPlayerViewPoint(OUT ViewportLocation, OUT ViewportRotation);
+		FVector InstigatorFwd =  ViewportRotation.Vector() * TargetDistanceFromInstigator;
+
+		FVector TargetLocation;
+		FHitResult OutHit;
+		if (UKismetSystemLibrary::LineTraceSingleForObjects(world, ViewportLocation, ViewportLocation + InstigatorFwd, SpawnLineCastObjectTypes,
+			false, TArray<AActor*>(), EDrawDebugTrace::None, OutHit, true))
+		{
+			TargetLocation = OutHit.Location;
+		} else
+		{
+			TargetLocation = ViewportLocation + InstigatorFwd;
+		}
+	
+		Target = world->SpawnActor<AActor>(TargetType, TargetLocation, FRotator::ZeroRotator);
+
+		MULT_InitializeFlock();
 	}
 }
 
@@ -49,7 +83,7 @@ void ABasicAttackSmallFlock::CheckForDamage()
 	GetWorld()->GetTimerManager().SetTimer(CanAttackTimerHandle, this, &AFlock::SetCanAttack, DamageCooldown, false);
 	TArray<AActor*> ActorsToIgnore;
 	TArray<AActor*> OutActors;
-	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), CalcAveragePosition(), DamageRadius, ObjectTypes, ABlindEyeEnemyBase::StaticClass(), ActorsToIgnore, OutActors);
+	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), CalcAveragePosition(), DamageRadius, DamageObjectTypes, ABlindEyeEnemyBase::StaticClass(), ActorsToIgnore, OutActors);
 
 	IHealthInterface* InstigatorHealthInterface = Cast<IHealthInterface>(GetInstigator());
 	TEAMS InstigatorTeam = InstigatorHealthInterface->GetTeam();
@@ -67,15 +101,54 @@ void ABasicAttackSmallFlock::CheckForDamage()
 	}
 }
 
-void ABasicAttackSmallFlock::CheckRemoveTarget()
+void ABasicAttackSmallFlock::CheckGoBackToPlayer()
 {
 	if (CheckInRangeOfTarget())
 	{
+		bHasReachedTarget = true;
 		Target->Destroy();
 		Target = nullptr;
-		
-		// TODO: Temp destroy, remove later
+
+		MULT_SendEachBoidUp();
+		Target = GetInstigator();
+	}
+}
+
+void ABasicAttackSmallFlock::CheckReturnedToPlayer()
+{
+	if (CheckInRangeOfTarget())
+	{
 		Destroy();
+	}
+}
+
+void ABasicAttackSmallFlock::CheckShrinking()
+{
+	if (CurrShrinkingTime > ShrinkingTime) return;
+	if (FVector::Distance(Target->GetActorLocation(), CalcAveragePosition()) < DistToPlayerToStartShrinking)
+	{
+		CurrShrinkingTime += GetWorld()->GetDeltaSeconds();
+		if (CurrShrinkingTime > ShrinkingTime) CurrShrinkingTime = ShrinkingTime;
+		for (ABoid* boid : BoidsInFlock)
+		{
+			float scale = UKismetMathLibrary::Lerp(1, 0, CurrShrinkingTime / ShrinkingTime);
+			boid->SetActorScale3D(FVector::OneVector * scale);
+		}
+	}
+}
+
+void ABasicAttackSmallFlock::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ABasicAttackSmallFlock, bHasReachedTarget);
+}
+
+void ABasicAttackSmallFlock::MULT_SendEachBoidUp_Implementation()
+{
+	for (ABoid* boid : BoidsInFlock)
+	{
+		FVector UpForce = FVector::UpVector * UpForceOnTargetReached;
+		boid->AddForce(UpForce);
 	}
 }
 			

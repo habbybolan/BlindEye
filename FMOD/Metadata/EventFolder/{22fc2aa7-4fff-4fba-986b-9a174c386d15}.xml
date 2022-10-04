@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="EventFolder" id="{22fc2aa7-4fff-4fba-986b-9a174c386d15}">
+		<property name="name">
+			<value>Snapper</value>
+		</property>
+		<relationship name="folder">
+			<destination>{3a7e881f-b9dd-49eb-958d-7a6576cc4b88}</destination>
+		</relationship>
+	</object>
+</objects>

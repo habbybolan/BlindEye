@@ -29,6 +29,9 @@ public:
  
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Movement", meta=(ClampMin=0.001, ClampMax=1))
 	float RollRotationToRestingSpeed = 0.01;
+
+	UPROPERTY(EditDefaultsOnly, Category="Movement")
+	float MaxRotationAmount = 0.004f;
  
 	FVector GetVelocity() const;
 	void SetVelocity(FVector& velocity);
@@ -43,9 +46,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent* Mesh;
 
+	UPROPERTY(EditDefaultsOnly, Category=SpawnGrow)
+	float TimeUntilFullSizeOnSpawn = 1.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category=SpawnGrow)
+	float SpawnScaleSize = 0.2;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	void InitialSpawnSizeGrow();
+	FTimerHandle SpawnSizeGrowTimerHandle;
+	float CurrTimerSizeGrow = 0;
+	float SizeGrowTimerDelay = 0.02;
 
 public:	
 	// Called every frame
