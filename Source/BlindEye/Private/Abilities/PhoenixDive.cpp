@@ -151,8 +151,18 @@ void APhoenixDive::CollisionWithGround(UPrimitiveComponent* HitComponent, AActor
 	// Apply damage to self for detonation effect
 	UGameplayStatics::ApplyPointDamage(GetInstigator(), Damage, FVector::ZeroVector, FHitResult(),
 		GetInstigator()->GetController(), GetInstigator(), DamageType);
+
 	// Apply damage to rest of enemies
-	UGameplayStatics::ApplyRadialDamage(world, Damage, Hit.Location, Radius, DamageType, TArray<AActor*>(), GetInstigator());
+	TArray<FHitResult> OutHits;
+	if (UKismetSystemLibrary::SphereTraceMultiForObjects(world, Hit.Location, Hit.Location + FVector::UpVector * -10, Radius, EnemyObjectTypes,
+		false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true))
+	{
+		for (FHitResult CollisionHit : OutHits)
+		{
+			UGameplayStatics::ApplyPointDamage(CollisionHit.Actor.Get(), Damage, CollisionHit.Location, CollisionHit, GetInstigator()->GetController(),
+				GetInstigator(), DamageType);
+		}
+	}
 	
 	UnsubscribeToGroundCollision();
 }
