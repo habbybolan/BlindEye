@@ -54,18 +54,25 @@ Ability 2            | E                 | B
 
 ### Debug tools/controls
 
-* 1 - Player invincibility
-* 2 - Kill all snappers
-* 3 - Kill all burrowers
-* 4 - Kill all Hunters
-* 5 - Damage self
-* 6 - Damage Shrine
-* 7 - Shrine invincibility
+* Player invincibility
+* Shrine invincibility
+* Unlimited bird meter
+* Pause win condition
+* Hunter always visible
+* Kill all Snappers
+* Kill all Burrowers
+* Kill all Hunters
+* Spawn Snapper
+* Spawn Burrower
+* Spawn Hunter
+* Increase time by one minute
 
 
 ### Known Issues
 
-* <CAVEATS: KNOWN THINGS TO NOT DO, CRASH BUGS>
+* Music volume stays past menus
+* Fire stays on the floor
+* Crow flurry not working properly. Mesh particle doesn't appear and streaks are wrong material
 
 ### Team:
 
