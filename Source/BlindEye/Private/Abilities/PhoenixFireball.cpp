@@ -42,7 +42,7 @@ void APhoenixFireball::CastFireCone()
 
 	TArray<FHitResult> OutHits;
 	UKismetSystemLibrary::BoxTraceMultiForObjects(world, GetInstigator()->GetActorLocation(), EndLocation, FVector(0, ConeWidth / 2, ConeLength / 2),
-		GetInstigator()->GetControlRotation(), ConeTraceObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::ForDuration,
+		GetInstigator()->GetControlRotation(), ConeTraceObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None,
 		OutHits, true);
 
 	FVector UserLocation = GetInstigator()->GetActorLocation();
@@ -85,7 +85,7 @@ void APhoenixFireball::OnFireballCastHit(UPrimitiveComponent* HitComponent, AAct
 	// Area damage from fireball cast colliding / expiring and exploding
 	TArray<FHitResult> OutHits;
 	UKismetSystemLibrary::SphereTraceMultiForObjects(World, FireballCast->GetActorLocation(), FireballCast->GetActorLocation() + FireballCast->GetActorForwardVector() * 5,
-		Damage, ConeTraceObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, OutHits, true);
+		Damage, ConeTraceObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true);
 	for (FHitResult ExplosionHit : OutHits)
 	{
 		DealWithDamage(ExplosionHit.Actor.Get(), ExplosionHit.ImpactNormal, ExplosionHit, Damage);

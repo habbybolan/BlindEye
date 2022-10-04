@@ -36,7 +36,7 @@ void AHunterEnemy::JumpAttackSwing()
 	
 	TArray<FHitResult> OutHits;
 	UKismetSystemLibrary::BoxTraceMultiForObjects(world, GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 300, FVector(0, 100 / 2, 100 / 2),
-		GetActorRotation(), ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, OutHits, true);
+		GetActorRotation(), ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true);
 
 	for (FHitResult Hit : OutHits)
 	{

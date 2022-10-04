@@ -43,7 +43,7 @@ void ACrowFlurry::PerformCrowFlurry()
 
 	TArray<FHitResult> OutHits;
 	UKismetSystemLibrary::BoxTraceMultiForObjects(world, GetInstigator()->GetActorLocation(), TargetLocation, FVector(0, Width / 2, Height / 2),
-		GetInstigator()->GetControlRotation(), ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, OutHits, true,
+		GetInstigator()->GetControlRotation(), ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true,
 		FLinearColor::Red, FLinearColor::Green, 0.2f);
 	
 	for (FHitResult Hit : OutHits)

@@ -95,7 +95,7 @@ void AFlock::SpawnBoidRand()
 		// 				(UKismetMathLibrary::RandomIntegerInRange(0, 1) == 0 ? -1 : 1);
 		// } else
 		// {
-		// 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Blue, "No Controller?");
+		// 	
 		// }
 		//
 		//

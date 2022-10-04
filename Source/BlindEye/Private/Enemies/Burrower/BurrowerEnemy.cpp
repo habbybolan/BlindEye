@@ -88,7 +88,7 @@ void ABurrowerEnemy::PerformSurfacingDamage()
 
 	TArray<FHitResult> OutHits;
 	UKismetSystemLibrary::SphereTraceMultiForObjects(World, StartPosition, EndPosition, SurfacingRadius, SurfacingObjectTypes,
-		false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, OutHits, true);
+		false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true);
 
 	for (FHitResult Hit : OutHits)
 	{
