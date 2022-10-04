@@ -10,15 +10,22 @@
 // Sets default values
 AHealingWell::AHealingWell()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
+}
+
+void AHealingWell::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	SetActorRotation(CachedSpawnedRotation);
 }
 
 // Called when the game starts or when spawned
 void AHealingWell::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CachedSpawnedRotation = GetActorRotation();
 	
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;

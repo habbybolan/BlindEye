@@ -37,13 +37,15 @@ public:
 	void BP_HealingWellDestroying();
 	
 protected:
-	// Called when the game starts or when spawned
+	virtual void Tick(float DeltaSeconds) override;
 	virtual void BeginPlay() override;
 
 	void PerformHealCheck();
 	FTimerHandle HealingCheckTimerHandle; 
 
 	FTimerHandle DelayedDestroyTimerHandle;
+
+	FRotator CachedSpawnedRotation;
 
 	virtual void BeginDestroy() override;
 
