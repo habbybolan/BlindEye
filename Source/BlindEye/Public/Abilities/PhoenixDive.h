@@ -73,6 +73,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TArray<TEnumAsByte<EObjectTypeQuery>> GroundObjectTypes;
 
+	UPROPERTY(EditDefaultsOnly) 
+	TArray<TEnumAsByte<EObjectTypeQuery>> EnemyObjectTypes;
+
 	UPROPERTY(EditDefaultsOnly, meta=(ClampMin = 0, ClampMax = 90))
 	float ClampPitchDegrees = 45;
  
