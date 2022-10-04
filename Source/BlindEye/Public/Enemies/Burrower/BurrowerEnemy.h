@@ -179,9 +179,6 @@ protected:
 	void SetDisappeared();
 	void SetAppeared();
 	void SetFollowing();
-
-	
-
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_SpawnFollowParticle();
