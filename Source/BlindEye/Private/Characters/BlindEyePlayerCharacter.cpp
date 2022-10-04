@@ -539,8 +539,9 @@ void ABlindEyePlayerCharacter::BirdMeterUpdated()
 {
 	if (IsLocallyControlled())
 	{
+		// TODO: Remove if not using this anymore
 		// Update owning bird meter
-		UpdateBirdMeterUI();
+		//UpdateBirdMeterUI();
 	}
 }
 
