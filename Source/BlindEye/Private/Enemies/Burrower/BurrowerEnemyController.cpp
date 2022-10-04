@@ -17,6 +17,7 @@ void ABurrowerEnemyController::BeginPlay()
 	if (!world) return;
 
 	CachedPreviousActions.SetNum(3, false);
+	CachedPreviousActions[0] = EBurrowActionState::Attacking;
 
 	InitializeBehaviorTree();
 	CacheSpawnPoints();
