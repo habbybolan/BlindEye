@@ -66,6 +66,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=1))
 	float CrowFlurryLerpSpeed = 0.15;
 
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=540))
+	float RotationSpeedInFlurry = 100;
+
+	UPROPERTY(EditDefaultsOnly)
+	float CrowFlurryDamageDelay = 0.2f;
+ 
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* CrowFlurryAnimation;
 
@@ -82,6 +88,8 @@ protected:
 	// For calculating crow flurry rotation lerping to control rotation
 	FTimerHandle CalculateRotationTimerHandle;
 	float CalcRotationDelay = 0.05f;
+
+	float CachedCharacterRotationSpeed;
 
 	FTimerHandle RotateFlurryTimerHandle;
 

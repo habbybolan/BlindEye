@@ -7,12 +7,18 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "NiagaraComponent.h"
 #include "Characters/BlindEyePlayerCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 
 ACrowFlurry::ACrowFlurry()
 {
 	AbilityStates.Add(new FPerformCrowFlurryState(this));
+
+	if (ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	{
+		CachedCharacterRotationSpeed = BlindEyePlayerCharacter->GetCharacterMovement()->RotationRate.Yaw;
+	}
 }
 
 void ACrowFlurry::StartCrowFlurry()
@@ -20,14 +26,16 @@ void ACrowFlurry::StartCrowFlurry()
 	UWorld* world = GetWorld();
 	if (!world) return;
 
+	BP_AbilityInnerState(1);
+
 	if (ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
-		BlindEyePlayerCharacter->CLI_StartLockRotationToController(0);
+		BlindEyePlayerCharacter->GetCharacterMovement()->RotationRate = FRotator(0, RotationSpeedInFlurry, 0);
 	}
 
 	bFlurryActive = true;
 	CurrFlurryRotation = GetInstigator()->GetControlRotation();
-	world->GetTimerManager().SetTimer(CrowFlurryTimerHandle, this, &ACrowFlurry::PerformCrowFlurry, 0.2f, true);
+	world->GetTimerManager().SetTimer(CrowFlurryTimerHandle, this, &ACrowFlurry::PerformCrowFlurry, CrowFlurryDamageDelay, true);
 	// Lerp the flurry rotation towards controller rotation
 	world->GetTimerManager().SetTimer(CalculateRotationTimerHandle, this, &ACrowFlurry::CalcFlurryRotation, CalcRotationDelay, true);
 	// flurry rotation separate for replication reasons
@@ -38,6 +46,7 @@ void ACrowFlurry::PlayAbilityAnimation()
 {
 	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
+		PlayerCharacter->CLI_StartLockRotationToController(1);
 		PlayerCharacter->MULT_PlayAnimMontage(CrowFlurryAnimation);
 	}
 	AnimNotifyDelegate.BindUFunction( this, TEXT("UseAnimNotifyExecuted"));
@@ -51,6 +60,7 @@ void ACrowFlurry::UseAnimNotifyExecuted()
 
 void ACrowFlurry::EndAbilityAnimation()
 {
+	BP_AbilityInnerState(2);
 	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
 		PlayerCharacter->MULT_SetNextMontageSection(CrowFlurryAnimation, "End");
@@ -78,12 +88,11 @@ void ACrowFlurry::PerformCrowFlurry()
 
 	TArray<FHitResult> OutHits;
 	UKismetSystemLibrary::BoxTraceMultiForObjects(world, GetInstigator()->GetActorLocation(), TargetLocation, FVector(0, Width / 2, Height / 2),
-		GetInstigator()->GetControlRotation(), ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true,
-		FLinearColor::Red, FLinearColor::Green, 0.2f);
+		GetInstigator()->GetControlRotation(), ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true);
 	
 	for (FHitResult Hit : OutHits)
 	{
-		UGameplayStatics::ApplyPointDamage(Hit.GetActor(), DamagePerSec * 0.2f, FVector::ZeroVector,
+		UGameplayStatics::ApplyPointDamage(Hit.GetActor(), DamagePerSec * CrowFlurryDamageDelay, FVector::ZeroVector,
 					FHitResult(), GetInstigator()->Controller, this, DamageType);
 	}
 
@@ -98,7 +107,7 @@ void ACrowFlurry::PerformCrowFlurry()
 	{
 		BlindEyePlayerCharacter->CLI_StartLockRotationToController(0);
 	}
-}
+} 
 
 void ACrowFlurry::CalcFlurryRotation()
 {
@@ -115,6 +124,11 @@ void ACrowFlurry::EndAbilityLogic()
 	if (!world) return;
 	world->GetTimerManager().ClearTimer(CrowFlurryTimerHandle);
 	world->GetTimerManager().ClearTimer(CalculateRotationTimerHandle);
+
+	if (ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	{
+		BlindEyePlayerCharacter->GetCharacterMovement()->RotationRate = FRotator(0, CachedCharacterRotationSpeed, 0);
+	}
 }
 
 // **** States *******
@@ -185,6 +199,7 @@ void FEndCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
 void FEndCrowFlurryState::ExitState()
 {
 	FAbilityState::ExitState();
+	Ability->EndCurrState();
 }
 
 
