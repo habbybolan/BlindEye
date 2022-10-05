@@ -7,10 +7,19 @@
 #include "DamageTypes/BaseDamageType.h"
 #include "CrowFlurry.generated.h"
 
-class BLINDEYE_API UFirstCrowFlurryState : public FAbilityState
+class BLINDEYE_API FPerformCrowFlurryState : public FAbilityState
 {
 public:  
-	UFirstCrowFlurryState(AAbilityBase* ability);
+	FPerformCrowFlurryState(AAbilityBase* ability);
+	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void ExitState() override;
+};
+
+class BLINDEYE_API FEndCrowFlurryState : public FAbilityState
+{
+public:  
+	FEndCrowFlurryState(AAbilityBase* ability);
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
@@ -57,7 +66,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=1))
 	float CrowFlurryLerpSpeed = 0.15;
 
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* CrowFlurryAnimation;
+
+	bool bFlurryActive = false;
+	
 	void StartCrowFlurry();
+	void PlayAbilityAnimation();
+	void EndAbilityAnimation(); 
 
 protected:
 	
@@ -68,8 +84,6 @@ protected:
 	float CalcRotationDelay = 0.05f;
 
 	FTimerHandle RotateFlurryTimerHandle;
-
-	bool bFlurryActive = false;
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void MULT_RotateFlurry(); 
@@ -85,6 +99,12 @@ protected:
 
 	UFUNCTION()
 	void CalcFlurryRotation();
+
+	UFUNCTION()
+	void UseAnimNotifyExecuted();
+
+	UFUNCTION()
+	void AbilityAnimationEnded();
 	
 	virtual void EndAbilityLogic() override;
 

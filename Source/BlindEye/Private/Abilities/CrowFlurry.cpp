@@ -6,12 +6,13 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "NiagaraComponent.h"
+#include "Characters/BlindEyePlayerCharacter.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 
 ACrowFlurry::ACrowFlurry()
 {
-	AbilityStates.Add(new UFirstCrowFlurryState(this));
+	AbilityStates.Add(new FPerformCrowFlurryState(this));
 }
 
 void ACrowFlurry::StartCrowFlurry()
@@ -26,6 +27,29 @@ void ACrowFlurry::StartCrowFlurry()
 	world->GetTimerManager().SetTimer(CalculateRotationTimerHandle, this, &ACrowFlurry::CalcFlurryRotation, CalcRotationDelay, true);
 	// flurry rotation separate for replication reasons
 	world->GetTimerManager().SetTimer(RotateFlurryTimerHandle, this, &ACrowFlurry::MULT_RotateFlurry, CalcRotationDelay, true);
+}
+
+void ACrowFlurry::PlayAbilityAnimation()
+{
+	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	{
+		PlayerCharacter->MULT_PlayAnimMontage(CrowFlurryAnimation);
+	}
+	AnimNotifyDelegate.BindUFunction( this, TEXT("UseAnimNotifyExecuted"));
+}
+
+void ACrowFlurry::EndAbilityAnimation()
+{
+	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	{
+		PlayerCharacter->MULT_SetNextMontageSection(CrowFlurryAnimation, "End");
+	}
+	AnimNotifyDelegate.BindUFunction( this, TEXT("AbilityAnimationEnded"));
+}
+
+void ACrowFlurry::AbilityAnimationEnded()
+{
+	AbilityStates[CurrState]->ExitState();
 }
 
 void ACrowFlurry::MULT_RotateFlurry_Implementation()
@@ -66,6 +90,12 @@ void ACrowFlurry::CalcFlurryRotation()
 	CurrFlurryRotation = UKismetMathLibrary::RLerp(CurrFlurryRotation, TargetRotation, 0.15, true);
 }
 
+void ACrowFlurry::UseAnimNotifyExecuted()
+{
+	AnimNotifyDelegate.Unbind();
+	StartCrowFlurry();
+}
+
 void ACrowFlurry::EndAbilityLogic()
 {
 	Super::EndAbilityLogic();
@@ -81,9 +111,9 @@ void ACrowFlurry::EndAbilityLogic()
 
 // First Crow Flurry state *********************
 
-UFirstCrowFlurryState::UFirstCrowFlurryState(AAbilityBase* ability) : FAbilityState(ability) {}
+FPerformCrowFlurryState::FPerformCrowFlurryState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-void UFirstCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType)
+void FPerformCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState();
 	if (abilityUsageType != EAbilityInputTypes::Pressed) return;
@@ -93,34 +123,58 @@ void UFirstCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType)
 	if (ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability))
 	{
 		if (!CrowFlurry->TryConsumeBirdMeter(CrowFlurry->InitialCostPercent)) return;
-		CrowFlurry->StartCrowFlurry();
 	}
 	RunState();
 }
 
-void UFirstCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
+void FPerformCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::RunState();
 	
 	if (!Ability) return;
-	Ability->BP_AbilityStarted();
+	
 	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);
 	if (!CrowFlurry) return;
-
-	Ability->Blockers.IsMovementBlocked = true;
-	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 
 	// leave running state on ability released
 	if (abilityUsageType == EAbilityInputTypes::Pressed)
 	{
+		CrowFlurry->EndAbilityAnimation();
 		ExitState();
+	} else
+	{
+		Ability->BP_AbilityStarted();
+		CrowFlurry->PlayAbilityAnimation();
+
+		Ability->Blockers.IsMovementBlocked = true;
+		Ability->Blockers.IsOtherAbilitiesBlocked = true;
 	}
 }
 
-void UFirstCrowFlurryState::ExitState()
+void FPerformCrowFlurryState::ExitState()
 {
 	FAbilityState::ExitState();
 	Ability->EndCurrState();
+}
+
+FEndCrowFlurryState::FEndCrowFlurryState(AAbilityBase* ability)  : FAbilityState(ability) {}
+
+void FEndCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType)
+{
+	FAbilityState::TryEnterState(abilityUsageType);
+	RunState();
+}
+
+void FEndCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
+{
+	FAbilityState::RunState(abilityUsageType);
+	Ability->Blockers.IsMovementBlocked = true;
+	Ability->Blockers.IsOtherAbilitiesBlocked = true;
+}
+
+void FEndCrowFlurryState::ExitState()
+{
+	FAbilityState::ExitState();
 }
 
 
