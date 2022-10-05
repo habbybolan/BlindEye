@@ -142,10 +142,10 @@ void ABlindEyePlayerCharacter::UpdateAllClientUI()
 	UpdatePlayerHealthUI();
 }
 
-void ABlindEyePlayerCharacter::StartLockRotationToController(float Duration)
+void ABlindEyePlayerCharacter::CLI_StartLockRotationToController_Implementation(float Duration)
 {
 	UWorld* World = GetWorld();
-	if (World == nullptr) return;
+	if (World == nullptr) return; 
 
 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
 	GetCharacterMovement()->bOrientRotationToMovement = false;
@@ -154,12 +154,12 @@ void ABlindEyePlayerCharacter::StartLockRotationToController(float Duration)
 	float TimeRemaining = World->GetTimerManager().GetTimerRemaining(RotationalLockTimerHandle);
 	if (Duration + TimerAfterAbilityUsed > TimeRemaining)
 	{
-		World->GetTimerManager().SetTimer(RotationalLockTimerHandle, this, &ABlindEyePlayerCharacter::StopLockRotationToController,
+		World->GetTimerManager().SetTimer(RotationalLockTimerHandle, this, &ABlindEyePlayerCharacter::CLI_StopLockRotationToController,
 			Duration +  TimerAfterAbilityUsed, false);
-	}
+	} 
 }
 
-void ABlindEyePlayerCharacter::StopLockRotationToController()
+void ABlindEyePlayerCharacter::CLI_StopLockRotationToController_Implementation()
 {
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;

@@ -176,10 +176,12 @@ public:
 
 	// Locks the player direction to controller rotation.
 	// If Duration = 0, keeps rotational lock until manually turned off
-	void StartLockRotationToController(float Duration);
+	UFUNCTION(Client, Reliable)
+	void CLI_StartLockRotationToController(float Duration);
 
 	// Stops the rotational lock to controller and clears timer
-	void StopLockRotationToController();
+	UFUNCTION(Client, Reliable)
+	void CLI_StopLockRotationToController();
 
 	UAbilityManager* GetAbilityManager();
 
