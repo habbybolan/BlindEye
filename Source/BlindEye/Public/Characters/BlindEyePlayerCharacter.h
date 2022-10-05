@@ -188,6 +188,12 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_PlayAnimMontage(UAnimMontage* AnimMontage);
 
+	UFUNCTION(NetMulticast, Reliable) 
+	void MULT_StopAnimMontage(UAnimMontage* AnimMontage); 
+
+	UFUNCTION(NetMulticast, Reliable)  
+	void MULT_SetNextMontageSection(UAnimMontage* AnimMontage, FName Section); 
+
 protected:
 
 	UFUNCTION()

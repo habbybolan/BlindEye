@@ -179,6 +179,16 @@ void ABlindEyePlayerCharacter::MULT_PlayAnimMontage_Implementation(UAnimMontage*
 	PlayAnimMontage(AnimMontage); 
 }
 
+void ABlindEyePlayerCharacter::MULT_StopAnimMontage_Implementation(UAnimMontage* AnimMontage)
+{
+	StopAnimMontage(AnimMontage);
+}
+
+void ABlindEyePlayerCharacter::MULT_SetNextMontageSection_Implementation(UAnimMontage* AnimMontage, FName Section)
+{
+	GetMesh()->GetAnimInstance()->Montage_JumpToSection(Section, AnimMontage);
+}
+
 void ABlindEyePlayerCharacter::RegenBirdMeter()
 {
 	if (ABlindEyePlayerState* BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState()))
