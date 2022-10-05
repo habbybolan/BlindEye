@@ -57,6 +57,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<ABasicAttackSmallFlock> LastChargeFlockType;
 
+	UPROPERTY(EditDefaultsOnly)
+	TArray<UAnimMontage*> ChargeAnimMontages;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float ChargeDelay1 = 0.2f;
 
@@ -77,6 +80,16 @@ public:
 	
 	UFUNCTION(Server, Reliable)
 	void SpawnFlock(uint8 comboNum);
+
+	// Wait for ability use animation notify to send out flock
+	void WaitForUseAbilityNotify(uint8 Charge);
+	UFUNCTION()
+	void UseAnimNotifyExecuted();
+
+	// Wait for animation to end to goto next charge
+	void WaitForEndAbilityNotify();
+	UFUNCTION()
+	void EndAnimNotifyExecuted();  
 	
 protected:
 	bool AbilityTest = true;

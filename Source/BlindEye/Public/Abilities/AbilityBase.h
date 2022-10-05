@@ -75,6 +75,12 @@ public:
 	void BP_AbilityInnerState(uint8 innerStateNum);
 
 	void StartLockRotation(float Duration);
+
+	// Broadcasts a generic anim notify event to be subscribed by child abilities when waiting for anim notify
+	void GenericAnimNotify();
+
+	DECLARE_DELEGATE(FAnimNotifySignature)
+	FAnimNotifySignature AnimNotifyDelegate;
 	
 protected:
 	// Called when the game starts

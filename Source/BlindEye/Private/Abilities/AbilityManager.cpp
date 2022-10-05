@@ -99,6 +99,14 @@ void UAbilityManager::SetAbilityInUse(AAbilityBase* abilityInUse)
 	}
 }
 
+void UAbilityManager::PerformGenericAbilityNotify()
+{
+	if (CurrUsedAbility != nullptr)
+	{
+		CurrUsedAbility->GenericAnimNotify();
+	}
+}
+
 
 // Called when the game starts
 void UAbilityManager::BeginPlay()

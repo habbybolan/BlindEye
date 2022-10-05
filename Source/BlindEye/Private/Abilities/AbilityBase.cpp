@@ -39,6 +39,11 @@ void AAbilityBase::StartLockRotation(float Duration)
 	}
 }
 
+void AAbilityBase::GenericAnimNotify()
+{
+	AnimNotifyDelegate.ExecuteIfBound();
+}
+
 // Called when the game starts
 void AAbilityBase::BeginPlay()
 {
