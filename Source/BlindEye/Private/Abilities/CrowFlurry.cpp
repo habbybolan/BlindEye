@@ -14,7 +14,13 @@
 ACrowFlurry::ACrowFlurry()
 {
 	AbilityStates.Add(new FPerformCrowFlurryState(this));
+}
 
+void ACrowFlurry::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// Cache rotation speed of character to apply when ability ended
 	if (ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
 		CachedCharacterRotationSpeed = BlindEyePlayerCharacter->GetCharacterMovement()->RotationRate.Yaw;

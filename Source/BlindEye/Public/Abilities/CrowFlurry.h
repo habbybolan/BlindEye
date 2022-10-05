@@ -36,6 +36,8 @@ class BLINDEYE_API ACrowFlurry : public AAbilityBase
 public:
 	ACrowFlurry();
 
+	virtual void BeginPlay() override;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float DamagePerSec = 10.f;
 
