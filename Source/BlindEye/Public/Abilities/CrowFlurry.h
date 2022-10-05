@@ -16,6 +16,15 @@ public:
 	virtual void ExitState() override;
 };
 
+class BLINDEYE_API FCancelCrowFlurryState : public FAbilityState
+{
+public:  
+	FCancelCrowFlurryState(AAbilityBase* ability);
+	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void ExitState() override;
+};
+
 class BLINDEYE_API FEndCrowFlurryState : public FAbilityState
 {
 public:  
@@ -50,9 +59,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Range = 400;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=1))
-	float MovementSlowAmount = 0.5f;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<	EObjectTypeQuery>> ObjectTypes;
 
@@ -73,6 +79,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	float CrowFlurryDamageDelay = 0.2f;
+ 
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
+	float MovementSlowAfterStoppingFlurry = 0.5;
  
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* CrowFlurryAnimation;
