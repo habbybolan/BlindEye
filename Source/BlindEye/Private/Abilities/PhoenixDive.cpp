@@ -264,6 +264,7 @@ FHangingState::FHangingState(AAbilityBase* ability) : FAbilityState(ability) {}
 void FHangingState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
+	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 	if (abilityUsageType == EAbilityInputTypes::Pressed)
 	{
 		RunState();
@@ -277,7 +278,8 @@ void FHangingState::RunState(EAbilityInputTypes abilityUsageType)
 	if (!Ability) return;
 	APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability);
 	if (!PhoenixDive) return;
-	
+
+	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 	PhoenixDive->LaunchToGround();
 	Ability->BP_AbilityInnerState(2);
 }
