@@ -82,6 +82,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<EObjectTypeQuery>> AllyReviveObjectTypes;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float TimerAfterAbilityUsed = 1.0f;
+
+	PlayerType PlayerType;
+
 	// Debugger Functionality *********
 
 	UFUNCTION(Server, Reliable, BlueprintCallable)
@@ -169,7 +174,13 @@ public:
 	// Called when playerState replicated on client
 	void UpdateAllClientUI();
 
-	PlayerType PlayerType;
+	// Locks the player direction to controller rotation.
+	// If Duration = 0, keeps rotational lock until manually turned off
+	void StartLockRotationToController(float Duration);
+
+	// Stops the rotational lock to controller and clears timer
+	void StopLockRotationToController();
+	
 
 protected:
 
@@ -185,7 +196,9 @@ protected:
 
 	UPROPERTY(Replicated)
 	bool bUnlimitedBirdMeter = false;
-	
+
+	FTimerHandle RotationalLockTimerHandle;
+
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
 

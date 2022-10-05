@@ -86,6 +86,7 @@ void UFirstAttackState::RunState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::RunState();
 	if (!Ability) return;
+	Ability->StartLockRotation(0);
 	Ability->BP_AbilityStarted();
 	Ability->BP_AbilityInnerState(1);
 	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
@@ -116,6 +117,7 @@ void USecondAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState();
 	if (!Ability) return;
+	Ability->StartLockRotation(0);
 	if (ASharedBasicAbility* SharedBasicAbility = Cast<ASharedBasicAbility>(Ability))
 	{
 		if (!SharedBasicAbility->TryConsumeBirdMeter(SharedBasicAbility->SecondChargeCostPercent)) return;
@@ -128,6 +130,7 @@ void USecondAttackState::RunState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::RunState();
 	if (!Ability) return;
+	Ability->StartLockRotation(0);
 	Ability->BP_AbilityInnerState(2);
 	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
 	if (SharedAbility)

@@ -73,6 +73,8 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_AbilityInnerState(uint8 innerStateNum);
+
+	void StartLockRotation(float Duration);
 	
 protected:
 	// Called when the game starts
