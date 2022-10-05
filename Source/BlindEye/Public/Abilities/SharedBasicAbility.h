@@ -81,10 +81,12 @@ public:
 	uint8 CurrCharge = 0;
 	
 	UFUNCTION(Server, Reliable)
-	void SpawnFlock(uint8 comboNum);
+	void SpawnFlock();
+
+	bool bIsAttacking = false;
 
 	// Wait for ability use animation notify to send out flock
-	void WaitForUseAbilityNotify();
+	void PlayAbilityAnimation();
 	UFUNCTION()
 	void UseAnimNotifyExecuted();
 
@@ -96,7 +98,6 @@ public:
 protected:
 	bool AbilityTest = true;
 	FTimerHandle ResetAbilityTimerHandle;
-
 	
 
 	virtual void TryCancelAbility() override;

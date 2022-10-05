@@ -14,8 +14,9 @@ ASharedBasicAbility::ASharedBasicAbility() : AAbilityBase()
 	ChargeAnimMontages.SetNum(3);
 }
 
-void ASharedBasicAbility::WaitForUseAbilityNotify()
+void ASharedBasicAbility::PlayAbilityAnimation()
 {
+	bIsAttacking = true;
 	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
 		PlayerCharacter->MULT_PlayAnimMontage(ChargeAnimMontages[CurrCharge]);
@@ -25,8 +26,8 @@ void ASharedBasicAbility::WaitForUseAbilityNotify()
 
 void ASharedBasicAbility::UseAnimNotifyExecuted()
 {
-	SpawnFlock(CurrCharge);
 	AnimNotifyDelegate.Unbind();
+	SpawnFlock();
 	WaitForEndAbilityNotify();
 }
 
@@ -37,8 +38,9 @@ void ASharedBasicAbility::WaitForEndAbilityNotify()
 
 void ASharedBasicAbility::EndAnimNotifyExecuted()
 {
-	AbilityStates[CurrState]->ExitState();
+	bIsAttacking = false;
 	AnimNotifyDelegate.Unbind();
+	AbilityStates[CurrState]->ExitState();
 }
 
 void ASharedBasicAbility::TryCancelAbility()
@@ -53,7 +55,7 @@ void ASharedBasicAbility::EndAbilityLogic()
 	CurrCharge = 0;
 }
 
-void ASharedBasicAbility::SpawnFlock_Implementation(uint8 comboNum)
+void ASharedBasicAbility::SpawnFlock_Implementation()
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
@@ -62,7 +64,7 @@ void ASharedBasicAbility::SpawnFlock_Implementation(uint8 comboNum)
 	params.Instigator = GetInstigator();
 	params.Owner = GetInstigator();
 
-	switch (comboNum)
+	switch (CurrCharge)
 	{
 	case 0:
 		world->SpawnActor<ABasicAttackSmallFlock>(FirstChargeFlockType, GetOwner()->GetActorLocation(), FRotator::ZeroRotator, params);
@@ -108,6 +110,7 @@ void UFirstAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 	if (!Ability) return;
 	if (ASharedBasicAbility* SharedBasicAbility = Cast<ASharedBasicAbility>(Ability))
 	{
+		SharedBasicAbility->CurrCharge = 0;
 		if (!SharedBasicAbility->TryConsumeBirdMeter(SharedBasicAbility->FirstChargeCostPercent)) return;
 	}
 	if (CurrInnerState > EInnerState::None) return;
@@ -119,8 +122,10 @@ void UFirstAttackState::RunState(EAbilityInputTypes abilityUsageType)
 	FAbilityState::RunState();
 	if (ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability))
 	{
-		SharedAbility->CurrCharge = 0;
-		SharedAbility->WaitForUseAbilityNotify();
+		// prevent re-entering state while attacking
+		if (SharedAbility->bIsAttacking || abilityUsageType > EAbilityInputTypes::None) return;
+		
+		SharedAbility->PlayAbilityAnimation();
 	}
 	
 	if (!Ability) return;
@@ -136,7 +141,7 @@ void UFirstAttackState::ExitState()
 	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
 	if (SharedAbility)
 	{
-		SharedAbility->SetLeaveAbilityTimer();
+		//SharedAbility->SetLeaveAbilityTimer();
 		SharedAbility->DelayToNextState(SharedAbility->ChargeDelay1);
 	}
 }
@@ -152,6 +157,7 @@ void USecondAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 	Ability->StartLockRotation(0);
 	if (ASharedBasicAbility* SharedBasicAbility = Cast<ASharedBasicAbility>(Ability))
 	{
+		// set current charge
 		SharedBasicAbility->CurrCharge = 1;
 		if (!SharedBasicAbility->TryConsumeBirdMeter(SharedBasicAbility->SecondChargeCostPercent)) return;
 	}
@@ -163,14 +169,16 @@ void USecondAttackState::RunState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::RunState();
 	if (!Ability) return;
-	Ability->StartLockRotation(0);
-	Ability->BP_AbilityInnerState(2);
 	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
-	if (SharedAbility)
-	{
-		SharedAbility->WaitForUseAbilityNotify();
-		SharedAbility->SpawnFlock(1);
-	}
+	if (!SharedAbility) return;
+
+	// prevent re-entering state while attacking
+	if (SharedAbility->bIsAttacking || abilityUsageType > EAbilityInputTypes::None) return;
+	
+	SharedAbility->StartLockRotation(0);
+	SharedAbility->BP_AbilityInnerState(2);
+	SharedAbility->PlayAbilityAnimation();
+	SharedAbility->SpawnFlock();
 }
 
 void USecondAttackState::ExitState()
@@ -180,7 +188,7 @@ void USecondAttackState::ExitState()
 	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
 	if (SharedAbility)
 	{
-		SharedAbility->SetLeaveAbilityTimer();
+		//SharedAbility->SetLeaveAbilityTimer();
 		SharedAbility->DelayToNextState(SharedAbility->ChargeDelay2);
 	}
 }
@@ -195,6 +203,7 @@ void ULastAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 	if (!Ability) return;
 	if (ASharedBasicAbility* SharedBasicAbility = Cast<ASharedBasicAbility>(Ability))
 	{
+		// set current charge
 		SharedBasicAbility->CurrCharge = 2;
 		if (!SharedBasicAbility->TryConsumeBirdMeter(SharedBasicAbility->ThirdChargeCostPercent)) return;
 	}
@@ -206,13 +215,16 @@ void ULastAttackState::RunState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::RunState();
 	if (!Ability) return;
-	Ability->BP_AbilityInnerState(3);
 	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
-	if (SharedAbility)
-	{
-		SharedAbility->WaitForUseAbilityNotify();
-		SharedAbility->SpawnFlock(2);
-	}
+	if (SharedAbility == nullptr) return;
+
+	// prevent re-entering state while attacking
+	if (SharedAbility->bIsAttacking || abilityUsageType > EAbilityInputTypes::None) return;
+
+	SharedAbility->StartLockRotation(2);
+	SharedAbility->BP_AbilityInnerState(3);
+	SharedAbility->PlayAbilityAnimation();
+	SharedAbility->SpawnFlock();
 }
 
 void ULastAttackState::ExitState()
