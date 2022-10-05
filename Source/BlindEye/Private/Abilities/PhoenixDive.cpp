@@ -31,6 +31,7 @@ void APhoenixDive::LaunchPlayerUpwards()
 
 void APhoenixDive::HangInAir()
 {
+	BP_AbilityInnerState(1);
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
 	Character->GetCharacterMovement()->GravityScale = 0.f;
 	Character->GetCharacterMovement()->StopMovementImmediately();
@@ -47,7 +48,6 @@ void APhoenixDive::HangInAirTimer()
 	if (!world) return;
 
 	world->GetTimerManager().SetTimer(HangInAirTimerHandle, this, &APhoenixDive::HangInAir, DurationOfUpwardsForce, false);
-	BP_AbilityInnerState(1);
 }
 
 void APhoenixDive::LaunchToGround()
@@ -264,6 +264,7 @@ FHangingState::FHangingState(AAbilityBase* ability) : FAbilityState(ability) {}
 void FHangingState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
+	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 	if (abilityUsageType == EAbilityInputTypes::Pressed)
 	{
 		RunState();
@@ -277,7 +278,8 @@ void FHangingState::RunState(EAbilityInputTypes abilityUsageType)
 	if (!Ability) return;
 	APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability);
 	if (!PhoenixDive) return;
-	
+
+	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 	PhoenixDive->LaunchToGround();
 	Ability->BP_AbilityInnerState(2);
 }

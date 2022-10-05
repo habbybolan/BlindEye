@@ -7,10 +7,28 @@
 #include "DamageTypes/BaseDamageType.h"
 #include "CrowFlurry.generated.h"
 
-class BLINDEYE_API UFirstCrowFlurryState : public FAbilityState
+class BLINDEYE_API FPerformCrowFlurryState : public FAbilityState
 {
 public:  
-	UFirstCrowFlurryState(AAbilityBase* ability);
+	FPerformCrowFlurryState(AAbilityBase* ability);
+	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void ExitState() override;
+};
+
+class BLINDEYE_API FCancelCrowFlurryState : public FAbilityState
+{
+public:  
+	FCancelCrowFlurryState(AAbilityBase* ability);
+	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void ExitState() override;
+};
+
+class BLINDEYE_API FEndCrowFlurryState : public FAbilityState
+{
+public:  
+	FEndCrowFlurryState(AAbilityBase* ability);
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
@@ -27,6 +45,8 @@ class BLINDEYE_API ACrowFlurry : public AAbilityBase
 public:
 	ACrowFlurry();
 
+	virtual void BeginPlay() override;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float DamagePerSec = 10.f;
 
@@ -38,9 +58,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Range = 400;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=1))
-	float MovementSlowAmount = 0.5f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<	EObjectTypeQuery>> ObjectTypes;
@@ -57,7 +74,23 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=1))
 	float CrowFlurryLerpSpeed = 0.15;
 
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=540))
+	float RotationSpeedInFlurry = 100;
+
+	UPROPERTY(EditDefaultsOnly)
+	float CrowFlurryDamageDelay = 0.2f;
+ 
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
+	float MovementSlowAfterStoppingFlurry = 0.5;
+ 
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* CrowFlurryAnimation;
+
+	bool bFlurryActive = false;
+	
 	void StartCrowFlurry();
+	void PlayAbilityAnimation();
+	void EndAbilityAnimation(); 
 
 protected:
 	
@@ -67,9 +100,9 @@ protected:
 	FTimerHandle CalculateRotationTimerHandle;
 	float CalcRotationDelay = 0.05f;
 
-	FTimerHandle RotateFlurryTimerHandle;
+	float CachedCharacterRotationSpeed;
 
-	bool bFlurryActive = false;
+	FTimerHandle RotateFlurryTimerHandle;
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void MULT_RotateFlurry(); 
@@ -85,6 +118,12 @@ protected:
 
 	UFUNCTION()
 	void CalcFlurryRotation();
+
+	UFUNCTION()
+	void UseAnimNotifyExecuted();
+
+	UFUNCTION()
+	void AbilityAnimationEnded();
 	
 	virtual void EndAbilityLogic() override;
 

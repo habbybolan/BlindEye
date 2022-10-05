@@ -3,6 +3,7 @@
 
 #include "Abilities/AbilityBase.h"
 
+#include "Characters/BlindEyePlayerCharacter.h"
 #include "Interfaces/AbilityUserInterface.h"
 #include "Net/UnrealNetwork.h"
 
@@ -28,6 +29,19 @@ bool AAbilityBase::TryConsumeBirdMeter(float BirdMeterAmount)
 		return AbilityUserInterface->TryConsumeBirdMeter(BirdMeterAmount);
 	}
 	return true;
+}
+
+void AAbilityBase::StartLockRotation(float Duration)
+{
+	if (ABlindEyePlayerCharacter* BlindEyeCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	{
+		BlindEyeCharacter->CLI_StartLockRotationToController(Duration);
+	}
+}
+
+void AAbilityBase::GenericAnimNotify()
+{
+	AnimNotifyDelegate.ExecuteIfBound();
 }
 
 // Called when the game starts
@@ -62,6 +76,11 @@ void AAbilityBase::TryCancelAbility()
 
 void AAbilityBase::DelayToNextState(float delay)
 {
+	if (delay == 0)
+	{
+		EndCurrState();
+		return;
+	}
 	UWorld* world = GetWorld();
 	if (!world) return;
 

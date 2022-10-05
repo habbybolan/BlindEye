@@ -57,10 +57,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<ABasicAttackSmallFlock> LastChargeFlockType;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly)
+	TArray<UAnimMontage*> ChargeAnimMontages;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0))
 	float ChargeDelay1 = 0.2f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0))
 	float ChargeDelay2 = 0.2f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -73,14 +76,38 @@ public:
 	float ThirdChargeCostPercent = 5;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float AbilityCancelDelay = 2; 
+	float AbilityCancelDelay = 2;
+
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
+	float Charge1MovementSlow = 0.7;
+
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
+	float Charge2MovementSlow = 0.7;
+
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
+	float Charge3MovementSlow = 0.45;
+
+	uint8 CurrCharge = 0;
 	
 	UFUNCTION(Server, Reliable)
-	void SpawnFlock(uint8 comboNum);
+	void SpawnFlock();
+
+	bool bIsAttacking = false;
+
+	// Wait for ability use animation notify to send out flock
+	void PlayAbilityAnimation();
+	UFUNCTION()
+	void UseAnimNotifyExecuted();
+
+	// Wait for animation to end to goto next charge
+	void WaitForEndAbilityNotify();
+	UFUNCTION()
+	void EndAnimNotifyExecuted();  
 	
 protected:
 	bool AbilityTest = true;
 	FTimerHandle ResetAbilityTimerHandle;
+	
 
 	virtual void TryCancelAbility() override;
 	virtual void EndAbilityLogic() override;
