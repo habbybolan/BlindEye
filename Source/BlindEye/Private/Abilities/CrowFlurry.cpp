@@ -103,7 +103,7 @@ void ACrowFlurry::PerformCrowFlurry()
 void ACrowFlurry::CalcFlurryRotation()
 {
 	FRotator TargetRotation = GetInstigator()->GetControlRotation();
-	CurrFlurryRotation = UKismetMathLibrary::RLerp(CurrFlurryRotation, TargetRotation, 0.15, true);
+	CurrFlurryRotation = UKismetMathLibrary::RLerp(CurrFlurryRotation, TargetRotation, CrowFlurryLerpSpeed, true);
 }
 
 void ACrowFlurry::EndAbilityLogic()
