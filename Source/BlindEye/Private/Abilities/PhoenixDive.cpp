@@ -31,6 +31,7 @@ void APhoenixDive::LaunchPlayerUpwards()
 
 void APhoenixDive::HangInAir()
 {
+	BP_AbilityInnerState(1);
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
 	Character->GetCharacterMovement()->GravityScale = 0.f;
 	Character->GetCharacterMovement()->StopMovementImmediately();
@@ -47,7 +48,6 @@ void APhoenixDive::HangInAirTimer()
 	if (!world) return;
 
 	world->GetTimerManager().SetTimer(HangInAirTimerHandle, this, &APhoenixDive::HangInAir, DurationOfUpwardsForce, false);
-	BP_AbilityInnerState(1);
 }
 
 void APhoenixDive::LaunchToGround()
