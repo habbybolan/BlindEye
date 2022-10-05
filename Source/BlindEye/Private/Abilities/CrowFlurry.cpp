@@ -20,6 +20,11 @@ void ACrowFlurry::StartCrowFlurry()
 	UWorld* world = GetWorld();
 	if (!world) return;
 
+	if (ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	{
+		BlindEyePlayerCharacter->CLI_StartLockRotationToController(0);
+	}
+
 	bFlurryActive = true;
 	CurrFlurryRotation = GetInstigator()->GetControlRotation();
 	world->GetTimerManager().SetTimer(CrowFlurryTimerHandle, this, &ACrowFlurry::PerformCrowFlurry, 0.2f, true);
@@ -36,6 +41,12 @@ void ACrowFlurry::PlayAbilityAnimation()
 		PlayerCharacter->MULT_PlayAnimMontage(CrowFlurryAnimation);
 	}
 	AnimNotifyDelegate.BindUFunction( this, TEXT("UseAnimNotifyExecuted"));
+}
+
+void ACrowFlurry::UseAnimNotifyExecuted()
+{
+	AnimNotifyDelegate.Unbind();
+	StartCrowFlurry();
 }
 
 void ACrowFlurry::EndAbilityAnimation()
@@ -82,18 +93,17 @@ void ACrowFlurry::PerformCrowFlurry()
 		// if out of bird meter, simulate releasing button
 		AbilityStates[CurrState]->HandleInput(EAbilityInputTypes::Pressed);
 	}
+
+	if (ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	{
+		BlindEyePlayerCharacter->CLI_StartLockRotationToController(0);
+	}
 }
 
 void ACrowFlurry::CalcFlurryRotation()
 {
 	FRotator TargetRotation = GetInstigator()->GetControlRotation();
 	CurrFlurryRotation = UKismetMathLibrary::RLerp(CurrFlurryRotation, TargetRotation, 0.15, true);
-}
-
-void ACrowFlurry::UseAnimNotifyExecuted()
-{
-	AnimNotifyDelegate.Unbind();
-	StartCrowFlurry();
 }
 
 void ACrowFlurry::EndAbilityLogic()
