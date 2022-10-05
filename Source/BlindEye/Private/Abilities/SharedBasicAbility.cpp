@@ -46,6 +46,8 @@ void ASharedBasicAbility::EndAnimNotifyExecuted()
 void ASharedBasicAbility::TryCancelAbility()
 {
 	Super::TryCancelAbility();
+	AnimNotifyDelegate.Unbind();
+	bIsAttacking = false;
 }
 
 void ASharedBasicAbility::EndAbilityLogic()

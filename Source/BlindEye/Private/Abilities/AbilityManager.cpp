@@ -157,10 +157,20 @@ void UAbilityManager::AbilityEnded()
 
 bool UAbilityManager::IsAbilityUnavailable(AAbilityBase* AbilityToUse) const
 {
+	// Allow using if same ability currently in use 
+	if (CurrUsedAbility == AbilityToUse)
+		return false;
+	
+	// If ability being used but not blocking
+	if (CurrUsedAbility != nullptr && !CurrUsedAbility->Blockers.IsOtherAbilitiesBlocked)
+	{
+		CurrUsedAbility->TryCancelAbility();
+		return false;
+	}
+	
 	return	(AbilityToUse->GetIsOnCooldown() == true) ||
 			(CurrUsedAbility != nullptr &&
-			CurrUsedAbility->Blockers.IsOtherAbilitiesBlocked &&
-			CurrUsedAbility != AbilityToUse);
+			CurrUsedAbility->Blockers.IsOtherAbilitiesBlocked);
 }
 
 void UAbilityManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
