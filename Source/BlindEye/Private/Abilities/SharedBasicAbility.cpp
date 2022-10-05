@@ -129,7 +129,7 @@ void UFirstAttackState::RunState(EAbilityInputTypes abilityUsageType)
 	}
 	
 	if (!Ability) return;
-	Ability->StartLockRotation(0);
+	Ability->StartLockRotation(1);
 	Ability->BP_AbilityStarted();
 	Ability->BP_AbilityInnerState(1);
 }
@@ -154,7 +154,6 @@ void USecondAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState();
 	if (!Ability) return;
-	Ability->StartLockRotation(0);
 	if (ASharedBasicAbility* SharedBasicAbility = Cast<ASharedBasicAbility>(Ability))
 	{
 		// set current charge
@@ -176,10 +175,9 @@ void USecondAttackState::RunState(EAbilityInputTypes abilityUsageType)
 	if (SharedAbility->bIsAttacking || abilityUsageType > EAbilityInputTypes::None) return;
 
 	SharedAbility->ClearLeaveAbilityTimer();
-	SharedAbility->StartLockRotation(0);
+	SharedAbility->StartLockRotation(1);
 	SharedAbility->BP_AbilityInnerState(2);
 	SharedAbility->PlayAbilityAnimation();
-	SharedAbility->SpawnFlock();
 }
 
 void USecondAttackState::ExitState()
@@ -226,7 +224,6 @@ void ULastAttackState::RunState(EAbilityInputTypes abilityUsageType)
 	SharedAbility->StartLockRotation(2);
 	SharedAbility->BP_AbilityInnerState(3);
 	SharedAbility->PlayAbilityAnimation();
-	SharedAbility->SpawnFlock();
 }
 
 void ULastAttackState::ExitState()

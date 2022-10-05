@@ -76,6 +76,11 @@ void AAbilityBase::TryCancelAbility()
 
 void AAbilityBase::DelayToNextState(float delay)
 {
+	if (delay == 0)
+	{
+		EndCurrState();
+		return;
+	}
 	UWorld* world = GetWorld();
 	if (!world) return;
 

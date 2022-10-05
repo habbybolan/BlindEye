@@ -60,10 +60,10 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TArray<UAnimMontage*> ChargeAnimMontages;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0))
 	float ChargeDelay1 = 0.2f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0))
 	float ChargeDelay2 = 0.2f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
