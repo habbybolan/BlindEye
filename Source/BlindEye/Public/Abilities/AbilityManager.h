@@ -58,6 +58,8 @@ public:
 	// Called from ability to signal ability in use
 	void SetAbilityInUse(AAbilityBase* abilityInUse);
 
+	void PerformGenericAbilityNotify();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

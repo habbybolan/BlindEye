@@ -142,6 +142,43 @@ void ABlindEyePlayerCharacter::UpdateAllClientUI()
 	UpdatePlayerHealthUI();
 }
 
+void ABlindEyePlayerCharacter::CLI_StartLockRotationToController_Implementation(float Duration)
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return; 
+
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+
+	// Override current timer duration if new duration larger
+	float TimeRemaining = World->GetTimerManager().GetTimerRemaining(RotationalLockTimerHandle);
+	if (Duration + TimerAfterAbilityUsed > TimeRemaining)
+	{
+		World->GetTimerManager().SetTimer(RotationalLockTimerHandle, this, &ABlindEyePlayerCharacter::CLI_StopLockRotationToController,
+			Duration +  TimerAfterAbilityUsed, false);
+	} 
+}
+
+void ABlindEyePlayerCharacter::CLI_StopLockRotationToController_Implementation()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	World->GetTimerManager().ClearTimer(RotationalLockTimerHandle);
+	GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+}
+
+UAbilityManager* ABlindEyePlayerCharacter::GetAbilityManager()
+{
+	return AbilityManager;
+}
+
+void ABlindEyePlayerCharacter::MULT_PlayAnimMontage_Implementation(UAnimMontage* AnimMontage)
+{
+	PlayAnimMontage(AnimMontage); 
+}
+
 void ABlindEyePlayerCharacter::RegenBirdMeter()
 {
 	if (ABlindEyePlayerState* BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState()))
