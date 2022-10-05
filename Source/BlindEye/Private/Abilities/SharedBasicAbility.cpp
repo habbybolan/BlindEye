@@ -14,18 +14,18 @@ ASharedBasicAbility::ASharedBasicAbility() : AAbilityBase()
 	ChargeAnimMontages.SetNum(3);
 }
 
-void ASharedBasicAbility::WaitForUseAbilityNotify(uint8 Charge)
+void ASharedBasicAbility::WaitForUseAbilityNotify()
 {
 	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
-		PlayerCharacter->MULT_PlayAnimMontage(ChargeAnimMontages[Charge]);
+		PlayerCharacter->MULT_PlayAnimMontage(ChargeAnimMontages[CurrCharge]);
 	}
 	AnimNotifyDelegate.BindUFunction( this, TEXT("UseAnimNotifyExecuted"));
 }
 
 void ASharedBasicAbility::UseAnimNotifyExecuted()
 {
-	SpawnFlock(0);
+	SpawnFlock(CurrCharge);
 	AnimNotifyDelegate.Unbind();
 	WaitForEndAbilityNotify();
 }
@@ -50,6 +50,7 @@ void ASharedBasicAbility::EndAbilityLogic()
 {
 	Super::EndAbilityLogic();
 	ClearLeaveAbilityTimer();
+	CurrCharge = 0;
 }
 
 void ASharedBasicAbility::SpawnFlock_Implementation(uint8 comboNum)
@@ -116,10 +117,10 @@ void UFirstAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 void UFirstAttackState::RunState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::RunState();
-
 	if (ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability))
 	{
-		SharedAbility->WaitForUseAbilityNotify(0);
+		SharedAbility->CurrCharge = 0;
+		SharedAbility->WaitForUseAbilityNotify();
 	}
 	
 	if (!Ability) return;
@@ -151,6 +152,7 @@ void USecondAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 	Ability->StartLockRotation(0);
 	if (ASharedBasicAbility* SharedBasicAbility = Cast<ASharedBasicAbility>(Ability))
 	{
+		SharedBasicAbility->CurrCharge = 1;
 		if (!SharedBasicAbility->TryConsumeBirdMeter(SharedBasicAbility->SecondChargeCostPercent)) return;
 	}
 	if (CurrInnerState > EInnerState::None) return;
@@ -166,9 +168,9 @@ void USecondAttackState::RunState(EAbilityInputTypes abilityUsageType)
 	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
 	if (SharedAbility)
 	{
+		SharedAbility->WaitForUseAbilityNotify();
 		SharedAbility->SpawnFlock(1);
 	}
-	ExitState();
 }
 
 void USecondAttackState::ExitState()
@@ -193,6 +195,7 @@ void ULastAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 	if (!Ability) return;
 	if (ASharedBasicAbility* SharedBasicAbility = Cast<ASharedBasicAbility>(Ability))
 	{
+		SharedBasicAbility->CurrCharge = 2;
 		if (!SharedBasicAbility->TryConsumeBirdMeter(SharedBasicAbility->ThirdChargeCostPercent)) return;
 	}
 	if (CurrInnerState > EInnerState::None) return;
@@ -207,9 +210,9 @@ void ULastAttackState::RunState(EAbilityInputTypes abilityUsageType)
 	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
 	if (SharedAbility)
 	{
+		SharedAbility->WaitForUseAbilityNotify();
 		SharedAbility->SpawnFlock(2);
 	}
-	ExitState();
 }
 
 void ULastAttackState::ExitState()

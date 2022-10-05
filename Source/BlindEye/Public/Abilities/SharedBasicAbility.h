@@ -76,13 +76,15 @@ public:
 	float ThirdChargeCostPercent = 5;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float AbilityCancelDelay = 2; 
+	float AbilityCancelDelay = 2;
+
+	uint8 CurrCharge = 0;
 	
 	UFUNCTION(Server, Reliable)
 	void SpawnFlock(uint8 comboNum);
 
 	// Wait for ability use animation notify to send out flock
-	void WaitForUseAbilityNotify(uint8 Charge);
+	void WaitForUseAbilityNotify();
 	UFUNCTION()
 	void UseAnimNotifyExecuted();
 
@@ -94,6 +96,8 @@ public:
 protected:
 	bool AbilityTest = true;
 	FTimerHandle ResetAbilityTimerHandle;
+
+	
 
 	virtual void TryCancelAbility() override;
 	virtual void EndAbilityLogic() override;
