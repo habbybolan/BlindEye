@@ -183,6 +183,7 @@ public:
 
 	UAbilityManager* GetAbilityManager();
 
+	UFUNCTION(NetMulticast, Reliable)
 	void MULT_PlayAnimMontage(UAnimMontage* AnimMontage);
 
 protected:

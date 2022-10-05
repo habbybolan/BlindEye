@@ -174,9 +174,9 @@ UAbilityManager* ABlindEyePlayerCharacter::GetAbilityManager()
 	return AbilityManager;
 }
 
-void ABlindEyePlayerCharacter::MULT_PlayAnimMontage(UAnimMontage* AnimMontage)
+void ABlindEyePlayerCharacter::MULT_PlayAnimMontage_Implementation(UAnimMontage* AnimMontage)
 {
-	PlayAnimMontage(AnimMontage);
+	PlayAnimMontage(AnimMontage); 
 }
 
 void ABlindEyePlayerCharacter::RegenBirdMeter()
