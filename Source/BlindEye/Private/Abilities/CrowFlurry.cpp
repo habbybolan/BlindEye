@@ -14,6 +14,8 @@
 ACrowFlurry::ACrowFlurry()
 {
 	AbilityStates.Add(new FPerformCrowFlurryState(this));
+	AbilityStates.Add(new FCancelCrowFlurryState(this));
+	AbilityStates.Add(new FEndCrowFlurryState(this));
 }
 
 void ACrowFlurry::BeginPlay()
@@ -62,11 +64,18 @@ void ACrowFlurry::UseAnimNotifyExecuted()
 {
 	AnimNotifyDelegate.Unbind();
 	StartCrowFlurry();
+	AbilityStates[CurrState]->ExitState();
 }
 
 void ACrowFlurry::EndAbilityAnimation()
 {
 	BP_AbilityInnerState(2);
+	
+	UWorld* world = GetWorld();
+	if (!world) return;
+	world->GetTimerManager().ClearTimer(CrowFlurryTimerHandle);
+	world->GetTimerManager().ClearTimer(CalculateRotationTimerHandle);
+	
 	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
 		PlayerCharacter->MULT_SetNextMontageSection(CrowFlurryAnimation, "End");
@@ -126,11 +135,6 @@ void ACrowFlurry::EndAbilityLogic()
 	Super::EndAbilityLogic();
 	bFlurryActive = false;
 
-	UWorld* world = GetWorld();
-	if (!world) return;
-	world->GetTimerManager().ClearTimer(CrowFlurryTimerHandle);
-	world->GetTimerManager().ClearTimer(CalculateRotationTimerHandle);
-
 	if (ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
 		BlindEyePlayerCharacter->GetCharacterMovement()->RotationRate = FRotator(0, CachedCharacterRotationSpeed, 0);
@@ -139,7 +143,7 @@ void ACrowFlurry::EndAbilityLogic()
 
 // **** States *******
 
-// First Crow Flurry state *********************
+// Animation to start crow flurry state  *********************
 
 FPerformCrowFlurryState::FPerformCrowFlurryState(AAbilityBase* ability) : FAbilityState(ability) {}
 
@@ -159,35 +163,67 @@ void FPerformCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType)
 
 void FPerformCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
 {
-	FAbilityState::RunState();
+	// Dont enter if input pressed
+	if (abilityUsageType > EAbilityInputTypes::None) return;
 	
+	FAbilityState::RunState();
 	if (!Ability) return;
 	
 	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);
 	if (!CrowFlurry) return;
+	
+	Ability->BP_AbilityStarted();
+	// wait for ability startup to goto end state
+	CrowFlurry->PlayAbilityAnimation();
 
-	// leave running state on ability released
-	if (abilityUsageType == EAbilityInputTypes::Pressed)
-	{
-		CrowFlurry->EndAbilityAnimation();
-		ExitState();
-	} else
-	{
-		Ability->BP_AbilityStarted();
-		CrowFlurry->PlayAbilityAnimation();
-
-		Ability->Blockers.IsMovementBlocked = true;
-		Ability->Blockers.IsOtherAbilitiesBlocked = true;
-	}
+	Ability->Blockers.IsMovementBlocked = true;
+	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 }
 
 void FPerformCrowFlurryState::ExitState()
 {
 	FAbilityState::ExitState();
 	Ability->EndCurrState();
+	Ability->UseAbility(EAbilityInputTypes::None);
 }
 
-FEndCrowFlurryState::FEndCrowFlurryState(AAbilityBase* ability)  : FAbilityState(ability) {}
+// State to Start actually using the crow flurry *****************
+
+FCancelCrowFlurryState::FCancelCrowFlurryState(AAbilityBase* ability)  : FAbilityState(ability) {}
+
+void FCancelCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType)
+{
+	FAbilityState::TryEnterState(abilityUsageType);
+	RunState();
+}
+
+void FCancelCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
+{ 
+	FAbilityState::RunState(abilityUsageType);
+
+	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);
+	if (CrowFlurry == nullptr) return;
+
+	Ability->Blockers.IsMovementBlocked = true;
+	Ability->Blockers.IsOtherAbilitiesBlocked = true;
+	
+	if (abilityUsageType == EAbilityInputTypes::Pressed)
+	{
+		CrowFlurry->EndAbilityAnimation();
+		ExitState();
+	}
+}
+
+void FCancelCrowFlurryState::ExitState()
+{
+	FAbilityState::ExitState();
+	Ability->EndCurrState();
+	Ability->UseAbility(EAbilityInputTypes::None);
+}
+
+// State to wait for animation to end after crow flurry cancelled / stopped
+
+FEndCrowFlurryState::FEndCrowFlurryState(AAbilityBase* ability) : FAbilityState(ability) {}
 
 void FEndCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
@@ -198,7 +234,9 @@ void FEndCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType)
 void FEndCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::RunState(abilityUsageType);
-	Ability->Blockers.IsMovementBlocked = true;
+	Ability->Blockers.IsMovementSlowBlocked = true;
+	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);
+	Ability->Blockers.MovementSlowAmount = CrowFlurry->MovementSlowAfterStoppingFlurry;
 	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 }
 
