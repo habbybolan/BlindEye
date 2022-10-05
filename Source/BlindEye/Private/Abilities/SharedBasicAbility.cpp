@@ -141,7 +141,7 @@ void UFirstAttackState::ExitState()
 	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
 	if (SharedAbility)
 	{
-		//SharedAbility->SetLeaveAbilityTimer();
+		SharedAbility->SetLeaveAbilityTimer();
 		SharedAbility->DelayToNextState(SharedAbility->ChargeDelay1);
 	}
 }
@@ -174,7 +174,8 @@ void USecondAttackState::RunState(EAbilityInputTypes abilityUsageType)
 
 	// prevent re-entering state while attacking
 	if (SharedAbility->bIsAttacking || abilityUsageType > EAbilityInputTypes::None) return;
-	
+
+	SharedAbility->ClearLeaveAbilityTimer();
 	SharedAbility->StartLockRotation(0);
 	SharedAbility->BP_AbilityInnerState(2);
 	SharedAbility->PlayAbilityAnimation();
@@ -182,13 +183,13 @@ void USecondAttackState::RunState(EAbilityInputTypes abilityUsageType)
 }
 
 void USecondAttackState::ExitState()
-{
+{ 
 	// Exits the ability if no input in time
 	FAbilityState::ExitState();
 	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
 	if (SharedAbility)
 	{
-		//SharedAbility->SetLeaveAbilityTimer();
+		SharedAbility->SetLeaveAbilityTimer();
 		SharedAbility->DelayToNextState(SharedAbility->ChargeDelay2);
 	}
 }
@@ -221,6 +222,7 @@ void ULastAttackState::RunState(EAbilityInputTypes abilityUsageType)
 	// prevent re-entering state while attacking
 	if (SharedAbility->bIsAttacking || abilityUsageType > EAbilityInputTypes::None) return;
 
+	SharedAbility->ClearLeaveAbilityTimer();
 	SharedAbility->StartLockRotation(2);
 	SharedAbility->BP_AbilityInnerState(3);
 	SharedAbility->PlayAbilityAnimation();
