@@ -169,6 +169,16 @@ void ABlindEyePlayerCharacter::StopLockRotationToController()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 }
 
+UAbilityManager* ABlindEyePlayerCharacter::GetAbilityManager()
+{
+	return AbilityManager;
+}
+
+void ABlindEyePlayerCharacter::MULT_PlayAnimMontage(UAnimMontage* AnimMontage)
+{
+	PlayAnimMontage(AnimMontage);
+}
+
 void ABlindEyePlayerCharacter::RegenBirdMeter()
 {
 	if (ABlindEyePlayerState* BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState()))

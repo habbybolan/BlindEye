@@ -180,7 +180,10 @@ public:
 
 	// Stops the rotational lock to controller and clears timer
 	void StopLockRotationToController();
-	
+
+	UAbilityManager* GetAbilityManager();
+
+	void MULT_PlayAnimMontage(UAnimMontage* AnimMontage);
 
 protected:
 

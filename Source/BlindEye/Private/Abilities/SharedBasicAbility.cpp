@@ -3,11 +3,42 @@
 
 #include "Abilities/SharedBasicAbility.h"
 
+#include "Characters/BlindEyePlayerCharacter.h"
+
 ASharedBasicAbility::ASharedBasicAbility() : AAbilityBase()
 {
 	AbilityStates.Add(new UFirstAttackState(this));
 	AbilityStates.Add(new USecondAttackState(this));
 	AbilityStates.Add(new ULastAttackState(this));
+
+	ChargeAnimMontages.SetNum(3);
+}
+
+void ASharedBasicAbility::WaitForUseAbilityNotify(uint8 Charge)
+{
+	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	{
+		PlayerCharacter->MULT_PlayAnimMontage(ChargeAnimMontages[Charge]);
+	}
+	AnimNotifyDelegate.BindUFunction( this, TEXT("UseAnimNotifyExecuted"));
+}
+
+void ASharedBasicAbility::UseAnimNotifyExecuted()
+{
+	SpawnFlock(0);
+	AnimNotifyDelegate.Unbind();
+	WaitForEndAbilityNotify();
+}
+
+void ASharedBasicAbility::WaitForEndAbilityNotify()
+{
+	AnimNotifyDelegate.BindUFunction( this, TEXT("EndAnimNotifyExecuted"));
+}
+
+void ASharedBasicAbility::EndAnimNotifyExecuted()
+{
+	AbilityStates[CurrState]->ExitState();
+	AnimNotifyDelegate.Unbind();
 }
 
 void ASharedBasicAbility::TryCancelAbility()
@@ -85,16 +116,16 @@ void UFirstAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 void UFirstAttackState::RunState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::RunState();
+
+	if (ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability))
+	{
+		SharedAbility->WaitForUseAbilityNotify(0);
+	}
+	
 	if (!Ability) return;
 	Ability->StartLockRotation(0);
 	Ability->BP_AbilityStarted();
 	Ability->BP_AbilityInnerState(1);
-	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
-	if (SharedAbility)
-	{
-		SharedAbility->SpawnFlock(0);
-	}
-	ExitState();
 }
 
 void UFirstAttackState::ExitState()
