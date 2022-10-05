@@ -124,7 +124,9 @@ void UFirstAttackState::RunState(EAbilityInputTypes abilityUsageType)
 	{
 		// prevent re-entering state while attacking
 		if (SharedAbility->bIsAttacking || abilityUsageType > EAbilityInputTypes::None) return;
-		
+
+		SharedAbility->Blockers.IsMovementSlowBlocked = true;
+		SharedAbility->Blockers.MovementSlowAmount = SharedAbility->Charge1MovementSlow;
 		SharedAbility->PlayAbilityAnimation();
 	}
 	
@@ -174,6 +176,8 @@ void USecondAttackState::RunState(EAbilityInputTypes abilityUsageType)
 	// prevent re-entering state while attacking
 	if (SharedAbility->bIsAttacking || abilityUsageType > EAbilityInputTypes::None) return;
 
+	SharedAbility->Blockers.IsMovementSlowBlocked = true;
+	SharedAbility->Blockers.MovementSlowAmount = SharedAbility->Charge2MovementSlow;
 	SharedAbility->ClearLeaveAbilityTimer();
 	SharedAbility->StartLockRotation(1);
 	SharedAbility->BP_AbilityInnerState(2);
@@ -220,6 +224,8 @@ void ULastAttackState::RunState(EAbilityInputTypes abilityUsageType)
 	// prevent re-entering state while attacking
 	if (SharedAbility->bIsAttacking || abilityUsageType > EAbilityInputTypes::None) return;
 
+	SharedAbility->Blockers.IsMovementSlowBlocked = true;
+	SharedAbility->Blockers.MovementSlowAmount = SharedAbility->Charge3MovementSlow;
 	SharedAbility->ClearLeaveAbilityTimer();
 	SharedAbility->StartLockRotation(2);
 	SharedAbility->BP_AbilityInnerState(3);

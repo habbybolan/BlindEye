@@ -78,6 +78,15 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float AbilityCancelDelay = 2;
 
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
+	float Charge1MovementSlow = 0.7;
+
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
+	float Charge2MovementSlow = 0.7;
+
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
+	float Charge3MovementSlow = 0.45;
+
 	uint8 CurrCharge = 0;
 	
 	UFUNCTION(Server, Reliable)
