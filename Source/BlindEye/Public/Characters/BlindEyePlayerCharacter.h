@@ -256,7 +256,12 @@ protected:
 	UFUNCTION()
 	void ChargedAttackPressed();
 	UFUNCTION()
-	void ChargedAttackReleased(); 
+	void ChargedAttackReleased();
+
+	UFUNCTION()  
+	void DashPressed();
+	UFUNCTION() 
+	void DashReleased(); 
 
 	UFUNCTION()
 	void Unique1Pressed();

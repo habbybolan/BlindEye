@@ -23,6 +23,7 @@ enum class EAbilityTypes
 	ChargedBasic = 1,
 	Unique1 = 2, 
 	Unique2 = 3,
+	Dash = 4
 };
  
 UENUM()
@@ -71,6 +72,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AAbilityBase> BasicAttackType;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<AAbilityBase> DashType;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AAbilityBase> ChargedBasicAttackType;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TSubclassOf<AAbilityBase>> UniqueAbilityTypes;
@@ -78,6 +81,8 @@ protected:
 	// Created Abilities
 	UPROPERTY(Replicated)
 	AAbilityBase* BasicAttack;
+	UPROPERTY(Replicated)
+	AAbilityBase* Dash; 
 	UPROPERTY(Replicated)
 	AAbilityBase* ChargedBasicAttack;
 	UPROPERTY(Replicated)

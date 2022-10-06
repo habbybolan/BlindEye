@@ -74,18 +74,33 @@ void AAbilityBase::TryCancelAbility()
 	EndAbilityLogic();
 }
 
-void AAbilityBase::DelayToNextState(float delay)
+void AAbilityBase::DelayToNextState(float delay, bool IsDelayToExit)
 {
+	bDelayToExit = IsDelayToExit;
 	if (delay == 0)
 	{
-		EndCurrState();
+		ExecuteDelayToNextState();
 		return;
 	}
 	UWorld* world = GetWorld();
 	if (!world) return;
 
 	world->GetTimerManager().ClearTimer(NextStateDelayTimerHandle);
-	world->GetTimerManager().SetTimer(NextStateDelayTimerHandle, this, &AAbilityBase::EndCurrState, delay, false);
+	world->GetTimerManager().SetTimer(NextStateDelayTimerHandle, this, &AAbilityBase::ExecuteDelayToNextState, delay, false);
+}
+
+void AAbilityBase::ExecuteDelayToNextState()
+{
+	// Enter exit state
+	if (bDelayToExit)
+	{
+		AbilityStates[CurrState]->ExitState();
+	}
+	// Enter the next state
+	else
+	{
+		EndCurrState();
+	}
 }
 
 void AAbilityBase::EndAbilityLogic()
