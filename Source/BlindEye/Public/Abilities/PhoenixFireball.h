@@ -52,6 +52,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=100))
 	float CostPercent = 30;
 
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
+	float SlowAmount = 0.5f;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UBaseDamageType> DamageType;
 

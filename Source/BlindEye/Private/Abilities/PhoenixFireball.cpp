@@ -148,6 +148,9 @@ void FStartCastingAbilityState::RunState(EAbilityInputTypes abilityUsageType)
 	FAbilityState::RunState(abilityUsageType);
 	if (!Ability) return;
 	Ability->BP_AbilityStarted();
+	Ability->Blockers.IsOtherAbilitiesBlocked = true;
+	Ability->Blockers.IsMovementSlowBlocked = true;
+	Ability->Blockers.MovementSlowAmount = 0.5;
 	APhoenixFireball* PhoenixFireball = Cast<APhoenixFireball>(Ability);
 	if (!PhoenixFireball) return;
 	
@@ -179,6 +182,11 @@ void FCastFireballState::RunState(EAbilityInputTypes abilityUsageType)
 	if (abilityUsageType > EAbilityInputTypes::None) return;
 	
 	FAbilityState::RunState(abilityUsageType);
+	if (Ability == nullptr) return;
+
+	Ability->Blockers.IsOtherAbilitiesBlocked = true;
+	Ability->Blockers.IsMovementSlowBlocked = true;
+	Ability->Blockers.MovementSlowAmount = 0.5;
 
 	APhoenixFireball* PhoenixFireball = Cast<APhoenixFireball>(Ability);
 	if (!PhoenixFireball) return;
