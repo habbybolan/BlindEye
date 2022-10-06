@@ -4,13 +4,15 @@
 #include "Abilities/PhoenixFireball.h"
 
 #include "NiagaraFunctionLibrary.h"
+#include "Characters/BlindEyePlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
 
 APhoenixFireball::APhoenixFireball() : AAbilityBase()
 {
-	AbilityStates.Add(new FPhoenixFireballCastState(this));
+	AbilityStates.Add(new FStartCastingAbilityState(this));
+	AbilityStates.Add(new FCastFireballState(this));
 }
 
 void APhoenixFireball::DealWithDamage(AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit, float DamageToApply)
@@ -92,19 +94,47 @@ void APhoenixFireball::OnFireballCastHit(UPrimitiveComponent* HitComponent, AAct
 	}
 }
 
+void APhoenixFireball::PlayAbilityAnimation()
+{
+	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	{
+		PlayerCharacter->MULT_PlayAnimMontage(FireballCastAnimation);
+		PlayerCharacter->CLI_StartLockRotationToController(1);
+	}
+	AnimNotifyDelegate.BindUFunction( this, TEXT("UseAnimNotifyExecuted"));
+}
+
+void APhoenixFireball::UseAnimNotifyExecuted()
+{
+	AnimNotifyDelegate.Unbind();
+	AbilityStates[CurrState]->ExitState();
+	AnimNotifyDelegate.BindUFunction(this, TEXT("EndAnimationNotifyExecuted"));
+}
+
+void APhoenixFireball::EndAnimationNotifyExecuted()
+{
+	AnimNotifyDelegate.Unbind();
+	AbilityStates[CurrState]->ExitState();
+}
+
 void APhoenixFireball::EndAbilityLogic()
 {
 	AAbilityBase::EndAbilityLogic();
+	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	{
+		PlayerCharacter->CLI_StartLockRotationToController(0);
+	}
+	
 	IDsOfHitActors.Empty();
 }
 
 // **** States *******
 
-// Cast Fireball State *********************
+// Start playing animation state *********************
 
-FPhoenixFireballCastState::FPhoenixFireballCastState(AAbilityBase* ability) : FAbilityState(ability) {}
+FStartCastingAbilityState::FStartCastingAbilityState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-void FPhoenixFireballCastState::TryEnterState(EAbilityInputTypes abilityUsageType)
+void FStartCastingAbilityState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
 	if (!Ability) return;
@@ -116,23 +146,69 @@ void FPhoenixFireballCastState::TryEnterState(EAbilityInputTypes abilityUsageTyp
 	RunState();
 }
 
-void FPhoenixFireballCastState::RunState(EAbilityInputTypes abilityUsageType)
+void FStartCastingAbilityState::RunState(EAbilityInputTypes abilityUsageType)
 {
+	// prevent input in this state
+	if (abilityUsageType > EAbilityInputTypes::None) return;
+	
 	FAbilityState::RunState(abilityUsageType);
 	if (!Ability) return;
 	Ability->BP_AbilityStarted();
+	
 	APhoenixFireball* PhoenixFireball = Cast<APhoenixFireball>(Ability);
 	if (!PhoenixFireball) return;
 
-	PhoenixFireball->CastFireball();
-	PhoenixFireball->CastFireCone();
-	ExitState();
+	// blockers
+	PhoenixFireball->Blockers.IsOtherAbilitiesBlocked = true;
+	PhoenixFireball->Blockers.IsMovementSlowBlocked = true;
+	PhoenixFireball->Blockers.MovementSlowAmount = PhoenixFireball->SlowAmount;
+	
+	PhoenixFireball->PlayAbilityAnimation();
 }
 
-void FPhoenixFireballCastState::ExitState()
+void FStartCastingAbilityState::ExitState()
 {
 	FAbilityState::ExitState();
-	if (Ability) Ability->EndCurrState();
+	if (Ability == nullptr) return;
+	Ability->BP_AbilityInnerState(1);
+	Ability->EndCurrState();
+	Ability->UseAbility(EAbilityInputTypes::None);
+}
+
+// Casting fireball state *********************
+ 
+FCastFireballState::FCastFireballState(AAbilityBase* ability) : FAbilityState(ability) {}
+
+void FCastFireballState::TryEnterState(EAbilityInputTypes abilityUsageType)
+{
+	FAbilityState::TryEnterState(abilityUsageType);
+	RunState();
+}
+
+void FCastFireballState::RunState(EAbilityInputTypes abilityUsageType)
+{
+	// prevent input in this state
+	if (abilityUsageType > EAbilityInputTypes::None) return;
+	
+	FAbilityState::RunState(abilityUsageType);
+	if (Ability == nullptr) return;
+
+	APhoenixFireball* PhoenixFireball = Cast<APhoenixFireball>(Ability);
+	if (!PhoenixFireball) return;
+
+	// blockers
+	PhoenixFireball->Blockers.IsOtherAbilitiesBlocked = true;
+	PhoenixFireball->Blockers.IsMovementSlowBlocked = true;
+	PhoenixFireball->Blockers.MovementSlowAmount = PhoenixFireball->SlowAmount;
+	
+	PhoenixFireball->CastFireball();
+	PhoenixFireball->CastFireCone();
+}
+
+void FCastFireballState::ExitState()
+{
+	FAbilityState::ExitState();
+	Ability->EndCurrState();
 }
 
 
