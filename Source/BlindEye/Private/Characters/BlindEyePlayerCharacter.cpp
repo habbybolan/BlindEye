@@ -291,6 +291,18 @@ void ABlindEyePlayerCharacter::ChargedAttackReleased()
 	AbilityManager->SER_UsedAbility(EAbilityTypes::ChargedBasic, EAbilityInputTypes::Released);
 }
 
+void ABlindEyePlayerCharacter::DashPressed()
+{
+	if (IsActionsBlocked()) return;
+	AbilityManager->SER_UsedAbility(EAbilityTypes::Dash, EAbilityInputTypes::Pressed);
+}
+
+void ABlindEyePlayerCharacter::DashReleased()
+{
+	if (IsActionsBlocked()) return;
+	AbilityManager->SER_UsedAbility(EAbilityTypes::ChargedBasic, EAbilityInputTypes::Released);
+}
+
 void ABlindEyePlayerCharacter::Unique1Pressed()
 {
 	if (IsActionsBlocked()) return;
@@ -745,6 +757,9 @@ void ABlindEyePlayerCharacter::SetupPlayerInputComponent(class UInputComponent* 
 
 	PlayerInputComponent->BindAction("ChargeBasicAttack", IE_Pressed, this, &ABlindEyePlayerCharacter::ChargedAttackPressed);
 	PlayerInputComponent->BindAction("ChargeBasicAttack", IE_Released, this, &ABlindEyePlayerCharacter::ChargedAttackReleased);
+	
+	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &ABlindEyePlayerCharacter::DashPressed);
+	PlayerInputComponent->BindAction("Dash", IE_Released, this, &ABlindEyePlayerCharacter::DashReleased);
 	
 	PlayerInputComponent->BindAction("Unique1", IE_Pressed, this, &ABlindEyePlayerCharacter::Unique1Pressed);
 	PlayerInputComponent->BindAction("Unique1", IE_Released, this, &ABlindEyePlayerCharacter::Unique1Released);
