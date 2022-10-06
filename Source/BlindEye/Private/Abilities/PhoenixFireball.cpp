@@ -99,6 +99,7 @@ void APhoenixFireball::PlayAbilityAnimation()
 	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
 		PlayerCharacter->MULT_PlayAnimMontage(FireballCastAnimation);
+		PlayerCharacter->CLI_StartLockRotationToController(1);
 	}
 	AnimNotifyDelegate.BindUFunction( this, TEXT("UseAnimNotifyExecuted"));
 }
@@ -119,6 +120,11 @@ void APhoenixFireball::EndAnimationNotifyExecuted()
 void APhoenixFireball::EndAbilityLogic()
 {
 	AAbilityBase::EndAbilityLogic();
+	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	{
+		PlayerCharacter->CLI_StartLockRotationToController(0);
+	}
+	
 	IDsOfHitActors.Empty();
 }
 
@@ -148,11 +154,14 @@ void FStartCastingAbilityState::RunState(EAbilityInputTypes abilityUsageType)
 	FAbilityState::RunState(abilityUsageType);
 	if (!Ability) return;
 	Ability->BP_AbilityStarted();
-	Ability->Blockers.IsOtherAbilitiesBlocked = true;
-	Ability->Blockers.IsMovementSlowBlocked = true;
-	Ability->Blockers.MovementSlowAmount = 0.5;
+	
 	APhoenixFireball* PhoenixFireball = Cast<APhoenixFireball>(Ability);
 	if (!PhoenixFireball) return;
+
+	// blockers
+	PhoenixFireball->Blockers.IsOtherAbilitiesBlocked = true;
+	PhoenixFireball->Blockers.IsMovementSlowBlocked = true;
+	PhoenixFireball->Blockers.MovementSlowAmount = PhoenixFireball->SlowAmount;
 	
 	PhoenixFireball->PlayAbilityAnimation();
 }
@@ -184,12 +193,14 @@ void FCastFireballState::RunState(EAbilityInputTypes abilityUsageType)
 	FAbilityState::RunState(abilityUsageType);
 	if (Ability == nullptr) return;
 
-	Ability->Blockers.IsOtherAbilitiesBlocked = true;
-	Ability->Blockers.IsMovementSlowBlocked = true;
-	Ability->Blockers.MovementSlowAmount = 0.5;
-
 	APhoenixFireball* PhoenixFireball = Cast<APhoenixFireball>(Ability);
 	if (!PhoenixFireball) return;
+
+	// blockers
+	PhoenixFireball->Blockers.IsOtherAbilitiesBlocked = true;
+	PhoenixFireball->Blockers.IsMovementSlowBlocked = true;
+	PhoenixFireball->Blockers.MovementSlowAmount = PhoenixFireball->SlowAmount;
+	
 	PhoenixFireball->CastFireball();
 	PhoenixFireball->CastFireCone();
 }
