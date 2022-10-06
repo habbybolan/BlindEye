@@ -47,6 +47,16 @@ public:
 	virtual void ExitState() override;
 };
 
+// Hanging in the air, waiting for input to launch to ground
+class BLINDEYE_API FHitGroundState : public FAbilityState
+{ 
+public:
+	FHitGroundState(AAbilityBase* ability);
+	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void ExitState() override;
+};
+
 /**
  * 
  */
@@ -101,6 +111,9 @@ public:
 	// Wait for ability use animation notify to send out flock
 	void PlayAbilityAnimation();
 
+	// Recovering after landing and getting up
+	void PlayLandingSectionOfAnim();
+
 	UPROPERTY()
 	AGroundTarget* GroundTarget;
 
@@ -127,6 +140,8 @@ protected:
 
 	UFUNCTION()
 	void UseAnimNotifyExecuted();
+	UFUNCTION()
+	void LandingAnimationFinishExecuted();
 	
 	void EndLaunchUp();
 	UFUNCTION()
