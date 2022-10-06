@@ -8,6 +8,16 @@
 #include "PhoenixDive.generated.h"
 
 // Jumping State
+class BLINDEYE_API FStartAbilityState : public FAbilityState
+{ 
+public:
+	FStartAbilityState(AAbilityBase* ability);
+	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void ExitState() override;
+};
+
+// Jumping State
 class BLINDEYE_API FJumpState : public FAbilityState
 {
 public:
@@ -88,8 +98,14 @@ public:
 	void HangInAirTimer();
 	void LaunchToGround();
 
+	// Wait for ability use animation notify to send out flock
+	void PlayAbilityAnimation();
+
 	UPROPERTY()
 	AGroundTarget* GroundTarget;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* DiveAbilityAnim;
 
 protected:
 
@@ -107,7 +123,10 @@ protected:
 
 	void hangingInAirExpired();
 
-	FRotator CalculateLaunchViewPoint(FVector& ViewportLocation, FRotator& ViewportRotation); 
+	FRotator CalculateLaunchViewPoint(FVector& ViewportLocation, FRotator& ViewportRotation);
+
+	UFUNCTION()
+	void UseAnimNotifyExecuted();
 	
 	void EndLaunchUp();
 	UFUNCTION()
