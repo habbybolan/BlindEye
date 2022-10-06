@@ -87,6 +87,8 @@ void ABlindEyePlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	UWorld* world = GetWorld();
+
+	CachedRotationRate = GetCharacterMovement()->RotationRate.Yaw;
 	if (world == nullptr) return;
 
 	if (IsLocallyControlled())
@@ -187,6 +189,16 @@ void ABlindEyePlayerCharacter::MULT_StopAnimMontage_Implementation(UAnimMontage*
 void ABlindEyePlayerCharacter::MULT_SetNextMontageSection_Implementation(UAnimMontage* AnimMontage, FName Section)
 {
 	GetMesh()->GetAnimInstance()->Montage_JumpToSection(Section, AnimMontage);
+}
+
+void ABlindEyePlayerCharacter::CLI_UpdateRotationRate_Implementation(float NewRotationRate)
+{
+	GetCharacterMovement()->RotationRate = FRotator(0, NewRotationRate, 0);
+}
+
+void ABlindEyePlayerCharacter::CLI_ResetRotationRateToNormal_Implementation()
+{
+	GetCharacterMovement()->RotationRate = FRotator(0, CachedRotationRate, 0);
 }
 
 void ABlindEyePlayerCharacter::RegenBirdMeter()

@@ -100,8 +100,6 @@ protected:
 	FTimerHandle CalculateRotationTimerHandle;
 	float CalcRotationDelay = 0.05f;
 
-	float CachedCharacterRotationSpeed;
-
 	FTimerHandle RotateFlurryTimerHandle;
 
 	UFUNCTION(NetMulticast, Unreliable)
