@@ -39,9 +39,4 @@ public:
 	void UpdatePlayerSpeed(); 
 	void ResetPlayerSpeed();
 	
- 
-protected:
-
-	FTimerHandle DashDurationTimerHandle;
-	
 };
