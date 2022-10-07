@@ -4,6 +4,7 @@
 #include "Abilities/PhoenixDive.h"
 
 #include "NiagaraFunctionLibrary.h"
+#include "Characters/BlindEyePlayerCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -13,9 +14,11 @@
 
 APhoenixDive::APhoenixDive() : AAbilityBase()
 {
+	AbilityStates.Add(new FStartAbilityState(this));
 	AbilityStates.Add(new FJumpState(this));
 	AbilityStates.Add(new FInAirState(this));
 	AbilityStates.Add(new FHangingState(this));
+	AbilityStates.Add(new FHitGroundState(this));
 }
 
 void APhoenixDive::LaunchPlayerUpwards()
@@ -72,6 +75,36 @@ void APhoenixDive::LaunchToGround()
 	CLI_StopGroundTarget();
 
 	Character->GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &APhoenixDive::CollisionWithGround);
+}
+
+void APhoenixDive::PlayAbilityAnimation()
+{
+	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	{
+		PlayerCharacter->MULT_PlayAnimMontage(DiveAbilityAnim);
+	}
+	AnimNotifyDelegate.BindUFunction( this, TEXT("UseAnimNotifyExecuted"));
+}
+
+void APhoenixDive::UseAnimNotifyExecuted()
+{
+	AnimNotifyDelegate.Unbind();
+	AbilityStates[CurrState]->ExitState();
+}
+
+void APhoenixDive::PlayLandingSectionOfAnim()
+{
+	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	{
+		PlayerCharacter->MULT_SetNextMontageSection(DiveAbilityAnim, "Land"); 
+	}
+	AnimNotifyDelegate.BindUFunction( this, TEXT("UseAnimNotifyExecuted"));
+}
+
+void APhoenixDive::LandingAnimationFinishExecuted()
+{
+	AnimNotifyDelegate.Unbind();
+	AbilityStates[CurrState]->ExitState();
 }
 
 void APhoenixDive::UpdateGroundTargetPosition()
@@ -185,12 +218,51 @@ void APhoenixDive::EndAbilityLogic()
 
 // **** States *******
 
+// Start Ability State **************
+
+FStartAbilityState::FStartAbilityState(AAbilityBase* ability) : FAbilityState(ability) {}
+
+void FStartAbilityState::TryEnterState(EAbilityInputTypes abilityUsageType)
+{
+	FAbilityState::TryEnterState(abilityUsageType);
+	RunState();
+}
+
+void FStartAbilityState::RunState(EAbilityInputTypes abilityUsageType)
+{
+	// prevent user input here
+	if (abilityUsageType > EAbilityInputTypes::None) return;
+	
+	FAbilityState::RunState(abilityUsageType);
+
+	if (Ability == nullptr) return;
+	Ability->Blockers.IsMovementBlocked = true;
+	Ability->Blockers.IsOtherAbilitiesBlocked = true;
+	
+	APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability);
+	if (PhoenixDive == nullptr) return;
+
+	PhoenixDive->PlayAbilityAnimation();
+}
+
+void FStartAbilityState::ExitState()
+{
+	FAbilityState::ExitState();
+	if (Ability == nullptr) return;
+	Ability->EndCurrState();
+	// goto next state
+	Ability->UseAbility(EAbilityInputTypes::None);
+}
+
 // Jumping State *********************
 
 FJumpState::FJumpState(AAbilityBase* ability) : FAbilityState(ability) {}
 
 void FJumpState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
+	// prevent user input here
+	if (abilityUsageType > EAbilityInputTypes::None) return;
+	
 	FAbilityState::TryEnterState(abilityUsageType);
 	if (!Ability) return;
 	if (APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability))
@@ -264,7 +336,6 @@ FHangingState::FHangingState(AAbilityBase* ability) : FAbilityState(ability) {}
 void FHangingState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
-	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 	if (abilityUsageType == EAbilityInputTypes::Pressed)
 	{
 		RunState();
@@ -279,7 +350,9 @@ void FHangingState::RunState(EAbilityInputTypes abilityUsageType)
 	APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability);
 	if (!PhoenixDive) return;
 
+	Ability->Blockers.IsMovementBlocked = true;
 	Ability->Blockers.IsOtherAbilitiesBlocked = true;
+
 	PhoenixDive->LaunchToGround();
 	Ability->BP_AbilityInnerState(2);
 }
@@ -288,6 +361,38 @@ void FHangingState::ExitState()
 {
 	FAbilityState::ExitState();
 	if (!Ability) return;
+	Ability->EndCurrState();
+	Ability->UseAbility(EAbilityInputTypes::None);
+}
+
+FHitGroundState::FHitGroundState(AAbilityBase* ability) : FAbilityState(ability) {}
+
+void FHitGroundState::TryEnterState(EAbilityInputTypes abilityUsageType)
+{
+	FAbilityState::TryEnterState(abilityUsageType);
+	RunState();
+}
+
+void FHitGroundState::RunState(EAbilityInputTypes abilityUsageType)
+{
+	// prevent user input
+	if (abilityUsageType > EAbilityInputTypes::None) return;
+	
+	FAbilityState::RunState(abilityUsageType);
+
+	if (!Ability) return;
+	Ability->Blockers.IsMovementBlocked = true;
+	Ability->Blockers.IsOtherAbilitiesBlocked = true;
+	
+	APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability);
+	if (!PhoenixDive) return;
+	PhoenixDive->PlayLandingSectionOfAnim();
+}
+
+void FHitGroundState::ExitState()
+{
+	FAbilityState::ExitState();
+	if (Ability == nullptr) return;
 	Ability->EndCurrState();
 }
 

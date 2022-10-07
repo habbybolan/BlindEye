@@ -56,7 +56,12 @@ public:
 	UFUNCTION()
 	virtual void TryCancelAbility();
 
-	void DelayToNextState(float delay);
+	/**
+	 * Delay to either the exit state that's a part of the current state, or delay to the next outer state entirely.
+	 * @param delay		Time it takes to delay to either the inner exit state, or increment to outer next state
+	 * @param IsDelayToExit	If delay is to the exit inner state. Otherwise, it increments to the next outer state
+	 */
+	void DelayToNextState(float delay, bool IsDelayToExit = false);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Cooldown = 2;
@@ -94,6 +99,11 @@ protected:
 
 	bool bOnCooldown = false;
 	FTimerHandle CooldownTimerHandle;
+
+	// Caches if DelayToNextState() will delay to the inner exit state, or next outer state
+	bool bDelayToExit = false;
+	// Execute the delay to next state timer
+	void ExecuteDelayToNextState();
 
 	void SetOnCooldown();
 	void SetOffCooldown();

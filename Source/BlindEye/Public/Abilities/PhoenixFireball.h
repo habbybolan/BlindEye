@@ -8,16 +8,25 @@
 #include "DamageTypes/BaseDamageType.h"
 #include "PhoenixFireball.generated.h"
 
-// Jumping State
-class BLINDEYE_API FPhoenixFireballCastState : public FAbilityState
+// Use Ability State
+class BLINDEYE_API FStartCastingAbilityState : public FAbilityState
 {
 public:
-	FPhoenixFireballCastState(AAbilityBase* ability);
+	FStartCastingAbilityState(AAbilityBase* ability);
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
 };
-
+ 
+// End casting ability
+class BLINDEYE_API FCastFireballState : public FAbilityState
+{
+public:
+	FCastFireballState(AAbilityBase* ability);
+	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void ExitState() override;
+};
 /**
  * 
  */
@@ -43,6 +52,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=100))
 	float CostPercent = 30;
 
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
+	float SlowAmount = 0.5f;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UBaseDamageType> DamageType;
 
@@ -54,6 +66,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<EObjectTypeQuery>> ConeTraceObjectTypes;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* FireballCastAnimation;
 	
 	// Deals with damage from the cone and the fireball. Fireball sends its damage event to this
 	void DealWithDamage(AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit, float Damage);
@@ -63,6 +78,9 @@ public:
 
 	UFUNCTION()
 	void OnFireballCastHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	// Wait for ability use animation notify to cast fireball
+	void PlayAbilityAnimation();
 	
 	
 protected:
@@ -72,4 +90,10 @@ protected:
 	APhoenixFireballCast* FireballCast;
 
 	virtual void EndAbilityLogic() override;
+
+	UFUNCTION()
+	void UseAnimNotifyExecuted();
+ 
+	UFUNCTION()
+	void EndAnimationNotifyExecuted();
 };

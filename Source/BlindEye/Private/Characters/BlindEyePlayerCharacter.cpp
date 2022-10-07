@@ -87,6 +87,8 @@ void ABlindEyePlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	UWorld* world = GetWorld();
+
+	CachedRotationRate = GetCharacterMovement()->RotationRate.Yaw;
 	if (world == nullptr) return;
 
 	if (IsLocallyControlled())
@@ -189,6 +191,16 @@ void ABlindEyePlayerCharacter::MULT_SetNextMontageSection_Implementation(UAnimMo
 	GetMesh()->GetAnimInstance()->Montage_JumpToSection(Section, AnimMontage);
 }
 
+void ABlindEyePlayerCharacter::CLI_UpdateRotationRate_Implementation(float NewRotationRate)
+{
+	GetCharacterMovement()->RotationRate = FRotator(0, NewRotationRate, 0);
+}
+
+void ABlindEyePlayerCharacter::CLI_ResetRotationRateToNormal_Implementation()
+{
+	GetCharacterMovement()->RotationRate = FRotator(0, CachedRotationRate, 0);
+}
+
 void ABlindEyePlayerCharacter::RegenBirdMeter()
 {
 	if (ABlindEyePlayerState* BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState()))
@@ -274,6 +286,18 @@ void ABlindEyePlayerCharacter::ChargedAttackPressed()
 }
 
 void ABlindEyePlayerCharacter::ChargedAttackReleased()
+{
+	if (IsActionsBlocked()) return;
+	AbilityManager->SER_UsedAbility(EAbilityTypes::ChargedBasic, EAbilityInputTypes::Released);
+}
+
+void ABlindEyePlayerCharacter::DashPressed()
+{
+	if (IsActionsBlocked()) return;
+	AbilityManager->SER_UsedAbility(EAbilityTypes::Dash, EAbilityInputTypes::Pressed);
+}
+
+void ABlindEyePlayerCharacter::DashReleased()
 {
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::ChargedBasic, EAbilityInputTypes::Released);
@@ -733,6 +757,9 @@ void ABlindEyePlayerCharacter::SetupPlayerInputComponent(class UInputComponent* 
 
 	PlayerInputComponent->BindAction("ChargeBasicAttack", IE_Pressed, this, &ABlindEyePlayerCharacter::ChargedAttackPressed);
 	PlayerInputComponent->BindAction("ChargeBasicAttack", IE_Released, this, &ABlindEyePlayerCharacter::ChargedAttackReleased);
+	
+	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &ABlindEyePlayerCharacter::DashPressed);
+	PlayerInputComponent->BindAction("Dash", IE_Released, this, &ABlindEyePlayerCharacter::DashReleased);
 	
 	PlayerInputComponent->BindAction("Unique1", IE_Pressed, this, &ABlindEyePlayerCharacter::Unique1Pressed);
 	PlayerInputComponent->BindAction("Unique1", IE_Released, this, &ABlindEyePlayerCharacter::Unique1Released);

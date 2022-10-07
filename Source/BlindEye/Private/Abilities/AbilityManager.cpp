@@ -39,6 +39,13 @@ void UAbilityManager::SER_UsedAbility_Implementation(EAbilityTypes abilityType, 
 			if (IsAbilityUnavailable(UniqueAbilities[1])) return;
 			UniqueAbilities[1]->UseAbility(abilityUsageType);
 		}
+	} else if (abilityType == EAbilityTypes::Dash)
+	{
+		if (Dash)
+		{
+			if (IsAbilityUnavailable(Dash)) return;
+			Dash->UseAbility(abilityUsageType);
+		}
 	}
 }
 
@@ -129,19 +136,28 @@ void UAbilityManager::SetupAbilities()
 	
 	// Create Ability actors
 	BasicAttack = world->SpawnActor<AAbilityBase>(BasicAttackType, params);
+	Dash = world->SpawnActor<AAbilityBase>(DashType, params);
 	ChargedBasicAttack = world->SpawnActor<AAbilityBase>(ChargedBasicAttackType, params);
 	for (TSubclassOf<AAbilityBase> AbilityType : UniqueAbilityTypes)
 	{
 		UniqueAbilities.Add(world->SpawnActor<AAbilityBase>(AbilityType, params));
 	}
 
+	// Basic attack delegates
 	if (BasicAttack)
 	{
 		BasicAttack->AbilityEndedDelegate.BindUObject(this, &UAbilityManager::AbilityEnded);
 		BasicAttack->AbilityEnteredRunState.BindUObject(this, &UAbilityManager::SetAbilityInUse);
 	}
+
+	// Dash attack delegates
+	if (Dash)
+	{
+		Dash->AbilityEndedDelegate.BindUObject(this, &UAbilityManager::AbilityEnded);
+		Dash->AbilityEnteredRunState.BindUObject(this, &UAbilityManager::SetAbilityInUse);
+	}
 	
-	// TODO: Setup delegates for rest of abilities
+	// Unique abilities delegates
 	for (AAbilityBase* uniqueAbility : UniqueAbilities)
 	{
 		if (!uniqueAbility) continue;
@@ -179,6 +195,7 @@ void UAbilityManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME(UAbilityManager, BasicAttack);
 	DOREPLIFETIME(UAbilityManager, ChargedBasicAttack);
 	DOREPLIFETIME(UAbilityManager, UniqueAbilities);
+	DOREPLIFETIME(UAbilityManager, Dash);
 	DOREPLIFETIME(UAbilityManager, CurrUsedAbility);
 }
 

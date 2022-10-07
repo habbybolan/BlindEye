@@ -192,7 +192,13 @@ public:
 	void MULT_StopAnimMontage(UAnimMontage* AnimMontage); 
 
 	UFUNCTION(NetMulticast, Reliable)  
-	void MULT_SetNextMontageSection(UAnimMontage* AnimMontage, FName Section); 
+	void MULT_SetNextMontageSection(UAnimMontage* AnimMontage, FName Section);
+
+
+	UFUNCTION(Client, Reliable) 
+	void CLI_UpdateRotationRate(float NewRotationRate);
+	UFUNCTION(Client, Reliable)
+	void CLI_ResetRotationRateToNormal();
 
 protected:
 
@@ -210,6 +216,8 @@ protected:
 	bool bUnlimitedBirdMeter = false;
 
 	FTimerHandle RotationalLockTimerHandle;
+
+	float CachedRotationRate;
 
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
@@ -248,7 +256,12 @@ protected:
 	UFUNCTION()
 	void ChargedAttackPressed();
 	UFUNCTION()
-	void ChargedAttackReleased(); 
+	void ChargedAttackReleased();
+
+	UFUNCTION()  
+	void DashPressed();
+	UFUNCTION() 
+	void DashReleased(); 
 
 	UFUNCTION()
 	void Unique1Pressed();

@@ -8,6 +8,16 @@
 #include "PhoenixDive.generated.h"
 
 // Jumping State
+class BLINDEYE_API FStartAbilityState : public FAbilityState
+{ 
+public:
+	FStartAbilityState(AAbilityBase* ability);
+	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void ExitState() override;
+};
+
+// Jumping State
 class BLINDEYE_API FJumpState : public FAbilityState
 {
 public:
@@ -32,6 +42,16 @@ class BLINDEYE_API FHangingState : public FAbilityState
 {
 public:
 	FHangingState(AAbilityBase* ability);
+	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void ExitState() override;
+};
+
+// Hanging in the air, waiting for input to launch to ground
+class BLINDEYE_API FHitGroundState : public FAbilityState
+{ 
+public:
+	FHitGroundState(AAbilityBase* ability);
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
@@ -88,8 +108,17 @@ public:
 	void HangInAirTimer();
 	void LaunchToGround();
 
+	// Wait for ability use animation notify to send out flock
+	void PlayAbilityAnimation();
+
+	// Recovering after landing and getting up
+	void PlayLandingSectionOfAnim();
+
 	UPROPERTY()
 	AGroundTarget* GroundTarget;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* DiveAbilityAnim;
 
 protected:
 
@@ -107,7 +136,12 @@ protected:
 
 	void hangingInAirExpired();
 
-	FRotator CalculateLaunchViewPoint(FVector& ViewportLocation, FRotator& ViewportRotation); 
+	FRotator CalculateLaunchViewPoint(FVector& ViewportLocation, FRotator& ViewportRotation);
+
+	UFUNCTION()
+	void UseAnimNotifyExecuted();
+	UFUNCTION()
+	void LandingAnimationFinishExecuted();
 	
 	void EndLaunchUp();
 	UFUNCTION()

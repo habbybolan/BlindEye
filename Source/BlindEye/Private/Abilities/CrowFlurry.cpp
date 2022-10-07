@@ -21,12 +21,6 @@ ACrowFlurry::ACrowFlurry()
 void ACrowFlurry::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// Cache rotation speed of character to apply when ability ended
-	if (ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
-	{
-		CachedCharacterRotationSpeed = BlindEyePlayerCharacter->GetCharacterMovement()->RotationRate.Yaw;
-	}
 }
 
 void ACrowFlurry::StartCrowFlurry()
@@ -38,7 +32,7 @@ void ACrowFlurry::StartCrowFlurry()
 
 	if (ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
-		BlindEyePlayerCharacter->GetCharacterMovement()->RotationRate = FRotator(0, RotationSpeedInFlurry, 0);
+		BlindEyePlayerCharacter->CLI_UpdateRotationRate(RotationSpeedInFlurry);
 	}
 
 	bFlurryActive = true;
@@ -137,7 +131,7 @@ void ACrowFlurry::EndAbilityLogic()
 
 	if (ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
-		BlindEyePlayerCharacter->GetCharacterMovement()->RotationRate = FRotator(0, CachedCharacterRotationSpeed, 0);
+		BlindEyePlayerCharacter->CLI_ResetRotationRateToNormal();
 	}
 }
 
