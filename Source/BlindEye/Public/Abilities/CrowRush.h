@@ -34,9 +34,43 @@ public:
 	float DashSpeedIncrease = 10.f;
 
 	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=1))
-	float DashAccelerationIncrease = 10.f; 
+	float DashAccelerationIncrease = 10.f;
+
+	UPROPERTY(EditDefaultsOnly, Category=Pull)
+	float PullSphereRadius = 100.f;
+
+	UPROPERTY(EditDefaultsOnly,Category=Pull)
+	float MinKnockTowardsCenterForce = 200.f;
+	 
+	UPROPERTY(EditDefaultsOnly,Category=Pull)
+	float MaxKnockTowardsCenterForce = 400.f;
+
+	UPROPERTY(EditDefaultsOnly,Category=Pull)
+	float MinKnockUpToCenterForce = 100.f;
+ 
+	UPROPERTY(EditDefaultsOnly,Category=Pull)
+	float MaxKnockUpToCenterForce = 200.f;
+
+	UPROPERTY(EditDefaultsOnly,Category=Pull)
+	float MinKnockTowardsEndForce = 200.f;
+
+	UPROPERTY(EditDefaultsOnly,Category=Pull)
+	float MaxKnockTowardsEndForce = 400.f;
+   
+	UPROPERTY(EditDefaultsOnly,Category=Pull)
+	float MinKnockUpToEndForce = 100.f;
+
+	UPROPERTY(EditDefaultsOnly,Category=Pull)
+	float MaxKnockUpToEndForce = 200.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	TArray<TEnumAsByte<EObjectTypeQuery>> EnemyObjectTypes;
 
 	void UpdatePlayerSpeed(); 
 	void ResetPlayerSpeed();
+
+protected:
+
+	FVector StartingPosition;
 	
 };

@@ -5,6 +5,9 @@
 
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 ACrowRush::ACrowRush()
 {
@@ -15,6 +18,7 @@ void ACrowRush::UpdatePlayerSpeed()
 {
 	if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
+		StartingPosition = BlindEyePlayer->GetActorLocation();
 		BlindEyePlayer->GetCharacterMovement()->MaxWalkSpeed = 600 * DashSpeedIncrease;
 		BlindEyePlayer->GetCharacterMovement()->MaxAcceleration = 2048 * DashAccelerationIncrease;
 	}
@@ -22,10 +26,34 @@ void ACrowRush::UpdatePlayerSpeed()
 
 void ACrowRush::ResetPlayerSpeed()
 {
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
 	if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
 		BlindEyePlayer->GetCharacterMovement()->MaxWalkSpeed = 600;
 		BlindEyePlayer->GetCharacterMovement()->MaxAcceleration = 2048;
+
+		FVector EndLocation = BlindEyePlayer->GetActorLocation();
+
+		TArray<FHitResult> OutHits;
+		if (UKismetSystemLibrary::SphereTraceMultiForObjects(World, StartingPosition, EndLocation, PullSphereRadius, EnemyObjectTypes,
+			false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true))
+		{
+			for (FHitResult OutHit : OutHits)
+			{
+				// calculate knockBack force from center of dash
+				FVector ClosestPoint = UKismetMathLibrary::FindClosestPointOnLine(OutHit.Location, StartingPosition, EndLocation - StartingPosition);
+				float distToCenter = FVector::Distance(ClosestPoint, OutHit.Location);
+				float KnockBackToCenterPercent = distToCenter / PullSphereRadius;
+
+				float distToEndOfRush = FVector::Distance(EndLocation, OutHit.Location);
+				float KnockBackToEndPercent = distToEndOfRush / FVector::Distance(StartingPosition, EndLocation);
+
+				// TODO: How to apply scaled knockBack towards a point?
+				//UGameplayStatics::ApplyPointDamage()
+			}
+		}
 	}
 }
 
