@@ -125,14 +125,13 @@ void ABasicAttackSmallFlock::CheckReturnedToPlayer()
 
 void ABasicAttackSmallFlock::CheckShrinking()
 {
-	if (CurrShrinkingTime > ShrinkingTime) return;
-	if (FVector::Distance(Target->GetActorLocation(), CalcAveragePosition()) < DistToPlayerToStartShrinking)
+	float DistToPlayer = FVector::Distance(Target->GetActorLocation(), CalcAveragePosition());
+	if (DistToPlayer < DistToPlayerToStartShrinking)
 	{
-		CurrShrinkingTime += GetWorld()->GetDeltaSeconds();
-		if (CurrShrinkingTime > ShrinkingTime) CurrShrinkingTime = ShrinkingTime;
+		float scale = UKismetMathLibrary::FClamp((DistToPlayer - DistFromPlayerToFullyShrink) / (DistToPlayerToStartShrinking - DistFromPlayerToFullyShrink), 0, 1);
+		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Red, FString::SanitizeFloat(scale));
 		for (ABoid* boid : BoidsInFlock)
 		{
-			float scale = UKismetMathLibrary::Lerp(1, 0, CurrShrinkingTime / ShrinkingTime);
 			boid->SetActorScale3D(FVector::OneVector * scale);
 		}
 	}
