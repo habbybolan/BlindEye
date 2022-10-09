@@ -118,11 +118,13 @@ void UHealthComponent::Stun(float StunDuration, AActor* DamageCause)
 
 void UHealthComponent::KnockBack(FVector KnockBackForce, AActor* DamageCause)
 {
-	ACharacter* Character = Cast<ACharacter>(GetOwner());
+	if (OwnerHealth == nullptr) return;
+	
+	ABlindEyeBaseCharacter* Character = Cast<ABlindEyeBaseCharacter>(GetOwner());
 	if (Character)
 	{
 		UCharacterMovementComponent* Movement = Character->GetCharacterMovement();
-		Movement->AddImpulse(KnockBackForce * 100);
+		Movement->AddImpulse(KnockBackForce * OwnerHealth->GetMass());
 		KnockBackDelegate.Broadcast(KnockBackForce);
 	}
 }

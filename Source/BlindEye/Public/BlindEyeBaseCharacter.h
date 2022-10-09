@@ -42,6 +42,9 @@ public:
 	TEAMS Team; 
 	virtual TEAMS GetTeam() override;
 
+	UPROPERTY(EditDefaultsOnly)
+	float Mass = 100;
+
 	// Notify Blueprint damage taken
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
@@ -53,6 +56,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	ECharacterTypes GetCharacterType(AActor* Character);
+
+	virtual float GetMass() override;
 
 protected:
 	// Called when the game starts or when spawned
