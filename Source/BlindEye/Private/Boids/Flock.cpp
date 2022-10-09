@@ -209,6 +209,14 @@ FVector AFlock::Noise(ABoid* boid)
 	return CurrForward.RotateAngleAxis(RandRotation, Axis);
 }
 
+FVector AFlock::Swirling(ABoid* boid, FVector AvgPosition, FVector Alignment)
+{
+	FVector RotationVec = UKismetMathLibrary::Cross_VectorVector(boid->GetActorLocation() - AvgPosition, Alignment);
+	// flip the direction the swirl is rotating
+	if (bFlippedSwirlRotation) RotationVec *= -1;
+	return RotationVec;
+}
+
 void AFlock::UpdateMaxSpeed(float PercentToChangeSpeed)
 {
 	for (ABoid* boid : BoidsInFlock)
@@ -219,16 +227,19 @@ void AFlock::UpdateMaxSpeed(float PercentToChangeSpeed)
 
 void AFlock::PerformFlock()
 {
+	FVector AvgLocation = CalcAveragePosition();
 	for (ABoid* boid : BoidsInFlock)
 	{
 		FVector velocityToApply = FVector::ZeroVector;
 		
 		velocityToApply += Separation(boid) * SeparationStrength;
-		velocityToApply += Alignment(boid) * AlignmentStrength;
+		FVector AlignmentVec = Alignment(boid);
+		velocityToApply += AlignmentVec * AlignmentStrength;
 		velocityToApply += Cohesion(boid) * CohesionStrength;
 		velocityToApply += ObstacleAvoidance(boid) * ObstacleStrength;
 		velocityToApply += TargetSeeking(boid) * TargetStrength;
 		velocityToApply += Noise(boid) * NoiseStrength;
+		velocityToApply += Swirling(boid, AvgLocation, AlignmentVec) * SwirlStrength;
 
 		// flock reached target position, send upwards
         if (!Target.IsValid())

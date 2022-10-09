@@ -132,6 +132,10 @@ void ABasicAttackSmallFlock::CheckShrinking()
 		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Red, FString::SanitizeFloat(scale));
 		for (ABoid* boid : BoidsInFlock)
 		{
+			// prevent growing in size
+			float CurrScale = boid->GetActorScale3D().Size();
+			if (scale > CurrScale) return;
+			
 			boid->SetActorScale3D(FVector::OneVector * scale);
 		}
 	}
