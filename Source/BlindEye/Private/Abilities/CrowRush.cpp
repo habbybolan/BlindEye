@@ -61,7 +61,7 @@ void ACrowRush::ResetPlayerSpeed()
 
 				FVector ForceVecToApply = VecToEnd + VecToCenter;
 
-				UGameplayStatics::ApplyPointDamage(GetOwner(), DamageAmount, OutHit.Location, OutHit, GetInstigatorController(),
+				UGameplayStatics::ApplyPointDamage(OutHit.Actor.Get(), DamageAmount, OutHit.Location, OutHit, GetInstigatorController(),
 					GetInstigator(), DamageType);
 
 				if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(OutHit.Actor))
