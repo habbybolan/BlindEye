@@ -110,6 +110,8 @@ void ABasicAttackSmallFlock::CheckGoBackToPlayer()
 		Target->Destroy();
 		Target = nullptr;
 
+		SwirlStrength = 0;
+		
 		MULT_SendEachBoidUp();
 		Target = GetInstigator();
 	}
@@ -129,7 +131,6 @@ void ABasicAttackSmallFlock::CheckShrinking()
 	if (DistToPlayer < DistToPlayerToStartShrinking)
 	{
 		float scale = UKismetMathLibrary::FClamp((DistToPlayer - DistFromPlayerToFullyShrink) / (DistToPlayerToStartShrinking - DistFromPlayerToFullyShrink), 0, 1);
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Red, FString::SanitizeFloat(scale));
 		for (ABoid* boid : BoidsInFlock)
 		{
 			// prevent growing in size
