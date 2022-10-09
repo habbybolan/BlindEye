@@ -33,12 +33,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=1))
 	float DashSpeedIncrease = 1.5f;
 
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=1))
+	float DashAccelerationIncrease = 1.5f; 
+
 	void UpdatePlayerSpeed(); 
 	void ResetPlayerSpeed();
-	
- 
-protected:
-
-	FTimerHandle DashDurationTimerHandle;
 	
 };

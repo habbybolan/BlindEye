@@ -113,6 +113,8 @@ public:
 	void RemoveMark();
 	FMarkData* GetCurrMark();
 
+	virtual void KnockBack(FVector KnockBackForce, AActor* DamageCause) override;
+
 protected:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -165,8 +167,6 @@ protected:
 	void SetDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
 
 	virtual void Stun(float StunDuration, AActor* DamageCause) override;
-
-	virtual void KnockBack(FVector KnockBackForce, AActor* DamageCause) override;
 
 	virtual void Burn(float DamagePerSec, float Duration, AActor* DamageCause) override;
 

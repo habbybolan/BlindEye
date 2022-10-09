@@ -30,6 +30,8 @@ void ABurrowerEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SetDisappeared();
+
 	// Timeline curve for appearing from the ground
 	if (SurfacingCurve)
 	{

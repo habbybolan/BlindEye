@@ -119,7 +119,7 @@ void APhoenixDive::UpdateGroundTargetPosition()
 	FVector ViewportLocation;
 	FRotator ViewportRotation;
 	CalculateLaunchViewPoint(ViewportLocation, ViewportRotation);
-	
+
 	FVector EndLineCheck = ViewportLocation + ViewportRotation.Vector() * 10000;
 
 	FHitResult OutHit;
