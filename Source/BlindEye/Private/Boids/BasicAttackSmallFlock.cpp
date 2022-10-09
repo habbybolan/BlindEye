@@ -32,6 +32,7 @@ void ABasicAttackSmallFlock::Tick(float DeltaSeconds)
 			CheckGoBackToPlayer();
 		} else
 		{
+			UpdateMaxSpeed(MovementPercentAfterReachingTarget);
 			CheckReturnedToPlayer();
 		}
 	}

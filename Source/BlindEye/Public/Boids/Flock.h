@@ -139,6 +139,8 @@ public:
 	virtual FVector ObstacleAvoidance(ABoid* boid);
 	virtual FVector Noise(ABoid* boid);
 
+	void UpdateMaxSpeed(float PercentToChangeSpeed);
+
 private:
 
 	int currFlocksSpawned = 0;

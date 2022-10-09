@@ -43,6 +43,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=Shrinking)
 	float ShrinkingTime = 1.0f;
 
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
+	float MovementPercentAfterReachingTarget = 0.75f;
+
 protected:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void BeginPlay() override;

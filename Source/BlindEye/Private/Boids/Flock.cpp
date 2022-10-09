@@ -209,6 +209,14 @@ FVector AFlock::Noise(ABoid* boid)
 	return CurrForward.RotateAngleAxis(RandRotation, Axis);
 }
 
+void AFlock::UpdateMaxSpeed(float PercentToChangeSpeed)
+{
+	for (ABoid* boid : BoidsInFlock)
+	{
+		boid->UpdateMaxSpeed(PercentToChangeSpeed);
+	}
+}
+
 void AFlock::PerformFlock()
 {
 	for (ABoid* boid : BoidsInFlock)

@@ -22,7 +22,6 @@ ABoid::ABoid()
 	BoidMovement = CreateDefaultSubobject<UProjectileMovementComponent>("Boid Movement");
 	BoidMovement->SetUpdatedComponent(RootComponent);
 	BoidMovement->SetIsReplicated(true);
-	BoidMovement->MaxSpeed = 1500.f;
 	BoidMovement->bRotationFollowsVelocity = true;
 	BoidMovement->ProjectileGravityScale = 0.0f;
 	BoidMovement->Velocity = FVector(1000, 0, 0);
@@ -83,10 +82,16 @@ void ABoid::AddForce(FVector& velocity)
 	//BoidMovement->AddForce(velocity);
 }
 
+void ABoid::UpdateMaxSpeed(float PercentOfMaxSpeed)
+{
+	CurrMaxSpeed = MaxSpeed * PercentOfMaxSpeed;
+}
+
 // Called when the game starts or when spawned
 void ABoid::BeginPlay()
 {
 	Super::BeginPlay();
+	CurrMaxSpeed = MaxSpeed;
 	SetLifeSpan(100);
 	SetActorScale3D(FVector::OneVector * SpawnScaleSize);
 	
@@ -122,6 +127,11 @@ void ABoid::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	// TODO: Put on timer
 	HorizontalRotation();
+
+	if (BoidMovement->Velocity.Size() > CurrMaxSpeed)
+	{
+		BoidMovement->Velocity *= 1 - ((BoidMovement->Velocity.Size() - CurrMaxSpeed) / BoidMovement->Velocity.Size());
+	}
 
 	// store curr velocity to calculate movement difference next frame
 	PrevVelocity = BoidMovement->Velocity;
