@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/AbilityBase.h"
+#include "DamageTypes/BaseDamageType.h"
 #include "CrowRush.generated.h"
 
 // Dash State
@@ -65,6 +66,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<TEnumAsByte<EObjectTypeQuery>> EnemyObjectTypes;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UBaseDamageType> DamageType;
+
+	UPROPERTY(EditDefaultsOnly)
+	float DamageAmount = 20;
 
 	void UpdatePlayerSpeed(); 
 	void ResetPlayerSpeed();

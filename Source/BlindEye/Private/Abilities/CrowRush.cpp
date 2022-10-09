@@ -46,12 +46,31 @@ void ACrowRush::ResetPlayerSpeed()
 				FVector ClosestPoint = UKismetMathLibrary::FindClosestPointOnLine(OutHit.Location, StartingPosition, EndLocation - StartingPosition);
 				float distToCenter = FVector::Distance(ClosestPoint, OutHit.Location);
 				float KnockBackToCenterPercent = distToCenter / PullSphereRadius;
-
+				FVector VecToCenter = ClosestPoint - OutHit.Location;
+				VecToCenter.Normalize();
+				VecToCenter *= UKismetMathLibrary::Lerp(MinKnockTowardsCenterForce, MaxKnockTowardsCenterForce, KnockBackToCenterPercent);
+				VecToCenter += FVector::UpVector * UKismetMathLibrary::Lerp(MinKnockUpToCenterForce, MaxKnockUpToCenterForce, KnockBackToCenterPercent);
+				
+				// Calculate knock force to end of dash
 				float distToEndOfRush = FVector::Distance(EndLocation, OutHit.Location);
 				float KnockBackToEndPercent = distToEndOfRush / FVector::Distance(StartingPosition, EndLocation);
+				FVector VecToEnd = EndLocation - OutHit.Location;
+				VecToEnd.Normalize();
+				VecToEnd *= UKismetMathLibrary::Lerp(MinKnockUpToEndForce, MaxKnockTowardsEndForce, KnockBackToEndPercent);
+				VecToEnd += FVector::UpVector * UKismetMathLibrary::Lerp(MinKnockUpToEndForce, MaxKnockUpToEndForce, KnockBackToEndPercent);
 
-				// TODO: How to apply scaled knockBack towards a point?
-				//UGameplayStatics::ApplyPointDamage()
+				FVector ForceVecToApply = VecToEnd + VecToCenter;
+
+				UGameplayStatics::ApplyPointDamage(GetOwner(), DamageAmount, OutHit.Location, OutHit, GetInstigatorController(),
+					GetInstigator(), DamageType);
+
+				if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(OutHit.Actor))
+				{
+					if (UHealthComponent* HealthComponent = HealthInterface->GetHealthComponent())
+					{
+						HealthComponent->KnockBack(ForceVecToApply, GetInstigator());
+					}
+				}
 			}
 		}
 	}
