@@ -32,6 +32,7 @@ void ABasicAttackSmallFlock::Tick(float DeltaSeconds)
 			CheckGoBackToPlayer();
 		} else
 		{
+			UpdateMaxSpeed(MovementPercentAfterReachingTarget);
 			CheckReturnedToPlayer();
 		}
 	}
@@ -109,6 +110,8 @@ void ABasicAttackSmallFlock::CheckGoBackToPlayer()
 		Target->Destroy();
 		Target = nullptr;
 
+		SwirlStrength = 0;
+		
 		MULT_SendEachBoidUp();
 		Target = GetInstigator();
 	}
@@ -124,14 +127,16 @@ void ABasicAttackSmallFlock::CheckReturnedToPlayer()
 
 void ABasicAttackSmallFlock::CheckShrinking()
 {
-	if (CurrShrinkingTime > ShrinkingTime) return;
-	if (FVector::Distance(Target->GetActorLocation(), CalcAveragePosition()) < DistToPlayerToStartShrinking)
+	float DistToPlayer = FVector::Distance(Target->GetActorLocation(), CalcAveragePosition());
+	if (DistToPlayer < DistToPlayerToStartShrinking)
 	{
-		CurrShrinkingTime += GetWorld()->GetDeltaSeconds();
-		if (CurrShrinkingTime > ShrinkingTime) CurrShrinkingTime = ShrinkingTime;
+		float scale = UKismetMathLibrary::FClamp((DistToPlayer - DistFromPlayerToFullyShrink) / (DistToPlayerToStartShrinking - DistFromPlayerToFullyShrink), 0, 1);
 		for (ABoid* boid : BoidsInFlock)
 		{
-			float scale = UKismetMathLibrary::Lerp(1, 0, CurrShrinkingTime / ShrinkingTime);
+			// prevent growing in size
+			float CurrScale = boid->GetActorScale3D().Size();
+			if (scale > CurrScale) return;
+			
 			boid->SetActorScale3D(FVector::OneVector * scale);
 		}
 	}
