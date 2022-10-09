@@ -138,6 +138,8 @@ protected:
 
 	FRotator CalculateLaunchViewPoint(FVector& ViewportLocation, FRotator& ViewportRotation);
 
+	FVector CalculateDownwardVectorImpulse(FVector TargetPosition, float Angle);
+
 	UFUNCTION()
 	void UseAnimNotifyExecuted();
 	UFUNCTION()

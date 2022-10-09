@@ -62,7 +62,13 @@ void APhoenixDive::LaunchToGround()
 	FRotator ViewportRotation;
 	CalculateLaunchViewPoint(ViewportLocation, ViewportRotation);
 
-	Character->GetCharacterMovement()->AddImpulse(ViewportRotation.Vector() * LaunchDownForcePower);
+	FVector VecToGroundTarget = GroundTarget->GetActorLocation() - GetOwner()->GetActorLocation();
+	FRotator RotatorToGroundTarget = VecToGroundTarget.Rotation();
+	float Angle = RotatorToGroundTarget.Pitch;
+
+	// Launch player towards ground target location
+	FVector ImpulseVec = CalculateDownwardVectorImpulse(GroundTarget->GetActorLocation(), 45);
+	Character->GetCharacterMovement()->Velocity = ImpulseVec;
 
 	UWorld* world = GetWorld();
 	if (!world) return;
@@ -73,8 +79,37 @@ void APhoenixDive::LaunchToGround()
 	world->GetTimerManager().ClearTimer(MaxHangingTimerHandle);
 
 	CLI_StopGroundTarget();
-
+	// Setup ground collision
 	Character->GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &APhoenixDive::CollisionWithGround);
+}
+ 
+FVector APhoenixDive::CalculateDownwardVectorImpulse(FVector TargetPosition, float Angle)
+{
+	float angle = UKismetMathLibrary::DegreesToRadians(Angle);
+
+	ACharacter* Character = Cast<ACharacter>(GetOwner());
+
+	// position of this object and the target on the same plane
+	FVector planarTarget = FVector(TargetPosition.X, TargetPosition.Y, 0);
+	FVector planarPosition = FVector(GetActorLocation().X, GetActorLocation().Y, 0);
+
+	// Planar distance between objects
+	float distance = FVector::Distance(planarTarget, planarPosition);
+	// distance along the y axis between objects
+	float ZOffset = GetActorLocation().Z - TargetPosition.Z;
+
+	float initialVelocity = (1 / UKismetMathLibrary::Cos(angle)) * UKismetMathLibrary::Sqrt((0.5f * -1 * Character->GetCharacterMovement()->GetGravityZ() * distance * distance)  / (distance * UKismetMathLibrary::Tan(angle) + ZOffset));
+	
+	FVector velocity = FVector(initialVelocity * UKismetMathLibrary::Cos(angle), 0, initialVelocity * UKismetMathLibrary::Sin(angle));
+
+	// Rotate our velocity to match the direction between two objects
+	float angleBetweenObjects = UKismetMathLibrary::RadiansToDegrees ((planarTarget - planarPosition).HeadingAngle());
+
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Red, FString::SanitizeFloat(angleBetweenObjects));
+	
+	FVector finalVelocity = velocity.RotateAngleAxis(angleBetweenObjects, FVector::UpVector);
+
+	return finalVelocity;
 }
 
 void APhoenixDive::PlayAbilityAnimation()
