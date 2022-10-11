@@ -138,7 +138,7 @@ void ASnapperEnemy::TryRagdoll(bool SimulatePhysics)
 
 void ASnapperEnemy::BeginStopRagdollTimer()
 {
-	GetWorldTimerManager().SetTimer(StopRagdollTimerHandle, this, &ASnapperEnemy::MULT_StopRagdoll, 5, false);
+	GetWorldTimerManager().SetTimer(StopRagdollTimerHandle, this, &ASnapperEnemy::MULT_StopRagdoll, RagdollDuration, false);
 }
 
 void ASnapperEnemy::TeleportColliderToMesh()
@@ -168,7 +168,6 @@ void ASnapperEnemy::MULT_StartRagdoll_Implementation()
 	{
 		bRagdolling = true;
 		AAIController* AIController = Cast<AAIController>(GetController());
-		AIController->GetBrainComponent()->PauseLogic(TEXT("AnimationMontage"));
 		GetWorldTimerManager().SetTimer(ColliderOnMeshTimerHandle, this, &ASnapperEnemy::TeleportColliderToMesh, 0.05, true);
 		BeginStopRagdollTimer();
 	} else
@@ -217,8 +216,6 @@ void ASnapperEnemy::MULT_StopRagdoll_Implementation()
 void ASnapperEnemy::FinishGettingUp()
 {
 	bRagdolling = false;
-	AAIController* AIController = Cast<AAIController>(GetController());
-	AIController->GetBrainComponent()->ResumeLogic(TEXT("AnimationMontage"));
 }
 
 bool ASnapperEnemy::IsLayingOnFront()

@@ -19,8 +19,7 @@ void ACrowRush::UpdatePlayerSpeed()
 	if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
 		StartingPosition = BlindEyePlayer->GetActorLocation();
-		BlindEyePlayer->GetCharacterMovement()->MaxWalkSpeed = 600 * DashSpeedIncrease;
-		BlindEyePlayer->GetCharacterMovement()->MaxAcceleration = 2048 * DashAccelerationIncrease;
+		BlindEyePlayer->MULT_UpdateWalkMovementSpeed(DashSpeedIncrease, DashAccelerationIncrease);
 	}
 }
 
@@ -31,8 +30,7 @@ void ACrowRush::ResetPlayerSpeed()
 	
 	if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
-		BlindEyePlayer->GetCharacterMovement()->MaxWalkSpeed = 600;
-		BlindEyePlayer->GetCharacterMovement()->MaxAcceleration = 2048;
+		BlindEyePlayer->MULT_ResetWalkMovementToNormal();
 
 		FVector EndLocation = BlindEyePlayer->GetActorLocation();
 
@@ -94,8 +92,14 @@ void FCrowRushStartState::TryEnterState(EAbilityInputTypes abilityUsageType)
 
 void FCrowRushStartState::RunState(EAbilityInputTypes abilityUsageType)
 {
+	// prevent user input
+	if (abilityUsageType > EAbilityInputTypes::None) return;
+	
 	FAbilityState::RunState(abilityUsageType);
 	if (Ability == nullptr) return;
+
+	Ability->BP_AbilityStarted();
+	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 	ACrowRush* Dash = Cast<ACrowRush>(Ability);
 	if (Dash == nullptr) return;
 

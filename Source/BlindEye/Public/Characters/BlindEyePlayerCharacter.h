@@ -199,6 +199,11 @@ public:
 	void CLI_UpdateRotationRate(float NewRotationRate);
 	UFUNCTION(Client, Reliable)
 	void CLI_ResetRotationRateToNormal();
+ 
+	UFUNCTION(NetMulticast, Reliable)  
+	void MULT_UpdateWalkMovementSpeed(float PercentWalkSpeedChange, float PercentAccelerationChange);
+	UFUNCTION(NetMulticast, Reliable)  
+	void MULT_ResetWalkMovementToNormal();
 
 protected:
 
@@ -218,6 +223,9 @@ protected:
 	FTimerHandle RotationalLockTimerHandle;
 
 	float CachedRotationRate;
+
+	float CachedMovementSpeed;
+	float CachedAcceleration;
 
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);

@@ -15,8 +15,7 @@ void ASharedDash::UpdatePlayerSpeed()
 {
 	if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
-		BlindEyePlayer->GetCharacterMovement()->MaxWalkSpeed = 600 * DashSpeedIncrease;
-		BlindEyePlayer->GetCharacterMovement()->MaxAcceleration = 2048 * DashAccelerationIncrease;
+		BlindEyePlayer->MULT_UpdateWalkMovementSpeed(DashSpeedIncrease, DashAccelerationIncrease);
 	}
 }
 
@@ -24,8 +23,7 @@ void ASharedDash::ResetPlayerSpeed()
 {
 	if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
-		BlindEyePlayer->GetCharacterMovement()->MaxWalkSpeed = 600;
-		BlindEyePlayer->GetCharacterMovement()->MaxAcceleration = 2048;
+		BlindEyePlayer->MULT_ResetWalkMovementToNormal();
 	}
 }
 
@@ -49,6 +47,9 @@ void FDashStartState::RunState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::RunState(abilityUsageType);
 	if (Ability == nullptr) return;
+
+	Ability->BP_AbilityStarted();
+	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 	ASharedDash* Dash = Cast<ASharedDash>(Ability);
 	if (Dash == nullptr) return;
 
