@@ -55,13 +55,18 @@ public:
 	virtual UMarkerComponent* GetMarkerComponent() override;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	ECharacterTypes GetCharacterType(AActor* Character);
+	ECharacterTypes GetCharacterType();
 
 	virtual float GetMass() override;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	ECharacterTypes LastDamageByType;
+
+	// if damaged by a CharacterBase, then store the type f character last damaged by
+	void StoreCharacterTypeThatLastDamaged(AActor* LastDamagedBy);
 
 	virtual void OnDeath(AActor* ActorThatKilled) override;
 

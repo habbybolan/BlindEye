@@ -22,7 +22,7 @@ void APhoenixFireball::DealWithDamage(AActor* OtherActor, FVector NormalImpulse,
 	if (IDsOfHitActors.Contains(OtherActor->GetUniqueID())) return;
 	
 	IDsOfHitActors.Add(OtherActor->GetUniqueID());
-	UGameplayStatics::ApplyPointDamage(OtherActor, DamageToApply, NormalImpulse, Hit, GetInstigator()->GetController(), GetInstigator(), DamageType);
+	UGameplayStatics::ApplyPointDamage(OtherActor, DamageToApply, NormalImpulse, Hit, GetInstigator()->GetController(), this, DamageType);
 }
 
 void APhoenixFireball::CastFireCone()

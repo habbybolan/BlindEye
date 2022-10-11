@@ -40,6 +40,8 @@ void ABlindEyeBaseCharacter::MYOnTakeDamage(float Damage, FVector HitLocation,
                                                            const UDamageType* DamageType, AActor* DamageCauser)
 {
 	if (GetIsDead()) return;
+
+	StoreCharacterTypeThatLastDamaged(DamageCauser);
 	BP_OnTakeDamage(Damage, HitLocation, DamageType, DamageCauser);
 }
 
@@ -53,30 +55,32 @@ UMarkerComponent* ABlindEyeBaseCharacter::GetMarkerComponent()
 	return MarkerComponent;
 }
 
-ECharacterTypes ABlindEyeBaseCharacter::GetCharacterType(AActor* Character)
+void ABlindEyeBaseCharacter::StoreCharacterTypeThatLastDamaged(AActor* LastDamagedBy)
 {
-	if (Character == nullptr) return ECharacterTypes::Other;
-
-	if (const ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(Character))
+	if (const ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(LastDamagedBy))
 	{
 		if (PlayerCharacter->PlayerType == PlayerType::CrowPlayer)
 		{
-			return ECharacterTypes::Crow;
+			LastDamageByType = ECharacterTypes::Crow;
 		} else
 		{
-			return ECharacterTypes::Phoenix;
+			LastDamageByType = ECharacterTypes::Phoenix;
 		}
-	} else if (const ASnapperEnemy* SnapperEnemy = Cast<ASnapperEnemy>(Character))
+	} else if (const ASnapperEnemy* SnapperEnemy = Cast<ASnapperEnemy>(LastDamagedBy))
 	{
-		return ECharacterTypes::Snapper;
-	} else if (const ABurrowerEnemy* BurrowerEnemy = Cast<ABurrowerEnemy>(Character))
+		LastDamageByType = ECharacterTypes::Snapper;
+	} else if (const ABurrowerEnemy* BurrowerEnemy = Cast<ABurrowerEnemy>(LastDamagedBy))
 	{
-		return ECharacterTypes::Burrower;
-	} else if (const AHunterEnemy* HunterEnemy = Cast<AHunterEnemy>(Character))
+		LastDamageByType = ECharacterTypes::Burrower;
+	} else if (const AHunterEnemy* HunterEnemy = Cast<AHunterEnemy>(LastDamagedBy))
 	{
-		return ECharacterTypes::Hunter;
+		LastDamageByType = ECharacterTypes::Hunter;
 	} 
-	return ECharacterTypes::Other;
+}
+
+ECharacterTypes ABlindEyeBaseCharacter::GetCharacterType()
+{
+	return LastDamageByType;
 }
 
 float ABlindEyeBaseCharacter::GetMass()

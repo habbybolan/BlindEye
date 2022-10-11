@@ -85,7 +85,7 @@ void APhoenixFireballCast::BurnLogic()
 	for (FHitResult Hit : OutHits)
 	{ 
 		UGameplayStatics::ApplyPointDamage(Hit.GetActor(), 0.00001, FVector::ZeroVector,
-			Hit, GetInstigator()->GetController(),GetInstigator(), BurnDamageType);
+			Hit, GetInstigator()->GetController(),this, BurnDamageType);
 	}
 }
 
