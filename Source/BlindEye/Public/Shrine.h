@@ -31,6 +31,8 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	float MaxShrineHealth = 100.f;
 
+	virtual float GetMass() override;
+
 	DECLARE_MULTICAST_DELEGATE(FShrineHealthChangeSignature)
 	FShrineHealthChangeSignature ShrineHealthChange;
 	

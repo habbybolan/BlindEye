@@ -32,6 +32,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category="Movement")
 	float MaxRotationAmount = 0.004f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float MaxSpeed = 2000;
  
 	FVector GetVelocity() const;
 	void SetVelocity(FVector& velocity);
@@ -52,6 +55,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=SpawnGrow)
 	float SpawnScaleSize = 0.2;
 
+	void UpdateMaxSpeed(float PercentOfMaxSpeed);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -60,6 +65,8 @@ protected:
 	FTimerHandle SpawnSizeGrowTimerHandle;
 	float CurrTimerSizeGrow = 0;
 	float SizeGrowTimerDelay = 0.02;
+
+	float CurrMaxSpeed;
 
 public:	
 	// Called every frame

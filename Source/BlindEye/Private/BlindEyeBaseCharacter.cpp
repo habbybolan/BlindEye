@@ -79,6 +79,11 @@ ECharacterTypes ABlindEyeBaseCharacter::GetCharacterType(AActor* Character)
 	return ECharacterTypes::Other;
 }
 
+float ABlindEyeBaseCharacter::GetMass()
+{
+	return Mass;
+}
+
 void ABlindEyeBaseCharacter::OnMarkAdded(PlayerType MarkType)
 {
 	BP_OnMarkAdded(MarkType);

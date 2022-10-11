@@ -41,15 +41,16 @@ public:
 	float DistToPlayerToStartShrinking = 300;
 
 	UPROPERTY(EditDefaultsOnly, Category=Shrinking)
-	float ShrinkingTime = 1.0f;
+	float DistFromPlayerToFullyShrink = 500; 
+
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
+	float MovementPercentAfterReachingTarget = 0.75f;
 
 protected:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void BeginPlay() override;
 
 	float BaseSeekingStrength;
-
-	float CurrShrinkingTime = 0.f;
 
 	void CheckForDamage();
 	void CheckGoBackToPlayer();

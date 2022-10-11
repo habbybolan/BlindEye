@@ -42,6 +42,9 @@ public:
 	virtual float GetHealthPercent() = 0;
 
 	UFUNCTION(BlueprintCallable)
+	virtual float GetMass() = 0;
+
+	UFUNCTION(BlueprintCallable)
 	virtual TEAMS GetTeam() = 0;
 
 	// Any extra specific logic, outside of damage logic, for actor to perform on taking damage

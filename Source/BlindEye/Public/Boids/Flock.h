@@ -45,6 +45,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Strength")
 	float NoiseStrength = 100.f;
  
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Strength")
+	float SwirlStrength = 100.f;
+ 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float NoiseAngleVariation = 25.f; 
 
@@ -101,6 +104,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category=ObstacleAvoidance)
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypesToAvoid;
+
+	UPROPERTY(EditDefaultsOnly)
+	bool bFlippedSwirlRotation = false;
 	
 
 protected:
@@ -138,6 +144,9 @@ public:
 	virtual FVector TargetSeeking(ABoid* boid);
 	virtual FVector ObstacleAvoidance(ABoid* boid);
 	virtual FVector Noise(ABoid* boid);
+	virtual FVector Swirling(ABoid* boid, FVector AvgPosition, FVector Alignment);
+
+	void UpdateMaxSpeed(float PercentToChangeSpeed);
 
 private:
 

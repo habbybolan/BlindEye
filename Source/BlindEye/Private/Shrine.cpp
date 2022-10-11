@@ -25,6 +25,11 @@ AShrine::AShrine()
 	CurrShrineHealth = MaxShrineHealth;
 }
 
+float AShrine::GetMass()
+{
+	return 0;
+}
+
 float AShrine::GetHealth()
 {
 	return CurrShrineHealth;
