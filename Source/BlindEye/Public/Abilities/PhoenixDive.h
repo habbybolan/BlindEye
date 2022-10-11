@@ -120,6 +120,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* DiveAbilityAnim;
 
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=45))
+	float AngleUpOffsetOnLaunch = 10.f;
+
 protected:
 
 	FTimerHandle HangInAirTimerHandle;

@@ -71,7 +71,7 @@ void APhoenixDive::LaunchToGround()
 	float Angle = RotatorToGroundTarget.Pitch;
 
 	// Launch player towards ground target location
-	FVector ImpulseVec = CalculateDownwardVectorImpulse( GroundTarget->GetActorLocation(), Angle + 10);
+	FVector ImpulseVec = CalculateDownwardVectorImpulse( GroundTarget->GetActorLocation(), Angle + AngleUpOffsetOnLaunch);
 	Character->GetCharacterMovement()->Velocity = ImpulseVec;
 
 	// prevent hanging in air
