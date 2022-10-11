@@ -138,7 +138,7 @@ void ASnapperEnemy::TryRagdoll(bool SimulatePhysics)
 
 void ASnapperEnemy::BeginStopRagdollTimer()
 {
-	GetWorldTimerManager().SetTimer(StopRagdollTimerHandle, this, &ASnapperEnemy::MULT_StopRagdoll, 5, false);
+	GetWorldTimerManager().SetTimer(StopRagdollTimerHandle, this, &ASnapperEnemy::MULT_StopRagdoll, RagdollDuration, false);
 }
 
 void ASnapperEnemy::TeleportColliderToMesh()
