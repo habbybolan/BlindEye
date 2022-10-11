@@ -99,6 +99,7 @@ void FCrowRushStartState::RunState(EAbilityInputTypes abilityUsageType)
 	if (Ability == nullptr) return;
 
 	Ability->BP_AbilityStarted();
+	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 	ACrowRush* Dash = Cast<ACrowRush>(Ability);
 	if (Dash == nullptr) return;
 

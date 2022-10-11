@@ -49,6 +49,7 @@ void FDashStartState::RunState(EAbilityInputTypes abilityUsageType)
 	if (Ability == nullptr) return;
 
 	Ability->BP_AbilityStarted();
+	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 	ASharedDash* Dash = Cast<ASharedDash>(Ability);
 	if (Dash == nullptr) return;
 
