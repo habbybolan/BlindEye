@@ -89,6 +89,9 @@ void ABlindEyePlayerCharacter::BeginPlay()
 	UWorld* world = GetWorld();
 
 	CachedRotationRate = GetCharacterMovement()->RotationRate.Yaw;
+	CachedMovementSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	CachedAcceleration = GetCharacterMovement()->MaxAcceleration;
+	
 	if (world == nullptr) return;
 
 	if (IsLocallyControlled())
@@ -199,6 +202,18 @@ void ABlindEyePlayerCharacter::CLI_UpdateRotationRate_Implementation(float NewRo
 void ABlindEyePlayerCharacter::CLI_ResetRotationRateToNormal_Implementation()
 {
 	GetCharacterMovement()->RotationRate = FRotator(0, CachedRotationRate, 0);
+}
+
+void ABlindEyePlayerCharacter::MULT_UpdateWalkMovementSpeed_Implementation(float PercentWalkSpeedChange, float PercentAccelerationChange)
+{
+	GetCharacterMovement()->MaxWalkSpeed = CachedMovementSpeed * PercentWalkSpeedChange;
+	GetCharacterMovement()->MaxAcceleration = CachedAcceleration * PercentAccelerationChange;
+}
+
+void ABlindEyePlayerCharacter::MULT_ResetWalkMovementToNormal_Implementation()
+{
+	GetCharacterMovement()->MaxWalkSpeed = CachedMovementSpeed;
+	GetCharacterMovement()->MaxAcceleration = CachedAcceleration;
 }
 
 void ABlindEyePlayerCharacter::RegenBirdMeter()
