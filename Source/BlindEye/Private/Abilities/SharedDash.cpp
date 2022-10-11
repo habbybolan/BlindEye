@@ -49,6 +49,8 @@ void FDashStartState::RunState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::RunState(abilityUsageType);
 	if (Ability == nullptr) return;
+
+	Ability->BP_AbilityStarted();
 	ASharedDash* Dash = Cast<ASharedDash>(Ability);
 	if (Dash == nullptr) return;
 

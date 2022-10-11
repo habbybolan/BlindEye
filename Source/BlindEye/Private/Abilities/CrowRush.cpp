@@ -94,8 +94,13 @@ void FCrowRushStartState::TryEnterState(EAbilityInputTypes abilityUsageType)
 
 void FCrowRushStartState::RunState(EAbilityInputTypes abilityUsageType)
 {
+	// prevent user input
+	if (abilityUsageType > EAbilityInputTypes::None) return;
+	
 	FAbilityState::RunState(abilityUsageType);
 	if (Ability == nullptr) return;
+
+	Ability->BP_AbilityStarted();
 	ACrowRush* Dash = Cast<ACrowRush>(Ability);
 	if (Dash == nullptr) return;
 
