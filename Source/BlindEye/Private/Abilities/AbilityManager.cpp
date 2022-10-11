@@ -101,7 +101,6 @@ void UAbilityManager::SetAbilityInUse(AAbilityBase* abilityInUse)
 {
 	if (CurrUsedAbility == nullptr)
 	{
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Purple, "Ability in use: " + abilityInUse->GetName());
 		CurrUsedAbility = abilityInUse;
 	}
 }

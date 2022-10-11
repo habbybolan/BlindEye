@@ -25,8 +25,6 @@ void UMarkerComponent::BeginPlay()
 	if (World == nullptr) return;
 
 	FVector location = GetComponentLocation();
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Blue, "Location: " +
-		FString::SanitizeFloat(location.X) + "," + FString::SanitizeFloat(location.Y) + "," + FString::SanitizeFloat(location.Z));
 	CrowMark = World->SpawnActor<AStaticMeshActor>(CrowMarkType, location, GetComponentRotation());
 	CrowMark->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
 	CrowMark->GetStaticMeshComponent()->SetVisibility(false);

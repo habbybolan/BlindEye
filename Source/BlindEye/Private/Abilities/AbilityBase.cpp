@@ -65,7 +65,6 @@ void AAbilityBase::SetOffCooldown()
 
 void AAbilityBase::TryCancelAbility()
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, "Ability cancelled");
 	// TODO: Do functionality later
 	//		Probably add IsCancellable as base state boolean and extra cancel logic in the state (cancel method?)
 
@@ -111,7 +110,6 @@ void AAbilityBase::EndAbilityLogic()
 		GetWorldTimerManager().ClearTimer(NextStateDelayTimerHandle);
 	}
 	
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, "Ability ended");
 	CurrState = 0;
 	AbilityStates[CurrState]->ResetState();
 	bIsRunning = false;
@@ -122,7 +120,6 @@ void AAbilityBase::EndAbilityLogic()
 
 void AAbilityBase::EndCurrState()
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Cyan, "End curr state");
 	AbilityStates[CurrState]->ResetState();
 	CurrState++;
 	
