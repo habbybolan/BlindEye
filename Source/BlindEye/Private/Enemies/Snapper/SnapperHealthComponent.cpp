@@ -16,13 +16,9 @@ void USnapperHealthComponent::KnockBack(FVector KnockBackForce, AActor* DamageCa
 	bCanKnockBack = false;
 	World->GetTimerManager().SetTimer(KnockBackCooldownTimer, this, &USnapperHealthComponent::KnockBackOffCooldown, KnockBackCooldown, false);
 	
-	Super::KnockBack(KnockBackForce, DamageCause);
-	
-	// prevent ragdoll if knockback not large enough
-	if (KnockBackForce.Size() < 500) return;
 	if (ASnapperEnemy* Snapper = Cast<ASnapperEnemy>(GetOwner()))
 	{
-		Snapper->TryRagdoll(true);
+		Snapper->ApplyKnockBack(KnockBackForce);
 	}
 }
 

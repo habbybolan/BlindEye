@@ -58,6 +58,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool GetIsRagdolling();
 
+	void ApplyKnockBack(FVector Force);
+
 protected:
 
 	UPROPERTY(Replicated)

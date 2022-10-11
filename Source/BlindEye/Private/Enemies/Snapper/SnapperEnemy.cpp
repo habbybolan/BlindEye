@@ -118,6 +118,24 @@ bool ASnapperEnemy::GetIsRagdolling()
 	return bRagdolling;
 }
 
+void ASnapperEnemy::ApplyKnockBack(FVector Force)
+{
+	if (bRagdolling)
+	{
+		GetMesh()->AddImpulse(Force);
+	} else
+	{
+		if (Force.Size() < 500)
+		{
+			GetCharacterMovement()->AddImpulse(Force);
+		} else
+		{
+			TryRagdoll(true);
+			GetMesh()->AddImpulse(Force);
+		}
+	}
+}
+
 void ASnapperEnemy::TryRagdoll(bool SimulatePhysics)
 {
 	// Prevent calling ragdoll again, reset timer to get up
