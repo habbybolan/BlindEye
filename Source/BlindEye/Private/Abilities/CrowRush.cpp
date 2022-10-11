@@ -62,6 +62,7 @@ void ACrowRush::ResetPlayerSpeed()
 				UGameplayStatics::ApplyPointDamage(OutHit.Actor.Get(), DamageAmount, OutHit.Location, OutHit, GetInstigatorController(),
 					GetInstigator(), DamageType);
 
+				// manually call KnockBack since you can't change values in Damage Type
 				if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(OutHit.Actor))
 				{
 					if (UHealthComponent* HealthComponent = HealthInterface->GetHealthComponent())
