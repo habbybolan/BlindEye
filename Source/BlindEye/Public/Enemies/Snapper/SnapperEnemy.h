@@ -86,6 +86,10 @@ protected:
 	void MULT_StopRagdoll();
 	void FinishGettingUp();
 
+	void SetPhysicsBlendWeight();
+	FTimerHandle PhysicsBlendWeightTimerHandle;
+	float BlendWeightDelay = 0.05f;
+
 	bool IsLayingOnFront();
 
 	virtual void OnDeath(AActor* ActorThatKilled) override;

@@ -120,19 +120,24 @@ bool ASnapperEnemy::GetIsRagdolling()
 
 void ASnapperEnemy::ApplyKnockBack(FVector Force)
 {
-	if (bRagdolling)
+	// if (bRagdolling)
+	// {
+	// 	GetMesh()->AddImpulse(Force);
+	// } else
+	// {
+	// 	if (Force.Size() < 500)
+	// 	{
+	// 		GetCharacterMovement()->AddImpulse(Force);
+	// 	} else
+	// 	{
+	// 		TryRagdoll(true);
+	// 		GetMesh()->AddImpulse(Force);
+	// 	}
+	// }
+
+	if (!bRagdolling)
 	{
-		GetMesh()->AddImpulse(Force);
-	} else
-	{
-		if (Force.Size() < 500)
-		{
-			GetCharacterMovement()->AddImpulse(Force);
-		} else
-		{
-			TryRagdoll(true);
-			GetMesh()->AddImpulse(Force);
-		}
+		TryRagdoll(true);
 	}
 }
 
@@ -161,7 +166,7 @@ void ASnapperEnemy::BeginStopRagdollTimer()
 
 void ASnapperEnemy::TeleportColliderToMesh()
 {
-	FVector TeleportLocation = GetMesh()->GetSocketLocation(TEXT("Hips"));
+	FVector TeleportLocation = GetMesh()->GetSocketLocation(TEXT("Hips")) + FVector(0, 0, 50);
 	GetCapsuleComponent()->SetWorldLocation(TeleportLocation);
 	HipLocation = TeleportLocation;
 }
@@ -188,6 +193,7 @@ void ASnapperEnemy::MULT_StartRagdoll_Implementation()
 		AAIController* AIController = Cast<AAIController>(GetController());
 		GetWorldTimerManager().SetTimer(ColliderOnMeshTimerHandle, this, &ASnapperEnemy::TeleportColliderToMesh, 0.05, true);
 		BeginStopRagdollTimer();
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	} else
 	{
 		GetWorldTimerManager().SetTimer(ColliderOnMeshTimerHandle, this, &ASnapperEnemy::UpdateHipLocation, 0.05, true);
@@ -205,35 +211,62 @@ void ASnapperEnemy::MULT_StopRagdoll_Implementation()
 	float TimeForGetup;
 	if (IsLayingOnFront())
 	{
-		TimeForGetup = PlayAnimMontage(GetUpFromInFrontMontage);
-		TimeForGetup /= 3;
+		// TimeForGetup = PlayAnimMontage(GetUpFromInFrontMontage);
+		// TimeForGetup /= 3;
 	} else
 	{
-		TimeForGetup = PlayAnimMontage(GetUpFromBehindMontage);
+		// TimeForGetup = PlayAnimMontage(GetUpFromBehindMontage);
 	}
+	TimeForGetup = 1.f;
 
 	// return to normal settings and reattach
-	GetMesh()->SetSimulatePhysics(false);
+	//GetMesh()->SetSimulatePhysics(false);
 
-	FRotator HipRotation = GetMesh()->GetSocketRotation("Hips");
-	GetCapsuleComponent()->SetWorldRotation(FRotator(0, HipRotation.Yaw, 0));
-	GetCharacterMovement()->GravityScale = 1;
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
-	FAttachmentTransformRules Rules(EAttachmentRule::SnapToTarget, true);
-	GetMesh()->AttachToComponent(GetCapsuleComponent(), Rules);
-	GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -50.0), FRotator(0, -90, 0));
+	// FRotator HipRotation = GetMesh()->GetSocketRotation("Hips");
+	// GetCapsuleComponent()->SetWorldRotation(FRotator(0, HipRotation.Yaw, 0));
+	// GetCharacterMovement()->GravityScale = 1;
+	// GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	//
+	// FAttachmentTransformRules Rules(EAttachmentRule::SnapToTarget, true);
+	// GetMesh()->AttachToComponent(GetCapsuleComponent(), Rules);
+	// GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -50.0), FRotator(0, -90, 0));
 
 	GetWorldTimerManager().ClearTimer(ColliderOnMeshTimerHandle);
 	if (GetLocalRole() == ROLE_Authority)
 	{
 		GetWorldTimerManager().SetTimer(GetupAnimTimerHandle, this, &ASnapperEnemy::FinishGettingUp, TimeForGetup, false);
 	}
+	
+	// blend weight loop to smooth out getting up animation
+	GetWorldTimerManager().SetTimer(PhysicsBlendWeightTimerHandle, this, &ASnapperEnemy::SetPhysicsBlendWeight, BlendWeightDelay, true);
 }
 
 void ASnapperEnemy::FinishGettingUp()
 {
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	bRagdolling = false;
+}
+
+void ASnapperEnemy::SetPhysicsBlendWeight()
+{
+	float AlphaBlendWeight = GetMesh()->GetBodyInstance()->PhysicsBlendWeight;
+	
+	if (AlphaBlendWeight <= 0)
+	{
+		// FRotator HipRotation = GetMesh()->GetSocketRotation("Hips");
+		// GetCapsuleComponent()->SetWorldRotation(FRotator(0, HipRotation.Yaw, 0));
+		// GetCharacterMovement()->GravityScale = 1;
+		// GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		//
+		// FAttachmentTransformRules Rules(EAttachmentRule::SnapToTarget, true);
+		// GetMesh()->AttachToComponent(GetCapsuleComponent(), Rules);
+		// GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -50.0), FRotator(0, -90, 0));
+
+		GetMesh()->SetSimulatePhysics(false);
+		GetWorldTimerManager().ClearTimer(PhysicsBlendWeightTimerHandle);
+	}
+	
+	GetMesh()->SetPhysicsBlendWeight(AlphaBlendWeight - BlendWeightDelay);
 }
 
 bool ASnapperEnemy::IsLayingOnFront()
