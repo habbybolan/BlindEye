@@ -19,6 +19,11 @@ AHunterEnemyController::AHunterEnemyController()
 void AHunterEnemyController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	World->GetTimerManager().SetTimer(SpawnDelayTimerHandle, this, &AHunterEnemyController::SpawnHunter, SpawnDelay, false);
 }
 
 void AHunterEnemyController::SetAlwaysVisible(bool IsAlwaysVisible)

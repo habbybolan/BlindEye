@@ -35,11 +35,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UBaseDamageType> BasicAttackDamageType;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category=Ragdoll)
 	UAnimMontage* GetUpFromBehindMontage;
 
-	UPROPERTY(EditDefaultsOnly) 
+	UPROPERTY(EditDefaultsOnly, Category=Ragdoll) 
 	UAnimMontage* GetUpFromInFrontMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category=Ragdoll)
+	float RagdollDuration = 2.0f;
 
 	UPROPERTY(EditDefaultsOnly)
 	float DeathDelay = 1.0f;
