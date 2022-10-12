@@ -72,6 +72,13 @@ void APhoenixDive::LaunchToGround()
 
 	// Launch player towards ground target location
 	FVector ImpulseVec = CalculateDownwardVectorImpulse( GroundTarget->GetActorLocation(), Angle + AngleUpOffsetOnLaunch);
+
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 3.0f, FColor::Cyan, FString::SanitizeFloat(ImpulseVec.Size()));
+	// Prevent small amount of force being applied when aiming too low down
+	if (ImpulseVec.Size() < MinDownwardForceCanApply)
+	{
+		ImpulseVec *= 1 + (MinDownwardForceCanApply - ImpulseVec.Size()) / ImpulseVec.Size();
+	}
 	Character->GetCharacterMovement()->Velocity = ImpulseVec;
 
 	// prevent hanging in air
