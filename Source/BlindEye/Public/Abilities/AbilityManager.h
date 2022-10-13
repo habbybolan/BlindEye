@@ -16,8 +16,8 @@ enum class EAbilityBlockers
 };
 
 // Used for easily identifying which ability was used
-UENUM()
-enum class EAbilityTypes
+UENUM(BlueprintType)
+enum class EAbilityTypes : uint8
 {
 	Basic = 0,
 	ChargedBasic = 1,
