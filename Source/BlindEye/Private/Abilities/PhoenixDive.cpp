@@ -268,6 +268,11 @@ FStartAbilityState::FStartAbilityState(AAbilityBase* ability) : FAbilityState(ab
 void FStartAbilityState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
+	if (!Ability) return;
+	if (APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability))
+	{
+		if (!PhoenixDive->TryConsumeBirdMeter(PhoenixDive->CostPercent)) return;
+	}
 	RunState();
 }
 
@@ -307,11 +312,6 @@ void FJumpState::TryEnterState(EAbilityInputTypes abilityUsageType)
 	if (abilityUsageType > EAbilityInputTypes::None) return;
 	
 	FAbilityState::TryEnterState(abilityUsageType);
-	if (!Ability) return;
-	if (APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability))
-	{
-		if (!PhoenixDive->TryConsumeBirdMeter(PhoenixDive->CostPercent)) return;
-	}
 	RunState();
 }
 
@@ -370,6 +370,7 @@ void FInAirState::ExitState()
 	FAbilityState::ExitState();
 	if (!Ability) return;
 	Ability->EndCurrState();
+	Ability->UseAbility(EAbilityInputTypes::None);
 }
 
 // Hanging State **********
@@ -379,6 +380,8 @@ FHangingState::FHangingState(AAbilityBase* ability) : FAbilityState(ability) {}
 void FHangingState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
+	Ability->Blockers.IsMovementBlocked = true;
+	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 	// enter launch state on player input, or duration in air ran out
 	if (abilityUsageType == EAbilityInputTypes::Pressed)
 	{
