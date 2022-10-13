@@ -165,6 +165,7 @@ void AAbilityBase::AbilityCancelInput()
 
 void AAbilityBase::UseAbility(EAbilityInputTypes abilityUsageType)
 {
+	if (AbilityStates[CurrState] == nullptr) return;
 	AbilityStates[CurrState]->HandleInput(abilityUsageType);
 }
 
