@@ -61,6 +61,7 @@ void UMarkerComponent::RemoveMark()
 	CrowMark->GetStaticMeshComponent()->SetVisibility(false);
 	PhoenixMark->GetStaticMeshComponent()->SetVisibility(false);
 	bMarked = false;
+	BP_RemoveMark();
 }
 
 void UMarkerComponent::DetonateMark()
@@ -68,7 +69,8 @@ void UMarkerComponent::DetonateMark()
 	// TODO: play particle effect/shader
 	CrowMark->GetStaticMeshComponent()->SetVisibility(false);
 	PhoenixMark->GetStaticMeshComponent()->SetVisibility(false);
-	bMarked = false; 
+	bMarked = false;
+	BP_DetonateMark();
 }
 
 void UMarkerComponent::AddMark(EPlayerType PlayerMarkToSet)
@@ -77,7 +79,7 @@ void UMarkerComponent::AddMark(EPlayerType PlayerMarkToSet)
 	CrowMark->GetStaticMeshComponent()->SetVisibility(PlayerMarkToSet == EPlayerType::CrowPlayer);
 	PhoenixMark->GetStaticMeshComponent()->SetVisibility(PlayerMarkToSet == EPlayerType::PhoenixPlayer);
 	bMarked = true;
-	// TODO: play particle/shader
+	BP_AddMark(PlayerMarkToSet);
 }
 
 void UMarkerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

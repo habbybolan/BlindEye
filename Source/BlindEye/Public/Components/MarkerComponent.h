@@ -24,7 +24,16 @@ public:
 
 	void RemoveMark();
 	void DetonateMark();
-	void AddMark(EPlayerType PlayerMarkToSet); 
+	void AddMark(EPlayerType PlayerMarkToSet);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_RemoveMark();
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_DetonateMark();
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_AddMark(EPlayerType pLayerType);
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_RegenerateMark();
 
 protected:
 	// Called when the game starts or when spawned
