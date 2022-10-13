@@ -40,7 +40,7 @@ void ABasicAttackSmallFlock::Tick(float DeltaSeconds)
 	if (bHasReachedTarget)
 	{
 		CheckShrinking();
-	}
+	} 
 }
 
 void ABasicAttackSmallFlock::BeginPlay()
@@ -72,7 +72,10 @@ void ABasicAttackSmallFlock::BeginPlay()
 	
 		Target = world->SpawnActor<AActor>(TargetType, TargetLocation, FRotator::ZeroRotator);
 
-		MULT_InitializeFlock();
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			OnRep_Target();
+		}
 	}
 }
 
@@ -106,15 +109,22 @@ void ABasicAttackSmallFlock::CheckGoBackToPlayer()
 {
 	if (CheckInRangeOfTarget())
 	{
-		bHasReachedTarget = true;
-		Target->Destroy();
-		Target = nullptr;
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			Target->Destroy();
+			Target = nullptr;
+		}
 
-		SwirlStrength = 0;
-		
+		MULT_GoBackToPlayer();
 		MULT_SendEachBoidUp();
-		Target = GetInstigator();
-	}
+	} 
+}
+
+void ABasicAttackSmallFlock::MULT_GoBackToPlayer_Implementation()
+{
+	Target = GetInstigator();
+	bHasReachedTarget = true;
+	SwirlStrength = 0;
 }
 
 void ABasicAttackSmallFlock::CheckReturnedToPlayer()
