@@ -3,6 +3,7 @@
 
 #include "Abilities/AbilityManager.h"
 #include "Abilities/AbilityBase.h"
+#include "Characters/BlindEyePlayerCharacter.h"
 #include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
@@ -116,7 +117,10 @@ void UAbilityManager::PerformGenericAbilityNotify()
 
 void UAbilityManager::UpdateCooldownUI(EAbilityTypes abilityType, float CurrCooldown, float MaxCooldown)
 {
-	// TODO:
+	if (ABlindEyePlayerCharacter* BlindEyeCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	{
+		BlindEyeCharacter->BP_UpdateCooldownUI(abilityType, CurrCooldown, MaxCooldown);
+	}
 }
 
 

@@ -12,6 +12,7 @@
 #include "BlindEyePlayerCharacter.generated.h"
 
 enum class TEAMS;
+enum class EAbilityTypes : uint8;
 class UAbilityManager;
 class UHealthComponent;
 class ABlindEyePlayerState;
@@ -40,6 +41,9 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 
 	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_UpdateCooldownUI(EAbilityTypes abilityType, float CurrCooldown, float MaxCooldown);
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
