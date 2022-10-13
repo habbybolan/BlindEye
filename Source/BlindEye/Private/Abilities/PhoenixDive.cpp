@@ -58,26 +58,39 @@ void APhoenixDive::LaunchToGround()
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
-	
+
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
+	if (Character == nullptr) return;
+
 	Character->GetCharacterMovement()->GravityScale = 1.f;
-	
-	FVector ViewportLocation;
-	FRotator ViewportRotation;
-	CalculateLaunchViewPoint(ViewportLocation, ViewportRotation);
 
-	FVector VecToGroundTarget = GroundTarget->GetActorLocation() - GetOwner()->GetActorLocation();
-	FRotator RotatorToGroundTarget = VecToGroundTarget.Rotation();
-	float Angle = RotatorToGroundTarget.Pitch;
-
-	// Launch player towards ground target location
-	FVector ImpulseVec = CalculateDownwardVectorImpulse( GroundTarget->GetActorLocation(), Angle + AngleUpOffsetOnLaunch);
-	
-	// Prevent small amount of force being applied when aiming too low down
-	if (ImpulseVec.Size() < MinDownwardForceCanApply)
+	FVector ImpulseVec;
+	// if something happened to ground target, launch straight down
+	if (GroundTarget == nullptr)
 	{
-		ImpulseVec *= 1 + (MinDownwardForceCanApply - ImpulseVec.Size()) / ImpulseVec.Size();
+		ImpulseVec = FVector(0, 0, -MinDownwardForceCanApply);
 	}
+	// Otherwise launch normally
+	else
+	{
+		FVector ViewportLocation;
+		FRotator ViewportRotation;
+		CalculateLaunchViewPoint(ViewportLocation, ViewportRotation);
+
+		FVector VecToGroundTarget = GroundTarget->GetActorLocation() - GetOwner()->GetActorLocation();
+		FRotator RotatorToGroundTarget = VecToGroundTarget.Rotation();
+		float Angle = RotatorToGroundTarget.Pitch;
+ 
+		// Launch player towards ground target location
+		ImpulseVec = CalculateDownwardVectorImpulse( GroundTarget->GetActorLocation(), Angle + AngleUpOffsetOnLaunch);
+	
+		// Prevent small amount of force being applied when aiming too low down
+		if (ImpulseVec.Size() < MinDownwardForceCanApply)
+		{
+			ImpulseVec *= 1 + (MinDownwardForceCanApply - ImpulseVec.Size()) / ImpulseVec.Size();
+		}
+	}
+
 	Character->GetCharacterMovement()->Velocity = ImpulseVec;
 
 	// prevent hanging in air
@@ -268,6 +281,11 @@ FStartAbilityState::FStartAbilityState(AAbilityBase* ability) : FAbilityState(ab
 void FStartAbilityState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
+	if (!Ability) return;
+	if (APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability))
+	{
+		if (!PhoenixDive->TryConsumeBirdMeter(PhoenixDive->CostPercent)) return;
+	}
 	RunState();
 }
 
@@ -307,11 +325,6 @@ void FJumpState::TryEnterState(EAbilityInputTypes abilityUsageType)
 	if (abilityUsageType > EAbilityInputTypes::None) return;
 	
 	FAbilityState::TryEnterState(abilityUsageType);
-	if (!Ability) return;
-	if (APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability))
-	{
-		if (!PhoenixDive->TryConsumeBirdMeter(PhoenixDive->CostPercent)) return;
-	}
 	RunState();
 }
 
@@ -370,6 +383,7 @@ void FInAirState::ExitState()
 	FAbilityState::ExitState();
 	if (!Ability) return;
 	Ability->EndCurrState();
+	//Ability->UseAbility(EAbilityInputTypes::None);
 }
 
 // Hanging State **********
@@ -379,6 +393,8 @@ FHangingState::FHangingState(AAbilityBase* ability) : FAbilityState(ability) {}
 void FHangingState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
+	Ability->Blockers.IsMovementBlocked = true;
+	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 	// enter launch state on player input, or duration in air ran out
 	if (abilityUsageType == EAbilityInputTypes::Pressed)
 	{
