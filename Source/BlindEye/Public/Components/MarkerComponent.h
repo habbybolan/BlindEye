@@ -7,7 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "MarkerComponent.generated.h"
 
-enum class PlayerType : uint8;
+enum class EPlayerType : uint8;
 
 UCLASS()
 class BLINDEYE_API UMarkerComponent : public USceneComponent
@@ -24,7 +24,7 @@ public:
 
 	void RemoveMark();
 	void DetonateMark();
-	void AddMark(PlayerType PlayerMarkToSet); 
+	void AddMark(EPlayerType PlayerMarkToSet); 
 
 protected:
 	// Called when the game starts or when spawned

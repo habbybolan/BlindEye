@@ -142,6 +142,8 @@ protected:
 
 	void hangingInAirExpired();
 
+	bool CalculateGroundTargetPosition(FVector& TargetPosition);
+
 	FRotator CalculateLaunchViewPoint(FVector& ViewportLocation, FRotator& ViewportRotation);
 
 	FVector CalculateDownwardVectorImpulse(FVector TargetPosition, float Angle);

@@ -71,11 +71,11 @@ void UMarkerComponent::DetonateMark()
 	bMarked = false; 
 }
 
-void UMarkerComponent::AddMark(PlayerType PlayerMarkToSet)
+void UMarkerComponent::AddMark(EPlayerType PlayerMarkToSet)
 {
 	if (bMarked) return;
-	CrowMark->GetStaticMeshComponent()->SetVisibility(PlayerMarkToSet == PlayerType::CrowPlayer);
-	PhoenixMark->GetStaticMeshComponent()->SetVisibility(PlayerMarkToSet == PlayerType::PhoenixPlayer);
+	CrowMark->GetStaticMeshComponent()->SetVisibility(PlayerMarkToSet == EPlayerType::CrowPlayer);
+	PhoenixMark->GetStaticMeshComponent()->SetVisibility(PlayerMarkToSet == EPlayerType::PhoenixPlayer);
 	bMarked = true;
 	// TODO: play particle/shader
 }
