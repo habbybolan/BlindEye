@@ -120,6 +120,8 @@ protected:
 	FTimerHandle FlockSpawnTimerHandle;
 	FTimerHandle CanAttackTimerHandle;
 
+	bool bFlockInitialized = false;
+
 	virtual void BeginPlay() override;
 
 	FVector CalcAveragePosition();

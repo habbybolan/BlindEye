@@ -21,6 +21,9 @@ AFlock::AFlock()
 
 void AFlock::OnRep_Target()
 {
+	if (bFlockInitialized) return;
+	
+	bFlockInitialized = true;
 	InitializeFlock();
 }
 

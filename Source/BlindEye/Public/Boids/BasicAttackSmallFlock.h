@@ -58,6 +58,9 @@ protected:
 	void CheckShrinking();
 
 	UFUNCTION(NetMulticast, Reliable)
+	void MULT_GoBackToPlayer();
+
+	UFUNCTION(NetMulticast, Reliable)
 	void MULT_SendEachBoidUp();
 
 	UPROPERTY(Replicated)
