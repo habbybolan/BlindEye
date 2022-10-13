@@ -114,6 +114,11 @@ void UAbilityManager::PerformGenericAbilityNotify()
 	}
 }
 
+void UAbilityManager::UpdateCooldownUI(EAbilityTypes abilityType, float CurrCooldown, float MaxCooldown)
+{
+	// TODO:
+}
+
 
 // Called when the game starts
 void UAbilityManager::BeginPlay()
@@ -121,6 +126,11 @@ void UAbilityManager::BeginPlay()
 	Super::BeginPlay();
 
 	SetupAbilities();
+}
+
+void UAbilityManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
 void UAbilityManager::SetupAbilities()

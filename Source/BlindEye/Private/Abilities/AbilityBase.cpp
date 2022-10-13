@@ -48,12 +48,36 @@ void AAbilityBase::GenericAnimNotify()
 void AAbilityBase::BeginPlay()
 {
 	Super::BeginPlay();
+	UActorComponent* AbilityManagerComp = GetOwner()->GetComponentByClass(UAbilityManager::StaticClass());
+	if (AbilityManagerComp)
+	{
+		OwningAbilityManager = Cast<UAbilityManager>(AbilityManagerComp);
+	}
 }
 
 void AAbilityBase::SetOnCooldown()
 {
 	bOnCooldown = true;
-	GetWorldTimerManager().SetTimer(CooldownTimerHandle, this, &AAbilityBase::SetOffCooldown, Cooldown, false);
+	CurrCooldown = Cooldown;
+	GetWorldTimerManager().SetTimer(CooldownTimerHandle, this, &AAbilityBase::CalculateCooldown, CooldownTimerDelay, true);
+}
+
+void AAbilityBase::CalculateCooldown()
+{
+	CurrCooldown -= CooldownTimerDelay;
+	OnRep_CooldownUpdated();
+	if (CurrCooldown <= 0)
+	{
+		SetOffCooldown();
+	}
+}
+
+void AAbilityBase::OnRep_CooldownUpdated()
+{
+	if (OwningAbilityManager)
+	{
+		OwningAbilityManager->UpdateCooldownUI(AbilityType, CurrCooldown, Cooldown);
+	}
 }
 
 void AAbilityBase::SetOffCooldown()
@@ -61,6 +85,7 @@ void AAbilityBase::SetOffCooldown()
 	// If cooldown removed by outside source
 	GetWorldTimerManager().ClearTimer(CooldownTimerHandle);
 	bOnCooldown = false;
+	
 }
 
 void AAbilityBase::TryCancelAbility()
@@ -147,5 +172,6 @@ void AAbilityBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AAbilityBase, Blockers);
+	DOREPLIFETIME(AAbilityBase, CurrCooldown);
 }
 

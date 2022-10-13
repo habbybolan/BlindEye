@@ -61,9 +61,13 @@ public:
 
 	void PerformGenericAbilityNotify();
 
+	void UpdateCooldownUI(EAbilityTypes abilityType, float CurrCooldown, float MaxCooldown);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	bool IsAbilityUnavailable(AAbilityBase* AbilityToUse) const;

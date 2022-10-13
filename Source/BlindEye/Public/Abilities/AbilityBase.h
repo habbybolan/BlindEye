@@ -97,8 +97,16 @@ protected:
 	TArray<FAbilityState*> AbilityStates;
 	uint8 CurrState = 0;
 
+	UAbilityManager* OwningAbilityManager;
+
 	bool bOnCooldown = false;
+	UPROPERTY(Replicated, ReplicatedUsing=OnRep_CooldownUpdated)
+	float CurrCooldown = 0; 
 	FTimerHandle CooldownTimerHandle;
+	float CooldownTimerDelay = 0.02;
+	void CalculateCooldown();
+	UFUNCTION()
+	void OnRep_CooldownUpdated();
 
 	EAbilityTypes AbilityType;
 
