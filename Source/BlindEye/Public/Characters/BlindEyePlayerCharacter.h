@@ -90,7 +90,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float TimerAfterAbilityUsed = 1.0f;
 
-	UPROPERTY(BlueprintGetter=GetPlayerType)
+	UPROPERTY(Replicated, BlueprintGetter=GetPlayerType)
 	EPlayerType PlayerType;
  
 	UFUNCTION(BlueprintPure)

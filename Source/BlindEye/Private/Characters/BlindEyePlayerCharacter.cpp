@@ -755,6 +755,7 @@ void ABlindEyePlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ABlindEyePlayerCharacter, bUnlimitedBirdMeter);
+	DOREPLIFETIME(ABlindEyePlayerCharacter, PlayerType);
 }
 
 //////////////////////////////////////////////////////////////////////////
