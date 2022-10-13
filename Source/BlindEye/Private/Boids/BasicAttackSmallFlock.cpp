@@ -72,7 +72,10 @@ void ABasicAttackSmallFlock::BeginPlay()
 	
 		Target = world->SpawnActor<AActor>(TargetType, TargetLocation, FRotator::ZeroRotator);
 
-		MULT_InitializeFlock();
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			OnRep_Target();
+		}
 	}
 }
 

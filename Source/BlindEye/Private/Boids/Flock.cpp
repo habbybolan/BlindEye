@@ -19,6 +19,11 @@ AFlock::AFlock()
 	bReplicates = true;
 }
 
+void AFlock::OnRep_Target()
+{
+	InitializeFlock();
+}
+
 // Called when the game starts or when spawned
 void AFlock::BeginPlay()
 {
@@ -39,7 +44,7 @@ void AFlock::Tick(float DeltaTime)
 	PerformFlock();
 }
 
-void AFlock::MULT_InitializeFlock_Implementation() 
+void AFlock::InitializeFlock()  
 { 
 	SpawnFlockWave();
 }
