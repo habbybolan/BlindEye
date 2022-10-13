@@ -101,6 +101,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, meta=(ClampMin = 0, ClampMax = 90))
 	float ClampPitchDegrees = 45;
+
+	UPROPERTY(EditDefaultsOnly)
+	float MinDownwardForceCanApply = 1500.f;
  
 	// launches character upwards and sets transition
 	void LaunchPlayerUpwards();
@@ -120,6 +123,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* DiveAbilityAnim;
 
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=45))
+	float AngleUpOffsetOnLaunch = 10.f;
+
 protected:
 
 	FTimerHandle HangInAirTimerHandle;
@@ -137,6 +143,8 @@ protected:
 	void hangingInAirExpired();
 
 	FRotator CalculateLaunchViewPoint(FVector& ViewportLocation, FRotator& ViewportRotation);
+
+	FVector CalculateDownwardVectorImpulse(FVector TargetPosition, float Angle);
 
 	UFUNCTION()
 	void UseAnimNotifyExecuted();
