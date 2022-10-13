@@ -36,7 +36,7 @@ struct FAppliedStatusEffects
 	
 };
 
-enum class PlayerType : uint8;
+enum class EPlayerType : uint8;
 class IHealthInterface;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -86,7 +86,7 @@ public:
 	DECLARE_MULTICAST_DELEGATE(FStaggerSignature) 
 	FStaggerSignature StaggerDelegate;
 
-	DECLARE_MULTICAST_DELEGATE_OneParam(FMarkedSignature, PlayerType) 
+	DECLARE_MULTICAST_DELEGATE_OneParam(FMarkedSignature, EPlayerType) 
 	FMarkedSignature MarkedAddedDelegate;
 	DECLARE_MULTICAST_DELEGATE(FUnMarkedSignature) 
 	FUnMarkedSignature MarkedRemovedDelegate; 
@@ -172,9 +172,9 @@ protected:
 
 	virtual void Stagger(AActor* DamageCause) override;
 
-	virtual void TryApplyMarker(PlayerType Player, AActor* DamageCause) override;
+	virtual void TryApplyMarker(EPlayerType Player, AActor* DamageCause) override;
 
-	virtual void TryDetonation(PlayerType Player, AActor* DamageCause) override;
+	virtual void TryDetonation(EPlayerType Player, AActor* DamageCause) override;
  
 	virtual void TryTaunt(float Duration, AActor* Taunter) override;
 

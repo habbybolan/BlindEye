@@ -12,6 +12,7 @@
 ACrowRush::ACrowRush()
 {
 	AbilityStates.Add(new FCrowRushStartState(this));
+	AbilityType = EAbilityTypes::Unique1;
 }
 
 void ACrowRush::UpdatePlayerSpeed()

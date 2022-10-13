@@ -10,7 +10,7 @@
 
 class UMarkerComponent;
 class UHealthComponent;
-enum class PlayerType : uint8;
+enum class EPlayerType : uint8;
 
 UENUM(BlueprintType)
 enum class ECharacterTypes : uint8
@@ -70,11 +70,11 @@ protected:
 
 	// mark added
 	UFUNCTION()
-	void OnMarkAdded(PlayerType MarkerType);
+	void OnMarkAdded(EPlayerType MarkerType);
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_OnMarkAddedHelper(PlayerType MarkerType);
+	void MULT_OnMarkAddedHelper(EPlayerType MarkerType);
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_OnMarkAdded(PlayerType MarkerType);
+	void BP_OnMarkAdded(EPlayerType MarkerType);
 	// mark removed
 	UFUNCTION()
 	void OnMarkRemoved();
@@ -88,7 +88,7 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_OnMarkDetonatedHelper(); 
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_OnMarkDetonated(PlayerType MarkType);
+	void BP_OnMarkDetonated(EPlayerType MarkType);
 public:
 	virtual float GetHealth() override;
 	virtual float GetMaxHealth() override;
