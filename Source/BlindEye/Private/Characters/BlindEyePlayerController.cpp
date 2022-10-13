@@ -25,18 +25,18 @@ void ABlindEyePlayerController::SER_SpawnPlayer_Implementation()
 
 	FTransform spawnTransform = BlindEyeGameMode->GetSpawnPoint();
 	TSubclassOf<ABlindEyePlayerCharacter> PlayerClassType;
-	PlayerType playerType;
+	EPlayerType playerType;
 
 	// TODO: Temporary for test spawning
 	if (IsServer)
 	{
 		PlayerClassType = BlindEyeGameMode->PlayerClassTypes[0];
-		playerType = PlayerType::CrowPlayer;
+		playerType = EPlayerType::CrowPlayer;
 		IsServer = !IsServer;
 	} else
 	{
 		PlayerClassType = BlindEyeGameMode->PlayerClassTypes[1];
-		playerType = PlayerType::PhoenixPlayer;
+		playerType = EPlayerType::PhoenixPlayer;
 		IsServer = !IsServer;
 	}
 		

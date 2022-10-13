@@ -6,10 +6,10 @@
 
 FMarkData::FMarkData()
 {
-	MarkPlayerType = PlayerType::CrowPlayer;
+	MarkPlayerType = EPlayerType::CrowPlayer;
 }
 
-void FMarkData::InitializeData(PlayerType markPlayerType)
+void FMarkData::InitializeData(EPlayerType markPlayerType)
 {
 	this->MarkPlayerType = markPlayerType;
 }

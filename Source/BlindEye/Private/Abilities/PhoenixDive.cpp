@@ -19,6 +19,7 @@ APhoenixDive::APhoenixDive() : AAbilityBase()
 	AbilityStates.Add(new FInAirState(this));
 	AbilityStates.Add(new FHangingState(this));
 	AbilityStates.Add(new FHitGroundState(this));
+	AbilityType = EAbilityTypes::Unique2;
 }
 
 void APhoenixDive::LaunchPlayerUpwards()
@@ -64,9 +65,10 @@ void APhoenixDive::LaunchToGround()
 
 	Character->GetCharacterMovement()->GravityScale = 1.f;
 
-	FVector ImpulseVec;
+	FVector position;	// Position of ground target
+	FVector ImpulseVec;	// Force vector to apply to player
 	// if something happened to ground target, launch straight down
-	if (GroundTarget == nullptr)
+	if (!CalculateGroundTargetPosition(position))
 	{
 		ImpulseVec = FVector(0, 0, -MinDownwardForceCanApply);
 	}
@@ -77,12 +79,12 @@ void APhoenixDive::LaunchToGround()
 		FRotator ViewportRotation;
 		CalculateLaunchViewPoint(ViewportLocation, ViewportRotation);
 
-		FVector VecToGroundTarget = GroundTarget->GetActorLocation() - GetOwner()->GetActorLocation();
+		FVector VecToGroundTarget = position - GetOwner()->GetActorLocation();
 		FRotator RotatorToGroundTarget = VecToGroundTarget.Rotation();
 		float Angle = RotatorToGroundTarget.Pitch;
  
 		// Launch player towards ground target location
-		ImpulseVec = CalculateDownwardVectorImpulse( GroundTarget->GetActorLocation(), Angle + AngleUpOffsetOnLaunch);
+		ImpulseVec = CalculateDownwardVectorImpulse( position, Angle + AngleUpOffsetOnLaunch);
 	
 		// Prevent small amount of force being applied when aiming too low down
 		if (ImpulseVec.Size() < MinDownwardForceCanApply)
@@ -90,7 +92,7 @@ void APhoenixDive::LaunchToGround()
 			ImpulseVec *= 1 + (MinDownwardForceCanApply - ImpulseVec.Size()) / ImpulseVec.Size();
 		}
 	}
-
+	
 	Character->GetCharacterMovement()->Velocity = ImpulseVec;
 
 	// prevent hanging in air
@@ -166,24 +168,34 @@ void APhoenixDive::LandingAnimationFinishExecuted()
 void APhoenixDive::UpdateGroundTargetPosition()
 {
 	if (GroundTarget == nullptr) return;
+	FVector targetPosition;
+	if (CalculateGroundTargetPosition(targetPosition))
+	{
+		GroundTarget->SetActorLocation(targetPosition);
+	}
+}
+
+bool APhoenixDive::CalculateGroundTargetPosition(FVector& TargetPosition)
+{
 	UWorld* World = GetWorld();
-	if (World == nullptr) return;
+	if (World == nullptr) return false;
 	
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
-	if (Character == nullptr) return;
+	if (Character == nullptr) return false;
 
 	FVector ViewportLocation;
 	FRotator ViewportRotation;
 	CalculateLaunchViewPoint(ViewportLocation, ViewportRotation);
 
-	FVector EndLineCheck = ViewportLocation + ViewportRotation.Vector() * 10000;
-
+	FVector EndPosition = ViewportLocation + ViewportRotation.Vector() * 10000;
 	FHitResult OutHit;
-	if (UKismetSystemLibrary::LineTraceSingleForObjects(World, Character->GetActorLocation(), EndLineCheck, GroundObjectTypes,
+	if (UKismetSystemLibrary::LineTraceSingleForObjects(World, Character->GetActorLocation(), EndPosition, GroundObjectTypes,
 		false, TArray<AActor*>(), EDrawDebugTrace::None, OutHit, true))
 	{
-		GroundTarget->SetActorLocation(OutHit.Location);
+		TargetPosition = OutHit.Location;
+		return true;
 	}
+	return false;
 }
 
 void APhoenixDive::CLI_SpawnGroundTarget_Implementation()

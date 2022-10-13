@@ -3,6 +3,7 @@
 
 #include "Abilities/AbilityManager.h"
 #include "Abilities/AbilityBase.h"
+#include "Characters/BlindEyePlayerCharacter.h"
 #include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
@@ -114,6 +115,14 @@ void UAbilityManager::PerformGenericAbilityNotify()
 	}
 }
 
+void UAbilityManager::UpdateCooldownUI(EAbilityTypes abilityType, float CurrCooldown, float MaxCooldown)
+{
+	if (ABlindEyePlayerCharacter* BlindEyeCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	{
+		BlindEyeCharacter->BP_UpdateCooldownUI(abilityType, CurrCooldown, MaxCooldown);
+	}
+}
+
 
 // Called when the game starts
 void UAbilityManager::BeginPlay()
@@ -121,6 +130,11 @@ void UAbilityManager::BeginPlay()
 	Super::BeginPlay();
 
 	SetupAbilities();
+}
+
+void UAbilityManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
 void UAbilityManager::SetupAbilities()

@@ -6,7 +6,7 @@
 #include "BaseStatusEffect.h"
 #include "DetonatorStatusEffect.generated.h"
 
-enum class PlayerType : uint8;
+enum class EPlayerType : uint8;
 /**
  * 
  */
@@ -17,7 +17,7 @@ class BLINDEYE_API UDetonatorStatusEffect : public UBaseStatusEffect
 
 public: 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	PlayerType DetonatorType;
+	EPlayerType DetonatorType;
 	
 	virtual void ProcessEffect(AActor* Owner, AActor* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const override;
 };
