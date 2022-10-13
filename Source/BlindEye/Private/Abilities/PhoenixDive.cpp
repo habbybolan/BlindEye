@@ -19,6 +19,7 @@ APhoenixDive::APhoenixDive() : AAbilityBase()
 	AbilityStates.Add(new FInAirState(this));
 	AbilityStates.Add(new FHangingState(this));
 	AbilityStates.Add(new FHitGroundState(this));
+	AbilityType = EAbilityTypes::Unique2;
 }
 
 void APhoenixDive::LaunchPlayerUpwards()

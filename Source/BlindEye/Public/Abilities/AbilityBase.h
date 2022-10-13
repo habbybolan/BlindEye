@@ -100,6 +100,8 @@ protected:
 	bool bOnCooldown = false;
 	FTimerHandle CooldownTimerHandle;
 
+	EAbilityTypes AbilityType;
+
 	// Caches if DelayToNextState() will delay to the inner exit state, or next outer state
 	bool bDelayToExit = false;
 	// Execute the delay to next state timer
