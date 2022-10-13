@@ -66,7 +66,7 @@ ABlindEyePlayerCharacter::ABlindEyePlayerCharacter(const FObjectInitializer& Obj
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 	AbilityManager = CreateDefaultSubobject<UAbilityManager>(TEXT("AbilityManager"));
 	
-	PlayerType = PlayerType::CrowPlayer;
+	PlayerType = EPlayerType::CrowPlayer;
 	Team = TEAMS::Player;
 }
 
@@ -516,6 +516,11 @@ float ABlindEyePlayerCharacter::GetMaxHealth()
 	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
 		return BlindEyePS->GetMaxHealth();
 	return 0;
+}
+
+EPlayerType ABlindEyePlayerCharacter::GetPlayerType()
+{
+	return PlayerType;
 }
 
 void ABlindEyePlayerCharacter::SER_PauseWinCondition_Implementation(bool IsWinCondPaused)

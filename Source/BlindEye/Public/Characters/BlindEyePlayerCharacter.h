@@ -13,6 +13,7 @@
 
 enum class TEAMS;
 enum class EAbilityTypes : uint8;
+enum class EPlayerType : uint8;
 class UAbilityManager;
 class UHealthComponent;
 class ABlindEyePlayerState;
@@ -89,7 +90,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float TimerAfterAbilityUsed = 1.0f;
 
-	PlayerType PlayerType;
+	UPROPERTY(BlueprintGetter=GetPlayerType)
+	EPlayerType PlayerType;
+ 
+	UFUNCTION(BlueprintPure)
+	EPlayerType GetPlayerType(); 
 
 	// Debugger Functionality *********
 

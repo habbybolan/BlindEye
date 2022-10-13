@@ -6,7 +6,7 @@
 #include "BaseStatusEffect.h"
 #include "MarkerStatusEffect.generated.h"
 
-enum class PlayerType : uint8;
+enum class EPlayerType : uint8;
 
 /**
  * 
@@ -18,7 +18,7 @@ class BLINDEYE_API UMarkerStatusEffect : public UBaseStatusEffect
 	
 public: 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	PlayerType MarkerType;
+	EPlayerType MarkerType;
 	
 	virtual void ProcessEffect(AActor* Owner, AActor* HitCharacter, FVector HitLocation, UHealthComponent* HealthComponent) const override;
 	
