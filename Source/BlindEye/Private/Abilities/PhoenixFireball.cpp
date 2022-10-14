@@ -13,6 +13,7 @@ APhoenixFireball::APhoenixFireball() : AAbilityBase()
 {
 	AbilityStates.Add(new FStartCastingAbilityState(this));
 	AbilityStates.Add(new FCastFireballState(this));
+	AbilityType = EAbilityTypes::Unique1;
 }
 
 void APhoenixFireball::DealWithDamage(AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit, float DamageToApply)
