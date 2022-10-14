@@ -57,6 +57,8 @@ public:
 
 	void UpdateMaxSpeed(float PercentOfMaxSpeed);
 
+	void InitializeBoid(FVector Location, FRotator Rotation);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

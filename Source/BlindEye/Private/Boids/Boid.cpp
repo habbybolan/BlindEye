@@ -79,12 +79,18 @@ void ABoid::AddForce(FVector& velocity)
 	
 	FRotator LerpedRot = UKismetMathLibrary::RLerp(BoidMovement->Velocity.Rotation(), velocity.Rotation(), LerpPercent, true);
 	BoidMovement->AddForce(LerpedRot.Vector() * velocity.Size());
-	//BoidMovement->AddForce(velocity);
 }
 
 void ABoid::UpdateMaxSpeed(float PercentOfMaxSpeed)
 {
 	CurrMaxSpeed = MaxSpeed * PercentOfMaxSpeed;
+}
+
+void ABoid::InitializeBoid(FVector Location, FRotator Rotation)
+{
+	SetActorLocation(Location);
+	SetActorRotation(Rotation);
+	BoidMovement->Velocity = GetActorForwardVector() * 1000;
 }
 
 // Called when the game starts or when spawned

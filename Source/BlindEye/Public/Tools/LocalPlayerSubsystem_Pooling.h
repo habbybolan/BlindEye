@@ -53,6 +53,8 @@ public:
 	// Create a new pooled actor
 	AActor* CreateNewPoolItem(FActorPooler Item);
 
+	void ReturnActorToPool(AActor* ActorToReturn);
+
 private:
 
 	TMap<EActorPoolType, TArray<AActor*>> PooledActors;

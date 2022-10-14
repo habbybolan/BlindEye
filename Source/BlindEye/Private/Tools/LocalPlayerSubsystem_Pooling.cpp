@@ -23,6 +23,8 @@ void ULocalPlayerSubsystem_Pooling::Initialize(FSubsystemCollectionBase& Collect
 			ItemsToPool.Add(*StructPool);
 		}
 	}
+
+	SetupPooledActors();
 }
  
 void ULocalPlayerSubsystem_Pooling::Deinitialize()
@@ -39,6 +41,7 @@ AActor* ULocalPlayerSubsystem_Pooling::GetPooledActor(EActorPoolType tag)
 	{
 		if (PooledActorsOfType[i]->IsHidden())
 		{
+			PooledActorsOfType[i]->SetActorHiddenInGame(false);
 			return PooledActorsOfType[i];
 		}
 	}
@@ -52,6 +55,7 @@ AActor* ULocalPlayerSubsystem_Pooling::GetPooledActor(EActorPoolType tag)
 		if (Item.Tag == tag && Item.bShouldExpand)
 		{
 			AActor* NewActor = CreateNewPoolItem(Item);
+			NewActor->SetActorHiddenInGame(false);
 			return NewActor;
 		}
 	}
@@ -74,6 +78,11 @@ AActor* ULocalPlayerSubsystem_Pooling::CreateNewPoolItem(FActorPooler Item)
 		return NewActor;
 	}
 	return nullptr;
+}
+
+void ULocalPlayerSubsystem_Pooling::ReturnActorToPool(AActor* ActorToReturn)
+{
+	ActorToReturn->SetActorHiddenInGame(true);
 }
 
 void ULocalPlayerSubsystem_Pooling::SetupPooledActors()

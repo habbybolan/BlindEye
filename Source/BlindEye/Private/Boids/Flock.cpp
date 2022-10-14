@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
+#include "Tools/LocalPlayerSubsystem_Pooling.h"
 
 
 // Sets default values
@@ -120,17 +121,32 @@ void AFlock::SpawnBoidRand()
 	{
 		direction = GetActorRotation();
 	}
-	
-	
-	ABoid* newBoid = Cast<ABoid>(GetWorld()->SpawnActor<ABoid>(BoidType, location, direction));
-	AddBoid(newBoid);
+
+	ULocalPlayer* LocalPlayer = GetGameInstance()->GetLocalPlayerByIndex(0);
+	ULocalPlayerSubsystem_Pooling* LocalPlayerSubsystem = LocalPlayer->GetSubsystem<ULocalPlayerSubsystem_Pooling>();
+	if (LocalPlayerSubsystem) 
+	{
+		if (AActor* BoidActor = LocalPlayerSubsystem->GetPooledActor(TagPoolType))
+		{
+			if (ABoid* boid = Cast<ABoid>(BoidActor))
+			{
+				AddBoid(boid);
+				boid->InitializeBoid(location, direction);
+			}
+		}
+	}
 }
 
 void AFlock::RemoveBoids()
 {
 	for (ABoid* boid : BoidsInFlock)
 	{
-		boid->Destroy();
+		ULocalPlayer* LocalPlayer = GetGameInstance()->GetLocalPlayerByIndex(0);
+		ULocalPlayerSubsystem_Pooling* LocalPlayerSubsystem = LocalPlayer->GetSubsystem<ULocalPlayerSubsystem_Pooling>();
+		if (LocalPlayerSubsystem)
+		{
+			LocalPlayerSubsystem->ReturnActorToPool(boid);
+		}
 	}
 }
 
