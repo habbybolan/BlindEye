@@ -217,18 +217,6 @@ void ASnapperEnemy::MULT_StopRagdoll_Implementation()
 	}
 	TimeForGetup = 1.f;
 
-	// return to normal settings and reattach
-	//GetMesh()->SetSimulatePhysics(false);
-
-	// FRotator HipRotation = GetMesh()->GetSocketRotation("Hips");
-	// GetCapsuleComponent()->SetWorldRotation(FRotator(0, HipRotation.Yaw, 0));
-	// GetCharacterMovement()->GravityScale = 1;
-	// GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	//
-	// FAttachmentTransformRules Rules(EAttachmentRule::SnapToTarget, true);
-	// GetMesh()->AttachToComponent(GetCapsuleComponent(), Rules);
-	// GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -50.0), FRotator(0, -90, 0));
-
 	GetWorldTimerManager().ClearTimer(ColliderOnMeshTimerHandle);
 	if (GetLocalRole() == ROLE_Authority)
 	{
@@ -249,21 +237,12 @@ void ASnapperEnemy::SetPhysicsBlendWeight()
 {
 	if (AlphaBlendWeight <= 0)
 	{
-		// FRotator HipRotation = GetMesh()->GetSocketRotation("Hips");
-		// GetCapsuleComponent()->SetWorldRotation(FRotator(0, HipRotation.Yaw, 0));
-		// GetCharacterMovement()->GravityScale = 1;
-		// GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		//
-		// FAttachmentTransformRules Rules(EAttachmentRule::SnapToTarget, true);
-		// GetMesh()->AttachToComponent(GetCapsuleComponent(), Rules);
-		// GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -50.0), FRotator(0, -90, 0));
-	
 		GetMesh()->SetSimulatePhysics(false);
 		GetWorldTimerManager().ClearTimer(PhysicsBlendWeightTimerHandle);
 		return;
 	}
 
-	AlphaBlendWeight -= BlendWeightDelay;
+	AlphaBlendWeight = UKismetMathLibrary::FInterpTo(AlphaBlendWeight, 0, BlendWeightDelay, 10);
 	GetMesh()->SetPhysicsBlendWeight(AlphaBlendWeight);
 }
 

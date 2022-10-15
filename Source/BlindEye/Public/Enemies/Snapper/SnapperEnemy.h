@@ -90,7 +90,7 @@ protected:
 
 	void SetPhysicsBlendWeight();
 	FTimerHandle PhysicsBlendWeightTimerHandle;
-	float BlendWeightDelay = 0.05f;
+	float BlendWeightDelay = 0.02f;
 
 	bool IsLayingOnFront();
 
