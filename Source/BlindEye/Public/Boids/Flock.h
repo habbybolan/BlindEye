@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Tools/LocalPlayerSubsystem_Pooling.h"
 #include "Flock.generated.h"
 
 class ABoid;
@@ -17,9 +18,9 @@ class BLINDEYE_API AFlock : public AActor
 public:	
 
 	AFlock();
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<ABoid> BoidType;
+
+	UPROPERTY(EditDefaultsOnly)
+	EActorPoolType TagPoolType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int FlockWaveSizeMax = 3;
