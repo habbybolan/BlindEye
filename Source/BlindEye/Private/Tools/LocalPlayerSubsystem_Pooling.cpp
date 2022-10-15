@@ -3,6 +3,8 @@
 
 #include "Tools/LocalPlayerSubsystem_Pooling.h"
 
+#include "Interfaces/PooledActorInterface.h"
+
 void ULocalPlayerSubsystem_Pooling::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
@@ -11,7 +13,6 @@ void ULocalPlayerSubsystem_Pooling::Initialize(FSubsystemCollectionBase& Collect
 	if (DataTableObj == nullptr) return;
 	
 	UDataTable* DT = Cast<UDataTable>(DataTableObj);
-	//static ConstructorHelpers::FObjectFinder<UDataTable> DataTableObj(TEXT("/Game/Blueprints/Player/Flock/DT_ActorPooler"));
 
 	// retrieve all struct objects from DataTable
 	TArray<FActorPooler*> OutArray;
@@ -34,14 +35,22 @@ void ULocalPlayerSubsystem_Pooling::Deinitialize()
 
 AActor* ULocalPlayerSubsystem_Pooling::GetPooledActor(EActorPoolType tag)
 {
+	// in case the Map does not contain the pooled objects associated with the tag
+	if (!PooledActors.Contains(tag))
+	{
+		FString TagName = UEnum::GetValueAsString(tag);
+		UE_LOG(LogTemp, Error, TEXT("%s tag was not added to pool. Either was not added to Pooled DataTable or Actor did not implement IPooledActorInterface"), *(TagName));
+		return nullptr;
+	}
+	
 	TArray<AActor*> PooledActorsOfType = PooledActors[tag];
 
 	// Find A free pooled actor to use
 	for (uint8 i = 0; i < PooledActorsOfType.Num(); i++)
 	{
-		if (PooledActorsOfType[i]->IsHidden())
+		if (GetIsActorDisabled(PooledActorsOfType[i]))
 		{
-			PooledActorsOfType[i]->SetActorHiddenInGame(false);
+			SetActorDisabled(PooledActorsOfType[i], false);
 			return PooledActorsOfType[i];
 		}
 	}
@@ -55,7 +64,7 @@ AActor* ULocalPlayerSubsystem_Pooling::GetPooledActor(EActorPoolType tag)
 		if (Item.Tag == tag && Item.bShouldExpand)
 		{
 			AActor* NewActor = CreateNewPoolItem(Item);
-			NewActor->SetActorHiddenInGame(false);
+			SetActorDisabled(NewActor, false);
 			return NewActor;
 		}
 	}
@@ -73,8 +82,8 @@ AActor* ULocalPlayerSubsystem_Pooling::CreateNewPoolItem(FActorPooler Item)
 	AActor* NewActor = World->SpawnActor<AActor>(Item.ObjectToPool, FVector::ZeroVector, FRotator::ZeroRotator, params);
 	if (NewActor)
 	{
-		NewActor->SetActorHiddenInGame(true);
 		PooledActors[Item.Tag].Add(NewActor);
+		ReturnActorToPool(NewActor);
 		return NewActor;
 	}
 	return nullptr;
@@ -82,7 +91,7 @@ AActor* ULocalPlayerSubsystem_Pooling::CreateNewPoolItem(FActorPooler Item)
 
 void ULocalPlayerSubsystem_Pooling::ReturnActorToPool(AActor* ActorToReturn)
 {
-	ActorToReturn->SetActorHiddenInGame(true);
+	SetActorDisabled(ActorToReturn, true);
 }
 
 void ULocalPlayerSubsystem_Pooling::SetupPooledActors()
@@ -93,10 +102,35 @@ void ULocalPlayerSubsystem_Pooling::SetupPooledActors()
 	// Loop through all items to pool and spawn their actor types for pooling
 	for (FActorPooler item : ItemsToPool)
 	{
+		// if object does not implemented pool interface, dont allow it
+		if (!item.ObjectToPool->ImplementsInterface(UPooledActorInterface::StaticClass()))
+		{
+			UE_LOG(LogTemp, Error, TEXT("%s does not implement IPooledActorInterface"), *item.ObjectToPool->GetName())
+			continue;
+		}
+
+		// Otherwise, setup initial pool
 		PooledActors.Add(item.Tag, TArray<AActor*>());
 		for (uint8 i = 0; i < item.AmountToPool; i++)
 		{
 			CreateNewPoolItem(item);
 		}
 	}
+}
+
+void ULocalPlayerSubsystem_Pooling::SetActorDisabled(AActor* ActorToReturn, bool bDisableActor)
+{
+	if (IPooledActorInterface* PooledActor = Cast<IPooledActorInterface>(ActorToReturn))
+	{
+		PooledActor->DisableActor(bDisableActor);
+	}
+}
+
+bool ULocalPlayerSubsystem_Pooling::GetIsActorDisabled(AActor* Actor)
+{
+	if (IPooledActorInterface* PooledActor = Cast<IPooledActorInterface>(Actor))
+	{
+		return PooledActor->GetIsActorDisabled();
+	}
+	return true;
 }

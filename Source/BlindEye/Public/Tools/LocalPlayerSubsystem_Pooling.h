@@ -54,6 +54,7 @@ public:
 	AActor* CreateNewPoolItem(FActorPooler Item);
 
 	void ReturnActorToPool(AActor* ActorToReturn);
+	bool GetIsActorDisabled(AActor* Actor);
 
 private:
 
@@ -61,6 +62,7 @@ private:
 	
 	// Creates the initial amount of actors to pool
 	void SetupPooledActors();
+	void SetActorDisabled(AActor* ActorToReturn, bool bDisableActor);
 
 	const FString ActorPoolDTLocation = TEXT("/Game/Blueprints/Player/Flock/DT_ActorPooler");
 };
