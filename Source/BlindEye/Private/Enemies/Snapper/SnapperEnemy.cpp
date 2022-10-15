@@ -146,7 +146,7 @@ void ASnapperEnemy::TryRagdoll(bool SimulatePhysics)
 	// Prevent calling ragdoll again, reset timer to get up
 	if (bRagdolling == SimulatePhysics)
 	{
-		BeginStopRagdollTimer();
+		//BeginStopRagdollTimer();
 		return;
 	}
 
@@ -199,10 +199,8 @@ void ASnapperEnemy::MULT_StartRagdoll_Implementation()
 		GetWorldTimerManager().SetTimer(ColliderOnMeshTimerHandle, this, &ASnapperEnemy::UpdateHipLocation, 0.05, true);
 	}
 	
-	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetPhysicsBlendWeight(1);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	GetCharacterMovement()->GravityScale = 0;
-	
 }
 
 void ASnapperEnemy::MULT_StopRagdoll_Implementation() 
@@ -236,7 +234,7 @@ void ASnapperEnemy::MULT_StopRagdoll_Implementation()
 	{
 		GetWorldTimerManager().SetTimer(GetupAnimTimerHandle, this, &ASnapperEnemy::FinishGettingUp, TimeForGetup, false);
 	}
-	
+	AlphaBlendWeight = 1;
 	// blend weight loop to smooth out getting up animation
 	GetWorldTimerManager().SetTimer(PhysicsBlendWeightTimerHandle, this, &ASnapperEnemy::SetPhysicsBlendWeight, BlendWeightDelay, true);
 }
@@ -249,8 +247,6 @@ void ASnapperEnemy::FinishGettingUp()
 
 void ASnapperEnemy::SetPhysicsBlendWeight()
 {
-	float AlphaBlendWeight = GetMesh()->GetBodyInstance()->PhysicsBlendWeight;
-	
 	if (AlphaBlendWeight <= 0)
 	{
 		// FRotator HipRotation = GetMesh()->GetSocketRotation("Hips");
@@ -261,12 +257,14 @@ void ASnapperEnemy::SetPhysicsBlendWeight()
 		// FAttachmentTransformRules Rules(EAttachmentRule::SnapToTarget, true);
 		// GetMesh()->AttachToComponent(GetCapsuleComponent(), Rules);
 		// GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -50.0), FRotator(0, -90, 0));
-
+	
 		GetMesh()->SetSimulatePhysics(false);
 		GetWorldTimerManager().ClearTimer(PhysicsBlendWeightTimerHandle);
+		return;
 	}
-	
-	GetMesh()->SetPhysicsBlendWeight(AlphaBlendWeight - BlendWeightDelay);
+
+	AlphaBlendWeight -= BlendWeightDelay;
+	GetMesh()->SetPhysicsBlendWeight(AlphaBlendWeight);
 }
 
 bool ASnapperEnemy::IsLayingOnFront()

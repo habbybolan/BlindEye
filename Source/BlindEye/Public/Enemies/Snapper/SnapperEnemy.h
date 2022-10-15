@@ -70,6 +70,8 @@ protected:
 	FTimerHandle GetupAnimTimerHandle;
 	FTimerHandle DeathTimerHandle;
 
+	float AlphaBlendWeight = 1;
+
 	void BeginStopRagdollTimer();
 
 	void TeleportColliderToMesh();
