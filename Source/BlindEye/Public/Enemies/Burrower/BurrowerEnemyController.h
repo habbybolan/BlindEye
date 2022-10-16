@@ -12,7 +12,8 @@ UENUM(BlueprintType)
 enum class EBurrowActionState : uint8
 {
 	Spawning,
-	Attacking
+	Attacking,
+	Patrolling
 };
 
 /**
