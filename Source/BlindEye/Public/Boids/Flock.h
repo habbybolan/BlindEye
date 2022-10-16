@@ -122,7 +122,7 @@ protected:
 	FTimerHandle CanAttackTimerHandle;
 
 	FTimerHandle PerformFlockTimerHandle;
-	float PerformFlockDelay = 0.05;
+	float PerformFlockDelay = 0.02;
 
 	bool bFlockInitialized = false;
 
