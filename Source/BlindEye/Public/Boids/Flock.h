@@ -121,6 +121,9 @@ protected:
 	FTimerHandle FlockSpawnTimerHandle;
 	FTimerHandle CanAttackTimerHandle;
 
+	FTimerHandle PerformFlockTimerHandle;
+	float PerformFlockDelay = 0.05;
+
 	bool bFlockInitialized = false;
 
 	virtual void BeginPlay() override;

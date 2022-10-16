@@ -15,7 +15,7 @@
 AFlock::AFlock()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	bReplicates = true;
 }
@@ -33,11 +33,16 @@ void AFlock::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+
 	// used for testing boid flocking movement
 	if (bSpawnOnBegin)
 	{
 		SpawnFlockWave();
 	}
+
+	World->GetTimerManager().SetTimer(PerformFlockTimerHandle, this, &AFlock::PerformFlock, PerformFlockDelay, true);
 }
 
 // Called every frame
