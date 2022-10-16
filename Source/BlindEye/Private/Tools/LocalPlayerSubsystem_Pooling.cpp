@@ -9,23 +9,23 @@ void ULocalPlayerSubsystem_Pooling::Initialize(FSubsystemCollectionBase& Collect
 {
 	Super::Initialize(Collection);
 
-	UObject* DataTableObj = StaticLoadObject(UDataTable::StaticClass(), NULL, TEXT("/Game/Blueprints/Player/Flock/DT_ActorPooler"));
-	if (DataTableObj == nullptr) return;
-	
-	UDataTable* DT = Cast<UDataTable>(DataTableObj);
-
-	// retrieve all struct objects from DataTable
-	TArray<FActorPooler*> OutArray;
-	if (DT != nullptr)
-	{
-		DT->GetAllRows<FActorPooler>(TEXT("ActorPoolerDT"), OutArray);
-		for (FActorPooler* StructPool : OutArray)
-		{
-			ItemsToPool.Add(*StructPool);
-		}
-	}
-
-	SetupPooledActors();
+	// UObject* DataTableObj = StaticLoadObject(UDataTable::StaticClass(), NULL, TEXT("/Game/Blueprints/Player/Flock/DT_ActorPooler"));
+	// if (DataTableObj == nullptr) return;
+	//
+	// UDataTable* DT = Cast<UDataTable>(DataTableObj);
+	//
+	// // retrieve all struct objects from DataTable
+	// TArray<FActorPooler*> OutArray;
+	// if (DT != nullptr)
+	// {
+	// 	DT->GetAllRows<FActorPooler>(TEXT("ActorPoolerDT"), OutArray);
+	// 	for (FActorPooler* StructPool : OutArray)
+	// 	{
+	// 		ItemsToPool.Add(*StructPool);
+	// 	}
+	// }
+	//
+	// SetupPooledActors();
 }
  
 void ULocalPlayerSubsystem_Pooling::Deinitialize()

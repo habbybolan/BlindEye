@@ -88,8 +88,8 @@ void ABoid::UpdateMaxSpeed(float PercentOfMaxSpeed)
 
 void ABoid::InitializeBoid(FVector Location, FRotator Rotation)
 {
-	SetActorLocation(Location);
-	SetActorRotation(Rotation);
+	// SetActorLocation(Location);
+	// SetActorRotation(Rotation);
 	BoidMovement->Velocity = GetActorForwardVector() * 1000;
 	GetWorldTimerManager().SetTimer(SpawnSizeGrowTimerHandle, this, &ABoid::InitialSpawnSizeGrow, SizeGrowTimerDelay, true);
 }
@@ -119,7 +119,9 @@ void ABoid::BeginPlay()
 	Super::BeginPlay();
 	CurrMaxSpeed = MaxSpeed;
 	SetLifeSpan(100);
+	Initial3DScale = GetActorScale3D();
 	SetActorScale3D(FVector::OneVector * SpawnScaleSize);
+	
 	
 	SetActorRotation(GetActorRotation().Add(0, 0, 90));
 
@@ -134,7 +136,7 @@ void ABoid::InitialSpawnSizeGrow()
 		CurrTimerSizeGrow = TimeUntilFullSizeOnSpawn;
 
 	// Scale size of boid linearly
-	SetActorScale3D(UKismetMathLibrary::VLerp(FVector::OneVector * SpawnScaleSize, FVector::OneVector, CurrTimerSizeGrow / TimeUntilFullSizeOnSpawn));
+	SetActorScale3D(UKismetMathLibrary::VLerp(FVector::OneVector * SpawnScaleSize, Initial3DScale, CurrTimerSizeGrow / TimeUntilFullSizeOnSpawn));
 
 	// stop timer if reached max size
 	if (CurrTimerSizeGrow >= TimeUntilFullSizeOnSpawn)
