@@ -127,18 +127,27 @@ void AFlock::SpawnBoidRand()
 		direction = GetActorRotation();
 	}
 
-	ULocalPlayer* LocalPlayer = GetGameInstance()->GetLocalPlayerByIndex(0);
-	ULocalPlayerSubsystem_Pooling* LocalPlayerSubsystem = LocalPlayer->GetSubsystem<ULocalPlayerSubsystem_Pooling>();
-	if (LocalPlayerSubsystem) 
+	// ULocalPlayer* LocalPlayer = GetGameInstance()->GetLocalPlayerByIndex(0);
+	// ULocalPlayerSubsystem_Pooling* LocalPlayerSubsystem = LocalPlayer->GetSubsystem<ULocalPlayerSubsystem_Pooling>();
+	// if (LocalPlayerSubsystem) 
+	// {
+	// 	if (AActor* BoidActor = LocalPlayerSubsystem->GetPooledActor(TagPoolType))
+	// 	{
+	// 		if (ABoid* boid = Cast<ABoid>(BoidActor))
+	// 		{
+	// 			AddBoid(boid);
+	// 			boid->InitializeBoid(location, direction);
+	// 		}
+	// 	}
+	// }
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+
+	ABoid* Boid =  World->SpawnActor<ABoid>(BoidType, location, direction);
+	if (Boid)
 	{
-		if (AActor* BoidActor = LocalPlayerSubsystem->GetPooledActor(TagPoolType))
-		{
-			if (ABoid* boid = Cast<ABoid>(BoidActor))
-			{
-				AddBoid(boid);
-				boid->InitializeBoid(location, direction);
-			}
-		}
+		AddBoid(Boid);
+		Boid->InitializeBoid(location, direction);
 	}
 }
 
@@ -146,12 +155,13 @@ void AFlock::RemoveBoids()
 {
 	for (ABoid* boid : BoidsInFlock)
 	{
-		ULocalPlayer* LocalPlayer = GetGameInstance()->GetLocalPlayerByIndex(0);
-		ULocalPlayerSubsystem_Pooling* LocalPlayerSubsystem = LocalPlayer->GetSubsystem<ULocalPlayerSubsystem_Pooling>();
-		if (LocalPlayerSubsystem)
-		{
-			LocalPlayerSubsystem->ReturnActorToPool(boid);
-		}
+		// ULocalPlayer* LocalPlayer = GetGameInstance()->GetLocalPlayerByIndex(0);
+		// ULocalPlayerSubsystem_Pooling* LocalPlayerSubsystem = LocalPlayer->GetSubsystem<ULocalPlayerSubsystem_Pooling>();
+		// if (LocalPlayerSubsystem)
+		// {
+		// 	LocalPlayerSubsystem->ReturnActorToPool(boid);
+		// }
+		boid->Destroy();
 	}
 }
 

@@ -22,6 +22,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	EActorPoolType TagPoolType;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ABoid> BoidType;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int FlockWaveSizeMax = 3;
 
@@ -122,7 +125,7 @@ protected:
 	FTimerHandle CanAttackTimerHandle;
 
 	FTimerHandle PerformFlockTimerHandle;
-	float PerformFlockDelay = 0.05;
+	float PerformFlockDelay = 0.02;
 
 	bool bFlockInitialized = false;
 

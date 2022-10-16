@@ -72,6 +72,8 @@ protected:
 	float CurrTimerSizeGrow = 0;
 	float SizeGrowTimerDelay = 0.02;
 
+	FVector Initial3DScale; 
+
 	float CurrMaxSpeed;
 
 	bool bIsDisabled = false;
