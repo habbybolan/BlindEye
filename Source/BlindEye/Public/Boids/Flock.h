@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Tools/LocalPlayerSubsystem_Pooling.h"
 #include "Flock.generated.h"
 
 class ABoid;
@@ -17,9 +18,9 @@ class BLINDEYE_API AFlock : public AActor
 public:	
 
 	AFlock();
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<ABoid> BoidType;
+
+	UPROPERTY(EditDefaultsOnly)
+	EActorPoolType TagPoolType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int FlockWaveSizeMax = 3;
@@ -66,7 +67,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float ObstacleRadius = 1000.f;
  
-	UPROPERTY(replicated, EditInstanceOnly)
+	UPROPERTY(replicated, EditInstanceOnly, ReplicatedUsing=OnRep_Target)
 	TWeakObjectPtr<AActor> Target;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -111,11 +112,16 @@ public:
 
 protected:
 
+	UFUNCTION()
+	void OnRep_Target();
+
 	bool bCanAttack = true;
 	TArray<ABoid*> BoidsInFlock;
 
 	FTimerHandle FlockSpawnTimerHandle;
 	FTimerHandle CanAttackTimerHandle;
+
+	bool bFlockInitialized = false;
 
 	virtual void BeginPlay() override;
 
@@ -128,9 +134,8 @@ protected:
 public:	
 
 	virtual void Tick(float DeltaTime) override;
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_InitializeFlock();
+	
+	void InitializeFlock();
 	
 	void AddBoid(ABoid* newBoid);
 	void SpawnBoidRand();

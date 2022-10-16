@@ -12,6 +12,7 @@
 ACrowRush::ACrowRush()
 {
 	AbilityStates.Add(new FCrowRushStartState(this));
+	AbilityType = EAbilityTypes::Unique1;
 }
 
 void ACrowRush::UpdatePlayerSpeed()
@@ -39,7 +40,7 @@ void ACrowRush::ResetPlayerSpeed()
 			false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true))
 		{
 			for (FHitResult OutHit : OutHits)
-			{
+			{ 
 				// calculate knockBack force from center of dash
 				FVector ClosestPoint = UKismetMathLibrary::FindClosestPointOnLine(OutHit.Location, StartingPosition, EndLocation - StartingPosition);
 				float distToCenter = FVector::Distance(ClosestPoint, OutHit.Location);
@@ -62,7 +63,12 @@ void ACrowRush::ResetPlayerSpeed()
 				UGameplayStatics::ApplyPointDamage(OutHit.Actor.Get(), DamageAmount, OutHit.Location, OutHit, GetInstigatorController(),
 					GetInstigator(), DamageType);
 
-				// manually call KnockBack since you can't change values in Damage Type
+				// prevent knockback on other player
+				if (Cast<ABlindEyePlayerCharacter>(OutHit.Actor))
+				{
+					continue;
+				}
+
 				if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(OutHit.Actor))
 				{
 					if (UHealthComponent* HealthComponent = HealthInterface->GetHealthComponent())

@@ -12,6 +12,7 @@ ASharedBasicAbility::ASharedBasicAbility() : AAbilityBase()
 	AbilityStates.Add(new ULastAttackState(this));
 
 	ChargeAnimMontages.SetNum(3);
+	AbilityType = EAbilityTypes::Basic;
 }
 
 void ASharedBasicAbility::PlayAbilityAnimation()

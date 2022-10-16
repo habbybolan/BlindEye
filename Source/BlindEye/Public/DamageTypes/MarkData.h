@@ -6,7 +6,7 @@
 #include "UObject/NoExportTypes.h"
 #include "MarkData.generated.h"
 
-enum class PlayerType : uint8;
+enum class EPlayerType : uint8;
 
 /**
  * Class for storing Mark data needed for detonating the effect
@@ -18,9 +18,9 @@ struct BLINDEYE_API FMarkData
 
 	FMarkData();
 
-	void InitializeData(PlayerType markPlayerType);
+	void InitializeData(EPlayerType markPlayerType);
 	
-	PlayerType MarkPlayerType;
+	EPlayerType MarkPlayerType;
 	uint8 UniqueAbilityMarkerIndex;
 
 	

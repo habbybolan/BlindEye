@@ -79,12 +79,38 @@ void ABoid::AddForce(FVector& velocity)
 	
 	FRotator LerpedRot = UKismetMathLibrary::RLerp(BoidMovement->Velocity.Rotation(), velocity.Rotation(), LerpPercent, true);
 	BoidMovement->AddForce(LerpedRot.Vector() * velocity.Size());
-	//BoidMovement->AddForce(velocity);
 }
 
 void ABoid::UpdateMaxSpeed(float PercentOfMaxSpeed)
 {
 	CurrMaxSpeed = MaxSpeed * PercentOfMaxSpeed;
+}
+
+void ABoid::InitializeBoid(FVector Location, FRotator Rotation)
+{
+	SetActorLocation(Location);
+	SetActorRotation(Rotation);
+	BoidMovement->Velocity = GetActorForwardVector() * 1000;
+	GetWorldTimerManager().SetTimer(SpawnSizeGrowTimerHandle, this, &ABoid::InitialSpawnSizeGrow, SizeGrowTimerDelay, true);
+}
+
+void ABoid::DisableActor(bool bDisableActor)
+{
+	bIsDisabled = bDisableActor;
+	Mesh->SetVisibility(true);
+	SetActorEnableCollision(!bDisableActor);
+	SetActorTickEnabled(!bDisableActor);
+
+	BoidMovement->SetComponentTickEnabled(!bDisableActor);\
+	if (bDisableActor)
+	{
+		BoidMovement->Velocity = FVector::ZeroVector;
+	}
+}
+
+bool ABoid::GetIsActorDisabled()
+{
+	return bIsDisabled;
 }
 
 // Called when the game starts or when spawned
@@ -99,8 +125,6 @@ void ABoid::BeginPlay()
 
 	// force tick to occur after Flock tick
 	AddTickPrerequisiteActor(GetInstigator());
-
-	GetWorldTimerManager().SetTimer(SpawnSizeGrowTimerHandle, this, &ABoid::InitialSpawnSizeGrow, SizeGrowTimerDelay, true);
 }
 
 void ABoid::InitialSpawnSizeGrow()

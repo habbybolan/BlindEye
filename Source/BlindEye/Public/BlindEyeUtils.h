@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 
 UENUM(BlueprintType)
-enum class PlayerType : uint8
+enum class EPlayerType : uint8
 {
 	CrowPlayer,
 	PhoenixPlayer

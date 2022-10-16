@@ -59,7 +59,7 @@ ECharacterTypes ABlindEyeBaseCharacter::GetCharacterType(AActor* Character)
 
 	if (const ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(Character))
 	{
-		if (PlayerCharacter->PlayerType == PlayerType::CrowPlayer)
+		if (PlayerCharacter->PlayerType == EPlayerType::CrowPlayer)
 		{
 			return ECharacterTypes::Crow;
 		} else
@@ -84,13 +84,13 @@ float ABlindEyeBaseCharacter::GetMass()
 	return Mass;
 }
 
-void ABlindEyeBaseCharacter::OnMarkAdded(PlayerType MarkType)
+void ABlindEyeBaseCharacter::OnMarkAdded(EPlayerType MarkType)
 {
 	BP_OnMarkAdded(MarkType);
 	MULT_OnMarkAddedHelper(MarkType);
 }
 
-void ABlindEyeBaseCharacter::MULT_OnMarkAddedHelper_Implementation(PlayerType MarkerType)
+void ABlindEyeBaseCharacter::MULT_OnMarkAddedHelper_Implementation(EPlayerType MarkerType)
 {
 	MarkerComponent->AddMark(MarkerType);
 }

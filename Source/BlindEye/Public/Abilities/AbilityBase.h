@@ -97,8 +97,21 @@ protected:
 	TArray<FAbilityState*> AbilityStates;
 	uint8 CurrState = 0;
 
+	UPROPERTY()
+	UAbilityManager* OwningAbilityManager;
+
+	UPROPERTY(Replicated)
 	bool bOnCooldown = false;
+	UPROPERTY(Replicated)
+	float CurrCooldown = 0; 
 	FTimerHandle CooldownTimerHandle;
+	float CooldownTimerDelay = 0.02;
+	void CalculateCooldown();
+
+	UFUNCTION(Client, Unreliable)
+	void CLI_UpdateCooldown();
+
+	EAbilityTypes AbilityType;
 
 	// Caches if DelayToNextState() will delay to the inner exit state, or next outer state
 	bool bDelayToExit = false;
