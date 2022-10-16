@@ -57,7 +57,7 @@ public:
 	bool GetIsActorDisabled(AActor* Actor);
 
 private:
-
+	
 	TMap<EActorPoolType, TArray<AActor*>> PooledActors;
 	
 	// Creates the initial amount of actors to pool

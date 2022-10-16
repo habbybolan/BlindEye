@@ -22,6 +22,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	EActorPoolType TagPoolType;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ABoid> BoidType;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int FlockWaveSizeMax = 3;
 
