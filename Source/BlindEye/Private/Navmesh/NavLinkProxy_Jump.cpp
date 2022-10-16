@@ -60,4 +60,8 @@ void ANavLinkProxy_Jump::OnSmartLinkReachedHelper(AActor* MovingActor, const FVe
 	FVector LaunchForce = CalculateDownwardVectorImpulse(BaseCharacter, DestinationPoint, AlteredJumpAngle);
 	BaseCharacter->GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Falling;
 	BaseCharacter->GetCharacterMovement()->Velocity = LaunchForce;
+	// TODO: Call event in ABlindEyeBaseCharacter to listen for when enemy alnds
+	//		Check if they hits their tarket
+	//			If hit, then set Movement mode
+	//			Otherwise, recalculate Pathing and try again, reset movement mode as well
 }
