@@ -17,6 +17,8 @@ class BLINDEYE_API ASnapperEnemy : public ABlindEyeEnemyBase
 
 public:
 	ASnapperEnemy(const FObjectInitializer& ObjectInitializer);
+
+	virtual void Tick(float DeltaSeconds) override;
 	
 	virtual void MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
 	
@@ -47,6 +49,8 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	float DeathDelay = 1.0f;
 
+	virtual void BeginPlay() override;
+
 	void PerformJumpAttack();
 	void PerformBasicAttack(); 
 
@@ -58,31 +62,40 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool GetIsRagdolling();
 
+	void ApplyKnockBack(FVector Force);
+
 protected:
 
 	UPROPERTY(Replicated)
 	bool bRagdolling = false;
+	UPROPERTY(Replicated)
+	bool bGettingUp = false;
 	FTimerHandle LaunchSwingTimerHandle;
-	FTimerHandle ColliderOnMeshTimerHandle;
 	FTimerHandle StopRagdollTimerHandle;
 	FTimerHandle GetupAnimTimerHandle;
 	FTimerHandle DeathTimerHandle;
 
+	float AlphaBlendWeight = 1;
+
 	void BeginStopRagdollTimer();
 
-	void TeleportColliderToMesh();
+	void TeleportColliderToMesh(float DeltaSeconds);
 
 	UPROPERTY(Replicated)
 	FVector HipLocation;
 
 	// Only called from client to replicate the hip location while ragdolling
-	void UpdateHipLocation();
+	void UpdateHipLocation(float DeltaSeconds); 
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_StartRagdoll();
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_StopRagdoll();
 	void FinishGettingUp();
+
+	void SetPhysicsBlendWeight();
+	FTimerHandle PhysicsBlendWeightTimerHandle;
+	float BlendWeightDelay = 0.02f;
 
 	bool IsLayingOnFront();
 
