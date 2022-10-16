@@ -17,6 +17,11 @@ class BLINDEYE_API ASnapperEnemy : public ABlindEyeEnemyBase
 
 public:
 	ASnapperEnemy(const FObjectInitializer& ObjectInitializer);
+
+	virtual void Tick(float DeltaSeconds) override;
+
+	UPROPERTY(EditDefaultsOnly)
+	UCapsuleComponent* RagdollCapsule;
 	
 	virtual void MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
 	
@@ -47,6 +52,8 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	float DeathDelay = 1.0f;
 
+	virtual void BeginPlay() override;
+
 	void PerformJumpAttack();
 	void PerformBasicAttack(); 
 
@@ -64,8 +71,9 @@ protected:
 
 	UPROPERTY(Replicated)
 	bool bRagdolling = false;
+	UPROPERTY(Replicated)
+	bool bGettingUp = false;
 	FTimerHandle LaunchSwingTimerHandle;
-	FTimerHandle ColliderOnMeshTimerHandle;
 	FTimerHandle StopRagdollTimerHandle;
 	FTimerHandle GetupAnimTimerHandle;
 	FTimerHandle DeathTimerHandle;
@@ -74,13 +82,13 @@ protected:
 
 	void BeginStopRagdollTimer();
 
-	void TeleportColliderToMesh();
+	void TeleportColliderToMesh(float DeltaSeconds);
 
 	UPROPERTY(Replicated)
 	FVector HipLocation;
 
 	// Only called from client to replicate the hip location while ragdolling
-	void UpdateHipLocation();
+	void UpdateHipLocation(float DeltaSeconds); 
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_StartRagdoll();

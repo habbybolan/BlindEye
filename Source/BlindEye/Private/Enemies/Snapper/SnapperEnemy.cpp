@@ -20,10 +20,28 @@ ASnapperEnemy::ASnapperEnemy(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<USnapperHealthComponent>(TEXT("HealthComponent")))
 {
 	bReplicates = true;
+	RagdollCapsule = CreateDefaultSubobject<UCapsuleComponent>("RagdollCapsule");
+	RagdollCapsule->SetupAttachment(GetMesh());
+}
+
+void ASnapperEnemy::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (bRagdolling && !bGettingUp)
+	{
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			TeleportColliderToMesh(DeltaSeconds);
+		} else
+		{
+			UpdateHipLocation(DeltaSeconds);
+		}
+	}
 }
 
 void ASnapperEnemy::MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType,
-                                                AActor* DamageCauser)
+                                   AActor* DamageCauser)
 {
 	Super::MYOnTakeDamage(Damage, HitLocation, DamageType, DamageCauser);
 
@@ -31,6 +49,13 @@ void ASnapperEnemy::MYOnTakeDamage(float Damage, FVector HitLocation, const UDam
 	{
 		SnapperController->DamageTaken(Damage, HitLocation, DamageType, DamageCauser);
 	}
+}
+
+void ASnapperEnemy::BeginPlay()
+{
+	Super::BeginPlay();
+
+	//TryRagdoll(true);
 }
 
 void ASnapperEnemy::PerformJumpAttack()
@@ -146,7 +171,6 @@ void ASnapperEnemy::TryRagdoll(bool SimulatePhysics)
 	// Prevent calling ragdoll again, reset timer to get up
 	if (bRagdolling == SimulatePhysics)
 	{
-		//BeginStopRagdollTimer();
 		return;
 	}
 
@@ -164,14 +188,18 @@ void ASnapperEnemy::BeginStopRagdollTimer()
 	GetWorldTimerManager().SetTimer(StopRagdollTimerHandle, this, &ASnapperEnemy::MULT_StopRagdoll, RagdollDuration, false);
 }
 
-void ASnapperEnemy::TeleportColliderToMesh()
+void ASnapperEnemy::TeleportColliderToMesh(float DeltaSeconds)
 {
-	FVector TeleportLocation = GetMesh()->GetSocketLocation(TEXT("Hips")) + FVector(0, 0, 50);
+	FVector TargetLocation = GetMesh()->GetSocketLocation(TEXT("Hips"));
+	
+	FVector TeleportLocation = UKismetMathLibrary::VInterpTo(TargetLocation, GetCapsuleComponent()->GetComponentLocation(), DeltaSeconds, 1);
 	GetCapsuleComponent()->SetWorldLocation(TeleportLocation);
-	HipLocation = TeleportLocation;
+	FRotator SocketRotation = GetMesh()->GetSocketRotation(TEXT("Hips"));
+	GetCapsuleComponent()->SetWorldRotation(FRotator(0, SocketRotation.Yaw, 0));
+	HipLocation = TargetLocation;
 }
 
-void ASnapperEnemy::UpdateHipLocation()
+void ASnapperEnemy::UpdateHipLocation(float DeltaSecond)
 {
 	FVector HipForceDirection = HipLocation - GetMesh()->GetSocketLocation(TEXT("Hips"));
 	GetMesh()->AddForceToAllBodiesBelow(HipForceDirection * 150, "Hips");
@@ -181,30 +209,31 @@ void ASnapperEnemy::UpdateHipLocation()
 
 	float Dist = UKismetMathLibrary::Vector_Distance(GetMesh()->GetComponentLocation(), GetCapsuleComponent()->GetComponentLocation());
 	if (Dist < 50) return;
-	FVector LerpedLocation = UKismetMathLibrary::VLerp(GetMesh()->GetComponentLocation(), GetCapsuleComponent()->GetComponentLocation(), 0.05);
+	FVector LerpedLocation = UKismetMathLibrary::VLerp(GetMesh()->GetComponentLocation(), GetCapsuleComponent()->GetComponentLocation(), DeltaSecond);
 	GetMesh()->SetWorldLocation(LerpedLocation, false, nullptr, ETeleportType::TeleportPhysics);
 }
 
 void ASnapperEnemy::MULT_StartRagdoll_Implementation()
 {
-	if (GetLocalRole() == ROLE_Authority)
-	{
+	RagdollCapsule->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCapsuleComponent()->SetEnableGravity(false);
+	if (GetLocalRole() == ROLE_Authority) 
+	{  
 		bRagdolling = true;
-		AAIController* AIController = Cast<AAIController>(GetController());
-		GetWorldTimerManager().SetTimer(ColliderOnMeshTimerHandle, this, &ASnapperEnemy::TeleportColliderToMesh, 0.05, true);
 		BeginStopRagdollTimer();
-		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
-	} else
-	{
-		GetWorldTimerManager().SetTimer(ColliderOnMeshTimerHandle, this, &ASnapperEnemy::UpdateHipLocation, 0.05, true);
-	}
+	} 
 	
 	GetMesh()->SetPhysicsBlendWeight(1);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }
 
 void ASnapperEnemy::MULT_StopRagdoll_Implementation() 
 {
+	bGettingUp = true;
+	RagdollCapsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetCapsuleComponent()->SetWorldLocation(GetMesh()->GetBoneLocation("Hips"), false, nullptr, ETeleportType::ResetPhysics);
+	
 	// Play getup montage
 	float TimeForGetup;
 	if (IsLayingOnFront())
@@ -217,7 +246,6 @@ void ASnapperEnemy::MULT_StopRagdoll_Implementation()
 	}
 	TimeForGetup = 1.f;
 
-	GetWorldTimerManager().ClearTimer(ColliderOnMeshTimerHandle);
 	if (GetLocalRole() == ROLE_Authority)
 	{
 		GetWorldTimerManager().SetTimer(GetupAnimTimerHandle, this, &ASnapperEnemy::FinishGettingUp, TimeForGetup, false);
@@ -229,7 +257,7 @@ void ASnapperEnemy::MULT_StopRagdoll_Implementation()
 
 void ASnapperEnemy::FinishGettingUp()
 {
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	bGettingUp = false;
 	bRagdolling = false;
 }
 
@@ -242,7 +270,7 @@ void ASnapperEnemy::SetPhysicsBlendWeight()
 		return;
 	}
 
-	AlphaBlendWeight = UKismetMathLibrary::FInterpTo(AlphaBlendWeight, 0, BlendWeightDelay, 10);
+	AlphaBlendWeight = UKismetMathLibrary::FInterpTo(AlphaBlendWeight, 0, BlendWeightDelay, 5);
 	GetMesh()->SetPhysicsBlendWeight(AlphaBlendWeight);
 }
 
@@ -291,4 +319,5 @@ void ASnapperEnemy::GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & Ou
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME( ASnapperEnemy, bRagdolling );
 	DOREPLIFETIME( ASnapperEnemy, HipLocation );
+	DOREPLIFETIME( ASnapperEnemy, bGettingUp );
 }
