@@ -20,8 +20,6 @@ ASnapperEnemy::ASnapperEnemy(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<USnapperHealthComponent>(TEXT("HealthComponent")))
 {
 	bReplicates = true;
-	RagdollCapsule = CreateDefaultSubobject<UCapsuleComponent>("RagdollCapsule");
-	RagdollCapsule->SetupAttachment(GetMesh());
 }
 
 void ASnapperEnemy::Tick(float DeltaSeconds)
@@ -215,8 +213,7 @@ void ASnapperEnemy::UpdateHipLocation(float DeltaSecond)
 
 void ASnapperEnemy::MULT_StartRagdoll_Implementation()
 {
-	RagdollCapsule->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetCapsuleComponent()->SetEnableGravity(false);
 	if (GetLocalRole() == ROLE_Authority) 
 	{  
@@ -230,7 +227,6 @@ void ASnapperEnemy::MULT_StartRagdoll_Implementation()
 void ASnapperEnemy::MULT_StopRagdoll_Implementation() 
 {
 	bGettingUp = true;
-	RagdollCapsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetCapsuleComponent()->SetWorldLocation(GetMesh()->GetBoneLocation("Hips"), false, nullptr, ETeleportType::ResetPhysics);
 	

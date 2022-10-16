@@ -19,9 +19,6 @@ public:
 	ASnapperEnemy(const FObjectInitializer& ObjectInitializer);
 
 	virtual void Tick(float DeltaSeconds) override;
-
-	UPROPERTY(EditDefaultsOnly)
-	UCapsuleComponent* RagdollCapsule;
 	
 	virtual void MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
 	
