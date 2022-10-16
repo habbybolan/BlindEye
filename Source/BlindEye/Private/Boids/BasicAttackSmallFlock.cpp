@@ -15,32 +15,7 @@
 void ABasicAttackSmallFlock::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	// Increase target seeking when getting closer to target
-	if (Target.IsValid())
-	{ 
-		float Percent = FVector::Distance(CalcAveragePosition(), Target.Get()->GetActorLocation()) / DistToApplyTargetSeekingIncrease;
-		float StrengthIncrease = UKismetMathLibrary::FClamp(Percent, 0, 1) * MaxTargetSeekingStrengthIncrease;
-		TargetStrength = BaseSeekingStrength * StrengthIncrease;
-	}
-	
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		if (!bHasReachedTarget)
-		{
-			CheckForDamage();
-			CheckGoBackToPlayer();
-		} else
-		{
-			UpdateMaxSpeed(MovementPercentAfterReachingTarget);
-			CheckReturnedToPlayer();
-		}
-	}
-
-	if (bHasReachedTarget)
-	{
-		CheckShrinking();
-	} 
+	FlockCheck();
 }
 
 void ABasicAttackSmallFlock::BeginPlay()
@@ -77,6 +52,37 @@ void ABasicAttackSmallFlock::BeginPlay()
 			OnRep_Target();
 		}
 	}
+
+	world->GetTimerManager().SetTimer(FlockCheckTimerHandle, this, &ABasicAttackSmallFlock::FlockCheck, FlockCheckDelay, true);
+}
+
+void ABasicAttackSmallFlock::FlockCheck()
+{
+	// Increase target seeking when getting closer to target
+	if (Target.IsValid())
+	{ 
+		float Percent = FVector::Distance(CalcAveragePosition(), Target.Get()->GetActorLocation()) / DistToApplyTargetSeekingIncrease;
+		float StrengthIncrease = UKismetMathLibrary::FClamp(Percent, 0, 1) * MaxTargetSeekingStrengthIncrease;
+		TargetStrength = BaseSeekingStrength * StrengthIncrease;
+	}
+	
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		if (!bHasReachedTarget)
+		{
+			CheckForDamage();
+			CheckGoBackToPlayer();
+		} else
+		{
+			UpdateMaxSpeed(MovementPercentAfterReachingTarget);
+			CheckReturnedToPlayer();
+		}
+	}
+
+	if (bHasReachedTarget)
+	{
+		CheckShrinking();
+	} 
 }
 
 void ABasicAttackSmallFlock::CheckForDamage()
