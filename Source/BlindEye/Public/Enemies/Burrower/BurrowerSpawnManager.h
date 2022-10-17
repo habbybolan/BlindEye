@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BurrowerEnemy.h"
+#include "BurrowerSpawnPoint.h"
 #include "GameFramework/Actor.h"
 #include "BurrowerSpawnManager.generated.h"
 
@@ -29,17 +30,23 @@ protected:
 	virtual void BeginPlay() override;
 
 	FTimerHandle SpawnTimerHandle;
-	
-	UPROPERTY()
-	TMap<uint32, TWeakObjectPtr<ABurrowerEnemy>> SpawnedBurrowers;
+
+	TMap<EIslandPosition, TArray<ABurrowerEnemy*>> SpawnedBurrowers;
+
+	void InitializeMaps();
 
 	UFUNCTION()
 	void OnBurrowerDeath(AActor* BurrowerActor);
 	
-	FTransform FindRandomSpawnPoint();
+	ABurrowerSpawnPoint* FindRandomSpawnPoint();
 	void CacheSpawnPoints();
 
-	UPROPERTY()
-	TArray<AActor*> SpawnLocation;
+	UFUNCTION()
+	void TriggerVolumeOverlapped(AActor* OverlappedActor, AActor* OtherActor);
+
+	UFUNCTION()
+	void PlayerEnteredIsland(ABlindEyePlayerCharacter* Player, EIslandPosition IslandType);
+	
+	TMap<EIslandPosition, TArray<ABurrowerSpawnPoint*>> BurrowerSpawnPoints;
 
 };

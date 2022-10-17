@@ -11,3 +11,13 @@ enum class EPlayerType : uint8
 	PhoenixPlayer
 };
 
+UENUM(BlueprintType)
+enum class EIslandPosition : uint8
+{
+	IslandA,  
+	IslandB,
+	IslandC,
+	IslandD,
+	Count UMETA(Hidden) 
+};
+

@@ -3,18 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BurrowerSpawnPoint.generated.h"
+#include "Engine/TriggerVolume.h"
+#include "BurrowerTriggerVolume.generated.h"
 
 enum class EIslandPosition : uint8;
 
 UCLASS()
-class BLINDEYE_API ABurrowerSpawnPoint : public AActor
+class BLINDEYE_API ABurrowerTriggerVolume : public ATriggerVolume
 {
 	GENERATED_BODY()
-	
+
 public:
+
+	ABurrowerTriggerVolume();
 
 	UPROPERTY(EditAnywhere)
 	EIslandPosition IslandType;
-
+	
 };
