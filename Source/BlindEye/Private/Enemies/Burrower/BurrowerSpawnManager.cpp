@@ -3,7 +3,9 @@
 
 #include "Enemies/Burrower/BurrowerSpawnManager.h"
 
+#include "AIController.h"
 #include "Characters/BlindEyePlayerCharacter.h"
+#include "Enemies/Burrower/BurrowerEnemyController.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "Enemies/Burrower/BurrowerTriggerVolume.h"
 #include "Kismet/GameplayStatics.h"
@@ -126,6 +128,14 @@ void ABurrowerSpawnManager::TriggerVolumeOverlapped(AActor* OverlappedActor, AAc
 
 void ABurrowerSpawnManager::PlayerEnteredIsland(ABlindEyePlayerCharacter* Player, EIslandPosition IslandType)
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, "Player Entered island: " + UEnum::GetValueAsString(IslandType));
+	for (ABurrowerEnemy* Burrower : SpawnedBurrowers[IslandType])
+	{
+		AController* Controller =  Burrower->GetController();
+		if (Controller)
+		{
+			ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Controller);
+			BurrowerController->NotifyPlayerEnteredIsland(Player);
+		}
+	}
 }
 

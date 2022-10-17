@@ -3,6 +3,8 @@
 
 #include "Enemies/Burrower/BurrowerEnemyController.h"
 
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Enemies/Burrower/BurrowerEnemy.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
@@ -79,7 +81,20 @@ void ABurrowerEnemyController::StopWarningParticles()
 	if (!CachedBurrower) return;
 
 	CachedBurrower->MULT_DespawnWarningParticle();
-} 
+}
+
+void ABurrowerEnemyController::NotifyPlayerEnteredIsland(ABlindEyePlayerCharacter* Player)
+{
+	UBrainComponent* Brain = GetBrainComponent();
+	if (Brain == nullptr) return;
+
+	UBlackboardComponent* BBComp = Brain->GetBlackboardComponent();
+	UObject* EnemyObject = BBComp->GetValueAsObject(TEXT("EnemyActor"));
+	if (EnemyObject == nullptr)
+	{
+		BBComp->SetValueAsObject(TEXT("EnemyActor"), Player);
+	}
+}
 
 void ABurrowerEnemyController::StartWarningParticles()
 {
