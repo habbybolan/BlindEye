@@ -200,7 +200,7 @@ void ABurrowerEnemy::TimelineHideFinished()
 {
 	SetDisappeared();
 	HidingFinished.ExecuteIfBound();
-	SetActorLocation(FVector::ZeroVector);
+	SetActorLocation(GetActorLocation() + FVector::UpVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2);
 	HealthComponent->RemoveMark();
 }
  
