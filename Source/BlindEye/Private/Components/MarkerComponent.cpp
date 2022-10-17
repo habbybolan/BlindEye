@@ -97,6 +97,14 @@ void UMarkerComponent::AddMark(EMarkerType MarkerType)
 	GetActiveMark()->BP_AddMark(MarkerType);
 }
 
+void UMarkerComponent::RefreshMark(EMarkerType MarkerType)
+{
+	if (AMarkerStaticMesh* ActiveMark = GetActiveMark())
+	{
+		ActiveMark->BP_RefreshMark(MarkerType);
+	}
+}
+
 void UMarkerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

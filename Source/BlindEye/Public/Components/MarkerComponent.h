@@ -35,6 +35,7 @@ public:
 	void RemoveMark();
 	void DetonateMark(EMarkerType MarkerType);
 	void AddMark(EMarkerType PlayerMarkToSet);
+	void RefreshMark(EMarkerType MarkerType);
 
 protected:
 	// Called when the game starts or when spawned

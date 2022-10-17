@@ -171,6 +171,7 @@ void UHealthComponent::TryApplyMarker(EMarkerType MarkerType, AActor* DamageCaus
 		float RefreshedTime = UKismetMathLibrary::Min(TimeRemaining + RefreshMarkerAmount, MarkerDecay);
 		world->GetTimerManager().ClearTimer(MarkerDecayTimerHandle);
 		world->GetTimerManager().SetTimer(MarkerDecayTimerHandle, this, &UHealthComponent::RemoveMark, RefreshedTime, false);
+		RefreshMarkDelegate.Broadcast();
 	} else
 	{
 		// Set the decay timer on marker
@@ -188,6 +189,7 @@ void UHealthComponent::TryDetonation(EPlayerType Player, AActor* DamageCause)
 	
 	if (CurrMark != nullptr)
 	{
+		RefreshMarkDelegate.Broadcast();
 		// Detonate mark if of different type, clear decay timer
 		if (CurrMark->MarkerType == EMarkerType::Crow && Player != EPlayerType::CrowPlayer ||
 			CurrMark->MarkerType == EMarkerType::Phoenix && Player != EPlayerType::PhoenixPlayer)

@@ -96,6 +96,9 @@ public:
 	DECLARE_MULTICAST_DELEGATE(FDetonateSignature) 
 	FDetonateSignature DetonateDelegate;
 
+	DECLARE_MULTICAST_DELEGATE(FDetonateSignature) 
+	FDetonateSignature RefreshMarkDelegate;
+
 	DECLARE_MULTICAST_DELEGATE_TwoParams(FTauntStartSignature, float, AActor*) 
 	FTauntStartSignature TauntStartDelegate;
 	DECLARE_MULTICAST_DELEGATE(FTauntEndSignature) 

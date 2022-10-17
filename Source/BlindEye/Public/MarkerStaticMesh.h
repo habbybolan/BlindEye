@@ -25,6 +25,6 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_AddMark(EMarkerType MarkerType);
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_RegenerateMark();
+	void BP_RefreshMark(EMarkerType MarkerType);
 	
 };

@@ -90,6 +90,10 @@ protected:
 	void MULT_OnMarkDetonatedHelper(EMarkerType MarkerType); 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnMarkDetonated(EMarkerType MarkType);
+	UFUNCTION()
+	void OnMarkRefreshed();
+	UFUNCTION(NetMulticast, Reliable) 
+	void MULT_OnMarkRefreshedHelper(EMarkerType MarkerType); 
 public:
 	virtual float GetHealth() override;
 	virtual float GetMaxHealth() override;
