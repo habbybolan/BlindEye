@@ -191,17 +191,18 @@ void UHealthComponent::TryApplyMarker(EMarkerType MarkerType, AActor* DamageCaus
 	}
 }
 
-void UHealthComponent::TryDetonation(EPlayerType Player, AActor* DamageCause)
+void UHealthComponent::TryDetonation(EPlayerType PlayerType, AActor* DamageCause)
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
 	
 	if (CurrMark != nullptr)
 	{
-		RefreshMarkDelegate.Broadcast();
+		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetOwner());
 		// Detonate mark if of different type, clear decay timer
-		if (CurrMark->MarkerType == EMarkerType::Crow && Player != EPlayerType::CrowPlayer ||
-			CurrMark->MarkerType == EMarkerType::Phoenix && Player != EPlayerType::PhoenixPlayer)
+		if (CurrMark->MarkerType == EMarkerType::Crow && PlayerType != EPlayerType::CrowPlayer ||
+			CurrMark->MarkerType == EMarkerType::Phoenix && PlayerType != EPlayerType::PhoenixPlayer ||
+			(Player != nullptr && CurrMark->MarkerType == EMarkerType::Hunter && Player->PlayerType != PlayerType))
 		{
 			world->GetTimerManager().ClearTimer(MarkerDecayTimerHandle);
 			PerformDetonationEffect(DamageCause);
