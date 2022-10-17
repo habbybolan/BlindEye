@@ -28,16 +28,20 @@ void UMarkerComponent::BeginPlay()
 	FVector location = GetComponentLocation();
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Blue, "Location: " +
 		FString::SanitizeFloat(location.X) + "," + FString::SanitizeFloat(location.Y) + "," + FString::SanitizeFloat(location.Z));
+	
+	FActorSpawnParameters params;
+	params.Owner = GetOwner();
+	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	// Crow mark initialization
-	CrowMark = World->SpawnActor<AMarkerStaticMesh>(CrowMarkType, location, GetComponentRotation());
+	CrowMark = World->SpawnActor<AMarkerStaticMesh>(CrowMarkType, location, GetComponentRotation(), params);
 	CrowMark->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
 	CrowMark->GetStaticMeshComponent()->SetVisibility(false);
 	// phoenix mark initialization
-	PhoenixMark = World->SpawnActor<AMarkerStaticMesh>(PhoenixMarkType, location, GetComponentRotation());
+	PhoenixMark = World->SpawnActor<AMarkerStaticMesh>(PhoenixMarkType, location, GetComponentRotation(), params);
 	PhoenixMark->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
 	PhoenixMark->GetStaticMeshComponent()->SetVisibility(false);
 	// Hunter Mark initialization
-	HunterMark = World->SpawnActor<AMarkerStaticMesh>(HunterMarkType, location, GetComponentRotation());
+	HunterMark = World->SpawnActor<AMarkerStaticMesh>(HunterMarkType, location, GetComponentRotation(), params);
 	HunterMark->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
 	HunterMark->GetStaticMeshComponent()->SetVisibility(false);
 
