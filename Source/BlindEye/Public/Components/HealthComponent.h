@@ -10,6 +10,8 @@
 #include "Interfaces/DamageInterface.h"
 #include "HealthComponent.generated.h"
 
+enum class EMarkerType : uint8;
+
 USTRUCT(BlueprintType)
 struct FAppliedStatusEffects 
 {
@@ -86,13 +88,16 @@ public:
 	DECLARE_MULTICAST_DELEGATE(FStaggerSignature) 
 	FStaggerSignature StaggerDelegate;
 
-	DECLARE_MULTICAST_DELEGATE_OneParam(FMarkedSignature, EPlayerType) 
+	DECLARE_MULTICAST_DELEGATE_OneParam(FMarkedSignature, EMarkerType) 
 	FMarkedSignature MarkedAddedDelegate;
 	DECLARE_MULTICAST_DELEGATE(FUnMarkedSignature) 
 	FUnMarkedSignature MarkedRemovedDelegate; 
 
 	DECLARE_MULTICAST_DELEGATE(FDetonateSignature) 
 	FDetonateSignature DetonateDelegate;
+
+	DECLARE_MULTICAST_DELEGATE(FDetonateSignature) 
+	FDetonateSignature RefreshMarkDelegate;
 
 	DECLARE_MULTICAST_DELEGATE_TwoParams(FTauntStartSignature, float, AActor*) 
 	FTauntStartSignature TauntStartDelegate;
@@ -114,6 +119,10 @@ public:
 	FMarkData* GetCurrMark();
 
 	virtual void KnockBack(FVector KnockBackForce, AActor* DamageCause) override;
+
+
+	// Check if enemy is marked by Hunter
+	bool GetIsHunterDebuff();
 
 protected:
 
@@ -172,7 +181,7 @@ protected:
 
 	virtual void Stagger(AActor* DamageCause) override;
 
-	virtual void TryApplyMarker(EPlayerType Player, AActor* DamageCause) override;
+	virtual void TryApplyMarker(EMarkerType Player, AActor* DamageCause) override;
 
 	virtual void TryDetonation(EPlayerType Player, AActor* DamageCause) override;
  

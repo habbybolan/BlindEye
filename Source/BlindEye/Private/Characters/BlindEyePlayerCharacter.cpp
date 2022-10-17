@@ -720,6 +720,12 @@ void ABlindEyePlayerCharacter::MoveForward(float Value)
 	{
 		if (AbilityManager->IsMovementBlocked()) return;
 		float MovementAlter = AbilityManager->IsMovementSlowBlocked();
+
+		// slow movement if hunter debuff active
+		if (HealthComponent->GetIsHunterDebuff())
+		{
+			MovementAlter *= 0.25;
+		}
 		
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -739,6 +745,12 @@ void ABlindEyePlayerCharacter::MoveRight(float Value)
 	{
 		if (AbilityManager->IsMovementBlocked()) return;
 		float MovementAlter = AbilityManager->IsMovementSlowBlocked();
+
+		// slow movement if hunter debuff active
+		if (HealthComponent->GetIsHunterDebuff())
+		{
+			MovementAlter *= 0.25;
+		}
 		
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
