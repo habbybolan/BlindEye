@@ -4,6 +4,7 @@
 #include "Components/MarkerComponent.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "BlindEyeUtils.h"
+#include "MarkerStaticMesh.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -28,15 +29,15 @@ void UMarkerComponent::BeginPlay()
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Blue, "Location: " +
 		FString::SanitizeFloat(location.X) + "," + FString::SanitizeFloat(location.Y) + "," + FString::SanitizeFloat(location.Z));
 	// Crow mark initialization
-	CrowMark = World->SpawnActor<AStaticMeshActor>(CrowMarkType, location, GetComponentRotation());
+	CrowMark = World->SpawnActor<AMarkerStaticMesh>(CrowMarkType, location, GetComponentRotation());
 	CrowMark->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
 	CrowMark->GetStaticMeshComponent()->SetVisibility(false);
 	// phoenix mark initialization
-	PhoenixMark = World->SpawnActor<AStaticMeshActor>(PhoenixMarkType, location, GetComponentRotation());
+	PhoenixMark = World->SpawnActor<AMarkerStaticMesh>(PhoenixMarkType, location, GetComponentRotation());
 	PhoenixMark->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
 	PhoenixMark->GetStaticMeshComponent()->SetVisibility(false);
 	// Hunter Mark initialization
-	HunterMark = World->SpawnActor<AStaticMeshActor>(HunterMarkType, location, GetComponentRotation());
+	HunterMark = World->SpawnActor<AMarkerStaticMesh>(HunterMarkType, location, GetComponentRotation());
 	HunterMark->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
 	HunterMark->GetStaticMeshComponent()->SetVisibility(false);
 
@@ -63,20 +64,23 @@ void UMarkerComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void UMarkerComponent::RemoveMark()
 {
-	// TODO: play particle effect/shader
-	CrowMark->GetStaticMeshComponent()->SetVisibility(false);
-	PhoenixMark->GetStaticMeshComponent()->SetVisibility(false);
+	if (AMarkerStaticMesh* ActiveMark = GetActiveMark())
+	{
+		ActiveMark->BP_RemoveMark();
+		ActiveMark->GetStaticMeshComponent()->SetVisibility(false);
+	}
 	bMarked = false;
-	BP_RemoveMark();
+	
 }
 
-void UMarkerComponent::DetonateMark()
+void UMarkerComponent::DetonateMark(EMarkerType MarkerType)
 {
-	// TODO: play particle effect/shader
-	CrowMark->GetStaticMeshComponent()->SetVisibility(false);
-	PhoenixMark->GetStaticMeshComponent()->SetVisibility(false);
+	if (AMarkerStaticMesh* ActiveMark = GetActiveMark())
+	{
+		ActiveMark->BP_DetonateMark(MarkerType);
+		ActiveMark->GetStaticMeshComponent()->SetVisibility(false);
+	}
 	bMarked = false;
-	BP_DetonateMark();
 }
 
 void UMarkerComponent::AddMark(EMarkerType MarkerType)
@@ -86,7 +90,7 @@ void UMarkerComponent::AddMark(EMarkerType MarkerType)
 	PhoenixMark->GetStaticMeshComponent()->SetVisibility(MarkerType == EMarkerType::Phoenix);
 	HunterMark->GetStaticMeshComponent()->SetVisibility(MarkerType == EMarkerType::Hunter);
 	bMarked = true;
-	BP_AddMark(MarkerType);
+	GetActiveMark()->BP_AddMark(MarkerType);
 }
 
 void UMarkerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -99,5 +103,13 @@ void UMarkerComponent::OnOwnerDestroyed(AActor* OwnerDestroyed)
 	if (CrowMark) CrowMark->Destroy();
 	if (PhoenixMark) PhoenixMark->Destroy();
 	DestroyComponent();
+}
+
+AMarkerStaticMesh* UMarkerComponent::GetActiveMark()
+{
+	if (CrowMark->GetStaticMeshComponent()->IsVisible()) return CrowMark;
+	if (PhoenixMark->GetStaticMeshComponent()->IsVisible()) return PhoenixMark;
+	if (HunterMark->GetStaticMeshComponent()->IsVisible()) return HunterMark;
+	return nullptr;
 }
 

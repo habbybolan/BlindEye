@@ -87,7 +87,7 @@ protected:
 	UFUNCTION() 
 	void OnMarkDetonated();
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_OnMarkDetonatedHelper(); 
+	void MULT_OnMarkDetonatedHelper(EMarkerType MarkerType); 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnMarkDetonated(EMarkerType MarkType);
 public:
