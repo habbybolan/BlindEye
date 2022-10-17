@@ -10,6 +10,8 @@
 #include "Interfaces/DamageInterface.h"
 #include "HealthComponent.generated.h"
 
+enum class EMarkerType : uint8;
+
 USTRUCT(BlueprintType)
 struct FAppliedStatusEffects 
 {
@@ -86,7 +88,7 @@ public:
 	DECLARE_MULTICAST_DELEGATE(FStaggerSignature) 
 	FStaggerSignature StaggerDelegate;
 
-	DECLARE_MULTICAST_DELEGATE_OneParam(FMarkedSignature, EPlayerType) 
+	DECLARE_MULTICAST_DELEGATE_OneParam(FMarkedSignature, EMarkerType) 
 	FMarkedSignature MarkedAddedDelegate;
 	DECLARE_MULTICAST_DELEGATE(FUnMarkedSignature) 
 	FUnMarkedSignature MarkedRemovedDelegate; 
@@ -172,7 +174,7 @@ protected:
 
 	virtual void Stagger(AActor* DamageCause) override;
 
-	virtual void TryApplyMarker(EPlayerType Player, AActor* DamageCause) override;
+	virtual void TryApplyMarker(EMarkerType Player, AActor* DamageCause) override;
 
 	virtual void TryDetonation(EPlayerType Player, AActor* DamageCause) override;
  

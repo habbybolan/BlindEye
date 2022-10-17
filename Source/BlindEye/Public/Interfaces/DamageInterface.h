@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/MarkerComponent.h"
 #include "UObject/Interface.h"
 #include "DamageInterface.generated.h"
 
@@ -38,7 +39,7 @@ public:
 	virtual void Stagger(AActor* DamageCause) = 0;
 
 	UFUNCTION()
-	virtual void TryApplyMarker(EPlayerType Player, AActor* DamageCause) = 0;
+	virtual void TryApplyMarker(EMarkerType Player, AActor* DamageCause) = 0;
 
 	UFUNCTION()
 	virtual void TryDetonation(EPlayerType Player, AActor* DamageCause) = 0;

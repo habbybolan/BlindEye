@@ -84,13 +84,13 @@ float ABlindEyeBaseCharacter::GetMass()
 	return Mass;
 }
 
-void ABlindEyeBaseCharacter::OnMarkAdded(EPlayerType MarkType)
+void ABlindEyeBaseCharacter::OnMarkAdded(EMarkerType MarkType)
 {
 	BP_OnMarkAdded(MarkType);
 	MULT_OnMarkAddedHelper(MarkType);
 }
 
-void ABlindEyeBaseCharacter::MULT_OnMarkAddedHelper_Implementation(EPlayerType MarkerType)
+void ABlindEyeBaseCharacter::MULT_OnMarkAddedHelper_Implementation(EMarkerType MarkerType)
 {
 	MarkerComponent->AddMark(MarkerType);
 }
@@ -110,7 +110,7 @@ void ABlindEyeBaseCharacter::OnMarkDetonated()
 { 
 	if (FMarkData* marker = HealthComponent->GetCurrMark())
 	{
-		BP_OnMarkDetonated(marker->MarkPlayerType);
+		BP_OnMarkDetonated(marker->MarkerType);
 		MULT_OnMarkDetonatedHelper();
 	}
 	

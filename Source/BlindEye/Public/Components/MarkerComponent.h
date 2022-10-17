@@ -9,6 +9,14 @@
 
 enum class EPlayerType : uint8;
 
+UENUM(BlueprintType)
+enum class EMarkerType : uint8
+{
+	Crow,
+	Phoenix,
+	Hunter
+};
+
 UCLASS()
 class BLINDEYE_API UMarkerComponent : public USceneComponent
 {
@@ -21,17 +29,19 @@ public:
 	TSubclassOf<AStaticMeshActor> CrowMarkType;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AStaticMeshActor> PhoenixMarkType;
-
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<AStaticMeshActor> HunterMarkType;
+ 
 	void RemoveMark();
 	void DetonateMark();
-	void AddMark(EPlayerType PlayerMarkToSet);
+	void AddMark(EMarkerType PlayerMarkToSet);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_RemoveMark();
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_DetonateMark();
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_AddMark(EPlayerType pLayerType);
+	void BP_AddMark(EMarkerType pLayerType);
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_RegenerateMark();
 
@@ -50,6 +60,8 @@ protected:
 	AStaticMeshActor* CrowMark;
 	UPROPERTY()
 	AStaticMeshActor* PhoenixMark;
+	UPROPERTY() 
+	AStaticMeshActor* HunterMark;
 
 	bool bMarked = false;
 };

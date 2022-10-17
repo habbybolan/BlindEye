@@ -227,7 +227,7 @@ void FEndCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType)
 }
 
 void FEndCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
-{
+{ 
 	FAbilityState::RunState(abilityUsageType);
 	Ability->Blockers.IsMovementSlowBlocked = true;
 	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);

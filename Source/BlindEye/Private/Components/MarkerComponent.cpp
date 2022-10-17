@@ -27,12 +27,18 @@ void UMarkerComponent::BeginPlay()
 	FVector location = GetComponentLocation();
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Blue, "Location: " +
 		FString::SanitizeFloat(location.X) + "," + FString::SanitizeFloat(location.Y) + "," + FString::SanitizeFloat(location.Z));
+	// Crow mark initialization
 	CrowMark = World->SpawnActor<AStaticMeshActor>(CrowMarkType, location, GetComponentRotation());
 	CrowMark->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
 	CrowMark->GetStaticMeshComponent()->SetVisibility(false);
+	// phoenix mark initialization
 	PhoenixMark = World->SpawnActor<AStaticMeshActor>(PhoenixMarkType, location, GetComponentRotation());
 	PhoenixMark->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
 	PhoenixMark->GetStaticMeshComponent()->SetVisibility(false);
+	// Hunter Mark initialization
+	HunterMark = World->SpawnActor<AStaticMeshActor>(HunterMarkType, location, GetComponentRotation());
+	HunterMark->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
+	HunterMark->GetStaticMeshComponent()->SetVisibility(false);
 
 	GetOwner()->OnDestroyed.AddDynamic(this, &UMarkerComponent::OnOwnerDestroyed);
 }
@@ -73,13 +79,14 @@ void UMarkerComponent::DetonateMark()
 	BP_DetonateMark();
 }
 
-void UMarkerComponent::AddMark(EPlayerType PlayerMarkToSet)
+void UMarkerComponent::AddMark(EMarkerType MarkerType)
 {
 	if (bMarked) return;
-	CrowMark->GetStaticMeshComponent()->SetVisibility(PlayerMarkToSet == EPlayerType::CrowPlayer);
-	PhoenixMark->GetStaticMeshComponent()->SetVisibility(PlayerMarkToSet == EPlayerType::PhoenixPlayer);
+	CrowMark->GetStaticMeshComponent()->SetVisibility(MarkerType == EMarkerType::Crow);
+	PhoenixMark->GetStaticMeshComponent()->SetVisibility(MarkerType == EMarkerType::Phoenix);
+	HunterMark->GetStaticMeshComponent()->SetVisibility(MarkerType == EMarkerType::Hunter);
 	bMarked = true;
-	BP_AddMark(PlayerMarkToSet);
+	BP_AddMark(MarkerType);
 }
 
 void UMarkerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

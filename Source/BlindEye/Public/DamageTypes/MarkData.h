@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/MarkerComponent.h"
 #include "UObject/NoExportTypes.h"
 #include "MarkData.generated.h"
 
@@ -14,13 +15,11 @@ enum class EPlayerType : uint8;
 USTRUCT()
 struct BLINDEYE_API FMarkData
 {
-	GENERATED_BODY()
-
-	FMarkData();
-
-	void InitializeData(EPlayerType markPlayerType);
+	GENERATED_BODY();
+ 
+	void InitializeData(EMarkerType MarkerType);
 	
-	EPlayerType MarkPlayerType;
+	EMarkerType MarkerType = EMarkerType::Crow;
 	uint8 UniqueAbilityMarkerIndex;
 
 	
