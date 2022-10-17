@@ -129,6 +129,15 @@ void UHealthComponent::KnockBack(FVector KnockBackForce, AActor* DamageCause)
 	}
 }
 
+bool UHealthComponent::GetIsHunterDebuff()
+{
+	if (CurrMark)
+	{
+		return CurrMark->MarkerType == EMarkerType::Hunter;
+	}
+	return false;
+}
+
 void UHealthComponent::Burn(float DamagePerSec, float Duration, AActor* DamageCause)
 {
 	UWorld* World = GetWorld();

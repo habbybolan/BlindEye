@@ -120,6 +120,10 @@ public:
 
 	virtual void KnockBack(FVector KnockBackForce, AActor* DamageCause) override;
 
+
+	// Check if enemy is marked by Hunter
+	bool GetIsHunterDebuff();
+
 protected:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
