@@ -4,6 +4,7 @@
 #include "Components/MarkerComponent.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "BlindEyeUtils.h"
+#include "MarkerStaticMesh.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -27,12 +28,22 @@ void UMarkerComponent::BeginPlay()
 	FVector location = GetComponentLocation();
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Blue, "Location: " +
 		FString::SanitizeFloat(location.X) + "," + FString::SanitizeFloat(location.Y) + "," + FString::SanitizeFloat(location.Z));
-	CrowMark = World->SpawnActor<AStaticMeshActor>(CrowMarkType, location, GetComponentRotation());
+	
+	FActorSpawnParameters params;
+	params.Owner = GetOwner();
+	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	// Crow mark initialization
+	CrowMark = World->SpawnActor<AMarkerStaticMesh>(CrowMarkType, location, GetComponentRotation(), params);
 	CrowMark->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
 	CrowMark->GetStaticMeshComponent()->SetVisibility(false);
-	PhoenixMark = World->SpawnActor<AStaticMeshActor>(PhoenixMarkType, location, GetComponentRotation());
+	// phoenix mark initialization
+	PhoenixMark = World->SpawnActor<AMarkerStaticMesh>(PhoenixMarkType, location, GetComponentRotation(), params);
 	PhoenixMark->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
 	PhoenixMark->GetStaticMeshComponent()->SetVisibility(false);
+	// Hunter Mark initialization
+	HunterMark = World->SpawnActor<AMarkerStaticMesh>(HunterMarkType, location, GetComponentRotation(), params);
+	HunterMark->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
+	HunterMark->GetStaticMeshComponent()->SetVisibility(false);
 
 	GetOwner()->OnDestroyed.AddDynamic(this, &UMarkerComponent::OnOwnerDestroyed);
 }
@@ -57,27 +68,41 @@ void UMarkerComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void UMarkerComponent::RemoveMark()
 {
-	// TODO: play particle effect/shader
-	CrowMark->GetStaticMeshComponent()->SetVisibility(false);
-	PhoenixMark->GetStaticMeshComponent()->SetVisibility(false);
+	if (AMarkerStaticMesh* ActiveMark = GetActiveMark())
+	{
+		ActiveMark->BP_RemoveMark();
+		ActiveMark->GetStaticMeshComponent()->SetVisibility(false);
+	}
+	bMarked = false;
+	
+}
+
+void UMarkerComponent::DetonateMark(EMarkerType MarkerType)
+{
+	if (AMarkerStaticMesh* ActiveMark = GetActiveMark())
+	{
+		ActiveMark->BP_DetonateMark(MarkerType);
+		ActiveMark->GetStaticMeshComponent()->SetVisibility(false);
+	}
 	bMarked = false;
 }
 
-void UMarkerComponent::DetonateMark()
-{
-	// TODO: play particle effect/shader
-	CrowMark->GetStaticMeshComponent()->SetVisibility(false);
-	PhoenixMark->GetStaticMeshComponent()->SetVisibility(false);
-	bMarked = false; 
-}
-
-void UMarkerComponent::AddMark(PlayerType PlayerMarkToSet)
+void UMarkerComponent::AddMark(EMarkerType MarkerType)
 {
 	if (bMarked) return;
-	CrowMark->GetStaticMeshComponent()->SetVisibility(PlayerMarkToSet == PlayerType::CrowPlayer);
-	PhoenixMark->GetStaticMeshComponent()->SetVisibility(PlayerMarkToSet == PlayerType::PhoenixPlayer);
+	CrowMark->GetStaticMeshComponent()->SetVisibility(MarkerType == EMarkerType::Crow);
+	PhoenixMark->GetStaticMeshComponent()->SetVisibility(MarkerType == EMarkerType::Phoenix);
+	HunterMark->GetStaticMeshComponent()->SetVisibility(MarkerType == EMarkerType::Hunter);
 	bMarked = true;
-	// TODO: play particle/shader
+	GetActiveMark()->BP_AddMark(MarkerType);
+}
+
+void UMarkerComponent::RefreshMark(EMarkerType MarkerType)
+{
+	if (AMarkerStaticMesh* ActiveMark = GetActiveMark())
+	{
+		ActiveMark->BP_RefreshMark(MarkerType);
+	}
 }
 
 void UMarkerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -90,5 +115,13 @@ void UMarkerComponent::OnOwnerDestroyed(AActor* OwnerDestroyed)
 	if (CrowMark) CrowMark->Destroy();
 	if (PhoenixMark) PhoenixMark->Destroy();
 	DestroyComponent();
+}
+
+AMarkerStaticMesh* UMarkerComponent::GetActiveMark()
+{
+	if (CrowMark->GetStaticMeshComponent()->IsVisible()) return CrowMark;
+	if (PhoenixMark->GetStaticMeshComponent()->IsVisible()) return PhoenixMark;
+	if (HunterMark->GetStaticMeshComponent()->IsVisible()) return HunterMark;
+	return nullptr;
 }
 

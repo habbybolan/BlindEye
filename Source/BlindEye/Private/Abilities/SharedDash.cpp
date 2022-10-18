@@ -9,6 +9,7 @@
 ASharedDash::ASharedDash()
 {
 	AbilityStates.Add(new FDashStartState(this));
+	AbilityType = EAbilityTypes::Dash;
 }
 
 void ASharedDash::UpdatePlayerSpeed()

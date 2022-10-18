@@ -15,32 +15,7 @@
 void ABasicAttackSmallFlock::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	// Increase target seeking when getting closer to target
-	if (Target.IsValid())
-	{ 
-		float Percent = FVector::Distance(CalcAveragePosition(), Target.Get()->GetActorLocation()) / DistToApplyTargetSeekingIncrease;
-		float StrengthIncrease = UKismetMathLibrary::FClamp(Percent, 0, 1) * MaxTargetSeekingStrengthIncrease;
-		TargetStrength = BaseSeekingStrength * StrengthIncrease;
-	}
-	
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		if (!bHasReachedTarget)
-		{
-			CheckForDamage();
-			CheckGoBackToPlayer();
-		} else
-		{
-			UpdateMaxSpeed(MovementPercentAfterReachingTarget);
-			CheckReturnedToPlayer();
-		}
-	}
-
-	if (bHasReachedTarget)
-	{
-		CheckShrinking();
-	}
+	FlockCheck();
 }
 
 void ABasicAttackSmallFlock::BeginPlay()
@@ -72,8 +47,42 @@ void ABasicAttackSmallFlock::BeginPlay()
 	
 		Target = world->SpawnActor<AActor>(TargetType, TargetLocation, FRotator::ZeroRotator);
 
-		MULT_InitializeFlock();
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			OnRep_Target();
+		}
 	}
+
+	world->GetTimerManager().SetTimer(FlockCheckTimerHandle, this, &ABasicAttackSmallFlock::FlockCheck, FlockCheckDelay, true);
+}
+
+void ABasicAttackSmallFlock::FlockCheck()
+{
+	// Increase target seeking when getting closer to target
+	if (Target.IsValid())
+	{ 
+		float Percent = FVector::Distance(CalcAveragePosition(), Target.Get()->GetActorLocation()) / DistToApplyTargetSeekingIncrease;
+		float StrengthIncrease = UKismetMathLibrary::FClamp(Percent, 0, 1) * MaxTargetSeekingStrengthIncrease;
+		TargetStrength = BaseSeekingStrength * StrengthIncrease;
+	}
+	
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		if (!bHasReachedTarget)
+		{
+			CheckForDamage();
+			CheckGoBackToPlayer();
+		} else
+		{
+			UpdateMaxSpeed(MovementPercentAfterReachingTarget);
+			CheckReturnedToPlayer();
+		}
+	}
+
+	if (bHasReachedTarget)
+	{
+		CheckShrinking();
+	} 
 }
 
 void ABasicAttackSmallFlock::CheckForDamage()
@@ -106,15 +115,22 @@ void ABasicAttackSmallFlock::CheckGoBackToPlayer()
 {
 	if (CheckInRangeOfTarget())
 	{
-		bHasReachedTarget = true;
-		Target->Destroy();
-		Target = nullptr;
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			Target->Destroy();
+			Target = nullptr;
+		}
 
-		SwirlStrength = 0;
-		
+		MULT_GoBackToPlayer();
 		MULT_SendEachBoidUp();
-		Target = GetInstigator();
-	}
+	} 
+}
+
+void ABasicAttackSmallFlock::MULT_GoBackToPlayer_Implementation()
+{
+	Target = GetInstigator();
+	bHasReachedTarget = true;
+	SwirlStrength = 0;
 }
 
 void ABasicAttackSmallFlock::CheckReturnedToPlayer()

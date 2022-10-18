@@ -52,10 +52,18 @@ protected:
 
 	float BaseSeekingStrength;
 
+	FTimerHandle FlockCheckTimerHandle;
+	float FlockCheckDelay = 0.02;
+
+	void FlockCheck();
+
 	void CheckForDamage();
 	void CheckGoBackToPlayer();
 	void CheckReturnedToPlayer();
 	void CheckShrinking();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_GoBackToPlayer();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_SendEachBoidUp();

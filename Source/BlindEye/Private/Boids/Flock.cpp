@@ -8,15 +8,24 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
+#include "Tools/LocalPlayerSubsystem_Pooling.h"
 
 
 // Sets default values
 AFlock::AFlock()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	bReplicates = true;
+}
+
+void AFlock::OnRep_Target()
+{
+	if (bFlockInitialized) return;
+	
+	bFlockInitialized = true;
+	InitializeFlock();
 }
 
 // Called when the game starts or when spawned
@@ -24,11 +33,16 @@ void AFlock::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+
 	// used for testing boid flocking movement
 	if (bSpawnOnBegin)
 	{
 		SpawnFlockWave();
 	}
+
+	World->GetTimerManager().SetTimer(PerformFlockTimerHandle, this, &AFlock::PerformFlock, PerformFlockDelay, true);
 }
 
 // Called every frame
@@ -39,7 +53,7 @@ void AFlock::Tick(float DeltaTime)
 	PerformFlock();
 }
 
-void AFlock::MULT_InitializeFlock_Implementation() 
+void AFlock::InitializeFlock()  
 { 
 	SpawnFlockWave();
 }
@@ -112,16 +126,41 @@ void AFlock::SpawnBoidRand()
 	{
 		direction = GetActorRotation();
 	}
-	
-	
-	ABoid* newBoid = Cast<ABoid>(GetWorld()->SpawnActor<ABoid>(BoidType, location, direction));
-	AddBoid(newBoid);
+
+	// ULocalPlayer* LocalPlayer = GetGameInstance()->GetLocalPlayerByIndex(0);
+	// ULocalPlayerSubsystem_Pooling* LocalPlayerSubsystem = LocalPlayer->GetSubsystem<ULocalPlayerSubsystem_Pooling>();
+	// if (LocalPlayerSubsystem) 
+	// {
+	// 	if (AActor* BoidActor = LocalPlayerSubsystem->GetPooledActor(TagPoolType))
+	// 	{
+	// 		if (ABoid* boid = Cast<ABoid>(BoidActor))
+	// 		{
+	// 			AddBoid(boid);
+	// 			boid->InitializeBoid(location, direction);
+	// 		}
+	// 	}
+	// }
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+
+	ABoid* Boid =  World->SpawnActor<ABoid>(BoidType, location, direction);
+	if (Boid)
+	{
+		AddBoid(Boid);
+		Boid->InitializeBoid(location, direction);
+	}
 }
 
 void AFlock::RemoveBoids()
 {
 	for (ABoid* boid : BoidsInFlock)
 	{
+		// ULocalPlayer* LocalPlayer = GetGameInstance()->GetLocalPlayerByIndex(0);
+		// ULocalPlayerSubsystem_Pooling* LocalPlayerSubsystem = LocalPlayer->GetSubsystem<ULocalPlayerSubsystem_Pooling>();
+		// if (LocalPlayerSubsystem)
+		// {
+		// 	LocalPlayerSubsystem->ReturnActorToPool(boid);
+		// }
 		boid->Destroy();
 	}
 }

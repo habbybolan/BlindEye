@@ -66,7 +66,7 @@ ABlindEyePlayerCharacter::ABlindEyePlayerCharacter(const FObjectInitializer& Obj
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 	AbilityManager = CreateDefaultSubobject<UAbilityManager>(TEXT("AbilityManager"));
 	
-	PlayerType = PlayerType::CrowPlayer;
+	PlayerType = EPlayerType::CrowPlayer;
 	Team = TEAMS::Player;
 }
 
@@ -518,6 +518,11 @@ float ABlindEyePlayerCharacter::GetMaxHealth()
 	return 0;
 }
 
+EPlayerType ABlindEyePlayerCharacter::GetPlayerType()
+{
+	return PlayerType;
+}
+
 void ABlindEyePlayerCharacter::SER_PauseWinCondition_Implementation(bool IsWinCondPaused)
 {
 	UWorld* World = GetWorld();
@@ -715,6 +720,12 @@ void ABlindEyePlayerCharacter::MoveForward(float Value)
 	{
 		if (AbilityManager->IsMovementBlocked()) return;
 		float MovementAlter = AbilityManager->IsMovementSlowBlocked();
+
+		// slow movement if hunter debuff active
+		if (HealthComponent->GetIsHunterDebuff())
+		{
+			MovementAlter *= 0.25;
+		}
 		
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -734,6 +745,12 @@ void ABlindEyePlayerCharacter::MoveRight(float Value)
 	{
 		if (AbilityManager->IsMovementBlocked()) return;
 		float MovementAlter = AbilityManager->IsMovementSlowBlocked();
+
+		// slow movement if hunter debuff active
+		if (HealthComponent->GetIsHunterDebuff())
+		{
+			MovementAlter *= 0.25;
+		}
 		
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -750,6 +767,7 @@ void ABlindEyePlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ABlindEyePlayerCharacter, bUnlimitedBirdMeter);
+	DOREPLIFETIME(ABlindEyePlayerCharacter, PlayerType);
 }
 
 //////////////////////////////////////////////////////////////////////////

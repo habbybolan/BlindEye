@@ -24,6 +24,7 @@ void ABlindEyeBaseCharacter::BeginPlay()
 	HealthComponent->MarkedAddedDelegate.AddUFunction(this, TEXT("OnMarkAdded"));
 	HealthComponent->MarkedRemovedDelegate.AddUFunction(this, TEXT("OnMarkRemoved"));
 	HealthComponent->DetonateDelegate.AddUFunction(this, TEXT("OnMarkDetonated"));
+	HealthComponent->RefreshMarkDelegate.AddUFunction(this, TEXT("OnMarkRefreshed"));
 }
 
 void ABlindEyeBaseCharacter::OnDeath(AActor* ActorThatKilled)
@@ -59,7 +60,7 @@ ECharacterTypes ABlindEyeBaseCharacter::GetCharacterType(AActor* Character)
 
 	if (const ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(Character))
 	{
-		if (PlayerCharacter->PlayerType == PlayerType::CrowPlayer)
+		if (PlayerCharacter->PlayerType == EPlayerType::CrowPlayer)
 		{
 			return ECharacterTypes::Crow;
 		} else
@@ -84,13 +85,13 @@ float ABlindEyeBaseCharacter::GetMass()
 	return Mass;
 }
 
-void ABlindEyeBaseCharacter::OnMarkAdded(PlayerType MarkType)
+void ABlindEyeBaseCharacter::OnMarkAdded(EMarkerType MarkType)
 {
 	BP_OnMarkAdded(MarkType);
 	MULT_OnMarkAddedHelper(MarkType);
 }
 
-void ABlindEyeBaseCharacter::MULT_OnMarkAddedHelper_Implementation(PlayerType MarkerType)
+void ABlindEyeBaseCharacter::MULT_OnMarkAddedHelper_Implementation(EMarkerType MarkerType)
 {
 	MarkerComponent->AddMark(MarkerType);
 }
@@ -110,15 +111,27 @@ void ABlindEyeBaseCharacter::OnMarkDetonated()
 { 
 	if (FMarkData* marker = HealthComponent->GetCurrMark())
 	{
-		BP_OnMarkDetonated(marker->MarkPlayerType);
-		MULT_OnMarkDetonatedHelper();
+		BP_OnMarkDetonated(marker->MarkerType);
+		MULT_OnMarkDetonatedHelper(marker->MarkerType);
 	}
-	
 }
 
-void ABlindEyeBaseCharacter::MULT_OnMarkDetonatedHelper_Implementation()
+void ABlindEyeBaseCharacter::MULT_OnMarkDetonatedHelper_Implementation(EMarkerType MarkerType)
 {
-	MarkerComponent->DetonateMark();
+	MarkerComponent->DetonateMark(MarkerType);
+}
+
+void ABlindEyeBaseCharacter::OnMarkRefreshed()
+{
+	if (FMarkData* marker = HealthComponent->GetCurrMark())
+	{
+		MULT_OnMarkRefreshedHelper(marker->MarkerType);
+	}
+}
+
+void ABlindEyeBaseCharacter::MULT_OnMarkRefreshedHelper_Implementation(EMarkerType MarkerType)
+{
+	MarkerComponent->RefreshMark(MarkerType);
 }
 
 float ABlindEyeBaseCharacter::GetHealth()

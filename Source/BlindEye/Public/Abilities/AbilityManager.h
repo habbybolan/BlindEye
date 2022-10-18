@@ -16,8 +16,8 @@ enum class EAbilityBlockers
 };
 
 // Used for easily identifying which ability was used
-UENUM()
-enum class EAbilityTypes
+UENUM(BlueprintType)
+enum class EAbilityTypes : uint8
 {
 	Basic = 0,
 	ChargedBasic = 1,
@@ -61,9 +61,13 @@ public:
 
 	void PerformGenericAbilityNotify();
 
+	void UpdateCooldownUI(EAbilityTypes abilityType, float CurrCooldown, float MaxCooldown);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	bool IsAbilityUnavailable(AAbilityBase* AbilityToUse) const;

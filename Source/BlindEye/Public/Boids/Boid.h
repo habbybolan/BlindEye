@@ -4,12 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Interfaces/PooledActorInterface.h"
 #include "Boid.generated.h"
 
 class UProjectileMovementComponent;
 
 UCLASS()
-class BLINDEYE_API ABoid : public AActor
+class BLINDEYE_API ABoid : public AActor, public IPooledActorInterface
 {
 	GENERATED_BODY()
 	
@@ -57,6 +58,11 @@ public:
 
 	void UpdateMaxSpeed(float PercentOfMaxSpeed);
 
+	void InitializeBoid(FVector Location, FRotator Rotation);
+
+	void DisableActor(bool bDisabled) override;
+	virtual bool GetIsActorDisabled() override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -66,7 +72,11 @@ protected:
 	float CurrTimerSizeGrow = 0;
 	float SizeGrowTimerDelay = 0.02;
 
+	FVector Initial3DScale; 
+
 	float CurrMaxSpeed;
+
+	bool bIsDisabled = false;
 
 public:	
 	// Called every frame

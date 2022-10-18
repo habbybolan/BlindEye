@@ -6,11 +6,12 @@
 #include "GameFramework/Character.h"
 #include "Interfaces/HealthInterface.h"
 #include "BlindEyeUtils.h"
+#include "Components/HealthComponent.h"
 #include "BlindEyeBaseCharacter.generated.h"
 
 class UMarkerComponent;
 class UHealthComponent;
-enum class PlayerType : uint8;
+enum class EPlayerType : uint8;
 
 UENUM(BlueprintType)
 enum class ECharacterTypes : uint8
@@ -70,11 +71,11 @@ protected:
 
 	// mark added
 	UFUNCTION()
-	void OnMarkAdded(PlayerType MarkerType);
+	void OnMarkAdded(EMarkerType MarkerType);
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_OnMarkAddedHelper(PlayerType MarkerType);
+	void MULT_OnMarkAddedHelper(EMarkerType MarkerType);
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_OnMarkAdded(PlayerType MarkerType);
+	void BP_OnMarkAdded(EMarkerType MarkerType);
 	// mark removed
 	UFUNCTION()
 	void OnMarkRemoved();
@@ -86,9 +87,13 @@ protected:
 	UFUNCTION() 
 	void OnMarkDetonated();
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_OnMarkDetonatedHelper(); 
+	void MULT_OnMarkDetonatedHelper(EMarkerType MarkerType); 
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_OnMarkDetonated(PlayerType MarkType);
+	void BP_OnMarkDetonated(EMarkerType MarkType);
+	UFUNCTION()
+	void OnMarkRefreshed();
+	UFUNCTION(NetMulticast, Reliable) 
+	void MULT_OnMarkRefreshedHelper(EMarkerType MarkerType); 
 public:
 	virtual float GetHealth() override;
 	virtual float GetMaxHealth() override;

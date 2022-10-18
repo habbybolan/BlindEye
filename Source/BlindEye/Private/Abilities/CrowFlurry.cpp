@@ -16,6 +16,7 @@ ACrowFlurry::ACrowFlurry()
 	AbilityStates.Add(new FPerformCrowFlurryState(this));
 	AbilityStates.Add(new FCancelCrowFlurryState(this));
 	AbilityStates.Add(new FEndCrowFlurryState(this));
+	AbilityType = EAbilityTypes::Unique2;
 }
 
 void ACrowFlurry::BeginPlay()
@@ -42,6 +43,8 @@ void ACrowFlurry::StartCrowFlurry()
 	world->GetTimerManager().SetTimer(CalculateRotationTimerHandle, this, &ACrowFlurry::CalcFlurryRotation, CalcRotationDelay, true);
 	// flurry rotation separate for replication reasons
 	world->GetTimerManager().SetTimer(RotateFlurryTimerHandle, this, &ACrowFlurry::MULT_RotateFlurry, CalcRotationDelay, true);
+	// Max Duration of flurry
+	world->GetTimerManager().SetTimer(DurationTimerHandle, this, &ACrowFlurry::CrowFlurryDurationEnd, Duration, false);
 }
 
 void ACrowFlurry::PlayAbilityAnimation()
@@ -69,6 +72,7 @@ void ACrowFlurry::EndAbilityAnimation()
 	if (!world) return;
 	world->GetTimerManager().ClearTimer(CrowFlurryTimerHandle);
 	world->GetTimerManager().ClearTimer(CalculateRotationTimerHandle);
+	world->GetTimerManager().ClearTimer(DurationTimerHandle);
 	
 	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
@@ -85,6 +89,12 @@ void ACrowFlurry::AbilityAnimationEnded()
 void ACrowFlurry::MULT_RotateFlurry_Implementation()
 {
 	RotateFlurryHelper();
+}
+
+void ACrowFlurry::CrowFlurryDurationEnd()
+{
+	// manually input to stop crow flurry
+	AbilityStates[CurrState]->HandleInput(EAbilityInputTypes::Pressed);
 }
 
 void ACrowFlurry::PerformCrowFlurry()
@@ -226,7 +236,7 @@ void FEndCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType)
 }
 
 void FEndCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
-{
+{ 
 	FAbilityState::RunState(abilityUsageType);
 	Ability->Blockers.IsMovementSlowBlocked = true;
 	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);

@@ -3,10 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/MarkerComponent.h"
 #include "UObject/Interface.h"
 #include "DamageInterface.generated.h"
 
-enum class PlayerType : uint8;
+enum class EPlayerType : uint8;
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI, meta=(CannotImplementInterfaceInBlueprint))
@@ -38,10 +39,10 @@ public:
 	virtual void Stagger(AActor* DamageCause) = 0;
 
 	UFUNCTION()
-	virtual void TryApplyMarker(PlayerType Player, AActor* DamageCause) = 0;
+	virtual void TryApplyMarker(EMarkerType Player, AActor* DamageCause) = 0;
 
 	UFUNCTION()
-	virtual void TryDetonation(PlayerType Player, AActor* DamageCause) = 0;
+	virtual void TryDetonation(EPlayerType Player, AActor* DamageCause) = 0;
   
 	UFUNCTION()
 	virtual void TryTaunt(float Duration, AActor* Taunter) = 0;
