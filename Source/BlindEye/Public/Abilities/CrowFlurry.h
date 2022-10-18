@@ -59,6 +59,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Range = 400;
 
+	UPROPERTY(EditDefaultsOnly)
+	float Duration = 3.f;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<	EObjectTypeQuery>> ObjectTypes;
 
@@ -95,6 +98,7 @@ public:
 protected:
 	
 	FTimerHandle CrowFlurryTimerHandle;
+	FTimerHandle DurationTimerHandle;
 
 	// For calculating crow flurry rotation lerping to control rotation
 	FTimerHandle CalculateRotationTimerHandle;
@@ -110,6 +114,9 @@ protected:
 
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	FRotator CurrFlurryRotation;
+
+	UFUNCTION()
+	void CrowFlurryDurationEnd();
 
 	UFUNCTION()
 	void PerformCrowFlurry();
