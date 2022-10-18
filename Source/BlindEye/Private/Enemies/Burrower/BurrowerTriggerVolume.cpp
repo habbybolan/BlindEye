@@ -23,7 +23,7 @@ TArray<ABlindEyePlayerCharacter*> ABurrowerTriggerVolume::GetPlayerActorsOverlap
 
 void ABurrowerTriggerVolume::OnPlayerOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(OverlappedActor))
+	if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(OtherActor))
 	{
 		PlayersInsideTriggerVolume.AddUnique(Player);
 	}
@@ -33,7 +33,7 @@ void ABurrowerTriggerVolume::OnPlayerEndOverlap(AActor* OverlappedActor, AActor*
 {
 	for (uint8 i = 0; i < PlayersInsideTriggerVolume.Num(); i++)
 	{
-		if (PlayersInsideTriggerVolume[i] == OverlappedActor)
+		if (PlayersInsideTriggerVolume[i] == OtherActor)
 		{
 			PlayersInsideTriggerVolume.RemoveAt(i);
 			return;
