@@ -29,9 +29,6 @@ public:
 
 	virtual void BeginPlay() override;
 
-	void SpawnMangerSetup(EIslandPosition islandType, UBurrowerSpawnManagerListener listener);
- 
-
 	void SpawnSnappers();
 	EBurrowActionState GetCurrAction();
 	// Cache if next action state is either attacking or spawning
