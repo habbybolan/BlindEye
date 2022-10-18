@@ -101,11 +101,25 @@ void ABurrowerEnemyController::NotifyPlayerLeftIsland(ABlindEyePlayerCharacter* 
 	// TODO: Check if Player is equal to EnemyActor
 	//		If so, then check if any other player on the island
 	//		Otherwise, ClearValue normally
+
 	UBrainComponent* Brain = GetBrainComponent();
 	if (Brain == nullptr) return;
-
 	UBlackboardComponent* BBComp = Brain->GetBlackboardComponent();
-	BBComp->ClearValue(TEXT("EnemyActor"));
+	
+	TArray<ABlindEyePlayerCharacter*> PlayersOnIsland = CachedBurrower->Listener->GetPlayersOnIsland(CachedBurrower->IslandType);
+	// If players still on island, set to attack remaining player
+	if (PlayersOnIsland.Num() > 0)
+	{
+		BBComp->SetValueAsObject(TEXT("EnemyActor"), PlayersOnIsland[0]);
+	}
+	// Otherwise, go back to patrolling state
+	else
+	{
+		BBComp->ClearValue(TEXT("EnemyActor"));
+	}
+
+	
+	
 } 
 
 TArray<ABlindEyePlayerCharacter*> ABurrowerEnemyController::GetPlayersOnIsland()

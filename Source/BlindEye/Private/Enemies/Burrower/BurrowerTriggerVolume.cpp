@@ -36,6 +36,7 @@ void ABurrowerTriggerVolume::OnPlayerEndOverlap(AActor* OverlappedActor, AActor*
 		if (PlayersInsideTriggerVolume[i] == OtherActor)
 		{
 			PlayersInsideTriggerVolume.RemoveAt(i);
+			CustomOverlapDelegate.Broadcast(OverlappedActor, OtherActor);
 			return;
 		}
 	}

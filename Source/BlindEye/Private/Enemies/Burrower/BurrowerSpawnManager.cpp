@@ -40,7 +40,7 @@ void ABurrowerSpawnManager::BeginPlay()
 		ABurrowerTriggerVolume* BurrowerVolume = Cast<ABurrowerTriggerVolume>(VolumeActor);
 		BurrowerTriggerVolumes.Add(BurrowerVolume->IslandType, BurrowerVolume);
 		BurrowerVolume->OnActorBeginOverlap.AddDynamic(this, &ABurrowerSpawnManager::TriggerVolumeOverlapped);
-		BurrowerVolume->OnActorEndOverlap.AddDynamic(this, &ABurrowerSpawnManager::TriggerVolumeLeft);
+		BurrowerVolume->CustomOverlapDelegate.AddUFunction(this, TEXT("TriggerVolumeLeft"));
 	}
 }
 

@@ -28,6 +28,10 @@ public:
 
 	TArray<ABlindEyePlayerCharacter*> GetPlayerActorsOverlapping();
 
+	// Call this for ending overlap so this class can process overlap ending before broadcasting
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FOverlapEndSignature, AActor*, AActor*);
+	FOverlapEndSignature CustomOverlapDelegate; 
+
 	UFUNCTION()
 	void OnPlayerOverlap(AActor* OverlappedActor, AActor* OtherActor);
 
