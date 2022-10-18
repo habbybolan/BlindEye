@@ -43,9 +43,14 @@ protected:
 
 	UFUNCTION()
 	void TriggerVolumeOverlapped(AActor* OverlappedActor, AActor* OtherActor);
+	UFUNCTION()  
+	void TriggerVolumeLeft(AActor* EndOverlappedActor, AActor* OtherActor);
 
 	UFUNCTION()
 	void PlayerEnteredIsland(ABlindEyePlayerCharacter* Player, EIslandPosition IslandType);
+ 
+	UFUNCTION()
+	void PlayerLeftIsland(ABlindEyePlayerCharacter* Player, EIslandPosition IslandType);
 	
 	TMap<EIslandPosition, TArray<ABurrowerSpawnPoint*>> BurrowerSpawnPoints;
 

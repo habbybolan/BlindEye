@@ -96,6 +96,15 @@ void ABurrowerEnemyController::NotifyPlayerEnteredIsland(ABlindEyePlayerCharacte
 	}
 }
 
+void ABurrowerEnemyController::NotifyPlayerLeftIsland(ABlindEyePlayerCharacter* Player)
+{
+	UBrainComponent* Brain = GetBrainComponent();
+	if (Brain == nullptr) return;
+
+	UBlackboardComponent* BBComp = Brain->GetBlackboardComponent();
+	BBComp->ClearValue(TEXT("EnemyActor"));
+}
+
 void ABurrowerEnemyController::StartWarningParticles()
 {
 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());

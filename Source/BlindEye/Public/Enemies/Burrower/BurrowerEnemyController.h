@@ -55,8 +55,9 @@ public:
 	 
 	UFUNCTION()
 	void StopWarningParticles();
-
+ 
 	void NotifyPlayerEnteredIsland(ABlindEyePlayerCharacter* Player);
+	void NotifyPlayerLeftIsland(ABlindEyePlayerCharacter* Player);
 	
 protected:
 	FTimerHandle SpawnTimerHandle;

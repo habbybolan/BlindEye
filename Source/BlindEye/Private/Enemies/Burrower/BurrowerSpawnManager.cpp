@@ -39,6 +39,7 @@ void ABurrowerSpawnManager::BeginPlay()
 	{
 		ATriggerVolume* BurrowerVolume = Cast<ATriggerVolume>(VolumeActor);
 		BurrowerVolume->OnActorBeginOverlap.AddDynamic(this, &ABurrowerSpawnManager::TriggerVolumeOverlapped);
+		BurrowerVolume->OnActorEndOverlap.AddDynamic(this, &ABurrowerSpawnManager::TriggerVolumeLeft);
 	}
 }
 
@@ -126,8 +127,19 @@ void ABurrowerSpawnManager::TriggerVolumeOverlapped(AActor* OverlappedActor, AAc
 	}
 }
 
+void ABurrowerSpawnManager::TriggerVolumeLeft(AActor* EndOverlappedActor, AActor* OtherActor)
+{
+	// Check if it is a player that left the island
+	if (ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(OtherActor))
+	{
+		ABurrowerTriggerVolume* BurrowerVolume = Cast<ABurrowerTriggerVolume>(EndOverlappedActor);
+		PlayerLeftIsland(BlindEyePlayerCharacter, BurrowerVolume->IslandType);
+	}
+}
+
 void ABurrowerSpawnManager::PlayerEnteredIsland(ABlindEyePlayerCharacter* Player, EIslandPosition IslandType)
 {
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 4.0f, FColor::Cyan, "Player entered island: " + UEnum::GetValueAsString(IslandType));
 	for (ABurrowerEnemy* Burrower : SpawnedBurrowers[IslandType])
 	{
 		AController* Controller =  Burrower->GetController();
@@ -135,6 +147,20 @@ void ABurrowerSpawnManager::PlayerEnteredIsland(ABlindEyePlayerCharacter* Player
 		{
 			ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Controller);
 			BurrowerController->NotifyPlayerEnteredIsland(Player);
+		}
+	}
+}
+
+void ABurrowerSpawnManager::PlayerLeftIsland(ABlindEyePlayerCharacter* Player, EIslandPosition IslandType)
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 4.0f, FColor::Cyan, "Player left island: " + UEnum::GetValueAsString(IslandType));
+	for (ABurrowerEnemy* Burrower : SpawnedBurrowers[IslandType])
+	{
+		AController* Controller =  Burrower->GetController();
+		if (Controller)
+		{
+			ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Controller);
+			BurrowerController->NotifyPlayerLeftIsland(Player);
 		}
 	}
 }

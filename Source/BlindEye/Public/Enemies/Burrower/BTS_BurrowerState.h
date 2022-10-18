@@ -18,7 +18,7 @@ class BLINDEYE_API UBTS_BurrowerState : public UBTService
 	FBlackboardKeySelector StateKey;
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<UNavigationQueryFilter> QueryFilter;
+	FBlackboardKeySelector EnemyActorKey;
 
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 	
