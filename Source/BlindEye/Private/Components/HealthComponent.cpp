@@ -172,6 +172,15 @@ void UHealthComponent::TryApplyMarker(EMarkerType MarkerType, AActor* DamageCaus
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
+
+	// prevent adding marks to from a player to another player
+	if (MarkerType != EMarkerType::Hunter)
+	{
+		if (const ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+		{
+			return;
+		}
+	}
 	
 	if (CurrMark != nullptr)
 	{
