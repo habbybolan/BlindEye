@@ -395,7 +395,7 @@ void FInAirState::ExitState()
 	FAbilityState::ExitState();
 	if (!Ability) return;
 	Ability->EndCurrState();
-	//Ability->UseAbility(EAbilityInputTypes::None);
+	Ability->UseAbility(EAbilityInputTypes::None);
 }
 
 // Hanging State **********

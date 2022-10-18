@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Tools/LocalPlayerSubsystem_Pooling.h"
 #include "Flock.generated.h"
 
 class ABoid;
@@ -17,8 +18,11 @@ class BLINDEYE_API AFlock : public AActor
 public:	
 
 	AFlock();
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+
+	UPROPERTY(EditDefaultsOnly)
+	EActorPoolType TagPoolType;
+
+	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<ABoid> BoidType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -119,6 +123,9 @@ protected:
 
 	FTimerHandle FlockSpawnTimerHandle;
 	FTimerHandle CanAttackTimerHandle;
+
+	FTimerHandle PerformFlockTimerHandle;
+	float PerformFlockDelay = 0.02;
 
 	bool bFlockInitialized = false;
 
