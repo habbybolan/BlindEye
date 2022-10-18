@@ -65,6 +65,12 @@ void ABurrowerEnemy::OnDeath(AActor* ActorThatKilled)
 	World->GetTimerManager().SetTimer(DeathTimerHandle, this, &ABurrowerEnemy::DestroyBurrower, DeathDelay, false);
 }
 
+void ABurrowerEnemy::SpawnMangerSetup(EIslandPosition islandType, TScriptInterface<IBurrowerSpawnManagerListener> listener)
+{
+	IslandType = islandType;
+	Listener = listener;
+}
+
 void ABurrowerEnemy::StartSurfacing()
 {
 	MULT_StartSurfacingHelper();

@@ -37,7 +37,8 @@ void ABurrowerSpawnManager::BeginPlay()
 	UGameplayStatics::GetAllActorsOfClass(world, ABurrowerTriggerVolume::StaticClass(), OutTriggerVolumes);
 	for (AActor* VolumeActor : OutTriggerVolumes)
 	{
-		ATriggerVolume* BurrowerVolume = Cast<ATriggerVolume>(VolumeActor);
+		ABurrowerTriggerVolume* BurrowerVolume = Cast<ABurrowerTriggerVolume>(VolumeActor);
+		BurrowerTriggerVolumes.Add(BurrowerVolume->IslandType, BurrowerVolume);
 		BurrowerVolume->OnActorBeginOverlap.AddDynamic(this, &ABurrowerSpawnManager::TriggerVolumeOverlapped);
 		BurrowerVolume->OnActorEndOverlap.AddDynamic(this, &ABurrowerSpawnManager::TriggerVolumeLeft);
 	}
@@ -84,12 +85,20 @@ void ABurrowerSpawnManager::SpawnBurrower()
 	ABurrowerEnemy* SpawnedBurrower = world->SpawnActor<ABurrowerEnemy>(BurrowerType, SpawnPoint->GetActorLocation(), SpawnPoint->GetActorRotation(), params);
 	if (SpawnedBurrower)
 	{
+		SpawnedBurrower->SpawnMangerSetup(SpawnPoint->IslandType, this);
 		SpawnedBurrowers[SpawnPoint->IslandType].Add(SpawnedBurrower);
 		if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(SpawnedBurrower))
 		{
 			HealthInterface->GetHealthComponent()->OnDeathDelegate.AddUFunction(this, FName("OnBurrowerDeath"));
 		}
 	}
+}
+
+TArray<ABlindEyePlayerCharacter*> ABurrowerSpawnManager::GetPlayersOnIsland(EIslandPosition IslandType)
+{
+	ABurrowerTriggerVolume* Trigger = BurrowerTriggerVolumes[IslandType];
+	TArray<ABlindEyePlayerCharacter*> PlayersInTrigger = Trigger->GetPlayerActorsOverlapping();
+	return PlayersInTrigger;
 }
 
 ABurrowerSpawnPoint* ABurrowerSpawnManager::FindRandomSpawnPoint()

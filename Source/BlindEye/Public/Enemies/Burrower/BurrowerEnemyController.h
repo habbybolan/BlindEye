@@ -6,6 +6,7 @@
 #include "BurrowerEnemy.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Enemies/BlindEyeEnemyController.h"
+#include "Interfaces/BurrowerSpawnManagerListener.h"
 #include "BurrowerEnemyController.generated.h"
 
 UENUM(BlueprintType)
@@ -28,6 +29,8 @@ public:
 
 	virtual void BeginPlay() override;
 
+	void SpawnMangerSetup(EIslandPosition islandType, UBurrowerSpawnManagerListener listener);
+ 
 
 	void SpawnSnappers();
 	EBurrowActionState GetCurrAction();
@@ -58,6 +61,8 @@ public:
  
 	void NotifyPlayerEnteredIsland(ABlindEyePlayerCharacter* Player);
 	void NotifyPlayerLeftIsland(ABlindEyePlayerCharacter* Player);
+
+	TArray<ABlindEyePlayerCharacter*> GetPlayersOnIsland();
 	
 protected:
 	FTimerHandle SpawnTimerHandle;

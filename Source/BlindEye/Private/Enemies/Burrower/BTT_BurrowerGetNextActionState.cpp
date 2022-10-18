@@ -22,7 +22,7 @@ EBTNodeResult::Type UBTT_BurrowerGetNextActionState::ExecuteTask(UBehaviorTreeCo
 
 	// TODO: FLip back to getting value from controller
 	//BBComp->SetValueAsEnum(ActionStateKey.SelectedKeyName, (uint8)BurrowerController->GetCurrAction());
-	BBComp->SetValueAsEnum(ActionStateKey.SelectedKeyName, (uint8)EBurrowActionState::Patrolling);
+	BBComp->SetValueAsEnum(ActionStateKey.SelectedKeyName, (uint8)EBurrowActionState::Spawning);
 	
 	return EBTNodeResult::Succeeded;
 }

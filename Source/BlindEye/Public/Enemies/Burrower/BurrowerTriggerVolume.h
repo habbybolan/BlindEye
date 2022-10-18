@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Characters/BlindEyePlayerCharacter.h"
 #include "Engine/TriggerVolume.h"
 #include "BurrowerTriggerVolume.generated.h"
 
@@ -17,7 +18,20 @@ public:
 
 	ABurrowerTriggerVolume();
 
+	virtual void BeginPlay() override;
+
 	UPROPERTY(EditAnywhere)
 	EIslandPosition IslandType;
+
+	UPROPERTY()
+	TArray<ABlindEyePlayerCharacter*> PlayersInsideTriggerVolume;
+
+	TArray<ABlindEyePlayerCharacter*> GetPlayerActorsOverlapping();
+
+	UFUNCTION()
+	void OnPlayerOverlap(AActor* OverlappedActor, AActor* OtherActor);
+
+	UFUNCTION()
+	void OnPlayerEndOverlap(AActor* OverlappedActor, AActor* OtherActor);
 	
 };

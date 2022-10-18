@@ -18,18 +18,48 @@ void UBTS_BurrowerState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Node
 
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
-	
+
 	UBlackboardComponent* BBComp = OwnerComp.GetBlackboardComponent();
 
-	// If Enemy actor set
-	if (BBComp->GetValueAsObject(EnemyActorKey.SelectedKeyName))
+	EBurrowActionState CurrState = (EBurrowActionState)BBComp->GetValueAsEnum(StateKey.SelectedKeyName);
+
+	// Check if Spawn time should be activated / is queued up
+	if (CurrState != EBurrowActionState::Spawning && ( bSpawnStateQueued || CurrSpawnStateTime >= SpawnStateDelay))
 	{
-		BBComp->SetValueAsEnum(StateKey.SelectedKeyName, (uint8)EBurrowActionState::Attacking);
+		// if attacking, set spawn state as queued
+		if (CurrState == EBurrowActionState::Attacking)
+		{
+			bSpawnStateQueued = true;
+		} else if (CurrState == EBurrowActionState::Patrolling)
+		{
+			bSpawnStateQueued = false;
+			CurrSpawnStateTime = 0;
+			BBComp->SetValueAsEnum(StateKey.SelectedKeyName, (uint8)EBurrowActionState::Spawning);
+		}
 	}
-	// Otherwise no player reference, so patrol
+	// State check based on EnemyActor being set
 	else
 	{
-		BBComp->SetValueAsEnum(StateKey.SelectedKeyName, (uint8)EBurrowActionState::Patrolling);
+		// prevent changing state automatically while in spawning state
+		if (CurrState != EBurrowActionState::Spawning)
+		{
+			// If Enemy actor set
+			if (BBComp->GetValueAsObject(EnemyActorKey.SelectedKeyName))
+			{
+				BBComp->SetValueAsEnum(StateKey.SelectedKeyName, (uint8)EBurrowActionState::Attacking);
+			}
+			// Otherwise no player reference, so patrol
+			else
+			{
+				BBComp->SetValueAsEnum(StateKey.SelectedKeyName, (uint8)EBurrowActionState::Patrolling);
+			}
+		}
+	}
+	
+	// Check if time to spawn
+	if (CurrState != EBurrowActionState::Spawning)
+	{
+		CurrSpawnStateTime += DeltaSeconds;
 	}
 }
 

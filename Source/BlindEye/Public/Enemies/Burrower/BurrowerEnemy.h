@@ -9,6 +9,8 @@
 #include "Enemies/BlindEyeEnemyBase.h"
 #include "BurrowerEnemy.generated.h"
 
+class IBurrowerSpawnManagerListener;
+ 
 class ASnapperEnemy;
 class UHealthComponent;
 class ABlindEyePlayerCharacter;
@@ -95,6 +97,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	float DeathDelay = 1.0f;
+
+	// Stored here purely for passing to Controller
+	TScriptInterface<IBurrowerSpawnManagerListener> Listener;
+	EIslandPosition IslandType; 
+
+	void SpawnMangerSetup(EIslandPosition islandType, TScriptInterface<IBurrowerSpawnManagerListener> listener);
 	
 	void StartSurfacing();
 	void PerformSurfacingDamage();

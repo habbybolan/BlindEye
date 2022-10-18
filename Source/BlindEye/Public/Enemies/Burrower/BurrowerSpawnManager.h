@@ -5,11 +5,13 @@
 #include "CoreMinimal.h"
 #include "BurrowerEnemy.h"
 #include "BurrowerSpawnPoint.h"
+#include "BurrowerTriggerVolume.h"
 #include "GameFramework/Actor.h"
+#include "Interfaces/BurrowerSpawnManagerListener.h"
 #include "BurrowerSpawnManager.generated.h"
 
 UCLASS()
-class BLINDEYE_API ABurrowerSpawnManager : public AActor
+class BLINDEYE_API ABurrowerSpawnManager : public AActor, public IBurrowerSpawnManagerListener
 {
 	GENERATED_BODY()
 	
@@ -22,8 +24,10 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<ABurrowerEnemy> BurrowerType;
-
+ 
 	void SpawnBurrower();
+
+	TArray<ABlindEyePlayerCharacter*> GetPlayersOnIsland(EIslandPosition IslandType) override;
 
 protected:
 	// Called when the game starts or when spawned
@@ -32,6 +36,7 @@ protected:
 	FTimerHandle SpawnTimerHandle;
 
 	TMap<EIslandPosition, TArray<ABurrowerEnemy*>> SpawnedBurrowers;
+	TMap<EIslandPosition, ABurrowerTriggerVolume*> BurrowerTriggerVolumes;
 
 	void InitializeMaps();
 

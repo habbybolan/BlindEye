@@ -98,11 +98,19 @@ void ABurrowerEnemyController::NotifyPlayerEnteredIsland(ABlindEyePlayerCharacte
 
 void ABurrowerEnemyController::NotifyPlayerLeftIsland(ABlindEyePlayerCharacter* Player)
 {
+	// TODO: Check if Player is equal to EnemyActor
+	//		If so, then check if any other player on the island
+	//		Otherwise, ClearValue normally
 	UBrainComponent* Brain = GetBrainComponent();
 	if (Brain == nullptr) return;
 
 	UBlackboardComponent* BBComp = Brain->GetBlackboardComponent();
 	BBComp->ClearValue(TEXT("EnemyActor"));
+} 
+
+TArray<ABlindEyePlayerCharacter*> ABurrowerEnemyController::GetPlayersOnIsland()
+{
+	return CachedBurrower->Listener->GetPlayersOnIsland(CachedBurrower->IslandType);
 }
 
 void ABurrowerEnemyController::StartWarningParticles()
@@ -169,9 +177,6 @@ void ABurrowerEnemyController::OnPossess(APawn* InPawn)
 
 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
 	if (!CachedBurrower) return;
-	//world->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ABurrowerEnemyController::SpawnLogic, 5.0f, true);
-	//CachedBurrower->SetHidden(true);
-	//SpawnActionStart();
 
 	CachedBurrower->ActionStateFinished.BindUFunction(this, FName("ActionStateFinished"));
 	CachedBurrower->SurfacingFinished.BindUFunction(this, FName("SurfacingFinished"));
