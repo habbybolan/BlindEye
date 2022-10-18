@@ -3,11 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Engine/StaticMeshActor.h"
 #include "GameFramework/Actor.h"
 #include "MarkerComponent.generated.h"
 
 enum class EPlayerType : uint8;
+class AMarkerStaticMesh;
+
+UENUM(BlueprintType)
+enum class EMarkerType : uint8
+{
+	Crow,
+	Phoenix,
+	Hunter
+};
 
 UCLASS()
 class BLINDEYE_API UMarkerComponent : public USceneComponent
@@ -18,22 +26,16 @@ public:
 	UMarkerComponent();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<AStaticMeshActor> CrowMarkType;
+	TSubclassOf<AMarkerStaticMesh> CrowMarkType;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<AStaticMeshActor> PhoenixMarkType;
-
+	TSubclassOf<AMarkerStaticMesh> PhoenixMarkType;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<AMarkerStaticMesh> HunterMarkType;
+ 
 	void RemoveMark();
-	void DetonateMark();
-	void AddMark(EPlayerType PlayerMarkToSet);
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_RemoveMark();
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_DetonateMark();
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_AddMark(EPlayerType pLayerType);
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_RegenerateMark();
+	void DetonateMark(EMarkerType MarkerType);
+	void AddMark(EMarkerType PlayerMarkToSet);
+	void RefreshMark(EMarkerType MarkerType);
 
 protected:
 	// Called when the game starts or when spawned
@@ -47,9 +49,13 @@ protected:
 	virtual void OnOwnerDestroyed(AActor* OwnerDestroyed);
 
 	UPROPERTY()
-	AStaticMeshActor* CrowMark;
+	AMarkerStaticMesh* CrowMark;
 	UPROPERTY()
-	AStaticMeshActor* PhoenixMark;
+	AMarkerStaticMesh* PhoenixMark;
+	UPROPERTY() 
+	AMarkerStaticMesh* HunterMark;
+
+	AMarkerStaticMesh* GetActiveMark();
 
 	bool bMarked = false;
 };

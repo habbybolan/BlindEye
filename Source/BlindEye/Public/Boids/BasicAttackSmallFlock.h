@@ -52,6 +52,11 @@ protected:
 
 	float BaseSeekingStrength;
 
+	FTimerHandle FlockCheckTimerHandle;
+	float FlockCheckDelay = 0.02;
+
+	void FlockCheck();
+
 	void CheckForDamage();
 	void CheckGoBackToPlayer();
 	void CheckReturnedToPlayer();

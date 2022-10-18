@@ -4,12 +4,9 @@
 #include "DamageTypes/MarkData.h"
 #include "BlindEyeUtils.h"
 
-FMarkData::FMarkData()
-{
-	MarkPlayerType = EPlayerType::CrowPlayer;
-}
+enum class EMarkerType : uint8;
 
-void FMarkData::InitializeData(EPlayerType markPlayerType)
+void FMarkData::InitializeData(EMarkerType markerType)
 {
-	this->MarkPlayerType = markPlayerType;
+	this->MarkerType = markerType;
 }
