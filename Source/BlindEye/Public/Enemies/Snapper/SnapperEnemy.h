@@ -21,6 +21,9 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	
 	virtual void MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
+
+	UPROPERTY(EditDefaultsOnly)
+	UCapsuleComponent* RagdollCapsule;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<	EObjectTypeQuery>> ObjectTypes;
@@ -54,6 +57,7 @@ public:
 	void PerformJumpAttack();
 	void PerformBasicAttack(); 
 
+	UFUNCTION(BlueprintCallable)
 	void TryRagdoll(bool SimulatePhysics);
 
 	void TempLaunch();
