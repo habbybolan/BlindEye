@@ -54,6 +54,7 @@ public:
 	void PerformJumpAttack();
 	void PerformBasicAttack(); 
 
+	UFUNCTION(BlueprintCallable)
 	void TryRagdoll(bool SimulatePhysics);
 
 	void TempLaunch();
