@@ -20,6 +20,9 @@ ASnapperEnemy::ASnapperEnemy(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<USnapperHealthComponent>(TEXT("HealthComponent")))
 {
 	bReplicates = true;
+	RagdollCapsule = CreateDefaultSubobject<UCapsuleComponent>("Ragdoll Capsule");
+	RagdollCapsule->SetupAttachment(GetCapsuleComponent());
+	RagdollCapsule->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }
 
 void ASnapperEnemy::Tick(float DeltaSeconds)
@@ -33,7 +36,7 @@ void ASnapperEnemy::Tick(float DeltaSeconds)
 			TeleportColliderToMesh(DeltaSeconds);
 		} else
 		{
-			UpdateHipLocation(DeltaSeconds);
+			//UpdateHipLocation(DeltaSeconds);
 		}
 	}
 }
@@ -188,7 +191,7 @@ void ASnapperEnemy::BeginStopRagdollTimer()
 
 void ASnapperEnemy::TeleportColliderToMesh(float DeltaSeconds)
 {
-	FVector TargetLocation = GetMesh()->GetSocketLocation(TEXT("Hips"));
+	FVector TargetLocation = GetMesh()->GetSocketLocation(TEXT("Hips")) + FVector::UpVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 	
 	FVector TeleportLocation = UKismetMathLibrary::VInterpTo(TargetLocation, GetCapsuleComponent()->GetComponentLocation(), DeltaSeconds, 1);
 	GetCapsuleComponent()->SetWorldLocation(TeleportLocation);
@@ -213,7 +216,7 @@ void ASnapperEnemy::UpdateHipLocation(float DeltaSecond)
 
 void ASnapperEnemy::MULT_StartRagdoll_Implementation()
 {
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetCapsuleComponent()->SetEnableGravity(false);
 	if (GetLocalRole() == ROLE_Authority) 
 	{  
@@ -228,7 +231,6 @@ void ASnapperEnemy::MULT_StopRagdoll_Implementation()
 {
 	bGettingUp = true;
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GetCapsuleComponent()->SetWorldLocation(GetMesh()->GetBoneLocation("Hips"), false, nullptr, ETeleportType::ResetPhysics);
 	
 	// Play getup montage
 	float TimeForGetup;
