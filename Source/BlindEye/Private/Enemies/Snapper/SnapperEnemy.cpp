@@ -36,7 +36,7 @@ void ASnapperEnemy::Tick(float DeltaSeconds)
 			TeleportColliderToMesh(DeltaSeconds);
 		} else
 		{
-			UpdateHipLocation(DeltaSeconds);
+			//UpdateHipLocation(DeltaSeconds);
 		}
 	}
 }
