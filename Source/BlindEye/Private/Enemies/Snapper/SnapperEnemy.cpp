@@ -231,7 +231,6 @@ void ASnapperEnemy::MULT_StopRagdoll_Implementation()
 {
 	bGettingUp = true;
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GetCapsuleComponent()->SetWorldLocation(GetMesh()->GetBoneLocation("Hips"), false, nullptr, ETeleportType::ResetPhysics);
 	
 	// Play getup montage
 	float TimeForGetup;
