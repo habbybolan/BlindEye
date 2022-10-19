@@ -213,7 +213,7 @@ void ASnapperEnemy::UpdateHipLocation(float DeltaSecond)
 
 void ASnapperEnemy::MULT_StartRagdoll_Implementation()
 {
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetCapsuleComponent()->SetEnableGravity(false);
 	if (GetLocalRole() == ROLE_Authority) 
 	{  
