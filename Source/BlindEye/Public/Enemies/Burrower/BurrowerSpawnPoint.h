@@ -3,28 +3,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ArrowComponent.h"
-#include "GameFramework/Actor.h"
 #include "BurrowerSpawnPoint.generated.h"
+
+enum class EIslandPosition : uint8;
 
 UCLASS()
 class BLINDEYE_API ABurrowerSpawnPoint : public AActor
 {
 	GENERATED_BODY()
-
-	//UArrowComponent* ArrowComponent;
-
 	
-public:	
-	// Sets default values for this actor's properties
-	ABurrowerSpawnPoint();
+public:
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UPROPERTY(EditAnywhere)
+	EIslandPosition IslandType;
 
 };

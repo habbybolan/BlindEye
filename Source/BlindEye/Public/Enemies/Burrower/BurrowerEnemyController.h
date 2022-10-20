@@ -6,13 +6,15 @@
 #include "BurrowerEnemy.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Enemies/BlindEyeEnemyController.h"
+#include "Interfaces/BurrowerSpawnManagerListener.h"
 #include "BurrowerEnemyController.generated.h"
 
 UENUM(BlueprintType)
 enum class EBurrowActionState : uint8
 {
 	Spawning,
-	Attacking
+	Attacking,
+	Patrolling
 };
 
 /**
@@ -26,7 +28,6 @@ class BLINDEYE_API ABurrowerEnemyController : public ABlindEyeEnemyController
 public:
 
 	virtual void BeginPlay() override;
-
 
 	void SpawnSnappers();
 	EBurrowActionState GetCurrAction();
@@ -54,6 +55,11 @@ public:
 	 
 	UFUNCTION()
 	void StopWarningParticles();
+ 
+	void NotifyPlayerEnteredIsland(ABlindEyePlayerCharacter* Player);
+	void NotifyPlayerLeftIsland(ABlindEyePlayerCharacter* Player);
+
+	TArray<ABlindEyePlayerCharacter*> GetPlayersOnIsland();
 	
 protected:
 	FTimerHandle SpawnTimerHandle;
