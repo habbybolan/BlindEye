@@ -127,6 +127,11 @@ public:
 
 	UPROPERTY(EditDefaultsOnly) 
 	UAnimMontage* SurfacingAnimation;
+
+	bool GetIsSurfaced();
+	bool GetIsSurfacing();
+	bool GetIsHiding();
+	bool GetIsHidden();
  
 protected:
 
@@ -138,6 +143,10 @@ protected:
 	virtual void OnDeath(AActor* ActorThatKilled) override;
 	
 	TMap<uint32, ASnapperEnemy*> SpawnedSnappers;
+
+	bool bIsSurfaced = false;
+	bool bIsSurfacing = false;
+	bool bIsHiding = false;
 	
 	UFUNCTION()
 	void OnSnapperDeath(AActor* SnapperActor);
@@ -179,10 +188,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UCurveFloat* HideCurve;
 
-	// FTimerHandle HideTimerHandle;
-	FVector CachedSpawnLocation;
-
-	FVector CachedBeforeHidePosition;
+	FVector CachedMeshRelativeLocation; 
 
 	TWeakObjectPtr<ABlindEyePlayerCharacter> Target;
 

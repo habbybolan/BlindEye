@@ -32,6 +32,8 @@ void ABurrowerEnemy::BeginPlay()
 
 	SetDisappeared();
 
+	CachedMeshRelativeLocation = GetMesh()->GetRelativeLocation();
+
 	// Timeline curve for appearing from the ground
 	if (SurfacingCurve)
 	{
@@ -80,8 +82,6 @@ void ABurrowerEnemy::StartSurfacing()
 
 void ABurrowerEnemy::MULT_StartSurfacingHelper_Implementation()
 {
-	CachedSpawnLocation = GetActorLocation() + FVector::DownVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
-	SetActorLocation(CachedSpawnLocation);
 	SetSurfacingHiding();
 	SurfacingTimelineComponent->PlayFromStart();
 }
@@ -91,8 +91,8 @@ void ABurrowerEnemy::PerformSurfacingDamage()
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
 	
-	FVector StartPosition = CachedSpawnLocation;
-	FVector EndPosition = CachedSpawnLocation + FVector::UpVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
+	FVector StartPosition = GetMesh()->GetComponentLocation();
+	FVector EndPosition = GetMesh()->GetComponentLocation() + FVector::UpVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
 
 	TArray<FHitResult> OutHits;
 	UKismetSystemLibrary::SphereTraceMultiForObjects(World, StartPosition, EndPosition, SurfacingRadius, SurfacingObjectTypes,
@@ -112,7 +112,6 @@ void ABurrowerEnemy::StartHiding()
 
 void ABurrowerEnemy::MULT_StartHidingHelper_Implementation()
 {
-	CachedBeforeHidePosition = GetActorLocation();
 	HideTimelineComponent->PlayFromStart();
 }
 
@@ -191,27 +190,33 @@ void ABurrowerEnemy::MULT_PlaySurfacingAnimation_Implementation()
 
 void ABurrowerEnemy::TimelineSurfacingMovement(float Value)
 {
-	SetActorLocation(FMath::Lerp(CachedSpawnLocation, CachedSpawnLocation +
-		(FVector::UpVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2 - 15)), Value));
+	bIsSurfacing = true;
+	FVector StartLocation = CachedMeshRelativeLocation + FVector::DownVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2);
+	GetMesh()->SetRelativeLocation(FMath::Lerp(StartLocation, StartLocation +
+		(FVector::UpVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2)), Value));
 }
 
 void ABurrowerEnemy::TimelineSurfacingFinished()
 {
+	bIsSurfaced = true;
+	bIsSurfacing = false;
 	SetAppeared();
 	SurfacingFinished.ExecuteIfBound();
 }
 
 void ABurrowerEnemy::TimelineHideMovement(float Value)
 {
-	SetActorLocation(FMath::Lerp(CachedBeforeHidePosition, CachedBeforeHidePosition +
-		(FVector::DownVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2 + 50)), Value));
+	bIsHiding = true;
+	GetMesh()->SetRelativeLocation(FMath::Lerp(CachedMeshRelativeLocation, CachedMeshRelativeLocation +
+		(FVector::DownVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2)), Value));
 }
 
 void ABurrowerEnemy::TimelineHideFinished()
 {
+	bIsSurfaced = false;
+	bIsHiding = false;
 	SetDisappeared();
 	HidingFinished.ExecuteIfBound();
-	SetActorLocation(GetActorLocation() + FVector::UpVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2);
 	HealthComponent->RemoveMark();
 }
  
@@ -276,4 +281,24 @@ void ABurrowerEnemy::MULT_DespawnFollowParticle_Implementation()
 	{
 		SpawnedFollowParticle->Deactivate();
 	}
+}
+
+bool ABurrowerEnemy::GetIsSurfaced()
+{
+	return bIsSurfaced;
+}
+
+bool ABurrowerEnemy::GetIsSurfacing()
+{
+	return bIsSurfacing;
+}
+
+bool ABurrowerEnemy::GetIsHiding()
+{
+	return bIsHiding;
+}
+
+bool ABurrowerEnemy::GetIsHidden()
+{
+	return !bIsSurfaced && !bIsSurfacing && !bIsHiding;
 }

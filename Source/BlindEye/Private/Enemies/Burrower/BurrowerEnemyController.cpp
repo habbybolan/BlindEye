@@ -51,12 +51,30 @@ void ABurrowerEnemyController::CalcNewActionState()
 
 bool ABurrowerEnemyController::IsSurfacing()
 {
-	return bSurfacing;
+	if (CachedBurrower == nullptr) return false;
+	
+	return CachedBurrower->GetIsSurfacing();
+}
+
+bool ABurrowerEnemyController::IsSurfaced()
+{
+	if (CachedBurrower == nullptr) return false;
+	
+	return CachedBurrower->GetIsSurfaced();
+}
+
+bool ABurrowerEnemyController::IsHidden()
+{
+	if (CachedBurrower == nullptr) return false;
+	
+	return CachedBurrower->GetIsHidden();
 }
 
 bool ABurrowerEnemyController::IsHiding()
 {
-	return bHiding;
+	if (CachedBurrower == nullptr) return false;
+	
+	return CachedBurrower->GetIsHiding();
 }
 
 void ABurrowerEnemyController::CacheSpawnPoints()
@@ -144,27 +162,11 @@ void ABurrowerEnemyController::AddNewActionState(EBurrowActionState NewAction)
 	CachedPreviousActions[0] = NewAction;
 }
 
-void ABurrowerEnemyController::ActionStateFinished()
-{
-	// TODO: Notify Behavior tree action state finished
-}
-
-void ABurrowerEnemyController::SurfacingFinished()
-{
-	bSurfacing = false;
-}
-
-void ABurrowerEnemyController::HidingFinished()
-{
-	bHiding = false;
-}
-
 void ABurrowerEnemyController::StartSurfacing()
 {
 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
 	if (!CachedBurrower) return;
 	
-	bSurfacing = true;
 	CachedBurrower->StartSurfacing();
 }
 
@@ -173,7 +175,6 @@ void ABurrowerEnemyController::StartHiding()
 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
 	if (!CachedBurrower) return;
 	
-	bHiding = true;
 	CachedBurrower->StartHiding();
 }
  
@@ -191,8 +192,4 @@ void ABurrowerEnemyController::OnPossess(APawn* InPawn)
 
 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
 	if (!CachedBurrower) return;
-
-	CachedBurrower->ActionStateFinished.BindUFunction(this, FName("ActionStateFinished"));
-	CachedBurrower->SurfacingFinished.BindUFunction(this, FName("SurfacingFinished"));
-	CachedBurrower->HidingFinished.BindUFunction(this, FName("HidingFinished"));
 }

@@ -20,6 +20,16 @@ void UBTS_BurrowerState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Node
 	if (World == nullptr) return;
 
 	UBlackboardComponent* BBComp = OwnerComp.GetBlackboardComponent();
+	AAIController* Controller = OwnerComp.GetAIOwner();
+	ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Controller);
+
+	// Check if attack state completely finished
+	if (BurrowerController->IsHidden() &&
+		BBComp->GetValueAsEnum(StateKey.SelectedKeyName) == (uint8)EBurrowActionState::Attacking &&
+		BBComp->GetValueAsObject(EnemyActorKey.SelectedKeyName) == nullptr)
+	{
+		BBComp->SetValueAsEnum(StateKey.SelectedKeyName, (uint8)EBurrowActionState::Patrolling);
+	}
 
 	EBurrowActionState CurrState = (EBurrowActionState)BBComp->GetValueAsEnum(StateKey.SelectedKeyName);
 

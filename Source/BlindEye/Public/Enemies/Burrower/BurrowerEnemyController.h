@@ -41,6 +41,12 @@ public:
 	bool IsSurfacing();
 
 	UFUNCTION()
+	bool IsSurfaced();
+
+	UFUNCTION() 
+	bool IsHidden();  
+
+	UFUNCTION()
 	bool IsHiding();
 
 	void StartSurfacing();
@@ -67,13 +73,6 @@ protected:
 	void CacheSpawnPoints();
 	
 	void AddNewActionState(EBurrowActionState NewAction);
-	
-	UFUNCTION()
-	void ActionStateFinished();
-	UFUNCTION()
-	void SurfacingFinished();
-	UFUNCTION()
-	void HidingFinished();
 
 	TArray<EBurrowActionState> CachedPreviousActions;
 
@@ -84,8 +83,5 @@ protected:
 
 	UPROPERTY()
 	TArray<AActor*> SpawnLocation;
-
-	bool bSurfacing = false; // if burrower currently surfacing
-	bool bHiding = false;	// if burrower currently hiding
 	
 };
