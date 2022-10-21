@@ -287,7 +287,8 @@ void ABurrowerEnemy::MULT_SpawnWarningParticle_Implementation()
 {
 	UWorld* world = GetWorld();
 	SpawnedWarningParticle = UNiagaraFunctionLibrary::SpawnSystemAtLocation(world, WarningParticle,
-		GetMesh()->GetComponentLocation(),FRotator::ZeroRotator, FVector::OneVector, true);
+		GetCapsuleComponent()->GetComponentLocation() + FVector(0, 0, -GetCapsuleComponent()->GetScaledCapsuleHalfHeight()),
+		FRotator::ZeroRotator, FVector::OneVector, true);
 }
 
 void ABurrowerEnemy::MULT_DespawnWarningParticle_Implementation()
@@ -300,8 +301,8 @@ void ABurrowerEnemy::MULT_DespawnWarningParticle_Implementation()
 
 void ABurrowerEnemy::MULT_SpawnFollowParticle_Implementation()
 {
-	SpawnedWarningParticle = UNiagaraFunctionLibrary::SpawnSystemAttached(FollowParticle, GetMesh(), TEXT("FollowParticle"),
-		FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true);
+	SpawnedWarningParticle = UNiagaraFunctionLibrary::SpawnSystemAttached(FollowParticle, GetCapsuleComponent(), TEXT("FollowParticle"),
+		FVector(0, 0, -GetCapsuleComponent()->GetScaledCapsuleHalfHeight()), FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true);
 }
 
 void ABurrowerEnemy::MULT_DespawnFollowParticle_Implementation()
