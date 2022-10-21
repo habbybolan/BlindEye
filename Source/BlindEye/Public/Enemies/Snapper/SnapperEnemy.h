@@ -66,6 +66,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool GetIsRagdolling();
 
+	UFUNCTION(BlueprintCallable)
+	bool GetIsSpawning(); 
+
 	void ApplyKnockBack(FVector Force);
 
 protected:
@@ -74,6 +77,12 @@ protected:
 	bool bRagdolling = false;
 	UPROPERTY(Replicated)
 	bool bGettingUp = false;
+
+	UPROPERTY(Replicated)
+	bool bIsSpawning = true;
+	UFUNCTION()
+	void SpawnCollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	
 	FTimerHandle LaunchSwingTimerHandle;
 	FTimerHandle StopRagdollTimerHandle;
 	FTimerHandle GetupAnimTimerHandle;
@@ -82,6 +91,11 @@ protected:
 	float AlphaBlendWeight = 1;
 
 	void BeginStopRagdollTimer();
+
+	void OnSpawnCollisionHelper();
+
+	float CachedColliderHalfHeight;
+	float CachedGravity;
 
 	void TeleportColliderToMesh(float DeltaSeconds);
 

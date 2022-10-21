@@ -10,6 +10,7 @@
 #include "Enemies/Snapper/SnapperEnemyController.h"
 #include "Enemies/Snapper/SnapperHealthComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "Engine/StaticMeshActor.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -39,6 +40,12 @@ void ASnapperEnemy::Tick(float DeltaSeconds)
 			//UpdateHipLocation(DeltaSeconds);
 		}
 	}
+
+	// if (bIsSpawning && !GetCharacterMovement()->IsFalling())
+	// {
+	// 	bIsSpawning = false;
+	// 	OnSpawnCollisionHelper();
+	// }
 }
 
 void ASnapperEnemy::MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType,
@@ -56,7 +63,12 @@ void ASnapperEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TryRagdoll(true);
+	CachedColliderHalfHeight = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	CachedGravity = GetCharacterMovement()->GravityScale;
+	GetCapsuleComponent()->SetCapsuleHalfHeight(CachedColliderHalfHeight / 2);
+	GetCharacterMovement()->GravityScale = CachedGravity / 2;
+
+	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &ASnapperEnemy::SpawnCollisionWithGround);
 }
 
 void ASnapperEnemy::PerformJumpAttack()
@@ -144,6 +156,11 @@ bool ASnapperEnemy::GetIsRagdolling()
 	return bRagdolling;
 }
 
+bool ASnapperEnemy::GetIsSpawning()
+{
+	return bIsSpawning;
+}
+
 void ASnapperEnemy::ApplyKnockBack(FVector Force)
 {
 	// if (bRagdolling)
@@ -165,6 +182,29 @@ void ASnapperEnemy::ApplyKnockBack(FVector Force)
 	{
 		TryRagdoll(true);
 	}
+}
+
+void ASnapperEnemy::SpawnCollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	// On collision with the ground
+	if (Hit.bBlockingHit)
+	{
+		// Unsubscribe to spawning collision delegate
+		OnSpawnCollisionHelper();
+	}
+}
+
+void ASnapperEnemy::OnSpawnCollisionHelper()
+{
+	GetCapsuleComponent()->OnComponentHit.Remove(this, TEXT("SpawnCollisionWithGround"));
+	
+	// set ragdolling
+	TryRagdoll(true);
+	bIsSpawning = false;
+	
+	// Update values back to normal
+	GetCapsuleComponent()->SetCapsuleHalfHeight(CachedColliderHalfHeight);
+	GetCharacterMovement()->GravityScale = CachedGravity;
 }
 
 void ASnapperEnemy::TryRagdoll(bool SimulatePhysics)
@@ -318,4 +358,5 @@ void ASnapperEnemy::GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & Ou
 	DOREPLIFETIME( ASnapperEnemy, bRagdolling );
 	DOREPLIFETIME( ASnapperEnemy, HipLocation );
 	DOREPLIFETIME( ASnapperEnemy, bGettingUp );
+	DOREPLIFETIME( ASnapperEnemy, bIsSpawning );
 }
