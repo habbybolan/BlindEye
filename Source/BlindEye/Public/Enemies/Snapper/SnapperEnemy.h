@@ -19,6 +19,8 @@ public:
 	ASnapperEnemy(const FObjectInitializer& ObjectInitializer);
 
 	virtual void Tick(float DeltaSeconds) override;
+
+	virtual void BeginPlay() override;
 	
 	virtual void MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
 
@@ -51,8 +53,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	float DeathDelay = 1.0f;
-
-	virtual void BeginPlay() override;
 
 	void PerformJumpAttack();
 	void PerformBasicAttack(); 

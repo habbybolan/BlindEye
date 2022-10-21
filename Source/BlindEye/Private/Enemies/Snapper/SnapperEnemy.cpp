@@ -56,7 +56,7 @@ void ASnapperEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//TryRagdoll(true);
+	TryRagdoll(true);
 }
 
 void ASnapperEnemy::PerformJumpAttack()

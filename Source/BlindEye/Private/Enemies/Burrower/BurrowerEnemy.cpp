@@ -118,31 +118,36 @@ void ABurrowerEnemy::MULT_StartHidingHelper_Implementation()
 
 void ABurrowerEnemy::SpawnSnappers()
 {
-	UWorld* world = GetWorld();
-	if (!world) return;
+	UWorld* World = GetWorld();
+	if (!World) return;
 
-	TArray<FVector> spawnPoints = GetSnapperSpawnPoints();
-	if (spawnPoints.Num() == 0) return;
-
-	FActorSpawnParameters params;
-	params.Owner = this;
-	params.Instigator = this;
-	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
-	// TODO: Make sure number of enemies to spawn doesn't exceed spawn points calculated
-	for (int i = 0; i < MinSnappersSpawn; i++)
-	{
-		uint32 randSpawnIndex = FMath::RandRange(0, spawnPoints.Num() - 1);
-		ASnapperEnemy* SpawnedSnapper = world->SpawnActor<ASnapperEnemy>(SnapperType, spawnPoints[randSpawnIndex], GetActorRotation(), params);
-		if (SpawnedSnapper == nullptr) continue;
-		SpawnedSnappers.Add(SpawnedSnapper->GetUniqueID(), SpawnedSnapper);
-		spawnPoints.RemoveAt(randSpawnIndex);
-		// TODO: subscribe to death event on snapper to remove from list
-		if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(SpawnedSnapper))
-		{
-			HealthInterface->GetHealthComponent()->OnDeathDelegate.AddUFunction<ABurrowerEnemy>(this, FName("OnSnapperDeath"));
-		} 
-	}
+	FVector location = GetMesh()->GetBoneLocation(TEXT("Mouth"));
+	FRotator rotation = GetMesh()->GetBoneQuaternion(TEXT("Mouth")).Rotator();
+	
+	World->SpawnActor<ASnapperEnemy>(SnapperType, location, rotation);
+	
+	// TArray<FVector> spawnPoints = GetSnapperSpawnPoints();
+	// if (spawnPoints.Num() == 0) return;
+	//
+	// FActorSpawnParameters params;
+	// params.Owner = this;
+	// params.Instigator = this;
+	// params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	//
+	// // TODO: Make sure number of enemies to spawn doesn't exceed spawn points calculated
+	// for (int i = 0; i < MinSnappersSpawn; i++)
+	// {
+	// 	uint32 randSpawnIndex = FMath::RandRange(0, spawnPoints.Num() - 1);
+	// 	ASnapperEnemy* SpawnedSnapper = world->SpawnActor<ASnapperEnemy>(SnapperType, spawnPoints[randSpawnIndex], GetActorRotation(), params);
+	// 	if (SpawnedSnapper == nullptr) continue;
+	// 	SpawnedSnappers.Add(SpawnedSnapper->GetUniqueID(), SpawnedSnapper);
+	// 	spawnPoints.RemoveAt(randSpawnIndex);
+	//
+	// 	if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(SpawnedSnapper))
+	// 	{
+	// 		HealthInterface->GetHealthComponent()->OnDeathDelegate.AddUFunction<ABurrowerEnemy>(this, FName("OnSnapperDeath"));
+	// 	} 
+	// }
 }
 
 void ABurrowerEnemy::Destroyed()
