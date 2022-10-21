@@ -147,6 +147,8 @@ protected:
 	bool bIsSurfaced = false;
 	bool bIsSurfacing = false;
 	bool bIsHiding = false;
+
+	ECollisionChannel CachedCollisionObject;
 	
 	UFUNCTION()
 	void OnSnapperDeath(AActor* SnapperActor);

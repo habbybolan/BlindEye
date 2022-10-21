@@ -27,11 +27,13 @@ ABurrowerEnemy::ABurrowerEnemy(const FObjectInitializer& ObjectInitializer)
 }
 
 void ABurrowerEnemy::BeginPlay()
-{
+{ 
 	Super::BeginPlay();
 
 	SetDisappeared();
 
+	CachedCollisionObject = GetCapsuleComponent()->GetCollisionObjectType();
+	GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
 	CachedMeshRelativeLocation = GetMesh()->GetRelativeLocation();
 
 	// Timeline curve for appearing from the ground
@@ -75,6 +77,7 @@ void ABurrowerEnemy::SpawnMangerSetup(EIslandPosition islandType, TScriptInterfa
 
 void ABurrowerEnemy::StartSurfacing()
 {
+	GetCapsuleComponent()->SetCollisionObjectType(CachedCollisionObject);
 	MULT_StartSurfacingHelper();
 	PerformSurfacingDamage();
 	MULT_PlaySurfacingAnimation();
@@ -122,6 +125,7 @@ void ABurrowerEnemy::MULT_StartHidingHelper_Implementation()
 	{
 		SurfacingTimelineComponent->Stop();
 		bIsSurfacing = false;
+		
 		// Calculate the percentage the burrower has lifted from target hide position
 		float timelineLength = HideTimelineComponent->GetTimelineLength();
 		float DistToHidingTarget = FVector::Distance(GetMesh()->GetRelativeLocation(), GetHidePosition());
@@ -242,6 +246,7 @@ void ABurrowerEnemy::TimelineHideFinished()
 	SetDisappeared();
 	HidingFinished.ExecuteIfBound();
 	HealthComponent->RemoveMark();
+	GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
 }
  
 void ABurrowerEnemy::MULT_SetBurrowerState_Implementation(bool isHidden, bool bFollowing)
