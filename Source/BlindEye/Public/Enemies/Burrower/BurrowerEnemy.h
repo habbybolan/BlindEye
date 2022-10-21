@@ -203,7 +203,9 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_SpawnFollowParticle();
 	UFUNCTION(NetMulticast, Reliable) 
-	void MULT_DespawnFollowParticle(); 
+	void MULT_DespawnFollowParticle();
+
+	FVector GetHidePosition();
 	
 	virtual void Destroyed() override;
 	
