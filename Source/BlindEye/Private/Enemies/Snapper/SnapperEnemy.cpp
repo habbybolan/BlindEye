@@ -64,11 +64,9 @@ void ASnapperEnemy::BeginPlay()
 	Super::BeginPlay();
 
 	CachedCollisionObject = GetCapsuleComponent()->GetCollisionObjectType();
-
-	CachedColliderHalfHeight = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-	CachedGravity = GetCharacterMovement()->GravityScale;
-	GetCapsuleComponent()->SetCapsuleHalfHeight(CachedColliderHalfHeight / 2);
-	GetCharacterMovement()->GravityScale = CachedGravity / 2;
+	
+	GetCapsuleComponent()->SetCapsuleHalfHeight(GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * ColliderHeightAlteredOnSpawn);
+	GetCharacterMovement()->GravityScale *= GravityScaleAlteredOnSpawn;
 
 	if (GetLocalRole() == ROLE_Authority)
 	{
@@ -95,8 +93,8 @@ void ASnapperEnemy::MULT_OnSpawnCollisionHelper_Implementation()
 	bIsSpawning = false;
 	
 	// Update values back to normal
-	GetCapsuleComponent()->SetCapsuleHalfHeight(CachedColliderHalfHeight);
-	GetCharacterMovement()->GravityScale = CachedGravity;
+	GetCapsuleComponent()->SetCapsuleHalfHeight(GetCapsuleComponent()->GetScaledCapsuleHalfHeight() / ColliderHeightAlteredOnSpawn);
+	GetCharacterMovement()->GravityScale /= GravityScaleAlteredOnSpawn;
 }
 
 void ASnapperEnemy::PerformJumpAttack()
