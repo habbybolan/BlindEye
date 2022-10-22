@@ -204,10 +204,10 @@ void ABurrowerEnemyController::OnPossess(APawn* InPawn)
 	UActorComponent* Component = CachedBurrower->GetComponentByClass(UHealthComponent::StaticClass());
 	check(Component);
 	UHealthComponent* HealthComponent = Cast<UHealthComponent>(Component);
-	HealthComponent->MarkedAddedDelegate.AddUFunction(this, "OnDetonated");
+	HealthComponent->DetonateDelegate.AddUFunction(this, "OnDetonated");
 }
 
-void ABurrowerEnemyController::OnDetonated(EMarkerType MarkerType)
+void ABurrowerEnemyController::OnDetonated()
 {
 	// On detonation, set state as cancelled
 	UBlackboardComponent* BBComp = GetBlackboardComponent();

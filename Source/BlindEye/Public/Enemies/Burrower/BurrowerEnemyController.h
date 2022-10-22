@@ -82,7 +82,7 @@ protected:
 	virtual void OnPossess(APawn* InPawn) override;
 
 	UFUNCTION()
-	void OnDetonated(EMarkerType MarkerType);
+	void OnDetonated();
 
 	UPROPERTY()
 	ABurrowerEnemy* CachedBurrower;
