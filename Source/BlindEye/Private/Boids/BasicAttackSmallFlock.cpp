@@ -46,6 +46,12 @@ void ABasicAttackSmallFlock::BeginPlay()
 		}
 	
 		TargetList.Add(world->SpawnActor<AActor>(TargetType, TargetLocation, FRotator::ZeroRotator));
+		if (float DistToPlayer = FVector::Distance(TargetList[0]->GetActorLocation(), GetInstigator()->GetActorLocation()) < DistToPlayerToStartShrinking)
+		{
+			FVector NextTargetLocation = TargetList[0]->GetActorLocation() +
+							GetInstigator()->GetActorForwardVector() * (DistToPlayerToStartShrinking - DistToPlayer);
+			TargetList.Add(world->SpawnActor<AActor>(TargetType, NextTargetLocation, FRotator::ZeroRotator));
+		}
 
 		if (GetLocalRole() == ROLE_Authority)
 		{
