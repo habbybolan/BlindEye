@@ -67,7 +67,7 @@ void AFlock::SpawnFlockWave()
 	}
 	currFlocksSpawned++;
 	if (currFlocksSpawned < FlockWaveCount)
-		GetWorld()->GetTimerManager().SetTimer(FlockSpawnTimerHandle, this, &AFlock::SpawnFlockWave, .1f, false);
+		GetWorld()->GetTimerManager().SetTimer(FlockSpawnTimerHandle, this, &AFlock::SpawnFlockWave, DelayBetweenWaveSpawning, false);
 }
 
 void AFlock::AddBoid(ABoid* newBoid)

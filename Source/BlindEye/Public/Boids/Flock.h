@@ -76,6 +76,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float BoidMaxInitialVertical = 1000.f;
 
+	UPROPERTY(EditDefaultsOnly)
+	float DelayBetweenWaveSpawning = 0.1;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float BoidMinDistanceToNotApplyArc = 1000.f;
 
