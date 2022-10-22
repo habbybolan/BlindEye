@@ -22,12 +22,7 @@ EBTNodeResult::Type UBTT_BurrowerHiding::ExecuteTask(UBehaviorTreeComponent& Own
 			return EBTNodeResult::Succeeded;
 		}
 		
-		// if not currently hiding, then start hiding
-		if (!BurrowerController->IsHiding())
-		{
-			BurrowerController->StartHiding();
-		}
-		
+		BurrowerController->StartHiding();
 		return EBTNodeResult::InProgress;
 	}
 	return EBTNodeResult::Failed;

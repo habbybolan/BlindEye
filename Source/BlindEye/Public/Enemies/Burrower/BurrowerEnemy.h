@@ -123,7 +123,11 @@ public:
 	void MULT_StartSurfacingHelper();
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_StartHidingHelper();
+	void MULT_StartHidingHelper(float StartTime);
+
+	void CancelHide();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_CancelHideHelper();
 
 	UPROPERTY(EditDefaultsOnly) 
 	UAnimMontage* SurfacingAnimation;

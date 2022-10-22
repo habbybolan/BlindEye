@@ -23,10 +23,17 @@ void UBTS_BurrowerState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Node
 	AAIController* Controller = OwnerComp.GetAIOwner();
 	ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Controller);
 
-	// Check if attack state completely finished
+	// Check if attack state finished
 	if (BurrowerController->IsHidden() &&
 		BBComp->GetValueAsEnum(StateKey.SelectedKeyName) == (uint8)EBurrowActionState::Attacking &&
 		BBComp->GetValueAsObject(EnemyActorKey.SelectedKeyName) == nullptr)
+	{
+		BBComp->SetValueAsEnum(StateKey.SelectedKeyName, (uint8)EBurrowActionState::Patrolling);
+	}
+
+	// Check if Cancelled state finished
+	if (BurrowerController->IsHidden() &&
+		BBComp->GetValueAsEnum(StateKey.SelectedKeyName) == (uint8)EBurrowActionState::Cancelled)
 	{
 		BBComp->SetValueAsEnum(StateKey.SelectedKeyName, (uint8)EBurrowActionState::Patrolling);
 	}
@@ -51,7 +58,7 @@ void UBTS_BurrowerState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Node
 	else
 	{
 		// prevent changing state automatically while in spawning state
-		if (CurrState != EBurrowActionState::Spawning)
+		if (CurrState != EBurrowActionState::Spawning && CurrState != EBurrowActionState::Cancelled)
 		{
 			// If Enemy actor set
 			if (BBComp->GetValueAsObject(EnemyActorKey.SelectedKeyName))

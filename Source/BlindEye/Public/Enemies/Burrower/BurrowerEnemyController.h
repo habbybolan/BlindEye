@@ -14,7 +14,8 @@ enum class EBurrowActionState : uint8
 {
 	Spawning,
 	Attacking,
-	Patrolling
+	Patrolling,
+	Cancelled 
 };
 
 /**
@@ -65,6 +66,8 @@ public:
 	void NotifyPlayerEnteredIsland(ABlindEyePlayerCharacter* Player);
 	void NotifyPlayerLeftIsland(ABlindEyePlayerCharacter* Player);
 
+	void CancelHide();
+
 	TArray<ABlindEyePlayerCharacter*> GetPlayersOnIsland();
 	
 protected:
@@ -77,6 +80,9 @@ protected:
 	TArray<EBurrowActionState> CachedPreviousActions;
 
 	virtual void OnPossess(APawn* InPawn) override;
+
+	UFUNCTION()
+	void OnDetonated(EMarkerType MarkerType);
 
 	UPROPERTY()
 	ABurrowerEnemy* CachedBurrower;

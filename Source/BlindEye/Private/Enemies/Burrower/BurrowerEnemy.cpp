@@ -109,32 +109,43 @@ void ABurrowerEnemy::PerformSurfacingDamage()
 
 void ABurrowerEnemy::StartHiding()
 {
-	MULT_StartHidingHelper(); 
-	MULT_PlaySurfacingAnimation();
-}
-
-void ABurrowerEnemy::MULT_StartHidingHelper_Implementation()
-{
-	// if fully surfaced, hid normally
-	if (bIsSurfaced)
-	{
-		HideTimelineComponent->PlayFromStart();
-	}
 	// If currently surfacing, start hiding from current position
-	else if (bIsSurfacing)
+	if (bIsSurfacing || bIsHiding)
 	{
-		SurfacingTimelineComponent->Stop();
-		bIsSurfacing = false;
-		
 		// Calculate the percentage the burrower has lifted from target hide position
 		float timelineLength = HideTimelineComponent->GetTimelineLength();
 		float DistToHidingTarget = FVector::Distance(GetMesh()->GetRelativeLocation(), GetHidePosition());
 		float FullDistFromSurfacedToHiding = GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
 		float StartTime = (1 - (DistToHidingTarget / FullDistFromSurfacedToHiding)) * timelineLength;
 
+		MULT_StartHidingHelper(StartTime);
+	}
+	// Fully surfaced, hid normally
+	else
+	{
+		MULT_StartHidingHelper(0);
+	}
+	
+	MULT_PlaySurfacingAnimation();
+}
+
+void ABurrowerEnemy::MULT_StartHidingHelper_Implementation(float StartTime)
+{
+	// If currently surfacing, start hiding from current position
+	if (StartTime > 0)
+	{
+		// stop surfacing if it was surfacing
+		SurfacingTimelineComponent->Stop();
+		bIsSurfacing = false;
+
 		// Play from current position to target hide position
 		HideTimelineComponent->SetPlaybackPosition(StartTime, true);
 		HideTimelineComponent->Play();
+	}
+	// Fully surfaced, hid normally
+	else
+	{
+		HideTimelineComponent->PlayFromStart();
 	}
 }
 
@@ -311,6 +322,19 @@ void ABurrowerEnemy::MULT_DespawnFollowParticle_Implementation()
 	{
 		SpawnedFollowParticle->Deactivate();
 	}
+}
+
+void ABurrowerEnemy::CancelHide()
+{
+	if (bIsHiding)
+	{
+		MULT_CancelHideHelper();
+	}
+}
+
+void ABurrowerEnemy::MULT_CancelHideHelper_Implementation()
+{
+	HideTimelineComponent->Stop();
 }
 
 bool ABurrowerEnemy::GetIsSurfaced()

@@ -138,7 +138,15 @@ void ABurrowerEnemyController::NotifyPlayerLeftIsland(ABlindEyePlayerCharacter* 
 
 	
 	
-} 
+}
+
+void ABurrowerEnemyController::CancelHide()
+{
+	if (CachedBurrower != nullptr)
+	{
+		CachedBurrower->CancelHide();
+	}
+}
 
 TArray<ABlindEyePlayerCharacter*> ABurrowerEnemyController::GetPlayersOnIsland()
 {
@@ -192,4 +200,19 @@ void ABurrowerEnemyController::OnPossess(APawn* InPawn)
 
 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
 	if (!CachedBurrower) return;
+
+	UActorComponent* Component = CachedBurrower->GetComponentByClass(UHealthComponent::StaticClass());
+	check(Component);
+	UHealthComponent* HealthComponent = Cast<UHealthComponent>(Component);
+	HealthComponent->MarkedAddedDelegate.AddUFunction(this, "OnDetonated");
+}
+
+void ABurrowerEnemyController::OnDetonated(EMarkerType MarkerType)
+{
+	// On detonation, set state as cancelled
+	UBlackboardComponent* BBComp = GetBlackboardComponent();
+	if (BBComp)
+	{
+		BBComp->SetValueAsEnum("ActionState", (uint8)EBurrowActionState::Cancelled);
+	}
 }
