@@ -97,6 +97,7 @@ protected:
 
 	float CachedColliderHalfHeight;
 	float CachedGravity;
+	ECollisionChannel CachedCollisionObject;
 
 	void TeleportColliderToMesh(float DeltaSeconds);
 

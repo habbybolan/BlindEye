@@ -63,6 +63,8 @@ void ASnapperEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
+	CachedCollisionObject = GetCapsuleComponent()->GetCollisionObjectType();
+
 	CachedColliderHalfHeight = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 	CachedGravity = GetCharacterMovement()->GravityScale;
 	GetCapsuleComponent()->SetCapsuleHalfHeight(CachedColliderHalfHeight / 2);
@@ -72,6 +74,29 @@ void ASnapperEnemy::BeginPlay()
 	{
 		GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &ASnapperEnemy::SpawnCollisionWithGround);
 	}
+}
+
+void ASnapperEnemy::SpawnCollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	// On collision with the ground
+	if (Hit.bBlockingHit)
+	{
+		// Unsubscribe to spawning collision delegate
+		MULT_OnSpawnCollisionHelper();
+	}
+} 
+
+void ASnapperEnemy::MULT_OnSpawnCollisionHelper_Implementation()
+{
+	GetCapsuleComponent()->OnComponentHit.Remove(this, TEXT("SpawnCollisionWithGround"));
+	
+	// set ragdolling
+	TryRagdoll(true);
+	bIsSpawning = false;
+	
+	// Update values back to normal
+	GetCapsuleComponent()->SetCapsuleHalfHeight(CachedColliderHalfHeight);
+	GetCharacterMovement()->GravityScale = CachedGravity;
 }
 
 void ASnapperEnemy::PerformJumpAttack()
@@ -187,29 +212,6 @@ void ASnapperEnemy::ApplyKnockBack(FVector Force)
 	}
 }
 
-void ASnapperEnemy::SpawnCollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{
-	// On collision with the ground
-	if (Hit.bBlockingHit)
-	{
-		// Unsubscribe to spawning collision delegate
-		MULT_OnSpawnCollisionHelper();
-	}
-} 
-
-void ASnapperEnemy::MULT_OnSpawnCollisionHelper_Implementation()
-{
-	GetCapsuleComponent()->OnComponentHit.Remove(this, TEXT("SpawnCollisionWithGround"));
-	
-	// set ragdolling
-	TryRagdoll(true);
-	bIsSpawning = false;
-	
-	// Update values back to normal
-	GetCapsuleComponent()->SetCapsuleHalfHeight(CachedColliderHalfHeight);
-	GetCharacterMovement()->GravityScale = CachedGravity;
-}
-
 void ASnapperEnemy::TryRagdoll(bool SimulatePhysics)
 {
 	// Prevent calling ragdoll again, reset timer to get up
@@ -259,6 +261,7 @@ void ASnapperEnemy::UpdateHipLocation(float DeltaSecond)
 
 void ASnapperEnemy::MULT_StartRagdoll_Implementation()
 {
+	GetMovementComponent()->SetComponentTickEnabled(false);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetCapsuleComponent()->SetEnableGravity(false);
 	if (GetLocalRole() == ROLE_Authority) 
@@ -273,6 +276,7 @@ void ASnapperEnemy::MULT_StartRagdoll_Implementation()
 void ASnapperEnemy::MULT_StopRagdoll_Implementation() 
 {
 	bGettingUp = true;
+	GetMovementComponent()->SetComponentTickEnabled(true);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	
 	// Play getup montage
