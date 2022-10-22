@@ -356,3 +356,14 @@ bool ABurrowerEnemy::GetIsHidden()
 {
 	return !bIsSurfaced && !bIsSurfacing && !bIsHiding;
 }
+
+float ABurrowerEnemy::PlaySpawnSnapperAnimation()
+{
+	MULT_PlaySpawnSnapperAnimationHelper();
+	return SpawnSnapperAnimation->GetPlayLength();
+}
+
+void ABurrowerEnemy::MULT_PlaySpawnSnapperAnimationHelper_Implementation()
+{
+	PlayAnimMontage(SpawnSnapperAnimation);
+}

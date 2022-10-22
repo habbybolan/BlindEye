@@ -132,10 +132,19 @@ public:
 	UPROPERTY(EditDefaultsOnly) 
 	UAnimMontage* SurfacingAnimation;
 
+	UPROPERTY(EditDefaultsOnly)  
+	UAnimMontage* SpawnSnapperAnimation;
+
 	bool GetIsSurfaced();
 	bool GetIsSurfacing();
 	bool GetIsHiding();
 	bool GetIsHidden();
+
+	UFUNCTION(BlueprintCallable)
+	float PlaySpawnSnapperAnimation();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_PlaySpawnSnapperAnimationHelper();
  
 protected:
 
