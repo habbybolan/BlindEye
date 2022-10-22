@@ -51,6 +51,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=Ragdoll)
 	float RagdollDuration = 2.0f;
 
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0.1, ClampMax=1), Category=Spawning)
+	float GravityScaleAlteredOnSpawn = 0.25f;
+
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0.1, ClampMax=1), Category=Spawning)
+	float ColliderHeightAlteredOnSpawn = 0.5f; 
+ 
 	UPROPERTY(EditDefaultsOnly)
 	float DeathDelay = 1.0f;
 
@@ -94,9 +100,7 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_OnSpawnCollisionHelper();
-
-	float CachedColliderHalfHeight;
-	float CachedGravity;
+	
 	ECollisionChannel CachedCollisionObject;
 
 	void TeleportColliderToMesh(float DeltaSeconds);
