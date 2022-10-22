@@ -222,6 +222,8 @@ void ASnapperEnemy::TryRagdoll(bool SimulatePhysics)
 
 	if (SimulatePhysics)
 	{
+		GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = true;
+		GetCharacterMovement()->bServerAcceptClientAuthoritativePosition = true;
 		MULT_StartRagdoll();
 	} else
 	{
@@ -293,6 +295,8 @@ void ASnapperEnemy::MULT_StopRagdoll_Implementation()
 
 	if (GetLocalRole() == ROLE_Authority)
 	{
+		GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = false;
+		GetCharacterMovement()->bServerAcceptClientAuthoritativePosition = false;
 		GetWorldTimerManager().SetTimer(GetupAnimTimerHandle, this, &ASnapperEnemy::FinishGettingUp, TimeForGetup, false);
 	}
 	AlphaBlendWeight = 1;
