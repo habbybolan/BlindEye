@@ -61,8 +61,19 @@ void AFlock::InitializeFlock()
 
 void AFlock::SpawnFlockWave()
 {
-	int rand = UKismetMathLibrary::RandomIntegerInRange(1, FlockWaveSizeMax);
-	for (int i = 0; i < rand; i++)
+	int FlockSizeAlter = FlockWaveSize;
+	if (FlockSizeVariation > 0)
+	{
+		// Get random variation amount
+		int rand = UKismetMathLibrary::RandomIntegerInRange(0, FlockSizeVariation);
+		// Check if pos/neg rand variation
+		int PosNeg = UKismetMathLibrary::RandomIntegerInRange(0, 1);
+		if (PosNeg == 1) rand *= -1;
+		// apply variation, allow min flock size of 1
+		FlockSizeAlter = UKismetMathLibrary::Max(1, FlockSizeAlter + PosNeg);
+	}
+	
+	for (int i = 0; i < FlockSizeAlter; i++)
 	{
 		SpawnBoidRand();
 	}

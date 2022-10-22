@@ -26,7 +26,10 @@ public:
 	TSubclassOf<ABoid> BoidType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int FlockWaveSizeMax = 3;
+	int FlockWaveSize = 3;
+ 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin=0))
+	int FlockSizeVariation = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int FlockWaveCount = 5;
