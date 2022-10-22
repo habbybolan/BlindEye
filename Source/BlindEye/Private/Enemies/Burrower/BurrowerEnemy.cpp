@@ -151,6 +151,8 @@ void ABurrowerEnemy::MULT_StartHidingHelper_Implementation(float StartTime)
 
 void ABurrowerEnemy::SpawnSnappers()
 {
+	if (GetLocalRole() < ROLE_Authority) return;
+	
 	UWorld* World = GetWorld();
 	if (!World) return;
 

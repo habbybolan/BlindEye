@@ -92,7 +92,8 @@ protected:
 
 	void BeginStopRagdollTimer();
 
-	void OnSpawnCollisionHelper();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_OnSpawnCollisionHelper();
 
 	float CachedColliderHalfHeight;
 	float CachedGravity;

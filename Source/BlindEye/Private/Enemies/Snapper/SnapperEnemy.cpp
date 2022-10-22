@@ -68,7 +68,10 @@ void ASnapperEnemy::BeginPlay()
 	GetCapsuleComponent()->SetCapsuleHalfHeight(CachedColliderHalfHeight / 2);
 	GetCharacterMovement()->GravityScale = CachedGravity / 2;
 
-	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &ASnapperEnemy::SpawnCollisionWithGround);
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &ASnapperEnemy::SpawnCollisionWithGround);
+	}
 }
 
 void ASnapperEnemy::PerformJumpAttack()
@@ -190,11 +193,11 @@ void ASnapperEnemy::SpawnCollisionWithGround(UPrimitiveComponent* HitComponent, 
 	if (Hit.bBlockingHit)
 	{
 		// Unsubscribe to spawning collision delegate
-		OnSpawnCollisionHelper();
+		MULT_OnSpawnCollisionHelper();
 	}
-}
+} 
 
-void ASnapperEnemy::OnSpawnCollisionHelper()
+void ASnapperEnemy::MULT_OnSpawnCollisionHelper_Implementation()
 {
 	GetCapsuleComponent()->OnComponentHit.Remove(this, TEXT("SpawnCollisionWithGround"));
 	
