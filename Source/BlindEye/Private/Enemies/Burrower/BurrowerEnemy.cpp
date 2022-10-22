@@ -266,17 +266,11 @@ void ABurrowerEnemy::MULT_SetBurrowerState_Implementation(bool isHidden, bool bF
 {
 	GetMesh()->SetHiddenInGame(isHidden);
 	
-	GetCapsuleComponent()->SetEnableGravity(bFollowing);
-	GetCharacterMovement()->GravityScale = bFollowing ? 1 : 0;
 	if (bFollowing)
 	{
-		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Block);
-		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
 		MULT_SpawnFollowParticle();
 	} else
 	{
-		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
-		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
 		MULT_DespawnFollowParticle();
 	}
 }
