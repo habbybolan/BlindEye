@@ -10,6 +10,7 @@
 #include "Enemies/Snapper/SnapperEnemyController.h"
 #include "Enemies/Snapper/SnapperHealthComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "Engine/StaticMeshActor.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -39,6 +40,12 @@ void ASnapperEnemy::Tick(float DeltaSeconds)
 			//UpdateHipLocation(DeltaSeconds);
 		}
 	}
+
+	// if (bIsSpawning && !GetCharacterMovement()->IsFalling())
+	// {
+	// 	bIsSpawning = false;
+	// 	OnSpawnCollisionHelper();
+	// }
 }
 
 void ASnapperEnemy::MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType,
@@ -56,7 +63,40 @@ void ASnapperEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//TryRagdoll(true);
+	CachedCollisionObject = GetCapsuleComponent()->GetCollisionObjectType();
+
+	CachedColliderHalfHeight = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	CachedGravity = GetCharacterMovement()->GravityScale;
+	GetCapsuleComponent()->SetCapsuleHalfHeight(CachedColliderHalfHeight / 2);
+	GetCharacterMovement()->GravityScale = CachedGravity / 2;
+
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &ASnapperEnemy::SpawnCollisionWithGround);
+	}
+}
+
+void ASnapperEnemy::SpawnCollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	// On collision with the ground
+	if (Hit.bBlockingHit)
+	{
+		// Unsubscribe to spawning collision delegate
+		MULT_OnSpawnCollisionHelper();
+	}
+} 
+
+void ASnapperEnemy::MULT_OnSpawnCollisionHelper_Implementation()
+{
+	GetCapsuleComponent()->OnComponentHit.Remove(this, TEXT("SpawnCollisionWithGround"));
+	
+	// set ragdolling
+	TryRagdoll(true);
+	bIsSpawning = false;
+	
+	// Update values back to normal
+	GetCapsuleComponent()->SetCapsuleHalfHeight(CachedColliderHalfHeight);
+	GetCharacterMovement()->GravityScale = CachedGravity;
 }
 
 void ASnapperEnemy::PerformJumpAttack()
@@ -144,6 +184,11 @@ bool ASnapperEnemy::GetIsRagdolling()
 	return bRagdolling;
 }
 
+bool ASnapperEnemy::GetIsSpawning()
+{
+	return bIsSpawning;
+}
+
 void ASnapperEnemy::ApplyKnockBack(FVector Force)
 {
 	// if (bRagdolling)
@@ -216,6 +261,7 @@ void ASnapperEnemy::UpdateHipLocation(float DeltaSecond)
 
 void ASnapperEnemy::MULT_StartRagdoll_Implementation()
 {
+	GetMovementComponent()->SetComponentTickEnabled(false);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetCapsuleComponent()->SetEnableGravity(false);
 	if (GetLocalRole() == ROLE_Authority) 
@@ -230,6 +276,7 @@ void ASnapperEnemy::MULT_StartRagdoll_Implementation()
 void ASnapperEnemy::MULT_StopRagdoll_Implementation() 
 {
 	bGettingUp = true;
+	GetMovementComponent()->SetComponentTickEnabled(true);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	
 	// Play getup montage
@@ -318,4 +365,5 @@ void ASnapperEnemy::GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & Ou
 	DOREPLIFETIME( ASnapperEnemy, bRagdolling );
 	DOREPLIFETIME( ASnapperEnemy, HipLocation );
 	DOREPLIFETIME( ASnapperEnemy, bGettingUp );
+	DOREPLIFETIME( ASnapperEnemy, bIsSpawning );
 }

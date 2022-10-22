@@ -14,7 +14,8 @@ enum class EBurrowActionState : uint8
 {
 	Spawning,
 	Attacking,
-	Patrolling
+	Patrolling,
+	Cancelled 
 };
 
 /**
@@ -41,6 +42,12 @@ public:
 	bool IsSurfacing();
 
 	UFUNCTION()
+	bool IsSurfaced();
+
+	UFUNCTION() 
+	bool IsHidden();  
+
+	UFUNCTION()
 	bool IsHiding();
 
 	void StartSurfacing();
@@ -59,6 +66,8 @@ public:
 	void NotifyPlayerEnteredIsland(ABlindEyePlayerCharacter* Player);
 	void NotifyPlayerLeftIsland(ABlindEyePlayerCharacter* Player);
 
+	void CancelHide();
+
 	TArray<ABlindEyePlayerCharacter*> GetPlayersOnIsland();
 	
 protected:
@@ -67,25 +76,18 @@ protected:
 	void CacheSpawnPoints();
 	
 	void AddNewActionState(EBurrowActionState NewAction);
-	
-	UFUNCTION()
-	void ActionStateFinished();
-	UFUNCTION()
-	void SurfacingFinished();
-	UFUNCTION()
-	void HidingFinished();
 
 	TArray<EBurrowActionState> CachedPreviousActions;
 
 	virtual void OnPossess(APawn* InPawn) override;
+
+	UFUNCTION()
+	void OnDetonated();
 
 	UPROPERTY()
 	ABurrowerEnemy* CachedBurrower;
 
 	UPROPERTY()
 	TArray<AActor*> SpawnLocation;
-
-	bool bSurfacing = false; // if burrower currently surfacing
-	bool bHiding = false;	// if burrower currently hiding
 	
 };

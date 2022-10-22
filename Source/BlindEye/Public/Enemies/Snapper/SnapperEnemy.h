@@ -19,6 +19,8 @@ public:
 	ASnapperEnemy(const FObjectInitializer& ObjectInitializer);
 
 	virtual void Tick(float DeltaSeconds) override;
+
+	virtual void BeginPlay() override;
 	
 	virtual void MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
 
@@ -52,8 +54,6 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	float DeathDelay = 1.0f;
 
-	virtual void BeginPlay() override;
-
 	void PerformJumpAttack();
 	void PerformBasicAttack(); 
 
@@ -66,6 +66,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool GetIsRagdolling();
 
+	UFUNCTION(BlueprintCallable)
+	bool GetIsSpawning(); 
+
 	void ApplyKnockBack(FVector Force);
 
 protected:
@@ -74,6 +77,12 @@ protected:
 	bool bRagdolling = false;
 	UPROPERTY(Replicated)
 	bool bGettingUp = false;
+
+	UPROPERTY(Replicated)
+	bool bIsSpawning = true;
+	UFUNCTION()
+	void SpawnCollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	
 	FTimerHandle LaunchSwingTimerHandle;
 	FTimerHandle StopRagdollTimerHandle;
 	FTimerHandle GetupAnimTimerHandle;
@@ -82,6 +91,13 @@ protected:
 	float AlphaBlendWeight = 1;
 
 	void BeginStopRagdollTimer();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_OnSpawnCollisionHelper();
+
+	float CachedColliderHalfHeight;
+	float CachedGravity;
+	ECollisionChannel CachedCollisionObject;
 
 	void TeleportColliderToMesh(float DeltaSeconds);
 

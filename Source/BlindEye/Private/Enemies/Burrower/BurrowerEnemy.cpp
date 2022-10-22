@@ -27,10 +27,14 @@ ABurrowerEnemy::ABurrowerEnemy(const FObjectInitializer& ObjectInitializer)
 }
 
 void ABurrowerEnemy::BeginPlay()
-{
+{ 
 	Super::BeginPlay();
 
 	SetDisappeared();
+
+	CachedCollisionObject = GetCapsuleComponent()->GetCollisionObjectType();
+	GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
+	CachedMeshRelativeLocation = GetMesh()->GetRelativeLocation();
 
 	// Timeline curve for appearing from the ground
 	if (SurfacingCurve)
@@ -73,6 +77,7 @@ void ABurrowerEnemy::SpawnMangerSetup(EIslandPosition islandType, TScriptInterfa
 
 void ABurrowerEnemy::StartSurfacing()
 {
+	GetCapsuleComponent()->SetCollisionObjectType(CachedCollisionObject);
 	MULT_StartSurfacingHelper();
 	PerformSurfacingDamage();
 	MULT_PlaySurfacingAnimation();
@@ -80,8 +85,6 @@ void ABurrowerEnemy::StartSurfacing()
 
 void ABurrowerEnemy::MULT_StartSurfacingHelper_Implementation()
 {
-	CachedSpawnLocation = GetActorLocation() + FVector::DownVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
-	SetActorLocation(CachedSpawnLocation);
 	SetSurfacingHiding();
 	SurfacingTimelineComponent->PlayFromStart();
 }
@@ -91,8 +94,8 @@ void ABurrowerEnemy::PerformSurfacingDamage()
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
 	
-	FVector StartPosition = CachedSpawnLocation;
-	FVector EndPosition = CachedSpawnLocation + FVector::UpVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
+	FVector StartPosition = GetMesh()->GetComponentLocation();
+	FVector EndPosition = GetMesh()->GetComponentLocation() + FVector::UpVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
 
 	TArray<FHitResult> OutHits;
 	UKismetSystemLibrary::SphereTraceMultiForObjects(World, StartPosition, EndPosition, SurfacingRadius, SurfacingObjectTypes,
@@ -106,43 +109,85 @@ void ABurrowerEnemy::PerformSurfacingDamage()
 
 void ABurrowerEnemy::StartHiding()
 {
-	MULT_StartHidingHelper();
+	// If currently surfacing, start hiding from current position
+	if (bIsSurfacing || bIsHiding)
+	{
+		// Calculate the percentage the burrower has lifted from target hide position
+		float timelineLength = HideTimelineComponent->GetTimelineLength();
+		float DistToHidingTarget = FVector::Distance(GetMesh()->GetRelativeLocation(), GetHidePosition());
+		float FullDistFromSurfacedToHiding = GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
+		float StartTime = (1 - (DistToHidingTarget / FullDistFromSurfacedToHiding)) * timelineLength;
+
+		MULT_StartHidingHelper(StartTime);
+	}
+	// Fully surfaced, hid normally
+	else
+	{
+		MULT_StartHidingHelper(0);
+	}
+	
 	MULT_PlaySurfacingAnimation();
 }
 
-void ABurrowerEnemy::MULT_StartHidingHelper_Implementation()
+void ABurrowerEnemy::MULT_StartHidingHelper_Implementation(float StartTime)
 {
-	CachedBeforeHidePosition = GetActorLocation();
-	HideTimelineComponent->PlayFromStart();
+	// If currently surfacing, start hiding from current position
+	if (StartTime > 0)
+	{
+		// stop surfacing if it was surfacing
+		SurfacingTimelineComponent->Stop();
+		bIsSurfacing = false;
+
+		// Play from current position to target hide position
+		HideTimelineComponent->SetPlaybackPosition(StartTime, true);
+		HideTimelineComponent->Play();
+	}
+	// Fully surfaced, hid normally
+	else
+	{
+		HideTimelineComponent->PlayFromStart();
+	}
 }
 
 void ABurrowerEnemy::SpawnSnappers()
 {
-	UWorld* world = GetWorld();
-	if (!world) return;
+	if (GetLocalRole() < ROLE_Authority) return;
+	
+	UWorld* World = GetWorld();
+	if (!World) return;
 
-	TArray<FVector> spawnPoints = GetSnapperSpawnPoints();
-	if (spawnPoints.Num() == 0) return;
+	FVector location = GetMesh()->GetBoneLocation(TEXT("Mouth"));
+	FRotator rotation = GetMesh()->GetBoneQuaternion(TEXT("Mouth")).Rotator();
+	
+	World->SpawnActor<ASnapperEnemy>(SnapperType, location, rotation);
+	
+	// TArray<FVector> spawnPoints = GetSnapperSpawnPoints();
+	// if (spawnPoints.Num() == 0) return;
+	//
+	// FActorSpawnParameters params;
+	// params.Owner = this;
+	// params.Instigator = this;
+	// params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	//
+	// // TODO: Make sure number of enemies to spawn doesn't exceed spawn points calculated
+	// for (int i = 0; i < MinSnappersSpawn; i++)
+	// {
+	// 	uint32 randSpawnIndex = FMath::RandRange(0, spawnPoints.Num() - 1);
+	// 	ASnapperEnemy* SpawnedSnapper = world->SpawnActor<ASnapperEnemy>(SnapperType, spawnPoints[randSpawnIndex], GetActorRotation(), params);
+	// 	if (SpawnedSnapper == nullptr) continue;
+	// 	SpawnedSnappers.Add(SpawnedSnapper->GetUniqueID(), SpawnedSnapper);
+	// 	spawnPoints.RemoveAt(randSpawnIndex);
+	//
+	// 	if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(SpawnedSnapper))
+	// 	{
+	// 		HealthInterface->GetHealthComponent()->OnDeathDelegate.AddUFunction<ABurrowerEnemy>(this, FName("OnSnapperDeath"));
+	// 	} 
+	// }
+}
 
-	FActorSpawnParameters params;
-	params.Owner = this;
-	params.Instigator = this;
-	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
-	// TODO: Make sure number of enemies to spawn doesn't exceed spawn points calculated
-	for (int i = 0; i < MinSnappersSpawn; i++)
-	{
-		uint32 randSpawnIndex = FMath::RandRange(0, spawnPoints.Num() - 1);
-		ASnapperEnemy* SpawnedSnapper = world->SpawnActor<ASnapperEnemy>(SnapperType, spawnPoints[randSpawnIndex], GetActorRotation(), params);
-		if (SpawnedSnapper == nullptr) continue;
-		SpawnedSnappers.Add(SpawnedSnapper->GetUniqueID(), SpawnedSnapper);
-		spawnPoints.RemoveAt(randSpawnIndex);
-		// TODO: subscribe to death event on snapper to remove from list
-		if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(SpawnedSnapper))
-		{
-			HealthInterface->GetHealthComponent()->OnDeathDelegate.AddUFunction<ABurrowerEnemy>(this, FName("OnSnapperDeath"));
-		} 
-	}
+FVector ABurrowerEnemy::GetHidePosition()
+{
+	return CachedMeshRelativeLocation + FVector::DownVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2);
 }
 
 void ABurrowerEnemy::Destroyed()
@@ -186,45 +231,46 @@ void ABurrowerEnemy::MULT_PlaySurfacingAnimation_Implementation()
 
 void ABurrowerEnemy::TimelineSurfacingMovement(float Value)
 {
-	SetActorLocation(FMath::Lerp(CachedSpawnLocation, CachedSpawnLocation +
-		(FVector::UpVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2 - 15)), Value));
+	bIsSurfacing = true;
+	FVector StartLocation = GetHidePosition();
+	GetMesh()->SetRelativeLocation(FMath::Lerp(StartLocation, StartLocation +
+		(FVector::UpVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2)), Value));
 }
 
 void ABurrowerEnemy::TimelineSurfacingFinished()
 {
+	bIsSurfaced = true;
+	bIsSurfacing = false;
 	SetAppeared();
 	SurfacingFinished.ExecuteIfBound();
 }
 
 void ABurrowerEnemy::TimelineHideMovement(float Value)
 {
-	SetActorLocation(FMath::Lerp(CachedBeforeHidePosition, CachedBeforeHidePosition +
-		(FVector::DownVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2 + 50)), Value));
+	bIsHiding = true;
+	GetMesh()->SetRelativeLocation(FMath::Lerp(CachedMeshRelativeLocation, CachedMeshRelativeLocation +
+		(FVector::DownVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2)), Value));
 }
 
 void ABurrowerEnemy::TimelineHideFinished()
 {
+	bIsSurfaced = false;
+	bIsHiding = false;
 	SetDisappeared();
 	HidingFinished.ExecuteIfBound();
-	SetActorLocation(GetActorLocation() + FVector::UpVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2);
 	HealthComponent->RemoveMark();
+	GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
 }
  
 void ABurrowerEnemy::MULT_SetBurrowerState_Implementation(bool isHidden, bool bFollowing)
 {
 	GetMesh()->SetHiddenInGame(isHidden);
 	
-	GetCapsuleComponent()->SetEnableGravity(bFollowing);
-	GetCharacterMovement()->GravityScale = bFollowing ? 1 : 0;
 	if (bFollowing)
 	{
-		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Block);
-		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
 		MULT_SpawnFollowParticle();
 	} else
 	{
-		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
-		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
 		MULT_DespawnFollowParticle();
 	}
 }
@@ -248,7 +294,8 @@ void ABurrowerEnemy::MULT_SpawnWarningParticle_Implementation()
 {
 	UWorld* world = GetWorld();
 	SpawnedWarningParticle = UNiagaraFunctionLibrary::SpawnSystemAtLocation(world, WarningParticle,
-		GetMesh()->GetComponentLocation(),FRotator::ZeroRotator, FVector::OneVector, true);
+		GetCapsuleComponent()->GetComponentLocation() + FVector(0, 0, -GetCapsuleComponent()->GetScaledCapsuleHalfHeight()),
+		FRotator::ZeroRotator, FVector::OneVector, true);
 }
 
 void ABurrowerEnemy::MULT_DespawnWarningParticle_Implementation()
@@ -261,8 +308,8 @@ void ABurrowerEnemy::MULT_DespawnWarningParticle_Implementation()
 
 void ABurrowerEnemy::MULT_SpawnFollowParticle_Implementation()
 {
-	SpawnedWarningParticle = UNiagaraFunctionLibrary::SpawnSystemAttached(FollowParticle, GetMesh(), TEXT("FollowParticle"),
-		FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true);
+	SpawnedWarningParticle = UNiagaraFunctionLibrary::SpawnSystemAttached(FollowParticle, GetCapsuleComponent(), TEXT("FollowParticle"),
+		FVector(0, 0, -GetCapsuleComponent()->GetScaledCapsuleHalfHeight()), FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true);
 }
 
 void ABurrowerEnemy::MULT_DespawnFollowParticle_Implementation()
@@ -271,4 +318,48 @@ void ABurrowerEnemy::MULT_DespawnFollowParticle_Implementation()
 	{
 		SpawnedFollowParticle->Deactivate();
 	}
+}
+
+void ABurrowerEnemy::CancelHide()
+{
+	if (bIsHiding)
+	{
+		MULT_CancelHideHelper();
+	}
+}
+
+void ABurrowerEnemy::MULT_CancelHideHelper_Implementation()
+{
+	HideTimelineComponent->Stop();
+}
+
+bool ABurrowerEnemy::GetIsSurfaced()
+{
+	return bIsSurfaced;
+}
+
+bool ABurrowerEnemy::GetIsSurfacing()
+{
+	return bIsSurfacing;
+}
+
+bool ABurrowerEnemy::GetIsHiding()
+{
+	return bIsHiding;
+}
+
+bool ABurrowerEnemy::GetIsHidden()
+{
+	return !bIsSurfaced && !bIsSurfacing && !bIsHiding;
+}
+
+float ABurrowerEnemy::PlaySpawnSnapperAnimation()
+{
+	MULT_PlaySpawnSnapperAnimationHelper();
+	return SpawnSnapperAnimation->GetPlayLength();
+}
+
+void ABurrowerEnemy::MULT_PlaySpawnSnapperAnimationHelper_Implementation()
+{
+	PlayAnimMontage(SpawnSnapperAnimation);
 }
