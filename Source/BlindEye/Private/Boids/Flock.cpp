@@ -4,6 +4,7 @@
 #include "Boids/Flock.h"
 
 #include "Boids/Boid.h"
+#include "GameFramework/Character.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -77,7 +78,11 @@ void AFlock::AddBoid(ABoid* newBoid)
 
 void AFlock::SpawnBoidRand()
 {
-	FVector location = GetActorLocation() +
+	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
+	check(OwnerCharacter);
+	FVector HandLocation = OwnerCharacter->GetMesh()->GetBoneLocation(TEXT("RightHand"));
+	
+	FVector location = HandLocation +
 		FVector(UKismetMathLibrary::RandomFloat() * XSpawnRange,
 				UKismetMathLibrary::RandomFloat() * YSpawnRange,
 				UKismetMathLibrary::RandomFloat() * ZSpawnRange);
@@ -121,10 +126,10 @@ void AFlock::SpawnBoidRand()
 
 	if (Target.IsValid())
 	{
-		direction = (Target->GetActorLocation() - GetActorLocation()).Rotation();
+		direction = (Target->GetActorLocation() - OwnerCharacter->GetActorLocation()).Rotation();
 	} else
 	{
-		direction = GetActorRotation();
+		direction = OwnerCharacter->GetActorForwardVector().Rotation();
 	}
 
 	// ULocalPlayer* LocalPlayer = GetGameInstance()->GetLocalPlayerByIndex(0);

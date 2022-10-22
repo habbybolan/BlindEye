@@ -66,20 +66,21 @@ void ASharedBasicAbility::SpawnFlock_Implementation()
 	FActorSpawnParameters params;
 	params.Instigator = GetInstigator();
 	params.Owner = GetInstigator();
+	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	switch (CurrCharge)
 	{
 	case 0:
-		world->SpawnActor<ABasicAttackSmallFlock>(FirstChargeFlockType, GetOwner()->GetActorLocation(), FRotator::ZeroRotator, params);
+		world->SpawnActor<ABasicAttackSmallFlock>(FirstChargeFlockType, FVector::ZeroVector, FRotator::ZeroRotator, params);
 		break;
 	case 1:
-		world->SpawnActor<ABasicAttackSmallFlock>(SecondChargeFlockType, GetOwner()->GetActorLocation(), FRotator::ZeroRotator, params);
+		world->SpawnActor<ABasicAttackSmallFlock>(SecondChargeFlockType, FVector::ZeroVector, FRotator::ZeroRotator, params);
 		break;
 	case 2:
-		world->SpawnActor<ABasicAttackSmallFlock>(LastChargeFlockType, GetOwner()->GetActorLocation(), FRotator::ZeroRotator, params);
+		world->SpawnActor<ABasicAttackSmallFlock>(LastChargeFlockType, FVector::ZeroVector, FRotator::ZeroRotator, params);
 		break;
 	default:
-		world->SpawnActor<ABasicAttackSmallFlock>(LastChargeFlockType, GetOwner()->GetActorLocation(), FRotator::ZeroRotator, params);
+		world->SpawnActor<ABasicAttackSmallFlock>(LastChargeFlockType, FVector::ZeroVector, FRotator::ZeroRotator, params);
 		break;
 	}
 }
