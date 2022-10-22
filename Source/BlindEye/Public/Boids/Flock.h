@@ -71,8 +71,8 @@ public:
 	float ObstacleRadius = 1000.f;
  
 	UPROPERTY(replicated, EditInstanceOnly, ReplicatedUsing=OnRep_Target)
-	TWeakObjectPtr<AActor> Target;
-
+	TArray<TWeakObjectPtr<AActor>> TargetList;
+ 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float BoidMaxInitialVertical = 1000.f;
 
@@ -120,6 +120,11 @@ protected:
 
 	UFUNCTION()
 	void OnRep_Target();
+
+	UPROPERTY(Replicated)
+	float CurrTargetIndex = 0;
+
+	bool IsCurrTargetValid();
 
 	bool bCanAttack = true;
 	TArray<ABoid*> BoidsInFlock;

@@ -45,7 +45,7 @@ void ABasicAttackSmallFlock::BeginPlay()
 			TargetLocation = ViewportLocation + InstigatorFwd;
 		}
 	
-		Target = world->SpawnActor<AActor>(TargetType, TargetLocation, FRotator::ZeroRotator);
+		TargetList.Add(world->SpawnActor<AActor>(TargetType, TargetLocation, FRotator::ZeroRotator));
 
 		if (GetLocalRole() == ROLE_Authority)
 		{
@@ -59,9 +59,9 @@ void ABasicAttackSmallFlock::BeginPlay()
 void ABasicAttackSmallFlock::FlockCheck()
 {
 	// Increase target seeking when getting closer to target
-	if (Target.IsValid())
+	if (IsCurrTargetValid())
 	{ 
-		float Percent = FVector::Distance(CalcAveragePosition(), Target.Get()->GetActorLocation()) / DistToApplyTargetSeekingIncrease;
+		float Percent = FVector::Distance(CalcAveragePosition(), TargetList[CurrTargetIndex].Get()->GetActorLocation()) / DistToApplyTargetSeekingIncrease;
 		float StrengthIncrease = UKismetMathLibrary::FClamp(Percent, 0, 1) * MaxTargetSeekingStrengthIncrease;
 		TargetStrength = BaseSeekingStrength * StrengthIncrease;
 	}
@@ -115,20 +115,21 @@ void ABasicAttackSmallFlock::CheckGoBackToPlayer()
 {
 	if (CheckInRangeOfTarget())
 	{
-		if (GetLocalRole() == ROLE_Authority)
-		{
-			Target->Destroy();
-			Target = nullptr;
-		}
+		TargetList[CurrTargetIndex]->Destroy();
+		CurrTargetIndex++;
 
-		MULT_GoBackToPlayer();
-		MULT_SendEachBoidUp();
+		// if reached last Target, go back to player
+		if (!IsCurrTargetValid())
+		{
+			MULT_GoBackToPlayer();
+			MULT_SendEachBoidUp();
+		}
 	} 
 }
 
 void ABasicAttackSmallFlock::MULT_GoBackToPlayer_Implementation()
 {
-	Target = GetInstigator();
+	TargetList.Add(GetInstigator());
 	bHasReachedTarget = true;
 	SwirlStrength = 0;
 }
@@ -143,7 +144,7 @@ void ABasicAttackSmallFlock::CheckReturnedToPlayer()
 
 void ABasicAttackSmallFlock::CheckShrinking()
 {
-	float DistToPlayer = FVector::Distance(Target->GetActorLocation(), CalcAveragePosition());
+	float DistToPlayer = FVector::Distance(TargetList[CurrTargetIndex]->GetActorLocation(), CalcAveragePosition());
 	if (DistToPlayer < DistToPlayerToStartShrinking)
 	{
 		float scale = UKismetMathLibrary::FClamp((DistToPlayer - DistFromPlayerToFullyShrink) / (DistToPlayerToStartShrinking - DistFromPlayerToFullyShrink), 0, 1);

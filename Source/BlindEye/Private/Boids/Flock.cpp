@@ -88,45 +88,9 @@ void AFlock::SpawnBoidRand()
 				UKismetMathLibrary::RandomFloat() * ZSpawnRange);
 	FRotator direction;
 
-	// if a target is set, set spawn direction towards target
-	if (Target.IsValid()) 
+	if (IsCurrTargetValid())
 	{
-		// FVector directionVec = Target->GetActorLocation() - GetActorLocation();
-		// directionVec.Normalize();
-		// directionVec *= 100;
-		//
-		// // Apply arc based on the distance target is from flock spawn location
-		// float arcVerticalOffset = 0;
-		// float distance = FVector::Distance(Target->GetActorLocation(), GetActorLocation());
-		// // Only apply arc for enemies that are far enough away
-		// if (distance > BoidMinDistanceToNotApplyArc)
-		// {
-		// 	// Get percentage to apply percentage of max vertical offset based on target distance
-		// 	float verticalPercentage = (distance - BoidMinDistanceToNotApplyArc) / (BoidMaxDistanceToApplyFullArc - BoidMinDistanceToNotApplyArc);
-		// 	arcVerticalOffset = verticalPercentage * BoidMaxInitialVertical;
-		// }
-		// 	
-		// directionVec += FVector::UpVector * arcVerticalOffset;
-		// if (const AController* controller = GetInstigatorController())
-		// {
-		// 	directionVec += (controller->GetControlRotation()).Vector().RotateAngleAxis(90, FVector::ForwardVector) *
-		// 				UKismetMathLibrary::RandomFloatInRange(BoidInitialHorizontalChangeMin, BoidInitialHorizontalChangeMax) *
-		// 				(UKismetMathLibrary::RandomIntegerInRange(0, 1) == 0 ? -1 : 1);
-		// } else
-		// {
-		// 	
-		// }
-		//
-		//
-		// direction = directionVec.Rotation();
-	} else
-	{
-		//direction = GetActorRotation();
-	}
-
-	if (Target.IsValid())
-	{
-		direction = (Target->GetActorLocation() - OwnerCharacter->GetActorLocation()).Rotation();
+		direction = (TargetList[CurrTargetIndex]->GetActorLocation() - OwnerCharacter->GetActorLocation()).Rotation();
 	} else
 	{
 		direction = OwnerCharacter->GetActorForwardVector().Rotation();
@@ -154,6 +118,11 @@ void AFlock::SpawnBoidRand()
 		AddBoid(Boid);
 		Boid->InitializeBoid(location, direction);
 	}
+}
+
+bool AFlock::IsCurrTargetValid()
+{
+	return TargetList.Num() - 1 >= CurrTargetIndex && TargetList[CurrTargetIndex].IsValid();
 }
 
 void AFlock::RemoveBoids()
@@ -210,9 +179,9 @@ FVector AFlock::Alignment(ABoid* boid)
 
 FVector AFlock::TargetSeeking(ABoid* boid)
 {
-	if (Target.IsValid())
+	if (IsCurrTargetValid())
 	{
-		FVector TargetVec = Target->GetActorLocation() - boid->GetActorLocation();
+		FVector TargetVec = TargetList[CurrTargetIndex]->GetActorLocation() - boid->GetActorLocation();
 		TargetVec.Normalize();
 		return TargetVec;
 	}
@@ -286,7 +255,7 @@ void AFlock::PerformFlock()
 		velocityToApply += Swirling(boid, AvgLocation, AlignmentVec) * SwirlStrength;
 
 		// flock reached target position, send upwards
-        if (!Target.IsValid())
+        if (!IsCurrTargetValid())
         {
         	velocityToApply += FVector::UpVector * 1000.f;
         }
@@ -312,13 +281,13 @@ void AFlock::SetCanAttack()
 
 bool AFlock::CheckInRangeOfTarget()
 {
-	if (!Target.IsValid()) return false;
+	if (!IsCurrTargetValid()) return false;
 	
 	TArray<TEnumAsByte<EObjectTypeQuery> > ObjectTypes;
 	TArray<AActor*> ActorsToIgnore;
 	TArray<AActor*> OutActors;
 
-	FVector distVector = Target->GetActorLocation() - CalcAveragePosition();
+	FVector distVector = TargetList[CurrTargetIndex]->GetActorLocation() - CalcAveragePosition();
 	if (distVector.Size() <= DamageRadius)
 	{
 		return true;
@@ -335,7 +304,7 @@ void AFlock::Destroyed()
 void AFlock::GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME( AFlock, Target );
+	DOREPLIFETIME( AFlock, TargetList );
 }
 
 
