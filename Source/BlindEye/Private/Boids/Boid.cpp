@@ -129,6 +129,11 @@ void ABoid::BeginPlay()
 	AddTickPrerequisiteActor(GetInstigator());
 }
 
+void ABoid::FellOutOfWorld(const UDamageType& dmgType)
+{
+	// Removed Boid KillZ 
+}
+
 void ABoid::InitialSpawnSizeGrow()
 {
 	CurrTimerSizeGrow += SizeGrowTimerDelay;
