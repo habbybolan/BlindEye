@@ -35,7 +35,7 @@ void AAbilityBase::StartLockRotation(float Duration)
 {
 	if (ABlindEyePlayerCharacter* BlindEyeCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
-		BlindEyeCharacter->CLI_StartLockRotationToController(Duration);
+		BlindEyeCharacter->MULT_StartLockRotationToController(Duration);
 	}
 }
 

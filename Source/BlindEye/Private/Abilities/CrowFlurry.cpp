@@ -51,7 +51,7 @@ void ACrowFlurry::PlayAbilityAnimation()
 {
 	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
-		PlayerCharacter->CLI_StartLockRotationToController(1);
+		PlayerCharacter->MULT_StartLockRotationToController(1);
 		PlayerCharacter->MULT_PlayAnimMontage(CrowFlurryAnimation);
 	}
 	AnimNotifyDelegate.BindUFunction( this, TEXT("UseAnimNotifyExecuted"));
@@ -124,7 +124,7 @@ void ACrowFlurry::PerformCrowFlurry()
 
 	if (ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
-		BlindEyePlayerCharacter->CLI_StartLockRotationToController(0);
+		BlindEyePlayerCharacter->MULT_StartLockRotationToController(0);
 	}
 } 
 
