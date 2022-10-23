@@ -42,7 +42,6 @@ void AHunterEnemyController::SetEnteredNewIsland(AActor* OverlappedActor, AActor
 	if (OtherActor == Hunter)
 	{
 		CurrIsland = Cast<ABurrowerTriggerVolume>(OverlappedActor);
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 3.0f, FColor::Red, "Hunter entered: " + UEnum::GetValueAsString(CurrIsland->IslandType));
 	}
 }
 
@@ -139,11 +138,34 @@ void AHunterEnemyController::OnPossess(APawn* InPawn)
 	GetBrainComponent()->GetBlackboardComponent()->SetValueAsBool("bDead", false);
 
 	InPawn->OnTakeAnyDamage.AddDynamic(this, &AHunterEnemyController::OnTakeDamage);
+
+	// Initial check for which island Hunter spawned on
+	CurrIsland = CheckIslandSpawnedOn();
+	if (CurrIsland == nullptr)
+	{
+		CurrIsland = TriggerVolumes[EIslandPosition::IslandA];
+	}
 }
 
 void AHunterEnemyController::SetCanBasicAttack()
 {
 	IsJumpAttackOnDelay = false;
+}
+
+ABurrowerTriggerVolume* AHunterEnemyController::CheckIslandSpawnedOn()
+{
+	if (Hunter == nullptr) return nullptr;
+
+	UWorld* World = GetWorld();
+	if (World == nullptr) return nullptr;
+
+	TArray<AActor*> OurActors;
+	if (UKismetSystemLibrary::SphereOverlapActors(World, Hunter->GetActorLocation(), 50, IslandTriggerObjectType,
+		nullptr, TArray<AActor*>(), OurActors))
+	{
+		return Cast<ABurrowerTriggerVolume>(OurActors[0]);
+	}
+	return nullptr;
 }
 
 void AHunterEnemyController::OnHunterDeath(AActor* HunterKilled)

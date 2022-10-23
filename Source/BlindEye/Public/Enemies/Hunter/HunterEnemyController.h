@@ -49,6 +49,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AHunterEnemy> HunterType;
 
+	UPROPERTY(EditDefaultsOnly)
+	TArray<TEnumAsByte<EObjectTypeQuery>> IslandTriggerObjectType;
+
 	void SetAlwaysVisible(bool IsAlwaysVisible);
 
 	// Calls blueprint to initialize behavior tree
@@ -90,6 +93,8 @@ protected:
 
 	virtual void OnPossess(APawn* InPawn) override;
 	void SetCanBasicAttack();
+
+	ABurrowerTriggerVolume* CheckIslandSpawnedOn();
 	
 	UFUNCTION()
 	void SpawnHunter();
