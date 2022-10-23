@@ -77,7 +77,7 @@ void ABasicAttackSmallFlock::FlockCheck()
 		if (!bHasReachedTarget)
 		{
 			CheckForDamage();
-			CheckGoBackToPlayer();
+			CheckTargetReached();
 		} else
 		{
 			UpdateMaxSpeed(MovementPercentAfterReachingTarget);
@@ -117,20 +117,24 @@ void ABasicAttackSmallFlock::CheckForDamage()
 	}
 }
 
-void ABasicAttackSmallFlock::CheckGoBackToPlayer()
+void ABasicAttackSmallFlock::CheckTargetReached()
 {
 	if (CheckInRangeOfTarget())
 	{
 		TargetList[CurrTargetIndex]->Destroy();
-		CurrTargetIndex++;
-
+		MULT_TargetReachedHelper();
 		// if reached last Target, go back to player
 		if (!IsCurrTargetValid())
 		{
 			MULT_GoBackToPlayer();
 			MULT_SendEachBoidUp();
 		}
-	} 
+	}
+}
+
+void ABasicAttackSmallFlock::MULT_TargetReachedHelper_Implementation()
+{
+	CurrTargetIndex++;
 }
 
 void ABasicAttackSmallFlock::MULT_GoBackToPlayer_Implementation()
@@ -153,6 +157,7 @@ void ABasicAttackSmallFlock::CheckShrinking()
 	float DistToPlayer = FVector::Distance(TargetList[CurrTargetIndex]->GetActorLocation(), CalcAveragePosition());
 	if (DistToPlayer < DistToPlayerToStartShrinking)
 	{
+		// get the percentage of distance between full shrink distance and start shrink distance
 		float scale = UKismetMathLibrary::FClamp((DistToPlayer - DistFromPlayerToFullyShrink) / (DistToPlayerToStartShrinking - DistFromPlayerToFullyShrink), 0, 1);
 		for (ABoid* boid : BoidsInFlock)
 		{

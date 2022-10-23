@@ -58,7 +58,9 @@ protected:
 	void FlockCheck();
 
 	void CheckForDamage();
-	void CheckGoBackToPlayer();
+	void CheckTargetReached();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_TargetReachedHelper();
 	void CheckReturnedToPlayer();
 	void CheckShrinking();
 
