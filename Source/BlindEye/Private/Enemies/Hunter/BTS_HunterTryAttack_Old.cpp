@@ -1,12 +1,17 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
-#include "Enemies/Hunter/BTS_HunterTryAttack.h"
+#include "Enemies/Hunter/BTS_HunterTryAttack_Old.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/Hunter/HunterEnemyController.h"
 
-void UBTS_HunterTryAttack::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
+UBTS_HunterTryAttack_Old::UBTS_HunterTryAttack_Old()
+{
+	NodeName = TEXT("Try Attack OLD");
+}
+
+void UBTS_HunterTryAttack_Old::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 

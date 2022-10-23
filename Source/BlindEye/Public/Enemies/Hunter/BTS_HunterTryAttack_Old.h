@@ -4,17 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTService.h"
-#include "BTS_HunterTryAttack.generated.h"
+#include "BTS_HunterTryAttack_Old.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class BLINDEYE_API UBTS_HunterTryAttack : public UBTService
+class BLINDEYE_API UBTS_HunterTryAttack_Old : public UBTService
 {
 	GENERATED_BODY()
 
 public:
+
+	UBTS_HunterTryAttack_Old();
 
 	UPROPERTY(EditAnywhere, Category=Blackboard)
 	FBlackboardKeySelector TargetKey;
