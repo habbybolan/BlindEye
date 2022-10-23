@@ -103,8 +103,8 @@ TArray<ABlindEyePlayerCharacter*> ABurrowerSpawnManager::GetPlayersOnIsland(EIsl
 
 ABurrowerSpawnPoint* ABurrowerSpawnManager::FindRandomSpawnPoint()
 {
-	// TODO: Way to check when last island added
-	uint8 randIndexIsland = UKismetMathLibrary::RandomInteger((uint8)EIslandPosition::Count - 1);
+	// TODO: Way to check when last island added (but Still ignore shrine island)
+	uint8 randIndexIsland = UKismetMathLibrary::RandomInteger((uint8)EIslandPosition::Count - 2);
 	EIslandPosition type = static_cast<EIslandPosition>(randIndexIsland);
 	uint8 randIndexSpawnPoint = UKismetMathLibrary::RandomInteger(BurrowerSpawnPoints[type].Num());
 	ABurrowerSpawnPoint* RandSpawnPoint = BurrowerSpawnPoints[type][randIndexSpawnPoint];
