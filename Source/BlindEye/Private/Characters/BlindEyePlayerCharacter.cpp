@@ -147,7 +147,7 @@ void ABlindEyePlayerCharacter::UpdateAllClientUI()
 	UpdatePlayerHealthUI();
 }
 
-void ABlindEyePlayerCharacter::CLI_StartLockRotationToController_Implementation(float Duration)
+void ABlindEyePlayerCharacter::MULT_StartLockRotationToController_Implementation(float Duration)
 {
 	UWorld* World = GetWorld();
 	if (World == nullptr) return; 

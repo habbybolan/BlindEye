@@ -185,8 +185,8 @@ public:
 
 	// Locks the player direction to controller rotation.
 	// If Duration = 0, keeps rotational lock until manually turned off
-	UFUNCTION(Client, Reliable)
-	void CLI_StartLockRotationToController(float Duration);
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_StartLockRotationToController(float Duration);
 
 	// Stops the rotational lock to controller and clears timer
 	UFUNCTION(Client, Reliable)
