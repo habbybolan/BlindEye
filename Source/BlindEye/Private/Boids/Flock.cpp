@@ -20,8 +20,8 @@ AFlock::AFlock()
 
 	bReplicates = true;
 }
-
-void AFlock::OnRep_Target()
+ 
+void AFlock::TryStartFlock()
 {
 	if (bFlockInitialized) return;
 	
@@ -315,7 +315,6 @@ void AFlock::Destroyed()
 void AFlock::GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME( AFlock, TargetList );
 }
 
 

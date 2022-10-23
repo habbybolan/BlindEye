@@ -72,8 +72,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float ObstacleRadius = 1000.f;
- 
-	UPROPERTY(replicated, EditInstanceOnly, ReplicatedUsing=OnRep_Target)
+	
 	TArray<TWeakObjectPtr<AActor>> TargetList;
  
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -121,9 +120,6 @@ public:
 
 protected:
 
-	UFUNCTION()
-	void OnRep_Target();
-
 	UPROPERTY(Replicated)
 	float CurrTargetIndex = 0;
 
@@ -145,6 +141,8 @@ protected:
 	FVector CalcAveragePosition();
 
 	bool CheckInRangeOfTarget();
+
+	void TryStartFlock();
 
 	virtual void Destroyed() override;
 
