@@ -14,6 +14,13 @@ AHunterEnemy::AHunterEnemy(const FObjectInitializer& ObjectInitializer)
 	PrimaryActorTick.bCanEverTick = false;
 }
 
+void AHunterEnemy::BeginPlay()
+{
+	Super::BeginPlay();
+
+	
+}
+
 void AHunterEnemy::PerformJumpAttack()
 {
 	if (ABlindEyeEnemyController* BlindEyeController = Cast<ABlindEyeEnemyController>(GetController()))

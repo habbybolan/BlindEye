@@ -21,6 +21,8 @@ public:
 
 	AHunterEnemy(const FObjectInitializer& ObjectInitializer);
 
+	virtual void BeginPlay() override;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Movement)
 	float AttackMaxWalkSpeed = 450;
 

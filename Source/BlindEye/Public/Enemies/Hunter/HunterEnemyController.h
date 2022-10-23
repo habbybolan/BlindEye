@@ -7,6 +7,7 @@
 #include "Enemies/BlindEyeEnemyController.h"
 #include "HunterEnemyController.generated.h"
 
+class ABurrowerTriggerVolume;
 UENUM(BlueprintType)
 enum class EStrafeDirection : uint8
 {
@@ -74,6 +75,13 @@ protected:
 	FTimerHandle JumpAttackDelayTimerHandle;
 
 	FTimerHandle SpawnDelayTimerHandle;
+ 
+	TMap<EIslandPosition, ABurrowerTriggerVolume*> TriggerVolumes;
+	UPROPERTY()
+	ABurrowerTriggerVolume* CurrIsland;
+
+	UFUNCTION()
+	void SetEnteredNewIsland(AActor* OverlappedActor, AActor* OtherActor);
  
 	bool IsInJumpAttackRange(AActor* Target);
 

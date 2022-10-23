@@ -6,6 +6,7 @@
 #include "BrainComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
+#include "Enemies/Burrower/BurrowerTriggerVolume.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
 #include "Gameplay/BlindEyeGameState.h"
@@ -22,8 +23,27 @@ void AHunterEnemyController::BeginPlay()
 
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
+
+	TArray<AActor*> OutTriggerVolumes;
+	UGameplayStatics::GetAllActorsOfClass(World, ABurrowerTriggerVolume::StaticClass(), OutTriggerVolumes);
+	for (AActor* VolumeActor : OutTriggerVolumes)
+	{
+		ABurrowerTriggerVolume* BurrowerVolume = Cast<ABurrowerTriggerVolume>(VolumeActor);
+		TriggerVolumes.Add(BurrowerVolume->IslandType, BurrowerVolume);
+		BurrowerVolume->OnActorBeginOverlap.AddDynamic(this, &AHunterEnemyController::SetEnteredNewIsland);
+	}
 	
 	World->GetTimerManager().SetTimer(SpawnDelayTimerHandle, this, &AHunterEnemyController::SpawnHunter, SpawnDelay, false);
+}
+
+void AHunterEnemyController::SetEnteredNewIsland(AActor* OverlappedActor, AActor* OtherActor)
+{
+	if (Hunter == nullptr) return;
+	if (OtherActor == Hunter)
+	{
+		CurrIsland = Cast<ABurrowerTriggerVolume>(OverlappedActor);
+		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 3.0f, FColor::Red, "Hunter entered: " + UEnum::GetValueAsString(CurrIsland->IslandType));
+	}
 }
 
 void AHunterEnemyController::SetAlwaysVisible(bool IsAlwaysVisible)
