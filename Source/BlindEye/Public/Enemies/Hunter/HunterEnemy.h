@@ -82,7 +82,7 @@ public:
 
 	void PerformJumpAttack();
 	void PerformChargedAttack();
-	void ChargedAttackSwing();
+	void ChargedAttackSwingDamage();
 	 
 	void PerformBasicAttack();
 
@@ -106,6 +106,9 @@ protected:
 
 	FTimerHandle BasicAttackTimerHandle;
 	void SetBasicAttackFinished();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_PerformChargedAttackHelper(FVector StartLoc, FVector EndLoc);
 
 	UFUNCTION()
 	void OnHunterMarkDetonated();

@@ -41,7 +41,7 @@ void AHunterEnemy::PerformJumpAttack()
 			Direction.Normalize();
 			Direction += FVector::UpVector * JumpUpForce;
 			GetCharacterMovement()->AddImpulse(Direction * ForceApplied);
-			GetWorldTimerManager().SetTimer(JumpAttackSwingDelayTimerHandle, this, &AHunterEnemy::ChargedAttackSwing, JumpAttackSwingDelay, false);
+			GetWorldTimerManager().SetTimer(JumpAttackSwingDelayTimerHandle, this, &AHunterEnemy::ChargedAttackSwingDamage, JumpAttackSwingDelay, false);
 		}
 	}
 }
@@ -58,18 +58,23 @@ void AHunterEnemy::PerformChargedAttack()
 			FVector DirectionVec = Target->GetActorLocation() - GetActorLocation();
 			DirectionVec.Normalize();
 			DirectionVec *= ChargedAttackLandingDistanceBeforeTarget;
-			// Set Start and end locations of jump for Easing
-			ChargedAttackTargetLocation = Target->GetActorLocation() - DirectionVec;
-			ChargedAttackStartLocation = GetActorLocation();
 
 			GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed * MovementSpeedAlteredDuringChargeAttackCooldown;
-
-			GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
-			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-			GetWorldTimerManager().SetTimer(PerformingChargedAttackTimerHandle, this, &AHunterEnemy::PerformingJumpAttack, 0.02, true);
 			GetWorldTimerManager().SetTimer(ChargedAttackCooldownTimerHandle, this, &AHunterEnemy::SetChargedAttackOffCooldown, ChargedAttackCooldown, false);
+			MULT_PerformChargedAttackHelper(GetActorLocation(), Target->GetActorLocation() - DirectionVec);
 		}
 	}
+}
+
+void AHunterEnemy::MULT_PerformChargedAttackHelper_Implementation(FVector StartLoc, FVector EndLoc)
+{
+	// Set Start and end locations of jump for Easing
+	ChargedAttackStartLocation = StartLoc;
+	ChargedAttackTargetLocation = EndLoc;
+	
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GetWorldTimerManager().SetTimer(PerformingChargedAttackTimerHandle, this, &AHunterEnemy::PerformingJumpAttack, 0.02, true);
 }
 
 void AHunterEnemy::PerformingJumpAttack()
@@ -104,11 +109,15 @@ void AHunterEnemy::PerformingJumpAttack()
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		CurrTimeOfChargedAttack = 0;
 		bAttacking = false;
-		ChargedAttackSwing();
+
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			ChargedAttackSwingDamage();
+		}
 	}
 }  
 
-void AHunterEnemy::ChargedAttackSwing()
+void AHunterEnemy::ChargedAttackSwingDamage()
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
