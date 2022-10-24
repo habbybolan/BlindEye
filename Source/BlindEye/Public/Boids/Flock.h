@@ -26,7 +26,10 @@ public:
 	TSubclassOf<ABoid> BoidType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int FlockWaveSizeMax = 3;
+	int FlockWaveSize = 3;
+ 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin=0))
+	int FlockSizeVariation = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int FlockWaveCount = 5;
@@ -69,12 +72,14 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float ObstacleRadius = 1000.f;
+	
+	TArray<TWeakObjectPtr<AActor>> TargetList;
  
-	UPROPERTY(replicated, EditInstanceOnly, ReplicatedUsing=OnRep_Target)
-	TWeakObjectPtr<AActor> Target;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float BoidMaxInitialVertical = 1000.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float DelayBetweenWaveSpawning = 0.1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float BoidMinDistanceToNotApplyArc = 1000.f;
@@ -115,8 +120,10 @@ public:
 
 protected:
 
-	UFUNCTION()
-	void OnRep_Target();
+	UPROPERTY(Replicated)
+	float CurrTargetIndex = 0;
+
+	bool IsCurrTargetValid();
 
 	bool bCanAttack = true;
 	TArray<ABoid*> BoidsInFlock;
@@ -134,6 +141,8 @@ protected:
 	FVector CalcAveragePosition();
 
 	bool CheckInRangeOfTarget();
+
+	void TryStartFlock();
 
 	virtual void Destroyed() override;
 

@@ -16,6 +16,12 @@ EBTNodeResult::Type UBTT_BurrowerHiding::ExecuteTask(UBehaviorTreeComponent& Own
 	AAIController* Controller = OwnerComp.GetAIOwner();
 	if (ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Controller))
 	{
+		// if already hidden, then finish immediately
+		if (BurrowerController->IsHidden())
+		{
+			return EBTNodeResult::Succeeded;
+		}
+		
 		BurrowerController->StartHiding();
 		return EBTNodeResult::InProgress;
 	}

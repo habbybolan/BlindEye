@@ -9,6 +9,8 @@
 #include "Enemies/BlindEyeEnemyBase.h"
 #include "BurrowerEnemy.generated.h"
 
+class IBurrowerSpawnManagerListener;
+ 
 class ASnapperEnemy;
 class UHealthComponent;
 class ABlindEyePlayerCharacter;
@@ -95,6 +97,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	float DeathDelay = 1.0f;
+
+	// Stored here purely for passing to Controller
+	TScriptInterface<IBurrowerSpawnManagerListener> Listener;
+	EIslandPosition IslandType; 
+
+	void SpawnMangerSetup(EIslandPosition islandType, TScriptInterface<IBurrowerSpawnManagerListener> listener);
 	
 	void StartSurfacing();
 	void PerformSurfacingDamage();
@@ -115,10 +123,28 @@ public:
 	void MULT_StartSurfacingHelper();
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_StartHidingHelper();
+	void MULT_StartHidingHelper(float StartTime);
+
+	void CancelHide();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_CancelHideHelper();
 
 	UPROPERTY(EditDefaultsOnly) 
 	UAnimMontage* SurfacingAnimation;
+
+	UPROPERTY(EditDefaultsOnly)  
+	UAnimMontage* SpawnSnapperAnimation;
+
+	bool GetIsSurfaced();
+	bool GetIsSurfacing();
+	bool GetIsHiding();
+	bool GetIsHidden();
+
+	UFUNCTION(BlueprintCallable)
+	float PlaySpawnSnapperAnimation();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_PlaySpawnSnapperAnimationHelper();
  
 protected:
 
@@ -130,6 +156,12 @@ protected:
 	virtual void OnDeath(AActor* ActorThatKilled) override;
 	
 	TMap<uint32, ASnapperEnemy*> SpawnedSnappers;
+
+	bool bIsSurfaced = false;
+	bool bIsSurfacing = false;
+	bool bIsHiding = false;
+
+	ECollisionChannel CachedCollisionObject;
 	
 	UFUNCTION()
 	void OnSnapperDeath(AActor* SnapperActor);
@@ -171,10 +203,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UCurveFloat* HideCurve;
 
-	// FTimerHandle HideTimerHandle;
-	FVector CachedSpawnLocation;
-
-	FVector CachedBeforeHidePosition;
+	FVector CachedMeshRelativeLocation; 
 
 	TWeakObjectPtr<ABlindEyePlayerCharacter> Target;
 
@@ -189,7 +218,9 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_SpawnFollowParticle();
 	UFUNCTION(NetMulticast, Reliable) 
-	void MULT_DespawnFollowParticle(); 
+	void MULT_DespawnFollowParticle();
+
+	FVector GetHidePosition();
 	
 	virtual void Destroyed() override;
 	

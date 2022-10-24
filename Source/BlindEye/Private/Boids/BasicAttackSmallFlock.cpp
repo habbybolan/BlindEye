@@ -44,24 +44,43 @@ void ABasicAttackSmallFlock::BeginPlay()
 		{
 			TargetLocation = ViewportLocation + InstigatorFwd;
 		}
-	
-		Target = world->SpawnActor<AActor>(TargetType, TargetLocation, FRotator::ZeroRotator);
 
-		if (GetLocalRole() == ROLE_Authority)
+		TArray<FVector> TargetLocations;
+		TargetLocations.Add(TargetLocation);
+	
+		if (float DistToPlayer = FVector::Distance(TargetLocation, GetInstigator()->GetActorLocation()) < DistToPlayerToStartShrinking)
 		{
-			OnRep_Target();
+			FVector NextTargetLocation = TargetLocation + GetInstigator()->GetActorForwardVector() * (DistToPlayerToStartShrinking - DistToPlayer);
+			TargetLocations.Add(NextTargetLocation);
 		}
+		
+		MULT_SetTargets(TargetLocations);
 	}
 
 	world->GetTimerManager().SetTimer(FlockCheckTimerHandle, this, &ABasicAttackSmallFlock::FlockCheck, FlockCheckDelay, true);
 }
 
+void ABasicAttackSmallFlock::MULT_SetTargets_Implementation(const TArray<FVector>& TargetLocation)
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	FActorSpawnParameters params;
+	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	
+	for (FVector TargetLoc : TargetLocation)
+	{
+		TargetList.Add(world->SpawnActor<AActor>(TargetType, TargetLoc, FRotator::ZeroRotator, params));
+	}
+	TryStartFlock();
+}
+
 void ABasicAttackSmallFlock::FlockCheck()
 {
 	// Increase target seeking when getting closer to target
-	if (Target.IsValid())
+	if (IsCurrTargetValid())
 	{ 
-		float Percent = FVector::Distance(CalcAveragePosition(), Target.Get()->GetActorLocation()) / DistToApplyTargetSeekingIncrease;
+		float Percent = FVector::Distance(CalcAveragePosition(), TargetList[CurrTargetIndex].Get()->GetActorLocation()) / DistToApplyTargetSeekingIncrease;
 		float StrengthIncrease = UKismetMathLibrary::FClamp(Percent, 0, 1) * MaxTargetSeekingStrengthIncrease;
 		TargetStrength = BaseSeekingStrength * StrengthIncrease;
 	}
@@ -71,18 +90,20 @@ void ABasicAttackSmallFlock::FlockCheck()
 		if (!bHasReachedTarget)
 		{
 			CheckForDamage();
-			CheckGoBackToPlayer();
 		} else
 		{
-			UpdateMaxSpeed(MovementPercentAfterReachingTarget);
 			CheckReturnedToPlayer();
 		}
 	}
 
-	if (bHasReachedTarget)
+	if (!bHasReachedTarget)
 	{
+		CheckTargetReached();
+	} else
+	{
+		UpdateMaxSpeed(MovementPercentAfterReachingTarget);
 		CheckShrinking();
-	} 
+	}
 }
 
 void ABasicAttackSmallFlock::CheckForDamage()
@@ -111,24 +132,23 @@ void ABasicAttackSmallFlock::CheckForDamage()
 	}
 }
 
-void ABasicAttackSmallFlock::CheckGoBackToPlayer()
+void ABasicAttackSmallFlock::CheckTargetReached()
 {
 	if (CheckInRangeOfTarget())
 	{
-		if (GetLocalRole() == ROLE_Authority)
+		CurrTargetIndex++;
+		// if reached last Target, go back to player
+		if (!IsCurrTargetValid())
 		{
-			Target->Destroy();
-			Target = nullptr;
+			GoBackToPlayer();
+			SendEachBoidUp();
 		}
-
-		MULT_GoBackToPlayer();
-		MULT_SendEachBoidUp();
-	} 
+	}
 }
 
-void ABasicAttackSmallFlock::MULT_GoBackToPlayer_Implementation()
+void ABasicAttackSmallFlock::GoBackToPlayer()
 {
-	Target = GetInstigator();
+	TargetList.Add(GetInstigator());
 	bHasReachedTarget = true;
 	SwirlStrength = 0;
 }
@@ -143,9 +163,10 @@ void ABasicAttackSmallFlock::CheckReturnedToPlayer()
 
 void ABasicAttackSmallFlock::CheckShrinking()
 {
-	float DistToPlayer = FVector::Distance(Target->GetActorLocation(), CalcAveragePosition());
+	float DistToPlayer = FVector::Distance(TargetList[CurrTargetIndex]->GetActorLocation(), CalcAveragePosition());
 	if (DistToPlayer < DistToPlayerToStartShrinking)
 	{
+		// get the percentage of distance between full shrink distance and start shrink distance
 		float scale = UKismetMathLibrary::FClamp((DistToPlayer - DistFromPlayerToFullyShrink) / (DistToPlayerToStartShrinking - DistFromPlayerToFullyShrink), 0, 1);
 		for (ABoid* boid : BoidsInFlock)
 		{
@@ -161,12 +182,11 @@ void ABasicAttackSmallFlock::CheckShrinking()
 void ABasicAttackSmallFlock::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ABasicAttackSmallFlock, bHasReachedTarget);
 }
 
-void ABasicAttackSmallFlock::MULT_SendEachBoidUp_Implementation()
+void ABasicAttackSmallFlock::SendEachBoidUp()
 {
-	for (ABoid* boid : BoidsInFlock)
+	for (ABoid* boid : BoidsInFlock) 
 	{
 		FVector UpForce = FVector::UpVector * UpForceOnTargetReached;
 		boid->AddForce(UpForce);

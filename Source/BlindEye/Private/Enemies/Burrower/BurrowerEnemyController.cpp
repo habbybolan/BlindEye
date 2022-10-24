@@ -3,6 +3,8 @@
 
 #include "Enemies/Burrower/BurrowerEnemyController.h"
 
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Enemies/Burrower/BurrowerEnemy.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
@@ -49,12 +51,30 @@ void ABurrowerEnemyController::CalcNewActionState()
 
 bool ABurrowerEnemyController::IsSurfacing()
 {
-	return bSurfacing;
+	if (CachedBurrower == nullptr) return false;
+	
+	return CachedBurrower->GetIsSurfacing();
+}
+
+bool ABurrowerEnemyController::IsSurfaced()
+{
+	if (CachedBurrower == nullptr) return false;
+	
+	return CachedBurrower->GetIsSurfaced();
+}
+
+bool ABurrowerEnemyController::IsHidden()
+{
+	if (CachedBurrower == nullptr) return false;
+	
+	return CachedBurrower->GetIsHidden();
 }
 
 bool ABurrowerEnemyController::IsHiding()
 {
-	return bHiding;
+	if (CachedBurrower == nullptr) return false;
+	
+	return CachedBurrower->GetIsHiding();
 }
 
 void ABurrowerEnemyController::CacheSpawnPoints()
@@ -79,7 +99,59 @@ void ABurrowerEnemyController::StopWarningParticles()
 	if (!CachedBurrower) return;
 
 	CachedBurrower->MULT_DespawnWarningParticle();
-} 
+}
+
+void ABurrowerEnemyController::NotifyPlayerEnteredIsland(ABlindEyePlayerCharacter* Player)
+{
+	UBrainComponent* Brain = GetBrainComponent();
+	if (Brain == nullptr) return;
+
+	UBlackboardComponent* BBComp = Brain->GetBlackboardComponent();
+	UObject* EnemyObject = BBComp->GetValueAsObject(TEXT("EnemyActor"));
+	if (EnemyObject == nullptr)
+	{
+		BBComp->SetValueAsObject(TEXT("EnemyActor"), Player);
+	}
+}
+
+void ABurrowerEnemyController::NotifyPlayerLeftIsland(ABlindEyePlayerCharacter* Player)
+{
+	// TODO: Check if Player is equal to EnemyActor
+	//		If so, then check if any other player on the island
+	//		Otherwise, ClearValue normally
+
+	UBrainComponent* Brain = GetBrainComponent();
+	if (Brain == nullptr) return;
+	UBlackboardComponent* BBComp = Brain->GetBlackboardComponent();
+	
+	TArray<ABlindEyePlayerCharacter*> PlayersOnIsland = CachedBurrower->Listener->GetPlayersOnIsland(CachedBurrower->IslandType);
+	// If players still on island, set to attack remaining player
+	if (PlayersOnIsland.Num() > 0)
+	{
+		BBComp->SetValueAsObject(TEXT("EnemyActor"), PlayersOnIsland[0]);
+	}
+	// Otherwise, go back to patrolling state
+	else
+	{
+		BBComp->ClearValue(TEXT("EnemyActor"));
+	}
+
+	
+	
+}
+
+void ABurrowerEnemyController::CancelHide()
+{
+	if (CachedBurrower != nullptr)
+	{
+		CachedBurrower->CancelHide();
+	}
+}
+
+TArray<ABlindEyePlayerCharacter*> ABurrowerEnemyController::GetPlayersOnIsland()
+{
+	return CachedBurrower->Listener->GetPlayersOnIsland(CachedBurrower->IslandType);
+}
 
 void ABurrowerEnemyController::StartWarningParticles()
 {
@@ -98,27 +170,11 @@ void ABurrowerEnemyController::AddNewActionState(EBurrowActionState NewAction)
 	CachedPreviousActions[0] = NewAction;
 }
 
-void ABurrowerEnemyController::ActionStateFinished()
-{
-	// TODO: Notify Behavior tree action state finished
-}
-
-void ABurrowerEnemyController::SurfacingFinished()
-{
-	bSurfacing = false;
-}
-
-void ABurrowerEnemyController::HidingFinished()
-{
-	bHiding = false;
-}
-
 void ABurrowerEnemyController::StartSurfacing()
 {
 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
 	if (!CachedBurrower) return;
 	
-	bSurfacing = true;
 	CachedBurrower->StartSurfacing();
 }
 
@@ -127,7 +183,6 @@ void ABurrowerEnemyController::StartHiding()
 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
 	if (!CachedBurrower) return;
 	
-	bHiding = true;
 	CachedBurrower->StartHiding();
 }
  
@@ -145,11 +200,19 @@ void ABurrowerEnemyController::OnPossess(APawn* InPawn)
 
 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
 	if (!CachedBurrower) return;
-	//world->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ABurrowerEnemyController::SpawnLogic, 5.0f, true);
-	//CachedBurrower->SetHidden(true);
-	//SpawnActionStart();
 
-	CachedBurrower->ActionStateFinished.BindUFunction(this, FName("ActionStateFinished"));
-	CachedBurrower->SurfacingFinished.BindUFunction(this, FName("SurfacingFinished"));
-	CachedBurrower->HidingFinished.BindUFunction(this, FName("HidingFinished"));
+	UActorComponent* Component = CachedBurrower->GetComponentByClass(UHealthComponent::StaticClass());
+	check(Component);
+	UHealthComponent* HealthComponent = Cast<UHealthComponent>(Component);
+	HealthComponent->DetonateDelegate.AddUFunction(this, "OnDetonated");
+}
+
+void ABurrowerEnemyController::OnDetonated()
+{
+	// On detonation, set state as cancelled
+	UBlackboardComponent* BBComp = GetBlackboardComponent();
+	if (BBComp)
+	{
+		BBComp->SetValueAsEnum("ActionState", (uint8)EBurrowActionState::Cancelled);
+	}
 }

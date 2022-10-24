@@ -58,18 +58,20 @@ protected:
 	void FlockCheck();
 
 	void CheckForDamage();
-	void CheckGoBackToPlayer();
+	void CheckTargetReached();
+
 	void CheckReturnedToPlayer();
 	void CheckShrinking();
+	
+	void GoBackToPlayer();
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_GoBackToPlayer();
+	void SendEachBoidUp();
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SendEachBoidUp();
-
-	UPROPERTY(Replicated)
+	UPROPERTY()
 	bool bHasReachedTarget = false;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_SetTargets(const TArray<FVector>& TargetLocation);
 
 	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
 	

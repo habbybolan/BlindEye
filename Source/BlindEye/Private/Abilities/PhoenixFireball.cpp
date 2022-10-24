@@ -100,7 +100,7 @@ void APhoenixFireball::PlayAbilityAnimation()
 	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
 		PlayerCharacter->MULT_PlayAnimMontage(FireballCastAnimation);
-		PlayerCharacter->CLI_StartLockRotationToController(1);
+		PlayerCharacter->MULT_StartLockRotationToController(1);
 	}
 	AnimNotifyDelegate.BindUFunction( this, TEXT("UseAnimNotifyExecuted"));
 }
@@ -123,7 +123,7 @@ void APhoenixFireball::EndAbilityLogic()
 	AAbilityBase::EndAbilityLogic();
 	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
-		PlayerCharacter->CLI_StartLockRotationToController(0);
+		PlayerCharacter->MULT_StartLockRotationToController(0);
 	}
 	
 	IDsOfHitActors.Empty();

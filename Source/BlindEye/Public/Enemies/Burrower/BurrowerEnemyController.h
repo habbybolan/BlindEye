@@ -6,13 +6,16 @@
 #include "BurrowerEnemy.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Enemies/BlindEyeEnemyController.h"
+#include "Interfaces/BurrowerSpawnManagerListener.h"
 #include "BurrowerEnemyController.generated.h"
 
 UENUM(BlueprintType)
 enum class EBurrowActionState : uint8
 {
 	Spawning,
-	Attacking
+	Attacking,
+	Patrolling,
+	Cancelled 
 };
 
 /**
@@ -27,7 +30,6 @@ public:
 
 	virtual void BeginPlay() override;
 
-
 	void SpawnSnappers();
 	EBurrowActionState GetCurrAction();
 	// Cache if next action state is either attacking or spawning
@@ -38,6 +40,12 @@ public:
 
 	UFUNCTION()
 	bool IsSurfacing();
+
+	UFUNCTION()
+	bool IsSurfaced();
+
+	UFUNCTION() 
+	bool IsHidden();  
 
 	UFUNCTION()
 	bool IsHiding();
@@ -54,6 +62,13 @@ public:
 	 
 	UFUNCTION()
 	void StopWarningParticles();
+ 
+	void NotifyPlayerEnteredIsland(ABlindEyePlayerCharacter* Player);
+	void NotifyPlayerLeftIsland(ABlindEyePlayerCharacter* Player);
+
+	void CancelHide();
+
+	TArray<ABlindEyePlayerCharacter*> GetPlayersOnIsland();
 	
 protected:
 	FTimerHandle SpawnTimerHandle;
@@ -61,25 +76,18 @@ protected:
 	void CacheSpawnPoints();
 	
 	void AddNewActionState(EBurrowActionState NewAction);
-	
-	UFUNCTION()
-	void ActionStateFinished();
-	UFUNCTION()
-	void SurfacingFinished();
-	UFUNCTION()
-	void HidingFinished();
 
 	TArray<EBurrowActionState> CachedPreviousActions;
 
 	virtual void OnPossess(APawn* InPawn) override;
+
+	UFUNCTION()
+	void OnDetonated();
 
 	UPROPERTY()
 	ABurrowerEnemy* CachedBurrower;
 
 	UPROPERTY()
 	TArray<AActor*> SpawnLocation;
-
-	bool bSurfacing = false; // if burrower currently surfacing
-	bool bHiding = false;	// if burrower currently hiding
 	
 };

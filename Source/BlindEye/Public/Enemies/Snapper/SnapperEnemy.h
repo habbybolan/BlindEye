@@ -19,8 +19,13 @@ public:
 	ASnapperEnemy(const FObjectInitializer& ObjectInitializer);
 
 	virtual void Tick(float DeltaSeconds) override;
+
+	virtual void BeginPlay() override;
 	
 	virtual void MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
+
+	UPROPERTY(EditDefaultsOnly)
+	UCapsuleComponent* RagdollCapsule;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<	EObjectTypeQuery>> ObjectTypes;
@@ -46,14 +51,19 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=Ragdoll)
 	float RagdollDuration = 2.0f;
 
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0.1, ClampMax=1), Category=Spawning)
+	float GravityScaleAlteredOnSpawn = 0.25f;
+
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0.1, ClampMax=1), Category=Spawning)
+	float ColliderHeightAlteredOnSpawn = 0.5f; 
+ 
 	UPROPERTY(EditDefaultsOnly)
 	float DeathDelay = 1.0f;
-
-	virtual void BeginPlay() override;
 
 	void PerformJumpAttack();
 	void PerformBasicAttack(); 
 
+	UFUNCTION(BlueprintCallable)
 	void TryRagdoll(bool SimulatePhysics);
 
 	void TempLaunch();
@@ -61,6 +71,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool GetIsRagdolling();
+
+	UFUNCTION(BlueprintCallable)
+	bool GetIsSpawning(); 
 
 	void ApplyKnockBack(FVector Force);
 
@@ -70,6 +83,12 @@ protected:
 	bool bRagdolling = false;
 	UPROPERTY(Replicated)
 	bool bGettingUp = false;
+
+	UPROPERTY(Replicated)
+	bool bIsSpawning = true;
+	UFUNCTION()
+	void SpawnCollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	
 	FTimerHandle LaunchSwingTimerHandle;
 	FTimerHandle StopRagdollTimerHandle;
 	FTimerHandle GetupAnimTimerHandle;
@@ -78,6 +97,11 @@ protected:
 	float AlphaBlendWeight = 1;
 
 	void BeginStopRagdollTimer();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_OnSpawnCollisionHelper();
+	
+	ECollisionChannel CachedCollisionObject;
 
 	void TeleportColliderToMesh(float DeltaSeconds);
 

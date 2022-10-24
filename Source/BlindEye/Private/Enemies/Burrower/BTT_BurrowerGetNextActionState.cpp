@@ -19,6 +19,10 @@ EBTNodeResult::Type UBTT_BurrowerGetNextActionState::ExecuteTask(UBehaviorTreeCo
 	ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Controller);
 	BurrowerController->CalcNewActionState();
 	UBlackboardComponent* BBComp =  OwnerComp.GetBlackboardComponent();
-	BBComp->SetValueAsEnum(ActionStateKey.SelectedKeyName, (uint8)BurrowerController->GetCurrAction());
+
+	// TODO: FLip back to getting value from controller
+	//BBComp->SetValueAsEnum(ActionStateKey.SelectedKeyName, (uint8)BurrowerController->GetCurrAction());
+	BBComp->SetValueAsEnum(ActionStateKey.SelectedKeyName, (uint8)EBurrowActionState::Spawning);
+	
 	return EBTNodeResult::Succeeded;
 }

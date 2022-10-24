@@ -67,6 +67,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
+
 	void InitialSpawnSizeGrow();
 	FTimerHandle SpawnSizeGrowTimerHandle;
 	float CurrTimerSizeGrow = 0;
