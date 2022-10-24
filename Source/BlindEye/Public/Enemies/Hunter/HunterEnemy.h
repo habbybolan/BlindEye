@@ -98,7 +98,7 @@ protected:
 
 	float CachedRunningSpeed;
 
-	bool bChargeAttackCooldown = true;
+	bool bChargeAttackCooldown = false;
 	void SetChargedAttackOffCooldown();
 	FTimerHandle ChargedAttackCooldownTimerHandle;
 

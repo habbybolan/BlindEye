@@ -25,5 +25,10 @@ void UBTS_HunterState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
 	UBlackboardComponent* BBComp = OwnerComp.GetBlackboardComponent();
-	BBComp->SetValueAsBool(IsAttackingKey.SelectedKeyName, Hunter->GetIsAttacking());
+	if (ensure(BBComp))
+	{
+		BBComp->SetValueAsBool(IsAttackingKey.SelectedKeyName, Hunter->GetIsAttacking());
+		BBComp->SetValueAsBool(bChargedAttackOnCooldownKey.SelectedKeyName, Hunter->GetIsChargedAttackOnCooldown());
+	}
+	
 }

@@ -25,6 +25,9 @@ class BLINDEYE_API UBTS_HunterState : public UBTService
 	UPROPERTY()
 	AHunterEnemyController* HunterController;
 
+	UPROPERTY(EditAnywhere)
+	FBlackboardKeySelector bChargedAttackOnCooldownKey;
+
 	UBTS_HunterState();
 
 	virtual void OnSearchStart(FBehaviorTreeSearchData& SearchData) override;
