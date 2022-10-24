@@ -58,6 +58,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category=ChargedAttack)
 	float ChargedAttackDuration = 1.0f;
+ 
+	UPROPERTY(EditDefaultsOnly, Category=ChargedAttack, meta=(ClampMin=0, ClampMax=1))
+	float MovementSpeedAlteredDuringChargeAttackCooldown = 0.5f;
 
 	UPROPERTY(EditDefaultsOnly, Category=ChargedAttack) 
 	float ChargedAttackLandingDistanceBeforeTarget = 70.f;
@@ -92,6 +95,8 @@ protected:
 	FTimerHandle JumpAttackSwingDelayTimerHandle;
 
 	bool bAttacking = false;
+
+	float CachedRunningSpeed;
 
 	bool bChargeAttackCooldown = true;
 	void SetChargedAttackOffCooldown();

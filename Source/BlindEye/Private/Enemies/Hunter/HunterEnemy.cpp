@@ -22,6 +22,8 @@ void AHunterEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
+	CachedRunningSpeed = GetCharacterMovement()->MaxWalkSpeed;
+
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
 
@@ -59,6 +61,8 @@ void AHunterEnemy::PerformChargedAttack()
 			// Set Start and end locations of jump for Easing
 			ChargedAttackTargetLocation = Target->GetActorLocation() - DirectionVec;
 			ChargedAttackStartLocation = GetActorLocation();
+
+			GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed * MovementSpeedAlteredDuringChargeAttackCooldown;
 
 			GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -98,8 +102,9 @@ void AHunterEnemy::PerformingJumpAttack()
 		GetWorldTimerManager().ClearTimer(PerformingChargedAttackTimerHandle);
 		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		CurrTimeOfChargedAttack = 0;
 		bAttacking = false;
-		//ChargedAttackSwing();
+		ChargedAttackSwing();
 	}
 }  
 
@@ -159,6 +164,7 @@ void AHunterEnemy::OnDeath(AActor* ActorThatKilled)
 void AHunterEnemy::SetChargedAttackOffCooldown()
 {
 	bChargeAttackCooldown = false;
+	GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed;
 	
 	UWorld* World = GetWorld();
 	if (World) World->GetTimerManager().ClearTimer(ChargedAttackCooldownTimerHandle);
