@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTService.h"
-#include "BTS_HunterTryAttack.generated.h"
+#include "BTS_HunterTryToAttack.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class BLINDEYE_API UBTS_HunterTryAttack : public UBTService
+class BLINDEYE_API UBTS_HunterTryToAttack : public UBTService
 {
 	GENERATED_BODY()
 

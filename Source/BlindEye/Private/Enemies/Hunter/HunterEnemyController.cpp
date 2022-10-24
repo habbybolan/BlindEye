@@ -7,6 +7,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "Enemies/Burrower/BurrowerTriggerVolume.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
 #include "Gameplay/BlindEyeGameState.h"
@@ -86,11 +87,11 @@ bool AHunterEnemyController::CanChargedAttack(AActor* Target)
 {
 	if (Hunter == nullptr) return false;
 	
-	// Can use charged attack if it's not on cooldown, player is within range, and on same island as target
 	// TODO: Check if visible sight to player and no obstacles in the way	
 	return !Hunter->GetIsChargedAttackOnCooldown() &&
 			IsInChargedAttackRange(Target) &&
-			IsOnSameIslandAsPlayer(Target);
+			IsOnSameIslandAsPlayer(Target) &&
+			!Hunter->GetCharacterMovement()->IsFalling();
 }
 
 void AHunterEnemyController::DebugSpawnHunter()

@@ -59,6 +59,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=ChargedAttack)
 	float ChargedAttackDuration = 1.0f;
 
+	UPROPERTY(EditDefaultsOnly, Category=ChargedAttack) 
+	float ChargedAttackLandingDistanceBeforeTarget = 70.f;
+
 	UPROPERTY(BlueprintReadWrite)
 	bool IsVisible = false;
 
@@ -72,7 +75,7 @@ public:
 
 	void PerformJumpAttack();
 	void PerformChargedAttack();
-	void JumpAttackSwing(); 
+	void ChargedAttackSwing(); 
 
 	void TrySetVisibility(bool visibility);
 

@@ -39,7 +39,7 @@ void AHunterEnemy::PerformJumpAttack()
 			Direction.Normalize();
 			Direction += FVector::UpVector * JumpUpForce;
 			GetCharacterMovement()->AddImpulse(Direction * ForceApplied);
-			GetWorldTimerManager().SetTimer(JumpAttackSwingDelayTimerHandle, this, &AHunterEnemy::JumpAttackSwing, JumpAttackSwingDelay, false);
+			GetWorldTimerManager().SetTimer(JumpAttackSwingDelayTimerHandle, this, &AHunterEnemy::ChargedAttackSwing, JumpAttackSwingDelay, false);
 		}
 	}
 }
@@ -52,13 +52,14 @@ void AHunterEnemy::PerformChargedAttack()
 		{
 			bAttacking = true;
 			bChargeAttackCooldown = true;
-			ChargedAttackTargetLocation = Target->GetActorLocation();
+			// Have target position land before the target
+			FVector DirectionVec = Target->GetActorLocation() - GetActorLocation();
+			DirectionVec.Normalize();
+			DirectionVec *= ChargedAttackLandingDistanceBeforeTarget;
+			// Set Start and end locations of jump for Easing
+			ChargedAttackTargetLocation = Target->GetActorLocation() - DirectionVec;
 			ChargedAttackStartLocation = GetActorLocation();
-			//FVector Direction = Target->GetActorLocation() - GetActorLocation();
-			// Direction.Normalize();
-			// Direction += FVector::UpVector * JumpUpForce;
-			// GetCharacterMovement()->AddImpulse(Direction * ForceApplied);
-			// GetWorldTimerManager().SetTimer(JumpAttackSwingDelayTimerHandle, this, &AHunterEnemy::JumpAttackSwing, JumpAttackSwingDelay, false);
+
 			GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 			GetWorldTimerManager().SetTimer(PerformingChargedAttackTimerHandle, this, &AHunterEnemy::PerformingJumpAttack, 0.02, true);
@@ -98,10 +99,11 @@ void AHunterEnemy::PerformingJumpAttack()
 		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		bAttacking = false;
+		//ChargedAttackSwing();
 	}
 }  
 
-void AHunterEnemy::JumpAttackSwing()
+void AHunterEnemy::ChargedAttackSwing()
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
