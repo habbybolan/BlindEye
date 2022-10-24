@@ -129,7 +129,13 @@ void AHunterEnemy::ChargedAttackSwing()
 		// Only allow hitting target
 		if (HitActor == Target)
 		{
-			UGameplayStatics::ApplyPointDamage(HitActor, JumpAttackDamage, Hit.ImpactNormal, Hit, GetController(), this, JumpAttackDamageType);
+			ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(HitActor);
+			if (ensure(BlindEyePlayerCharacter))
+			{
+				UGameplayStatics::ApplyPointDamage(HitActor, JumpAttackDamage, Hit.ImpactNormal, Hit, GetController(), this, JumpAttackDamageType);
+				BlindEyePlayerCharacter->GetHealthComponent()->DetonateDelegate.AddDynamic(this, &AHunterEnemy::OnHunterMarkDetonated);
+				BlindEyePlayerCharacter->GetHealthComponent()->MarkedRemovedDelegate.AddDynamic(this, &AHunterEnemy::AHunterEnemy::OnHunterMarkRemoved);
+			}
 		}
 	}
 }
@@ -148,6 +154,37 @@ void AHunterEnemy::SetBasicAttackFinished()
 {
 	bAttacking = false;
 	StopAnimMontage(BasicAttackAnimation);
+}
+
+void AHunterEnemy::OnHunterMarkDetonated()
+{
+	UnsubscribeToTargetMarks();
+	
+	AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(Controller);
+	check(HunterController);
+	AActor* Target = HunterController->GetBTTarget();
+	
+	HealthComponent->Stun(5, Target);
+	// TODO: Stun Hunter and End jump attack completely
+}
+
+void AHunterEnemy::OnHunterMarkRemoved()
+{
+	UnsubscribeToTargetMarks();
+}
+
+void AHunterEnemy::UnsubscribeToTargetMarks()
+{
+	AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(Controller);
+	check(HunterController);
+	AActor* Target = HunterController->GetBTTarget();
+	if (Target)
+	{
+		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Target);
+		check(Player);
+		Player->GetHealthComponent()->DetonateDelegate.Remove(this, TEXT("OnHunterMarkDetonated"));
+		Player->GetHealthComponent()->MarkedRemovedDelegate.Remove(this, TEXT("OnHunterMarkRemoved"));
+	}
 }
 
 void AHunterEnemy::TrySetVisibility(bool visibility)

@@ -90,14 +90,17 @@ public:
 
 	DECLARE_MULTICAST_DELEGATE_OneParam(FMarkedSignature, EMarkerType) 
 	FMarkedSignature MarkedAddedDelegate;
-	DECLARE_MULTICAST_DELEGATE(FUnMarkedSignature) 
+	
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FUnMarkedSignature);
+	UPROPERTY()
 	FUnMarkedSignature MarkedRemovedDelegate; 
 
-	DECLARE_MULTICAST_DELEGATE(FDetonateSignature) 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDetonateSignature);
+	UPROPERTY()
 	FDetonateSignature DetonateDelegate;
-
-	DECLARE_MULTICAST_DELEGATE(FDetonateSignature) 
-	FDetonateSignature RefreshMarkDelegate;
+ 
+	DECLARE_MULTICAST_DELEGATE(FRefreshSignature) 
+	FRefreshSignature RefreshMarkDelegate;
 
 	DECLARE_MULTICAST_DELEGATE_TwoParams(FTauntStartSignature, float, AActor*) 
 	FTauntStartSignature TauntStartDelegate;
@@ -123,6 +126,18 @@ public:
 
 	// Check if enemy is marked by Hunter
 	bool GetIsHunterDebuff();
+
+	virtual void Stun(float StunDuration, AActor* DamageCause) override;
+
+	virtual void Burn(float DamagePerSec, float Duration, AActor* DamageCause) override;
+
+	virtual void Stagger(AActor* DamageCause) override;
+
+	virtual void TryApplyMarker(EMarkerType Player, AActor* DamageCause) override;
+
+	virtual void TryDetonation(EPlayerType Player, AActor* DamageCause) override;
+ 
+	virtual void TryTaunt(float Duration, AActor* Taunter) override;
 
 protected:
 
@@ -174,18 +189,6 @@ protected:
 	FVector Origin, FHitResult HitInfo, AController* InstigatedBy, AActor* DamageCauser);
 
 	void SetDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
-
-	virtual void Stun(float StunDuration, AActor* DamageCause) override;
-
-	virtual void Burn(float DamagePerSec, float Duration, AActor* DamageCause) override;
-
-	virtual void Stagger(AActor* DamageCause) override;
-
-	virtual void TryApplyMarker(EMarkerType Player, AActor* DamageCause) override;
-
-	virtual void TryDetonation(EPlayerType Player, AActor* DamageCause) override;
- 
-	virtual void TryTaunt(float Duration, AActor* Taunter) override;
 
 	// Detonation Effect properties *********
 	

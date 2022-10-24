@@ -22,8 +22,8 @@ void ABlindEyeBaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	HealthComponent->MarkedAddedDelegate.AddUFunction(this, TEXT("OnMarkAdded"));
-	HealthComponent->MarkedRemovedDelegate.AddUFunction(this, TEXT("OnMarkRemoved"));
-	HealthComponent->DetonateDelegate.AddUFunction(this, TEXT("OnMarkDetonated"));
+	HealthComponent->MarkedRemovedDelegate.AddDynamic(this, &ABlindEyeBaseCharacter::OnMarkRemoved);
+	HealthComponent->DetonateDelegate.AddDynamic(this, &ABlindEyeBaseCharacter::OnMarkDetonated);
 	HealthComponent->RefreshMarkDelegate.AddUFunction(this, TEXT("OnMarkRefreshed"));
 }
 

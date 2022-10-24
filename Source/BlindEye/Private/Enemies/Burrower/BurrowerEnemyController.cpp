@@ -204,7 +204,7 @@ void ABurrowerEnemyController::OnPossess(APawn* InPawn)
 	UActorComponent* Component = CachedBurrower->GetComponentByClass(UHealthComponent::StaticClass());
 	check(Component);
 	UHealthComponent* HealthComponent = Cast<UHealthComponent>(Component);
-	HealthComponent->DetonateDelegate.AddUFunction(this, "OnDetonated");
+	HealthComponent->DetonateDelegate.AddDynamic(this, &ABurrowerEnemyController::OnDetonated);
 }
 
 void ABurrowerEnemyController::OnDetonated()

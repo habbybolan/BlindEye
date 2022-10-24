@@ -107,6 +107,14 @@ protected:
 	FTimerHandle BasicAttackTimerHandle;
 	void SetBasicAttackFinished();
 
+	UFUNCTION()
+	void OnHunterMarkDetonated();
+
+	UFUNCTION() 
+	void OnHunterMarkRemoved();
+
+	void UnsubscribeToTargetMarks();
+
 	bool bChargeAttackCooldown = false;
 	void SetChargedAttackOffCooldown();
 	FTimerHandle ChargedAttackCooldownTimerHandle;
