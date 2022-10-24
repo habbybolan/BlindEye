@@ -54,6 +54,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UBaseDamageType> JumpAttackDamageType;
 
+	UPROPERTY(EditDefaultsOnly, Category=Charged, meta=(ClampMin=1))
+	float ChargedCooldown = 15.f;
+
+	UPROPERTY(EditDefaultsOnly, Category=Charged, meta=(ClampMin=0, ToolTip="0 for infinite duration"))
+	float ChargedDuration = 0;
+
 	UPROPERTY(EditDefaultsOnly, Category=ChargedJump)
 	float ChargedJumpCooldown = 10.f;
 
@@ -101,6 +107,8 @@ public:
 	bool GetIsChargedJumpOnCooldown();
 	
 	bool GetIsAttacking();
+
+	bool GetIsCharged();
  
 protected:
 	
@@ -108,7 +116,11 @@ protected:
 
 	bool bAttacking = false;
 
+	bool bCharged = true;
 	float CachedRunningSpeed;
+
+	FTimerHandle ChargedCooldownTimerHandle;
+	FTimerHandle ChargedDurationTimerHandle;
 
 	FTimerHandle BasicAttackTimerHandle;
 	void SetBasicAttackFinished();
@@ -142,6 +154,9 @@ protected:
  
 	UFUNCTION(BlueprintImplementableEvent)
 	void TrySetVisibiltiyHelper(bool visibility);
+
+	void SetCharged();
+	void SetNotCharged();
 	
 };
 

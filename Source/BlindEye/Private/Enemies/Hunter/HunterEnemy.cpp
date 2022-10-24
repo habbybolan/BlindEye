@@ -26,8 +26,8 @@ void AHunterEnemy::BeginPlay()
 
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
-
-	World->GetTimerManager().SetTimer(ChargedJumpCooldownTimerHandle, this, &AHunterEnemy::SetChargedJumpOffCooldown, ChargedJumpCooldown / 2, false);
+	
+	SetCharged();
 }
 
 void AHunterEnemy::PerformJumpAttack()
@@ -58,8 +58,7 @@ void AHunterEnemy::PerformChargedJump()
 			FVector DirectionVec = Target->GetActorLocation() - GetActorLocation();
 			DirectionVec.Normalize();
 			DirectionVec *= ChargedJumpLandingDistanceBeforeTarget;
-
-			GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed * MovementSpeedAlteredDuringNotCharged;
+			
 			GetWorldTimerManager().SetTimer(ChargedJumpCooldownTimerHandle, this, &AHunterEnemy::SetChargedJumpOffCooldown, ChargedJumpCooldown, false);
 			MULT_PerformChargedJumpHelper(GetActorLocation(), Target->GetActorLocation() - DirectionVec);
 		}
@@ -115,7 +114,33 @@ void AHunterEnemy::PerformingJumpAttack()
 			ChargedJumpSwingDamage();
 		}
 	}
-}  
+}
+
+void AHunterEnemy::SetCharged()
+{
+	UWorld* World = GetWorld();
+	if (!ensure(World)) return;
+
+	GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed;
+
+	World->GetTimerManager().ClearTimer(ChargedCooldownTimerHandle);
+	if (ChargedDuration != 0)
+	{
+		World->GetTimerManager().SetTimer(ChargedDurationTimerHandle, this, &AHunterEnemy::SetNotCharged, ChargedDuration, false);
+	}
+}
+
+void AHunterEnemy::SetNotCharged()
+{
+	UWorld* World = GetWorld();
+	if (!ensure(World)) return;
+
+	GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed * MovementSpeedAlteredDuringNotCharged;
+	
+	bCharged = false;
+	World->GetTimerManager().ClearTimer(ChargedDurationTimerHandle);
+	World->GetTimerManager().SetTimer(ChargedCooldownTimerHandle, this, &AHunterEnemy::SetCharged, ChargedCooldown, false);
+}
 
 void AHunterEnemy::ChargedJumpSwingDamage()
 {
@@ -241,7 +266,6 @@ void AHunterEnemy::OnDeath(AActor* ActorThatKilled)
 void AHunterEnemy::SetChargedJumpOffCooldown()
 {
 	bChargeAttackCooldown = false;
-	GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed;
 	
 	UWorld* World = GetWorld();
 	if (World) World->GetTimerManager().ClearTimer(ChargedJumpCooldownTimerHandle);
@@ -260,5 +284,10 @@ bool AHunterEnemy::GetIsChargedJumpOnCooldown()
 bool AHunterEnemy::GetIsAttacking()
 {
 	return bAttacking;
+}
+
+bool AHunterEnemy::GetIsCharged()
+{
+	return bCharged;
 }
 

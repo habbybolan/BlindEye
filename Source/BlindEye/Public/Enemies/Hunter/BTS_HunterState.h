@@ -29,7 +29,7 @@ class BLINDEYE_API UBTS_HunterState : public UBTService
 	AHunterEnemyController* HunterController;
 
 	UPROPERTY(EditAnywhere)
-	FBlackboardKeySelector bChargedAttackOnCooldownKey;
+	FBlackboardKeySelector bChargedOnCooldownKey;
 
 	UBTS_HunterState();
 
