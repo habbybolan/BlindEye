@@ -724,7 +724,7 @@ void ABlindEyePlayerCharacter::MoveForward(float Value)
 		// slow movement if hunter debuff active
 		if (HealthComponent->GetIsHunterDebuff())
 		{
-			MovementAlter *= 0.25;
+			MovementAlter *= HunterMarkMovementAlter;
 		}
 		
 		// find out which way is forward
@@ -749,7 +749,7 @@ void ABlindEyePlayerCharacter::MoveRight(float Value)
 		// slow movement if hunter debuff active
 		if (HealthComponent->GetIsHunterDebuff())
 		{
-			MovementAlter *= 0.25;
+			MovementAlter *= HunterMarkMovementAlter;
 		}
 		
 		// find out which way is right
