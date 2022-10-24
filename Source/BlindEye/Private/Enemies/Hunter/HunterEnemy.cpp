@@ -2,10 +2,14 @@
 
 
 #include "Enemies/Hunter/HunterEnemy.h"
+
+#include "Characters/BlindEyePlayerCharacter.h"
+#include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Enemies/Hunter/HunterEnemyController.h"
 #include "Enemies/Hunter/HunterHealthComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 AHunterEnemy::AHunterEnemy(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UHunterHealthComponent>(TEXT("HealthComponent")))
@@ -18,11 +22,15 @@ void AHunterEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+
+	World->GetTimerManager().SetTimer(ChargedAttackCooldownTimerHandle, this, &AHunterEnemy::SetChargedAttackOffCooldown, ChargedAttackCooldown / 2, false);
 }
 
 void AHunterEnemy::PerformJumpAttack()
 {
+	// TODO: Probably remove this
 	if (ABlindEyeEnemyController* BlindEyeController = Cast<ABlindEyeEnemyController>(GetController()))
 	{
 		if (AActor* Target = BlindEyeController->GetBTTarget())
@@ -35,6 +43,58 @@ void AHunterEnemy::PerformJumpAttack()
 		}
 	}
 }
+
+void AHunterEnemy::PerformChargedAttack()
+{
+	if (ABlindEyeEnemyController* BlindEyeController = Cast<ABlindEyeEnemyController>(GetController()))
+	{
+		if (AActor* Target = BlindEyeController->GetBTTarget())
+		{
+			bAttacking = true;
+			bChargeAttackCooldown = true;
+			ChargedAttackTargetLocation = Target->GetActorLocation();
+			ChargedAttackStartLocation = GetActorLocation();
+			//FVector Direction = Target->GetActorLocation() - GetActorLocation();
+			// Direction.Normalize();
+			// Direction += FVector::UpVector * JumpUpForce;
+			// GetCharacterMovement()->AddImpulse(Direction * ForceApplied);
+			// GetWorldTimerManager().SetTimer(JumpAttackSwingDelayTimerHandle, this, &AHunterEnemy::JumpAttackSwing, JumpAttackSwingDelay, false);
+			GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+			GetWorldTimerManager().SetTimer(PerformingChargedAttackTimerHandle, this, &AHunterEnemy::PerformingJumpAttack, 0.02, true);
+			GetWorldTimerManager().SetTimer(ChargedAttackCooldownTimerHandle, this, &AHunterEnemy::SetChargedAttackOffCooldown, ChargedAttackCooldown, false);
+		}
+	}
+}
+
+void AHunterEnemy::PerformingJumpAttack()
+{ 
+	FVector ForwardEase = UKismetMathLibrary::VEase(ChargedAttackStartLocation * FVector(1, 1, 0),
+		ChargedAttackTargetLocation* FVector(1, 1, 0), CurrTimeOfChargedAttack / ChargedAttackDuration, EEasingFunc::Linear);
+
+	FVector UpEase;
+	FVector HalfDirectionToTarget = (ChargedAttackTargetLocation - ChargedAttackStartLocation) / 2 + FVector::UpVector * 250;
+	if (CurrTimeOfChargedAttack / ChargedAttackDuration <= 0.5)
+	{
+		 UpEase = UKismetMathLibrary::VEase(ChargedAttackStartLocation * FVector::UpVector,
+			(ChargedAttackTargetLocation + HalfDirectionToTarget) * FVector::UpVector, CurrTimeOfChargedAttack / ChargedAttackDuration / 2, EEasingFunc::Linear);
+	} else
+	{
+		UpEase = UKismetMathLibrary::VEase((ChargedAttackTargetLocation + HalfDirectionToTarget) * FVector::UpVector,
+		   ChargedAttackTargetLocation * FVector::UpVector, CurrTimeOfChargedAttack / ChargedAttackDuration / 2, EEasingFunc::Linear);
+	}
+
+	SetActorLocation(ForwardEase + UpEase);
+	CurrTimeOfChargedAttack += 0.02;
+
+	if (CurrTimeOfChargedAttack >= ChargedAttackDuration)
+	{
+		GetWorldTimerManager().ClearTimer(PerformingChargedAttackTimerHandle);
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		bAttacking = false;
+	}
+}  
 
 void AHunterEnemy::JumpAttackSwing()
 {
@@ -89,8 +149,26 @@ void AHunterEnemy::OnDeath(AActor* ActorThatKilled)
 	Destroy();
 }
 
+void AHunterEnemy::SetChargedAttackOffCooldown()
+{
+	bChargeAttackCooldown = false;
+	
+	UWorld* World = GetWorld();
+	if (World) World->GetTimerManager().ClearTimer(ChargedAttackCooldownTimerHandle);
+}
+
 void AHunterEnemy::MULT_TurnVisible_Implementation(bool visibility)
 {
 	TrySetVisibiltiyHelper(visibility);
+}
+
+bool AHunterEnemy::GetIsChargedAttackOnCooldown()
+{
+	return bChargeAttackCooldown;
+}
+
+bool AHunterEnemy::GetIsAttacking()
+{
+	return bAttacking;
 }
 

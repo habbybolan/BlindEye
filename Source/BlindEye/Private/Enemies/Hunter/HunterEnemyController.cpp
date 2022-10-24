@@ -66,7 +66,7 @@ void AHunterEnemyController::SetAlwaysVisible(bool IsAlwaysVisible)
 
 bool AHunterEnemyController::CanJumpAttack(AActor* Target)
 {
-	return !IsJumpAttackOnDelay && IsInJumpAttackRange(Target);
+	return !IsJumpAttackOnDelay && IsInChargedAttackRange(Target);
 }
 
 void AHunterEnemyController::PerformJumpAttack()
@@ -75,6 +75,22 @@ void AHunterEnemyController::PerformJumpAttack()
 	GetBlackboardComponent()->SetValueAsBool("bAttacking", true);
 	Hunter->PerformJumpAttack();
 	GetWorldTimerManager().SetTimer(JumpAttackDelayTimerHandle, this, &AHunterEnemyController::SetCanBasicAttack, JumpAttackDelay, false);
+}
+
+void AHunterEnemyController::PerformChargedAttack()
+{
+	Hunter->PerformChargedAttack();
+}
+
+bool AHunterEnemyController::CanChargedAttack(AActor* Target)
+{
+	if (Hunter == nullptr) return false;
+	
+	// Can use charged attack if it's not on cooldown, player is within range, and on same island as target
+	// TODO: Check if visible sight to player and no obstacles in the way	
+	return !Hunter->GetIsChargedAttackOnCooldown() &&
+			IsInChargedAttackRange(Target) &&
+			IsOnSameIslandAsPlayer(Target);
 }
 
 void AHunterEnemyController::DebugSpawnHunter()
@@ -100,12 +116,21 @@ void AHunterEnemyController::UpdateMovementSpeed(EHunterStates NewHunterState)
 	Hunter->UpdateMovementSpeed(NewHunterState);
 }
 
-bool AHunterEnemyController::IsInJumpAttackRange(AActor* Target)
+bool AHunterEnemyController::IsInChargedAttackRange(AActor* Target)
 {
 	if (GetPawn() == nullptr) return false;
 	
 	float Distance = FVector::Distance(Target->GetActorLocation(), GetPawn()->GetActorLocation());
-	return Distance < DistanceToJumpAttack;
+	return Distance < DistanceToChargeAttack;
+}
+
+bool AHunterEnemyController::IsOnSameIslandAsPlayer(AActor* Target)
+{
+	for (ABlindEyePlayerCharacter* Player : CurrIsland->GetPlayerActorsOverlapping())
+	{
+		if (Player == Target) return true;
+	}
+	return false;
 }
 
 void AHunterEnemyController::OnPossess(APawn* InPawn)
@@ -136,6 +161,7 @@ void AHunterEnemyController::OnPossess(APawn* InPawn)
 	
 	InitializeBehaviorTree();
 	GetBrainComponent()->GetBlackboardComponent()->SetValueAsBool("bDead", false);
+	GetBrainComponent()->GetBlackboardComponent()->SetValueAsBool("bFirstRun", true);
 
 	InPawn->OnTakeAnyDamage.AddDynamic(this, &AHunterEnemyController::OnTakeDamage);
 

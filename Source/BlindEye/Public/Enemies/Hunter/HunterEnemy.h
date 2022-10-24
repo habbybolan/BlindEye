@@ -6,6 +6,12 @@
 #include "Enemies/BlindEyeEnemyBase.h"
 #include "HunterEnemy.generated.h"
 
+UENUM(BlueprintType)
+enum class EHunterAttacks : uint8
+{
+	ChargedAttack
+};
+
 class UBaseDamageType;
 enum class EHunterStates : uint8;
 
@@ -47,6 +53,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UBaseDamageType> JumpAttackDamageType;
 
+	UPROPERTY(EditDefaultsOnly, Category=ChargedAttack)
+	float ChargedAttackCooldown = 10.f;
+
+	UPROPERTY(EditDefaultsOnly, Category=ChargedAttack)
+	float ChargedAttackDuration = 1.0f;
+
 	UPROPERTY(BlueprintReadWrite)
 	bool IsVisible = false;
 
@@ -56,18 +68,37 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float JumpAttackSwingDelay = 0.3f;
 
+	
+
 	void PerformJumpAttack();
-	void JumpAttackSwing();
+	void PerformChargedAttack();
+	void JumpAttackSwing(); 
 
 	void TrySetVisibility(bool visibility);
 
 	void UpdateMovementSpeed(EHunterStates NewHunterState);
 
 	virtual void OnDeath(AActor* ActorThatKilled) override;
+
+	bool GetIsChargedAttackOnCooldown();
+	
+	bool GetIsAttacking();
  
 protected:
 	
 	FTimerHandle JumpAttackSwingDelayTimerHandle;
+
+	bool bAttacking = false;
+
+	bool bChargeAttackCooldown = true;
+	void SetChargedAttackOffCooldown();
+	FTimerHandle ChargedAttackCooldownTimerHandle;
+
+	float CurrTimeOfChargedAttack = 0;	// Keeps track of how long of the jump the charged attack has been performed for
+	FVector ChargedAttackTargetLocation;
+	FVector ChargedAttackStartLocation; 
+	FTimerHandle PerformingChargedAttackTimerHandle;
+	void PerformingJumpAttack();
 
 	// Intermediary method to make RPC call to blueprint implementable method
 	UFUNCTION(NetMulticast, Reliable)
@@ -77,3 +108,4 @@ protected:
 	void TrySetVisibiltiyHelper(bool visibility);
 	
 };
+

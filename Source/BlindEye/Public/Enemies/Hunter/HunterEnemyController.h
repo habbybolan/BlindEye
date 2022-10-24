@@ -38,7 +38,7 @@ public:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
-	float DistanceToJumpAttack = 200.f;
+	float DistanceToChargeAttack = 200.f;
  
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
 	float JumpAttackDelay = 1.5f;
@@ -60,6 +60,10 @@ public:
 	
 	bool CanJumpAttack(AActor* Target);
 	void PerformJumpAttack();
+
+	void PerformChargedAttack();
+
+	bool CanChargedAttack(AActor* Target);
 
 	// Debugger functionality for spawning a hunter
 	//	If a hunter is already alive, then dont do anything
@@ -86,7 +90,9 @@ protected:
 	UFUNCTION()
 	void SetEnteredNewIsland(AActor* OverlappedActor, AActor* OtherActor);
  
-	bool IsInJumpAttackRange(AActor* Target);
+	bool IsInChargedAttackRange(AActor* Target);
+
+	bool IsOnSameIslandAsPlayer(AActor* Target);
 
 	UPROPERTY() 
 	AHunterEnemy* Hunter;
