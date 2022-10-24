@@ -28,7 +28,7 @@ void UBTS_HunterState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 	if (ensure(BBComp))
 	{
 		BBComp->SetValueAsBool(IsAttackingKey.SelectedKeyName, Hunter->GetIsAttacking());
-		BBComp->SetValueAsBool(bChargedAttackOnCooldownKey.SelectedKeyName, Hunter->GetIsChargedAttackOnCooldown());
+		BBComp->SetValueAsBool(bChargedAttackOnCooldownKey.SelectedKeyName, Hunter->GetIsChargedJumpOnCooldown());
 
 		FAppliedStatusEffects StatusEffects = Hunter->GetAppliedStatusEffects();
 		BBComp->SetValueAsBool(IsImmobilizedKey.SelectedKeyName, StatusEffects.IsStun || StatusEffects.IsStaggered);

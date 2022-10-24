@@ -67,7 +67,7 @@ void AHunterEnemyController::SetAlwaysVisible(bool IsAlwaysVisible)
 
 bool AHunterEnemyController::CanJumpAttack(AActor* Target)
 {
-	return !IsJumpAttackOnDelay && IsInChargedAttackRange(Target);
+	return !IsJumpAttackOnDelay && IsInChargedJumpRange(Target);
 }
 
 void AHunterEnemyController::PerformJumpAttack()
@@ -78,11 +78,11 @@ void AHunterEnemyController::PerformJumpAttack()
 	GetWorldTimerManager().SetTimer(JumpAttackDelayTimerHandle, this, &AHunterEnemyController::SetCanBasicAttack, JumpAttackDelay, false);
 }
 
-void AHunterEnemyController::PerformChargedAttack()
+void AHunterEnemyController::PerformChargedJump()
 {
 	if (Hunter)
 	{
-		Hunter->PerformChargedAttack();
+		Hunter->PerformChargedJump();
 	}
 }
 
@@ -94,13 +94,13 @@ void AHunterEnemyController::PerformBasicAttack()
 	}
 }
 
-bool AHunterEnemyController::CanChargedAttack(AActor* Target)
+bool AHunterEnemyController::CanChargedJump(AActor* Target)
 {
 	if (Hunter == nullptr) return false;
 	
 	// TODO: Check if visible sight to player and no obstacles in the way	
-	return !Hunter->GetIsChargedAttackOnCooldown() &&
-			IsInChargedAttackRange(Target) &&
+	return !Hunter->GetIsChargedJumpOnCooldown() &&
+			IsInChargedJumpRange(Target) &&
 			IsOnSameIslandAsPlayer(Target) &&
 			!Hunter->GetCharacterMovement()->IsFalling();
 }
@@ -128,12 +128,12 @@ void AHunterEnemyController::UpdateMovementSpeed(EHunterStates NewHunterState)
 	Hunter->UpdateMovementSpeed(NewHunterState);
 }
 
-bool AHunterEnemyController::IsInChargedAttackRange(AActor* Target)
+bool AHunterEnemyController::IsInChargedJumpRange(AActor* Target)
 {
 	if (Hunter)
 	{
 		float Distance = FVector::Distance(Target->GetActorLocation(), Hunter->GetActorLocation());
-		return Distance < Hunter->MaxDistanceToChargeAttack &&  Distance > Hunter->MinDistanceToChargeAttack;
+		return Distance < Hunter->MaxDistanceToChargeJump &&  Distance > Hunter->MinDistanceToChargeJump;
 	}
 	return false;
 }

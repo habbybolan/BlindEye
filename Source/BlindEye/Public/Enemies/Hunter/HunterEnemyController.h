@@ -58,10 +58,10 @@ public:
 	bool CanJumpAttack(AActor* Target);
 	void PerformJumpAttack();
 
-	void PerformChargedAttack();
+	void PerformChargedJump();
 	void PerformBasicAttack(); 
 
-	bool CanChargedAttack(AActor* Target);
+	bool CanChargedJump(AActor* Target);
 
 	// Debugger functionality for spawning a hunter
 	//	If a hunter is already alive, then dont do anything
@@ -88,7 +88,7 @@ protected:
 	UFUNCTION()
 	void SetEnteredNewIsland(AActor* OverlappedActor, AActor* OtherActor);
  
-	bool IsInChargedAttackRange(AActor* Target);
+	bool IsInChargedJumpRange(AActor* Target);
 
 	bool IsOnSameIslandAsPlayer(AActor* Target);
 

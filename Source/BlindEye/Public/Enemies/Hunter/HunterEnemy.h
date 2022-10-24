@@ -9,8 +9,8 @@
 UENUM(BlueprintType)
 enum class EHunterAttacks : uint8
 {
-	ChargedAttack,
-	BasicAttack
+	BasicAttack,
+	ChargedJump
 };
 
 class UBaseDamageType;
@@ -54,23 +54,23 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UBaseDamageType> JumpAttackDamageType;
 
-	UPROPERTY(EditDefaultsOnly, Category=ChargedAttack)
-	float ChargedAttackCooldown = 10.f;
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump)
+	float ChargedJumpCooldown = 10.f;
 
-	UPROPERTY(EditDefaultsOnly, Category=ChargedAttack)
-	float ChargedAttackDuration = 1.0f;
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump)
+	float ChargedJumpDuration = 1.0f;
  
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=ChargeAttack)
-	float MaxDistanceToChargeAttack = 1500.f;
+	float MaxDistanceToChargeJump = 1500.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=ChargeAttack)
-	float MinDistanceToChargeAttack = 200.f; 
+	float MinDistanceToChargeJump = 200.f; 
  
-	UPROPERTY(EditDefaultsOnly, Category=ChargedAttack, meta=(ClampMin=0, ClampMax=1))
-	float MovementSpeedAlteredDuringChargeAttackCooldown = 0.5f;
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump, meta=(ClampMin=0, ClampMax=1))
+	float MovementSpeedAlteredDuringNotCharged = 0.5f;
 
-	UPROPERTY(EditDefaultsOnly, Category=ChargedAttack) 
-	float ChargedAttackLandingDistanceBeforeTarget = 70.f;
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
+	float ChargedJumpLandingDistanceBeforeTarget = 70.f;
 
 	UPROPERTY(EditDefaultsOnly, Category=BasicAttack) 
 	UAnimMontage* BasicAttackAnimation; 
@@ -87,8 +87,8 @@ public:
 	
 
 	void PerformJumpAttack();
-	void PerformChargedAttack();
-	void ChargedAttackSwingDamage();
+	void PerformChargedJump();
+	void ChargedJumpSwingDamage();
 	 
 	void PerformBasicAttack();
 
@@ -98,7 +98,7 @@ public:
 
 	virtual void OnDeath(AActor* ActorThatKilled) override;
 
-	bool GetIsChargedAttackOnCooldown();
+	bool GetIsChargedJumpOnCooldown();
 	
 	bool GetIsAttacking();
  
@@ -116,7 +116,7 @@ protected:
 	void MULT_PerformBasicAttackHelper();
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_PerformChargedAttackHelper(FVector StartLoc, FVector EndLoc);
+	void MULT_PerformChargedJumpHelper(FVector StartLoc, FVector EndLoc);
 
 	UFUNCTION()
 	void OnHunterMarkDetonated();
@@ -127,13 +127,13 @@ protected:
 	void UnsubscribeToTargetMarks();
 
 	bool bChargeAttackCooldown = false;
-	void SetChargedAttackOffCooldown();
-	FTimerHandle ChargedAttackCooldownTimerHandle;
+	void SetChargedJumpOffCooldown();
+	FTimerHandle ChargedJumpCooldownTimerHandle;
 
-	float CurrTimeOfChargedAttack = 0;	// Keeps track of how long of the jump the charged attack has been performed for
-	FVector ChargedAttackTargetLocation;
-	FVector ChargedAttackStartLocation; 
-	FTimerHandle PerformingChargedAttackTimerHandle;
+	float CurrTimeOfChargedJump = 0;	// Keeps track of how long of the jump the charged attack has been performed for
+	FVector ChargedJumpTargetLocation;
+	FVector ChargedJumpStartLocation; 
+	FTimerHandle PerformingChargedJumpTimerHandle;
 	void PerformingJumpAttack();
 
 	// Intermediary method to make RPC call to blueprint implementable method

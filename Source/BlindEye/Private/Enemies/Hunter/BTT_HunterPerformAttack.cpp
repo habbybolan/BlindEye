@@ -20,9 +20,9 @@ EBTNodeResult::Type UBTT_HunterPerformAttack::ExecuteTask(UBehaviorTreeComponent
 	if (HunterController == nullptr) return EBTNodeResult::Failed;
 	Hunter = Cast<AHunterEnemy>(HunterController->GetPawn());
 
-	if (AttackType == EHunterAttacks::ChargedAttack)
+	if (AttackType == EHunterAttacks::ChargedJump)
 	{
-		HunterController->PerformChargedAttack();
+		HunterController->PerformChargedJump();
 	} else if (AttackType == EHunterAttacks::BasicAttack)
 	{
 		HunterController->PerformBasicAttack();

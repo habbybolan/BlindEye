@@ -20,8 +20,8 @@ void UBTS_HunterTryToAttack::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
 	AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(AIOwner);
 	if (HunterController == nullptr) return;
 	
-	if (HunterController->CanChargedAttack(Target))
+	if (HunterController->CanChargedJump(Target))
 	{
-		HunterController->PerformChargedAttack();
+		HunterController->PerformChargedJump();
 	}
 }

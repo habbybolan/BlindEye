@@ -27,7 +27,7 @@ void AHunterEnemy::BeginPlay()
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
 
-	World->GetTimerManager().SetTimer(ChargedAttackCooldownTimerHandle, this, &AHunterEnemy::SetChargedAttackOffCooldown, ChargedAttackCooldown / 2, false);
+	World->GetTimerManager().SetTimer(ChargedJumpCooldownTimerHandle, this, &AHunterEnemy::SetChargedJumpOffCooldown, ChargedJumpCooldown / 2, false);
 }
 
 void AHunterEnemy::PerformJumpAttack()
@@ -41,12 +41,12 @@ void AHunterEnemy::PerformJumpAttack()
 			Direction.Normalize();
 			Direction += FVector::UpVector * JumpUpForce;
 			GetCharacterMovement()->AddImpulse(Direction * ForceApplied);
-			GetWorldTimerManager().SetTimer(JumpAttackSwingDelayTimerHandle, this, &AHunterEnemy::ChargedAttackSwingDamage, JumpAttackSwingDelay, false);
+			GetWorldTimerManager().SetTimer(JumpAttackSwingDelayTimerHandle, this, &AHunterEnemy::ChargedJumpSwingDamage, JumpAttackSwingDelay, false);
 		}
 	}
 }
 
-void AHunterEnemy::PerformChargedAttack()
+void AHunterEnemy::PerformChargedJump()
 {
 	if (ABlindEyeEnemyController* BlindEyeController = Cast<ABlindEyeEnemyController>(GetController()))
 	{
@@ -57,67 +57,67 @@ void AHunterEnemy::PerformChargedAttack()
 			// Have target position land before the target
 			FVector DirectionVec = Target->GetActorLocation() - GetActorLocation();
 			DirectionVec.Normalize();
-			DirectionVec *= ChargedAttackLandingDistanceBeforeTarget;
+			DirectionVec *= ChargedJumpLandingDistanceBeforeTarget;
 
-			GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed * MovementSpeedAlteredDuringChargeAttackCooldown;
-			GetWorldTimerManager().SetTimer(ChargedAttackCooldownTimerHandle, this, &AHunterEnemy::SetChargedAttackOffCooldown, ChargedAttackCooldown, false);
-			MULT_PerformChargedAttackHelper(GetActorLocation(), Target->GetActorLocation() - DirectionVec);
+			GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed * MovementSpeedAlteredDuringNotCharged;
+			GetWorldTimerManager().SetTimer(ChargedJumpCooldownTimerHandle, this, &AHunterEnemy::SetChargedJumpOffCooldown, ChargedJumpCooldown, false);
+			MULT_PerformChargedJumpHelper(GetActorLocation(), Target->GetActorLocation() - DirectionVec);
 		}
 	}
 }
 
-void AHunterEnemy::MULT_PerformChargedAttackHelper_Implementation(FVector StartLoc, FVector EndLoc)
+void AHunterEnemy::MULT_PerformChargedJumpHelper_Implementation(FVector StartLoc, FVector EndLoc)
 {
 	// Set Start and end locations of jump for Easing
-	ChargedAttackStartLocation = StartLoc;
-	ChargedAttackTargetLocation = EndLoc;
+	ChargedJumpStartLocation = StartLoc;
+	ChargedJumpTargetLocation = EndLoc;
 	
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	GetWorldTimerManager().SetTimer(PerformingChargedAttackTimerHandle, this, &AHunterEnemy::PerformingJumpAttack, 0.02, true);
+	GetWorldTimerManager().SetTimer(PerformingChargedJumpTimerHandle, this, &AHunterEnemy::PerformingJumpAttack, 0.02, true);
 }
 
 void AHunterEnemy::PerformingJumpAttack()
 { 
-	FVector ForwardEase = UKismetMathLibrary::VEase(ChargedAttackStartLocation * FVector(1, 1, 0),
-		ChargedAttackTargetLocation* FVector(1, 1, 0), CurrTimeOfChargedAttack / ChargedAttackDuration, EEasingFunc::Linear);
+	FVector ForwardEase = UKismetMathLibrary::VEase(ChargedJumpStartLocation * FVector(1, 1, 0),
+		ChargedJumpTargetLocation* FVector(1, 1, 0), CurrTimeOfChargedJump / ChargedJumpDuration, EEasingFunc::Linear);
 
 	FVector UpEase;
-	FVector HalfDirectionToTarget = (ChargedAttackTargetLocation - ChargedAttackStartLocation) / 2 + FVector::UpVector * 200;
-	float HalfChargedAttackDuration = ChargedAttackDuration / 2;
+	FVector HalfDirectionToTarget = (ChargedJumpTargetLocation - ChargedJumpStartLocation) / 2 + FVector::UpVector * 200;
+	float HalfChargedAttackDuration = ChargedJumpDuration / 2;
 	// If at first half of jump, jump from starting Z to jump Z-Peak
-	if (CurrTimeOfChargedAttack / ChargedAttackDuration <= 0.5)
+	if (CurrTimeOfChargedJump / ChargedJumpDuration <= 0.5)
 	{
-		 UpEase = UKismetMathLibrary::VEase(ChargedAttackStartLocation * FVector::UpVector,
-			(ChargedAttackTargetLocation + HalfDirectionToTarget) * FVector::UpVector, CurrTimeOfChargedAttack / HalfChargedAttackDuration, EEasingFunc::CircularOut);
+		 UpEase = UKismetMathLibrary::VEase(ChargedJumpStartLocation * FVector::UpVector,
+			(ChargedJumpTargetLocation + HalfDirectionToTarget) * FVector::UpVector, CurrTimeOfChargedJump / HalfChargedAttackDuration, EEasingFunc::CircularOut);
 	}
 	// Other latter half of jump, Go from Jump Z-Peak to end point Z
 	else
 	{
-		UpEase = UKismetMathLibrary::VEase((ChargedAttackTargetLocation + HalfDirectionToTarget) * FVector::UpVector,
-		   ChargedAttackTargetLocation * FVector::UpVector,
-		   (CurrTimeOfChargedAttack - HalfChargedAttackDuration) / (ChargedAttackDuration - HalfChargedAttackDuration), EEasingFunc::CircularIn);
+		UpEase = UKismetMathLibrary::VEase((ChargedJumpTargetLocation + HalfDirectionToTarget) * FVector::UpVector,
+		   ChargedJumpTargetLocation * FVector::UpVector,
+		   (CurrTimeOfChargedJump - HalfChargedAttackDuration) / (ChargedJumpDuration - HalfChargedAttackDuration), EEasingFunc::CircularIn);
 	}
 
 	SetActorLocation(ForwardEase + UpEase);
-	CurrTimeOfChargedAttack += 0.02;
+	CurrTimeOfChargedJump += 0.02;
 
-	if (CurrTimeOfChargedAttack >= ChargedAttackDuration)
+	if (CurrTimeOfChargedJump >= ChargedJumpDuration)
 	{
-		GetWorldTimerManager().ClearTimer(PerformingChargedAttackTimerHandle);
+		GetWorldTimerManager().ClearTimer(PerformingChargedJumpTimerHandle);
 		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		CurrTimeOfChargedAttack = 0;
+		CurrTimeOfChargedJump = 0;
 		bAttacking = false;
 
 		if (GetLocalRole() == ROLE_Authority)
 		{
-			ChargedAttackSwingDamage();
+			ChargedJumpSwingDamage();
 		}
 	}
 }  
 
-void AHunterEnemy::ChargedAttackSwingDamage()
+void AHunterEnemy::ChargedJumpSwingDamage()
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
@@ -238,13 +238,13 @@ void AHunterEnemy::OnDeath(AActor* ActorThatKilled)
 	Destroy();
 }
 
-void AHunterEnemy::SetChargedAttackOffCooldown()
+void AHunterEnemy::SetChargedJumpOffCooldown()
 {
 	bChargeAttackCooldown = false;
 	GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed;
 	
 	UWorld* World = GetWorld();
-	if (World) World->GetTimerManager().ClearTimer(ChargedAttackCooldownTimerHandle);
+	if (World) World->GetTimerManager().ClearTimer(ChargedJumpCooldownTimerHandle);
 }
 
 void AHunterEnemy::MULT_TurnVisible_Implementation(bool visibility)
@@ -252,7 +252,7 @@ void AHunterEnemy::MULT_TurnVisible_Implementation(bool visibility)
 	TrySetVisibiltiyHelper(visibility);
 }
 
-bool AHunterEnemy::GetIsChargedAttackOnCooldown()
+bool AHunterEnemy::GetIsChargedJumpOnCooldown()
 {
 	return bChargeAttackCooldown;
 }
