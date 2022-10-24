@@ -73,15 +73,20 @@ void AHunterEnemy::PerformingJumpAttack()
 		ChargedAttackTargetLocation* FVector(1, 1, 0), CurrTimeOfChargedAttack / ChargedAttackDuration, EEasingFunc::Linear);
 
 	FVector UpEase;
-	FVector HalfDirectionToTarget = (ChargedAttackTargetLocation - ChargedAttackStartLocation) / 2 + FVector::UpVector * 250;
+	FVector HalfDirectionToTarget = (ChargedAttackTargetLocation - ChargedAttackStartLocation) / 2 + FVector::UpVector * 200;
+	float HalfChargedAttackDuration = ChargedAttackDuration / 2;
+	// If at first half of jump, jump from starting Z to jump Z-Peak
 	if (CurrTimeOfChargedAttack / ChargedAttackDuration <= 0.5)
 	{
 		 UpEase = UKismetMathLibrary::VEase(ChargedAttackStartLocation * FVector::UpVector,
-			(ChargedAttackTargetLocation + HalfDirectionToTarget) * FVector::UpVector, CurrTimeOfChargedAttack / ChargedAttackDuration / 2, EEasingFunc::Linear);
-	} else
+			(ChargedAttackTargetLocation + HalfDirectionToTarget) * FVector::UpVector, CurrTimeOfChargedAttack / HalfChargedAttackDuration, EEasingFunc::CircularOut);
+	}
+	// Other latter half of jump, Go from Jump Z-Peak to end point Z
+	else
 	{
 		UpEase = UKismetMathLibrary::VEase((ChargedAttackTargetLocation + HalfDirectionToTarget) * FVector::UpVector,
-		   ChargedAttackTargetLocation * FVector::UpVector, CurrTimeOfChargedAttack / ChargedAttackDuration / 2, EEasingFunc::Linear);
+		   ChargedAttackTargetLocation * FVector::UpVector,
+		   (CurrTimeOfChargedAttack - HalfChargedAttackDuration) / (ChargedAttackDuration - HalfChargedAttackDuration), EEasingFunc::CircularIn);
 	}
 
 	SetActorLocation(ForwardEase + UpEase);
