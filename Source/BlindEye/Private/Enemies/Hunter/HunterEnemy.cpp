@@ -151,20 +151,27 @@ void AHunterEnemy::ChargedAttackSwingDamage()
 
 void AHunterEnemy::PerformBasicAttack()
 {
+	bAttacking = true;
+	MULT_PerformBasicAttackHelper();
+}
+
+void AHunterEnemy::MULT_PerformBasicAttackHelper_Implementation()
+{
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
 	
 	float Duration = PlayAnimMontage(BasicAttackAnimation, 1);
-	bAttacking = true;
 	World->GetTimerManager().SetTimer(BasicAttackTimerHandle, this, &AHunterEnemy::SetBasicAttackFinished, Duration, false);
 }
 
 void AHunterEnemy::SetBasicAttackFinished()
 {
-	bAttacking = false;
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		bAttacking = false;
+	}
 	StopAnimMontage(BasicAttackAnimation);
 }
-
 void AHunterEnemy::OnHunterMarkDetonated()
 {
 	UnsubscribeToTargetMarks();

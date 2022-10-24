@@ -106,6 +106,8 @@ protected:
 
 	FTimerHandle BasicAttackTimerHandle;
 	void SetBasicAttackFinished();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_PerformBasicAttackHelper();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_PerformChargedAttackHelper(FVector StartLoc, FVector EndLoc);
