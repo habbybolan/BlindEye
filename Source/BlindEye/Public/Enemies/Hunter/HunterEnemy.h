@@ -9,7 +9,8 @@
 UENUM(BlueprintType)
 enum class EHunterAttacks : uint8
 {
-	ChargedAttack
+	ChargedAttack,
+	BasicAttack
 };
 
 class UBaseDamageType;
@@ -65,6 +66,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=ChargedAttack) 
 	float ChargedAttackLandingDistanceBeforeTarget = 70.f;
 
+	UPROPERTY(EditDefaultsOnly, Category=BasicAttack) 
+	UAnimMontage* BasicAttackAnimation; 
+
 	UPROPERTY(BlueprintReadWrite)
 	bool IsVisible = false;
 
@@ -78,7 +82,9 @@ public:
 
 	void PerformJumpAttack();
 	void PerformChargedAttack();
-	void ChargedAttackSwing(); 
+	void ChargedAttackSwing();
+	 
+	void PerformBasicAttack();
 
 	void TrySetVisibility(bool visibility);
 
@@ -97,6 +103,9 @@ protected:
 	bool bAttacking = false;
 
 	float CachedRunningSpeed;
+
+	FTimerHandle BasicAttackTimerHandle;
+	void SetBasicAttackFinished();
 
 	bool bChargeAttackCooldown = false;
 	void SetChargedAttackOffCooldown();

@@ -80,7 +80,18 @@ void AHunterEnemyController::PerformJumpAttack()
 
 void AHunterEnemyController::PerformChargedAttack()
 {
-	Hunter->PerformChargedAttack();
+	if (Hunter)
+	{
+		Hunter->PerformChargedAttack();
+	}
+}
+
+void AHunterEnemyController::PerformBasicAttack()
+{
+	if (Hunter)
+	{
+		Hunter->PerformBasicAttack();
+	}
 }
 
 bool AHunterEnemyController::CanChargedAttack(AActor* Target)

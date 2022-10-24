@@ -62,6 +62,7 @@ public:
 	void PerformJumpAttack();
 
 	void PerformChargedAttack();
+	void PerformBasicAttack(); 
 
 	bool CanChargedAttack(AActor* Target);
 

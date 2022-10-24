@@ -23,6 +23,9 @@ EBTNodeResult::Type UBTT_HunterPerformAttack::ExecuteTask(UBehaviorTreeComponent
 	if (AttackType == EHunterAttacks::ChargedAttack)
 	{
 		HunterController->PerformChargedAttack();
+	} else if (AttackType == EHunterAttacks::BasicAttack)
+	{
+		HunterController->PerformBasicAttack();
 	}
 	
 	return EBTNodeResult::InProgress;

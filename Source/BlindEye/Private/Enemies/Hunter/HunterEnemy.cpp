@@ -116,14 +116,38 @@ void AHunterEnemy::ChargedAttackSwing()
 	TArray<FHitResult> OutHits;
 	UKismetSystemLibrary::BoxTraceMultiForObjects(world, GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 1000, FVector(0, 100 / 2, 100 / 2),
 		GetActorRotation(), ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true);
-
+ 
+	AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(GetController());
+	if (!ensure(HunterController)) return;
+	
+	AActor* Target = HunterController->GetBTTarget();
 	for (FHitResult Hit : OutHits)
 	{
 		AActor* HitActor = Hit.GetActor();
 		if (!HitActor) continue;
 
-		UGameplayStatics::ApplyPointDamage(HitActor, JumpAttackDamage, Hit.ImpactNormal, Hit, GetController(), this, JumpAttackDamageType);
+		// Only allow hitting target
+		if (HitActor == Target)
+		{
+			UGameplayStatics::ApplyPointDamage(HitActor, JumpAttackDamage, Hit.ImpactNormal, Hit, GetController(), this, JumpAttackDamageType);
+		}
 	}
+}
+
+void AHunterEnemy::PerformBasicAttack()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	float Duration = PlayAnimMontage(BasicAttackAnimation, 1);
+	bAttacking = true;
+	World->GetTimerManager().SetTimer(BasicAttackTimerHandle, this, &AHunterEnemy::SetBasicAttackFinished, Duration, false);
+}
+
+void AHunterEnemy::SetBasicAttackFinished()
+{
+	bAttacking = false;
+	StopAnimMontage(BasicAttackAnimation);
 }
 
 void AHunterEnemy::TrySetVisibility(bool visibility)
