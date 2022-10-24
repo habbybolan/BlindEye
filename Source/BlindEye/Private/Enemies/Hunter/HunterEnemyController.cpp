@@ -130,10 +130,12 @@ void AHunterEnemyController::UpdateMovementSpeed(EHunterStates NewHunterState)
 
 bool AHunterEnemyController::IsInChargedAttackRange(AActor* Target)
 {
-	if (GetPawn() == nullptr) return false;
-	
-	float Distance = FVector::Distance(Target->GetActorLocation(), GetPawn()->GetActorLocation());
-	return Distance < DistanceToChargeAttack;
+	if (Hunter)
+	{
+		float Distance = FVector::Distance(Target->GetActorLocation(), Hunter->GetActorLocation());
+		return Distance < Hunter->MaxDistanceToChargeAttack &&  Distance > Hunter->MinDistanceToChargeAttack;
+	}
+	return false;
 }
 
 bool AHunterEnemyController::IsOnSameIslandAsPlayer(AActor* Target)

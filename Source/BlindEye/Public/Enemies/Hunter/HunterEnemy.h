@@ -60,6 +60,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=ChargedAttack)
 	float ChargedAttackDuration = 1.0f;
  
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=ChargeAttack)
+	float MaxDistanceToChargeAttack = 1500.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=ChargeAttack)
+	float MinDistanceToChargeAttack = 200.f; 
+ 
 	UPROPERTY(EditDefaultsOnly, Category=ChargedAttack, meta=(ClampMin=0, ClampMax=1))
 	float MovementSpeedAlteredDuringChargeAttackCooldown = 0.5f;
 

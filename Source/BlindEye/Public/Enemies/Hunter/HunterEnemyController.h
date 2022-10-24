@@ -36,9 +36,6 @@ class BLINDEYE_API AHunterEnemyController : public ABlindEyeEnemyController
 public:
 	AHunterEnemyController();
 	virtual void BeginPlay() override;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
-	float DistanceToChargeAttack = 200.f;
  
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
 	float JumpAttackDelay = 1.5f;
