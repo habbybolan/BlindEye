@@ -102,7 +102,17 @@ bool AHunterEnemyController::CanChargedJump(AActor* Target)
 	return !Hunter->GetIsChargedJumpOnCooldown() &&
 			IsInChargedJumpRange(Target) &&
 			IsOnSameIslandAsPlayer(Target) &&
-			!Hunter->GetCharacterMovement()->IsFalling();
+			!Hunter->GetCharacterMovement()->IsFalling() &&
+			!Hunter->GetIsAttacking();
+}
+
+bool AHunterEnemyController::CanBasicAttack(AActor* Target)
+{
+	if (Hunter == nullptr) return false;
+	
+	return  IsInBasicAttackRange(Target) &&
+			IsOnSameIslandAsPlayer(Target) &&
+			!Hunter->GetIsAttacking();
 }
 
 void AHunterEnemyController::DebugSpawnHunter()
@@ -134,6 +144,16 @@ bool AHunterEnemyController::IsInChargedJumpRange(AActor* Target)
 	{
 		float Distance = FVector::Distance(Target->GetActorLocation(), Hunter->GetActorLocation());
 		return Distance < Hunter->MaxDistanceToChargeJump &&  Distance > Hunter->MinDistanceToChargeJump;
+	}
+	return false;
+}
+
+bool AHunterEnemyController::IsInBasicAttackRange(AActor* Target)
+{
+	if (Hunter)
+	{
+		float Distance = FVector::Distance(Target->GetActorLocation(), Hunter->GetActorLocation());
+		return Distance < Hunter->MaxDistanceForBasicAttack;
 	}
 	return false;
 }

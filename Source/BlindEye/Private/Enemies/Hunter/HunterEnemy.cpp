@@ -291,3 +291,16 @@ bool AHunterEnemy::GetIsCharged()
 	return bCharged;
 }
 
+void AHunterEnemy::ApplyBasicAttackDamage(FHitResult Hit, bool IfShouldApplyHunterMark)
+{
+	// base DamageType and damage amount if Hunter Charged and if marking target
+	TSubclassOf<UBaseDamageType> DamageTypeToApply = IfShouldApplyHunterMark ? BasicAttackDamageTypeWithMark : BasicAttackDamageTypeNoMark;
+	UGameplayStatics::ApplyPointDamage(Hit.Actor.Get(), BasicAttackDamage, Hit.ImpactNormal, Hit, GetController(), this, DamageTypeToApply);
+
+	// Remove Charged once marked player
+	if (bCharged && IfShouldApplyHunterMark)
+	{
+		SetNotCharged();
+	}
+}
+

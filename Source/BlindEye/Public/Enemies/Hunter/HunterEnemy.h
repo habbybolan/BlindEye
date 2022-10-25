@@ -54,6 +54,18 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UBaseDamageType> JumpAttackDamageType;
 
+	UPROPERTY(EditDefaultsOnly, Category=BasicAttack, meta=(ClampMin=0))
+	float BasicAttackDamage = 10.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=BasicAttack)
+	float MaxDistanceForBasicAttack = 150.f;
+
+	UPROPERTY(EditDefaultsOnly, Category=BasicAttack)
+	TSubclassOf<UBaseDamageType> BasicAttackDamageTypeNoMark;
+
+	UPROPERTY(EditDefaultsOnly, Category=BasicAttack)
+	TSubclassOf<UBaseDamageType> BasicAttackDamageTypeWithMark;  
+
 	UPROPERTY(EditDefaultsOnly, Category=Charged, meta=(ClampMin=1))
 	float ChargedCooldown = 15.f;
 
@@ -108,7 +120,9 @@ public:
 	
 	bool GetIsAttacking();
 
-	bool GetIsCharged();
+	bool GetIsCharged(); 
+ 
+	void ApplyBasicAttackDamage(FHitResult Hit, bool IfShouldApplyHunterMark);
  
 protected:
 	

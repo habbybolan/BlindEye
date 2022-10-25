@@ -23,5 +23,8 @@ void UBTS_HunterTryToAttack::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
 	if (HunterController->CanChargedJump(Target))
 	{
 		HunterController->PerformChargedJump();
+	} else if (HunterController->CanBasicAttack(Target))
+	{
+		HunterController->PerformBasicAttack();
 	}
 }
