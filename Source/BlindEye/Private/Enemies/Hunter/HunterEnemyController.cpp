@@ -102,6 +102,7 @@ bool AHunterEnemyController::CanChargedJump(AActor* Target)
 	return !Hunter->GetIsChargedJumpOnCooldown() &&
 			IsInChargedJumpRange(Target) &&
 			IsOnSameIslandAsPlayer(Target) &&
+			Hunter->GetIsCharged() &&
 			!Hunter->GetCharacterMovement()->IsFalling() &&
 			!Hunter->GetIsAttacking();
 }
