@@ -35,7 +35,7 @@ void UANS_HunterBasicAttack::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimS
 
 	// Attack from Right arm bone
 	FVector SwingStartLOC = MeshComp->GetBoneLocation("RightForeArm");
-	FVector SwingEndLOC = SwingStartLOC + MeshComp->GetBoneQuaternion("RightForeArm").Vector() - MeshComp->GetBoneQuaternion("RightHand").Vector() * 50;
+	FVector SwingEndLOC = SwingStartLOC + (MeshComp->GetBoneLocation("RightHand") - MeshComp->GetBoneLocation("RightForeArm")) * 3;
 
 	TArray<FHitResult> HitResults;
 	if (UKismetSystemLibrary::SphereTraceMultiForObjects(World, SwingStartLOC, SwingEndLOC, Radius, DamageObjectTypes, false, TArray<AActor*>(),
