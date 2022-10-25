@@ -71,7 +71,8 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 
 		
 		float damageMultiplied = Damage * baseDamageType->ProcessDamage(DamageCauser, GetOwner(), HitLocation, this);
-
+		damageMultiplied = ProcessDamage(damageMultiplied);
+		
 		// Debug invincibility
 		if (IsInvincible) damageMultiplied = 0;
 
@@ -89,6 +90,12 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 			OnDeath(DamageCauser->GetInstigator());
 		}
 	}
+}
+
+float UHealthComponent::ProcessDamage(float Damage)
+{
+	// For child class to do any extra logic with damage application
+	return Damage;
 }
 
 void UHealthComponent::OnDeath(AActor* ActorThatKilled)

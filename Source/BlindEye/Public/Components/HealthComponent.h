@@ -189,6 +189,7 @@ protected:
 	FVector Origin, FHitResult HitInfo, AController* InstigatedBy, AActor* DamageCauser);
 
 	void SetDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
+	virtual float ProcessDamage(float Damage); 
 
 	// Detonation Effect properties *********
 	

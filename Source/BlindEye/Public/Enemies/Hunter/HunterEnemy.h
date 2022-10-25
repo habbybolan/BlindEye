@@ -72,6 +72,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=Charged, meta=(ClampMin=0, ToolTip="0 for infinite duration"))
 	float ChargedDuration = 0;
 
+	UPROPERTY(EditDefaultsOnly, Category=Charged, meta=(ClampMin=0, ClampMax=1, ToolTip="Percent of Damage to apply while Hunter not charged"))
+	float UnchargedDamagePercent = 0.1;
+ 
 	UPROPERTY(EditDefaultsOnly, Category=ChargedJump)
 	float ChargedJumpCooldown = 10.f;
 
