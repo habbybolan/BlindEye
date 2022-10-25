@@ -8,22 +8,6 @@
 #include "HunterEnemyController.generated.h"
 
 class ABurrowerTriggerVolume;
-UENUM(BlueprintType)
-enum class EStrafeDirection : uint8
-{
-	None,
-	Left,
-	Right
-};
-
-
-UENUM(BlueprintType) 
-enum class EHunterStates : uint8
-{
-	Stalking,
-	Attacking,
-	Running
-};
 
 /**
  * 
@@ -36,9 +20,6 @@ class BLINDEYE_API AHunterEnemyController : public ABlindEyeEnemyController
 public:
 	AHunterEnemyController();
 	virtual void BeginPlay() override;
- 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
-	float JumpAttackDelay = 1.5f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float SpawnDelay = 15.f;
@@ -54,9 +35,6 @@ public:
 	// Calls blueprint to initialize behavior tree
 	UFUNCTION(BlueprintImplementableEvent)
 	void InitializeBehaviorTree();
-	
-	bool CanJumpAttack(AActor* Target);
-	void PerformJumpAttack();
 
 	void PerformChargedJump();
 	void PerformBasicAttack(); 
@@ -70,16 +48,11 @@ public:
 	void DebugSpawnHunter();
 
 	void TrySetVisibility(bool visibility);
-
-	void UpdateMovementSpeed(EHunterStates NewHunterState);
-
+	
 	UFUNCTION()
 	void OnHunterDeath(AActor* HunterKilled);
 	
 protected:
-
-	bool IsJumpAttackOnDelay = false;
-	FTimerHandle JumpAttackDelayTimerHandle;
 
 	FTimerHandle SpawnDelayTimerHandle;
  
@@ -99,7 +72,6 @@ protected:
 	AHunterEnemy* Hunter;
 
 	virtual void OnPossess(APawn* InPawn) override;
-	void SetCanBasicAttack();
 
 	ABurrowerTriggerVolume* CheckIslandSpawnedOn();
 	

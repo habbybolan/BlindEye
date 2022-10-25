@@ -65,19 +65,6 @@ void AHunterEnemyController::SetAlwaysVisible(bool IsAlwaysVisible)
 	}
 }
 
-bool AHunterEnemyController::CanJumpAttack(AActor* Target)
-{
-	return !IsJumpAttackOnDelay && IsInChargedJumpRange(Target);
-}
-
-void AHunterEnemyController::PerformJumpAttack()
-{
-	IsJumpAttackOnDelay = true;
-	GetBlackboardComponent()->SetValueAsBool("bAttacking", true);
-	Hunter->PerformJumpAttack();
-	GetWorldTimerManager().SetTimer(JumpAttackDelayTimerHandle, this, &AHunterEnemyController::SetCanBasicAttack, JumpAttackDelay, false);
-}
-
 void AHunterEnemyController::PerformChargedJump()
 {
 	if (Hunter)
@@ -131,12 +118,6 @@ void AHunterEnemyController::TrySetVisibility(bool visibility)
 {
 	if (!Hunter) return;
 	Hunter->TrySetVisibility(visibility);
-}
-
-void AHunterEnemyController::UpdateMovementSpeed(EHunterStates NewHunterState)
-{
-	if (!Hunter) return;
-	Hunter->UpdateMovementSpeed(NewHunterState);
 }
 
 bool AHunterEnemyController::IsInChargedJumpRange(AActor* Target)
@@ -206,11 +187,6 @@ void AHunterEnemyController::OnPossess(APawn* InPawn)
 	{
 		CurrIsland = TriggerVolumes[EIslandPosition::IslandA];
 	}
-}
-
-void AHunterEnemyController::SetCanBasicAttack()
-{
-	IsJumpAttackOnDelay = false;
 }
 
 ABurrowerTriggerVolume* AHunterEnemyController::CheckIslandSpawnedOn()

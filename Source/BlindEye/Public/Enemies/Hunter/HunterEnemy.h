@@ -14,7 +14,6 @@ enum class EHunterAttacks : uint8
 };
 
 class UBaseDamageType;
-enum class EHunterStates : uint8;
 
 /**
  * 
@@ -38,12 +37,6 @@ public:
  
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Movement)
 	float RunningMaxWalkSpeed = 600;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=10))
-	float JumpUpForce = 0.7;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=200000))
-	float ForceApplied = 60000; 
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<	EObjectTypeQuery>> ObjectTypes;
@@ -98,25 +91,14 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	bool IsVisible = false;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float RadiusToTurnVisible = 500;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float JumpAttackSwingDelay = 0.3f;
-
 	
-
-	void PerformJumpAttack();
 	void PerformChargedJump();
 	void ChargedJumpSwingDamage();
 	 
 	void PerformBasicAttack();
 
 	void TrySetVisibility(bool visibility);
-
-	void UpdateMovementSpeed(EHunterStates NewHunterState);
-
+	
 	virtual void OnDeath(AActor* ActorThatKilled) override;
 
 	bool GetIsChargedJumpOnCooldown();
@@ -128,8 +110,6 @@ public:
 	void ApplyBasicAttackDamage(FHitResult Hit, bool IfShouldApplyHunterMark);
  
 protected:
-	
-	FTimerHandle JumpAttackSwingDelayTimerHandle;
 
 	bool bAttacking = false;
 

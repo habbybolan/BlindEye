@@ -30,22 +30,6 @@ void AHunterEnemy::BeginPlay()
 	SetCharged();
 }
 
-void AHunterEnemy::PerformJumpAttack()
-{
-	// TODO: Probably remove this
-	if (ABlindEyeEnemyController* BlindEyeController = Cast<ABlindEyeEnemyController>(GetController()))
-	{
-		if (AActor* Target = BlindEyeController->GetBTTarget())
-		{
-			FVector Direction = Target->GetActorLocation() - GetActorLocation();
-			Direction.Normalize();
-			Direction += FVector::UpVector * JumpUpForce;
-			GetCharacterMovement()->AddImpulse(Direction * ForceApplied);
-			GetWorldTimerManager().SetTimer(JumpAttackSwingDelayTimerHandle, this, &AHunterEnemy::ChargedJumpSwingDamage, JumpAttackSwingDelay, false);
-		}
-	}
-}
-
 void AHunterEnemy::PerformChargedJump()
 {
 	if (ABlindEyeEnemyController* BlindEyeController = Cast<ABlindEyeEnemyController>(GetController()))
@@ -234,22 +218,6 @@ void AHunterEnemy::TrySetVisibility(bool visibility)
 
 	IsVisible = visibility;
 	MULT_TurnVisible(visibility);
-}
-
-void AHunterEnemy::UpdateMovementSpeed(EHunterStates NewHunterState)
-{
-	switch (NewHunterState)
-	{
-	case EHunterStates::Attacking:
-		GetCharacterMovement()->MaxWalkSpeed = AttackMaxWalkSpeed;
-		break;
-	case EHunterStates::Running:
-		GetCharacterMovement()->MaxWalkSpeed = RunningMaxWalkSpeed;
-		break;
-	case EHunterStates::Stalking:
-		GetCharacterMovement()->MaxWalkSpeed = StalkingMaxWalkSpeed;
-		break;
-	}
 }
 
 void AHunterEnemy::OnDeath(AActor* ActorThatKilled)
