@@ -4,8 +4,11 @@
 #include "Enemies/Hunter/BTS_HunterState.h"
 
 #include "AIController.h"
+#include "Shrine.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/Hunter/HunterEnemyController.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 UBTS_HunterState::UBTS_HunterState()
 {
@@ -18,6 +21,20 @@ void UBTS_HunterState::OnSearchStart(FBehaviorTreeSearchData& SearchData)
 	AAIController* Controller = SearchData.OwnerComp.GetAIOwner();
 	HunterController = Cast<AHunterEnemyController>(Controller);
 	Hunter = Cast<AHunterEnemy>(HunterController->GetPawn());
+
+	UWorld* World = GetWorld();
+	if (ensure(World))
+	{
+		TArray<AActor*> OutActors;
+		UGameplayStatics::GetAllActorsOfClass(World, AShrine::StaticClass(), OutActors);
+		if (OutActors.Num() > 0)
+		{
+			if (UBlackboardComponent* BBComp = SearchData.OwnerComp.GetBlackboardComponent())
+			{
+				BBComp->SetValueAsObject(ShrineKey.SelectedKeyName, OutActors[0]);
+			}
+		}
+	}
 }
 
 void UBTS_HunterState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
