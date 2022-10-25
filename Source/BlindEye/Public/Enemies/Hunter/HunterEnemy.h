@@ -154,6 +154,7 @@ protected:
 
 	void SetCharged();
 	void SetNotCharged();
-	
+
+	virtual void OnMarkDetonated() override;
 };
 

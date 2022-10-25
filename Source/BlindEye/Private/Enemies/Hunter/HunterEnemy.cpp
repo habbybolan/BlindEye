@@ -126,6 +126,15 @@ void AHunterEnemy::SetNotCharged()
 	World->GetTimerManager().SetTimer(ChargedCooldownTimerHandle, this, &AHunterEnemy::SetCharged, ChargedCooldown, false);
 }
 
+void AHunterEnemy::OnMarkDetonated()
+{
+	Super::OnMarkDetonated();
+	if (GetIsCharged())
+	{
+		SetNotCharged();
+	}
+}
+
 void AHunterEnemy::ChargedJumpSwingDamage()
 {
 	UWorld* world = GetWorld();

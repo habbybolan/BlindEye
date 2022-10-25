@@ -71,27 +71,27 @@ protected:
 
 	// mark added
 	UFUNCTION()
-	void OnMarkAdded(EMarkerType MarkerType);
+	virtual void OnMarkAdded(EMarkerType MarkerType);
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_OnMarkAddedHelper(EMarkerType MarkerType);
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnMarkAdded(EMarkerType MarkerType);
 	// mark removed
 	UFUNCTION()
-	void OnMarkRemoved();
+	virtual void OnMarkRemoved();
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_OnMarkRemovedHelper();
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnMarkRemoved();
 	// mark detonated
 	UFUNCTION() 
-	void OnMarkDetonated();
+	virtual void OnMarkDetonated();
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_OnMarkDetonatedHelper(EMarkerType MarkerType); 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnMarkDetonated(EMarkerType MarkType);
 	UFUNCTION()
-	void OnMarkRefreshed();
+	virtual void OnMarkRefreshed();
 	UFUNCTION(NetMulticast, Reliable) 
 	void MULT_OnMarkRefreshedHelper(EMarkerType MarkerType); 
 public:
