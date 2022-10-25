@@ -169,7 +169,7 @@ void AHunterEnemy::ChargedJumpSwingDamage()
 				UGameplayStatics::ApplyPointDamage(HitActor, JumpAttackDamage, Hit.ImpactNormal, Hit, GetController(), this, JumpAttackDamageType);
 				BlindEyePlayerCharacter->GetHealthComponent()->DetonateDelegate.AddDynamic(this, &AHunterEnemy::OnHunterMarkDetonated);
 				BlindEyePlayerCharacter->GetHealthComponent()->MarkedRemovedDelegate.AddDynamic(this, &AHunterEnemy::AHunterEnemy::OnHunterMarkRemoved);
-			}
+			} 
 		}
 	}
 }

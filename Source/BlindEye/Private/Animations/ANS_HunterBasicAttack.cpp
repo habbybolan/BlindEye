@@ -34,12 +34,11 @@ void UANS_HunterBasicAttack::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimS
 	if (!ensure(World)) return;
 
 	// Attack from Right arm bone
-	FVector SwingBoneLocation = MeshComp->GetBoneLocation("RightForeArm");
-	FRotator SwingBoneRotation = MeshComp->GetBoneQuaternion("RightForeArm").Rotator();
-	FVector EndLocation = SwingBoneRotation.Vector() * 50;
+	FVector SwingStartLOC = MeshComp->GetBoneLocation("RightForeArm");
+	FVector SwingEndLOC = SwingStartLOC + MeshComp->GetBoneQuaternion("RightForeArm").Vector() - MeshComp->GetBoneQuaternion("RightHand").Vector() * 50;
 
 	TArray<FHitResult> HitResults;
-	if (UKismetSystemLibrary::SphereTraceMultiForObjects(World, SwingBoneLocation, EndLocation, Radius, DamageObjectTypes, false, TArray<AActor*>(),
+	if (UKismetSystemLibrary::SphereTraceMultiForObjects(World, SwingStartLOC, SwingEndLOC, Radius, DamageObjectTypes, false, TArray<AActor*>(),
 		EDrawDebugTrace::ForDuration, HitResults, true))
 	{
 		for (FHitResult Hit : HitResults)
