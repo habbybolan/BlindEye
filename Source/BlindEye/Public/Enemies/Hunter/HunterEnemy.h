@@ -37,15 +37,6 @@ public:
  
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Movement)
 	float RunningMaxWalkSpeed = 600;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<TEnumAsByte<	EObjectTypeQuery>> ObjectTypes;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float JumpAttackDamage = 5;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UBaseDamageType> JumpAttackDamageType;
 
 	UPROPERTY(EditDefaultsOnly, Category=BasicAttack, meta=(ClampMin=0))
 	float BasicAttackDamage = 10.f;
@@ -57,7 +48,10 @@ public:
 	TSubclassOf<UBaseDamageType> BasicAttackDamageTypeNoMark;
 
 	UPROPERTY(EditDefaultsOnly, Category=BasicAttack)
-	TSubclassOf<UBaseDamageType> BasicAttackDamageTypeWithMark;  
+	TSubclassOf<UBaseDamageType> BasicAttackDamageTypeWithMark;
+
+	UPROPERTY(EditDefaultsOnly, Category=BasicAttack) 
+	UAnimMontage* BasicAttackAnimation;
 
 	UPROPERTY(EditDefaultsOnly, Category=Charged, meta=(ClampMin=1))
 	float ChargedCooldown = 15.f;
@@ -67,6 +61,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category=Charged, meta=(ClampMin=0, ClampMax=1, ToolTip="Percent of Damage to apply while Hunter not charged"))
 	float UnchargedDamagePercent = 0.1;
+
+	UPROPERTY(EditDefaultsOnly, Category=Charged, meta=(ClampMin=0, ClampMax=1))
+	float MovementSpeedAlteredDuringNotCharged = 0.5f;
  
 	UPROPERTY(EditDefaultsOnly, Category=ChargedJump)
 	float ChargedJumpCooldown = 10.f;
@@ -74,26 +71,31 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=ChargedJump)
 	float ChargedJumpDuration = 1.0f;
  
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=ChargeAttack)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=ChargedJump)
 	float MaxDistanceToChargeJump = 1500.f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=ChargeAttack)
-	float MinDistanceToChargeJump = 200.f; 
- 
-	UPROPERTY(EditDefaultsOnly, Category=ChargedJump, meta=(ClampMin=0, ClampMax=1))
-	float MovementSpeedAlteredDuringNotCharged = 0.5f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=ChargedJump)
+	float MinDistanceToChargeJump = 200.f;
+
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump)
+	float ChargedAttackDamage = 5;
+
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump)
+	TSubclassOf<UBaseDamageType> ChargedJumpDamageTypeWithMark;
+
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump)  
+	TSubclassOf<UBaseDamageType> ChargedJumpDamageTypeNoMark;
+
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump)  
+	UAnimMontage* ChargedJumpAnim; 
 
 	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
 	float ChargedJumpLandingDistanceBeforeTarget = 70.f;
-
-	UPROPERTY(EditDefaultsOnly, Category=BasicAttack) 
-	UAnimMontage* BasicAttackAnimation; 
 
 	UPROPERTY(BlueprintReadWrite)
 	bool IsVisible = false;
 	
 	void PerformChargedJump();
-	void ChargedJumpSwingDamage();
 	 
 	void PerformBasicAttack();
 
@@ -108,6 +110,7 @@ public:
 	bool GetIsCharged(); 
  
 	void ApplyBasicAttackDamage(FHitResult Hit, bool IfShouldApplyHunterMark);
+	void ApplyChargedJumpDamage(FHitResult Hit, bool IfShouldApplyHunterMark);
  
 protected:
 
@@ -122,7 +125,9 @@ protected:
 	FTimerHandle BasicAttackTimerHandle;
 	void SetBasicAttackFinished();
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_PerformBasicAttackHelper();
+	void MULT_PerformBasicAttackHelper(); 
+
+	void SetPlayerMarked(AActor* NewTarget);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_PerformChargedJumpHelper(FVector StartLoc, FVector EndLoc);

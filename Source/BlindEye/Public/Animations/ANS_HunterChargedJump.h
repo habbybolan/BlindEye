@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
-#include "Enemies/Hunter/HunterEnemy.h"
-#include "ANS_HunterBasicAttack.generated.h"
+#include "ANS_HunterChargedJump.generated.h"
 
+class AHunterEnemy;
 /**
  * 
  */
 UCLASS()
-class BLINDEYE_API UANS_HunterBasicAttack : public UAnimNotifyState
+class BLINDEYE_API UANS_HunterChargedJump : public UAnimNotifyState
 {
 	GENERATED_BODY()
 
@@ -34,4 +34,7 @@ class BLINDEYE_API UANS_HunterBasicAttack : public UAnimNotifyState
 	virtual void NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime) override;
 
 	virtual void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
+
+	void PerformSwing(FName BoneNameHand, FName BoneNameForeArm, USkeletalMeshComponent* MeshComp);
+	
 };

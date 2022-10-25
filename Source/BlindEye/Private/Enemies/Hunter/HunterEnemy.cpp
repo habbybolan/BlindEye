@@ -51,6 +51,8 @@ void AHunterEnemy::PerformChargedJump()
 
 void AHunterEnemy::MULT_PerformChargedJumpHelper_Implementation(FVector StartLoc, FVector EndLoc)
 {
+	PlayAnimMontage(ChargedJumpAnim, 1);
+	ChargedJumpDuration = ChargedJumpAnim->GetPlayLength();
 	// Set Start and end locations of jump for Easing
 	ChargedJumpStartLocation = StartLoc;
 	ChargedJumpTargetLocation = EndLoc;
@@ -92,11 +94,6 @@ void AHunterEnemy::PerformingJumpAttack()
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		CurrTimeOfChargedJump = 0;
 		bAttacking = false;
-
-		if (GetLocalRole() == ROLE_Authority)
-		{
-			ChargedJumpSwingDamage();
-		}
 	}
 }
 
@@ -135,38 +132,6 @@ void AHunterEnemy::OnMarkDetonated()
 	}
 }
 
-void AHunterEnemy::ChargedJumpSwingDamage()
-{
-	UWorld* world = GetWorld();
-	if (!world) return;
-	
-	TArray<FHitResult> OutHits;
-	UKismetSystemLibrary::BoxTraceMultiForObjects(world, GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 1000, FVector(0, 100 / 2, 100 / 2),
-		GetActorRotation(), ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true);
- 
-	AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(GetController());
-	if (!ensure(HunterController)) return;
-	
-	AActor* Target = HunterController->GetBTTarget();
-	for (FHitResult Hit : OutHits)
-	{
-		AActor* HitActor = Hit.GetActor();
-		if (!HitActor) continue;
-
-		// Only allow hitting target
-		if (HitActor == Target)
-		{
-			ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(HitActor);
-			if (ensure(BlindEyePlayerCharacter))
-			{
-				UGameplayStatics::ApplyPointDamage(HitActor, JumpAttackDamage, Hit.ImpactNormal, Hit, GetController(), this, JumpAttackDamageType);
-				BlindEyePlayerCharacter->GetHealthComponent()->DetonateDelegate.AddDynamic(this, &AHunterEnemy::OnHunterMarkDetonated);
-				BlindEyePlayerCharacter->GetHealthComponent()->MarkedRemovedDelegate.AddDynamic(this, &AHunterEnemy::AHunterEnemy::OnHunterMarkRemoved);
-			} 
-		}
-	}
-}
-
 void AHunterEnemy::PerformBasicAttack()
 {
 	bAttacking = true;
@@ -190,10 +155,10 @@ void AHunterEnemy::SetBasicAttackFinished()
 	}
 	StopAnimMontage(BasicAttackAnimation);
 }
+
 void AHunterEnemy::OnHunterMarkDetonated()
 {
 	UnsubscribeToTargetMarks();
-	
 	AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(Controller);
 	check(HunterController);
 	AActor* Target = HunterController->GetBTTarget();
@@ -274,10 +239,34 @@ void AHunterEnemy::ApplyBasicAttackDamage(FHitResult Hit, bool IfShouldApplyHunt
 	TSubclassOf<UBaseDamageType> DamageTypeToApply = IfShouldApplyHunterMark ? BasicAttackDamageTypeWithMark : BasicAttackDamageTypeNoMark;
 	UGameplayStatics::ApplyPointDamage(Hit.Actor.Get(), BasicAttackDamage, Hit.ImpactNormal, Hit, GetController(), this, DamageTypeToApply);
 
-	// Remove Charged once marked player
+	// Mark player and Remove Charged
 	if (bCharged && IfShouldApplyHunterMark)
 	{
-		SetNotCharged();
+		SetPlayerMarked(Hit.Actor.Get());
+	}
+}
+
+void AHunterEnemy::ApplyChargedJumpDamage(FHitResult Hit, bool IfShouldApplyHunterMark)
+{
+	TSubclassOf<UBaseDamageType> DamageTypeToApply = IfShouldApplyHunterMark ? ChargedJumpDamageTypeWithMark : ChargedJumpDamageTypeNoMark;
+	UGameplayStatics::ApplyPointDamage(Hit.Actor.Get(), ChargedAttackDamage, Hit.ImpactNormal, Hit, GetController(), this, DamageTypeToApply);
+
+	if (IfShouldApplyHunterMark)
+	{
+		SetPlayerMarked(Hit.Actor.Get());
+	}
+}
+
+void AHunterEnemy::SetPlayerMarked(AActor* NewTarget)
+{
+	AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(GetController());
+	if (!ensure(HunterController)) return;
+	
+	ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(NewTarget);
+	if (ensure(BlindEyePlayerCharacter))
+	{
+		BlindEyePlayerCharacter->GetHealthComponent()->DetonateDelegate.AddDynamic(this, &AHunterEnemy::OnHunterMarkDetonated);
+		BlindEyePlayerCharacter->GetHealthComponent()->MarkedRemovedDelegate.AddDynamic(this, &AHunterEnemy::AHunterEnemy::OnHunterMarkRemoved);
 	}
 }
 
