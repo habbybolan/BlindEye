@@ -70,6 +70,9 @@ protected:
 
 	bool IsOnSameIslandAsPlayer(AActor* Target);
 
+	virtual void OnStunStart(float StunDuration) override;
+	virtual void OnStunEnd() override;
+
 	UPROPERTY() 
 	AHunterEnemy* Hunter;
 

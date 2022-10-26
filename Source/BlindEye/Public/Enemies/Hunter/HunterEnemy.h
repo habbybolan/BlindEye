@@ -118,7 +118,10 @@ public:
 	void ApplyChargedJumpDamage(FHitResult Hit, bool IfShouldApplyHunterMark);
 
 	void StartChanneling();
-	void StopChanneling(); 
+	void StopChanneling();
+
+	void OnStunStart(float StunDuration);
+	void OnStunEnd();
  
 protected:
 

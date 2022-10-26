@@ -27,7 +27,7 @@ void AHunterEnemy::BeginPlay()
 
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
-
+	
 	if (AActor* ShrineActor = UGameplayStatics::GetActorOfClass(World, AShrine::StaticClass()))
 	{
 		Shrine = Cast<AShrine>(ShrineActor);
@@ -137,6 +137,11 @@ void AHunterEnemy::OnMarkDetonated()
 	Super::OnMarkDetonated();
 	if (GetIsCharged())
 	{
+		AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(Controller);
+		check(HunterController);
+		
+		AActor* Target = HunterController->GetBTTarget();
+		HealthComponent->Stun(5, Target);
 		SetNotCharged();
 	}
 }
@@ -173,7 +178,6 @@ void AHunterEnemy::OnHunterMarkDetonated()
 	AActor* Target = HunterController->GetBTTarget();
 	
 	HealthComponent->Stun(5, Target);
-	// TODO: Stun Hunter and End jump attack completely
 }
 
 void AHunterEnemy::OnHunterMarkRemoved()
@@ -193,7 +197,7 @@ void AHunterEnemy::UnsubscribeToTargetMarks()
 		Player->GetHealthComponent()->DetonateDelegate.Remove(this, TEXT("OnHunterMarkDetonated"));
 		Player->GetHealthComponent()->MarkedRemovedDelegate.Remove(this, TEXT("OnHunterMarkRemoved"));
 	}
-}
+} 
 
 void AHunterEnemy::TrySetVisibility(bool visibility)
 {
@@ -305,6 +309,16 @@ void AHunterEnemy::StopChanneling()
 	check(Shrine);
 	Shrine->ChannellingEnded(this);
 	SetCharged();
+}
+
+void AHunterEnemy::OnStunStart(float StunDuration)
+{
+	SetNotCharged();
+}
+
+void AHunterEnemy::OnStunEnd()
+{
+	// TODO;
 }
 
 void AHunterEnemy::SetPlayerMarked(AActor* NewTarget)

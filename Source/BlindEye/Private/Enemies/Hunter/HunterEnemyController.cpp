@@ -149,6 +149,22 @@ bool AHunterEnemyController::IsOnSameIslandAsPlayer(AActor* Target)
 	return false;
 }
 
+void AHunterEnemyController::OnStunStart(float StunDuration)
+{
+	if (Hunter)
+	{
+		Hunter->OnStunStart(StunDuration);
+	}
+}
+
+void AHunterEnemyController::OnStunEnd()
+{
+	if (Hunter)
+	{
+		Hunter->OnStunEnd();
+	}	
+}
+
 void AHunterEnemyController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
