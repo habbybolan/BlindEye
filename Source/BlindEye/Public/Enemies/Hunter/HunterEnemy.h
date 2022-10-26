@@ -141,6 +141,7 @@ public:
 protected:
 
 	bool bAttacking = false;
+	bool bPlayerMarked = false;
  
 	bool bFleeing = false;
 

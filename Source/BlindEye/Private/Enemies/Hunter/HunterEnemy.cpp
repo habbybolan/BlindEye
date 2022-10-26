@@ -59,7 +59,7 @@ void AHunterEnemy::PerformChargedJump()
 void AHunterEnemy::MULT_PerformChargedJumpHelper_Implementation(FVector StartLoc, FVector EndLoc)
 {
 	PlayAnimMontage(ChargedJumpAnim);
-	ChargedJumpDuration = 1.70;
+	ChargedJumpDuration = 1.5;
 	// Set Start and end locations of jump for Easing
 	ChargedJumpStartLocation = StartLoc;
 	ChargedJumpTargetLocation = EndLoc;
@@ -200,6 +200,7 @@ void AHunterEnemy::MULT_PerformBasicAttackHelper_Implementation()
 
 void AHunterEnemy::OnHunterMarkDetonated()
 {
+	GetMesh()->GetAnimInstance()->StopAllMontages(0);
 	UnsubscribeToTargetMarks();
 	AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(Controller);
 	check(HunterController);
@@ -210,6 +211,7 @@ void AHunterEnemy::OnHunterMarkDetonated()
 
 void AHunterEnemy::OnHunterMarkRemoved()
 {
+	GetMesh()->GetAnimInstance()->StopAllMontages(0);
 	UnsubscribeToTargetMarks();
 }
 
@@ -220,6 +222,7 @@ void AHunterEnemy::UnsubscribeToTargetMarks()
 	AActor* Target = HunterController->GetBTTarget();
 	if (Target)
 	{
+		bPlayerMarked = false;
 		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Target);
 		check(Player);
 		Player->GetHealthComponent()->DetonateDelegate.Remove(this, TEXT("OnHunterMarkDetonated"));
@@ -301,15 +304,12 @@ void AHunterEnemy::ApplyAttackDamageHelper(float Damage, bool IfShouldApplyHunte
 	// Check if Player already hunter marked
 	if (Player && Player->GetHealthComponent()->GetCurrMark())
 	{
-		if (Player->GetHealthComponent()->GetCurrMark()->MarkerType == EMarkerType::Hunter)
-		{
-			return;
-		}
+		HasHunterMark = Player->GetHealthComponent()->GetCurrMark()->MarkerType == EMarkerType::Hunter;
 	}
 	
 	UGameplayStatics::ApplyPointDamage(Hit.Actor.Get(), Damage, Hit.ImpactNormal, Hit, GetController(), this, DamageType);
 
-	if (!HasHunterMark && IfShouldApplyHunterMark)
+	if (!bPlayerMarked && !HasHunterMark && IfShouldApplyHunterMark)
 	{
 		SetPlayerMarked(Hit.Actor.Get());
 	}
@@ -377,9 +377,10 @@ void AHunterEnemy::SetPlayerMarked(AActor* NewTarget)
 	
 	ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(NewTarget);
 	if (ensure(BlindEyePlayerCharacter))
-	{	
+	{
+		bPlayerMarked = true;
 		BlindEyePlayerCharacter->GetHealthComponent()->DetonateDelegate.AddDynamic(this, &AHunterEnemy::OnHunterMarkDetonated);
-		BlindEyePlayerCharacter->GetHealthComponent()->MarkedRemovedDelegate.AddDynamic(this, &AHunterEnemy::AHunterEnemy::OnHunterMarkRemoved);
+		BlindEyePlayerCharacter->GetHealthComponent()->MarkedRemovedDelegate.AddDynamic(this, &AHunterEnemy::OnHunterMarkRemoved);
 	}
 }
 
