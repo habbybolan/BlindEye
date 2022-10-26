@@ -25,8 +25,6 @@ void AHunterEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
-	bCharged = true;
-
 	CachedRunningSpeed = GetCharacterMovement()->MaxWalkSpeed;
 	GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed * MovementSpeedAlteredDuringNotCharged;
 
