@@ -26,7 +26,7 @@ void AHunterEnemy::BeginPlay()
 	Super::BeginPlay();
 
 	CachedRunningSpeed = GetCharacterMovement()->MaxWalkSpeed;
-	GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed * MovementSpeedAlteredDuringNotCharged;
+	GetCharacterMovement()->MaxWalkSpeed = bCharged ? CachedRunningSpeed : CachedRunningSpeed * MovementSpeedAlteredDuringNotCharged;
 
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
