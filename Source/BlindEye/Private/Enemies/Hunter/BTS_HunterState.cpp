@@ -51,5 +51,6 @@ void UBTS_HunterState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 		BBComp->SetValueAsBool(IsAttackingKey.SelectedKeyName, Hunter->GetIsAttacking());
 		BBComp->SetValueAsBool(bChargedOnCooldownKey.SelectedKeyName, Hunter->GetIsCharged());
 		BBComp->SetValueAsBool(IsChannellingKey.SelectedKeyName, Hunter->GetIsChannelling());
+		BBComp->SetValueAsBool(IsFleeingKey.SelectedKeyName, Hunter->GetIsFleeing());
 	}
 }
