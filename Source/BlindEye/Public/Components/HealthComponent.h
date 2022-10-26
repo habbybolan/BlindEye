@@ -56,6 +56,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float RefreshMarkerAmount = 2.f;
 
+	void AddMarkerHelper(EMarkerType MarkerType);
+
 	UFUNCTION(BlueprintCallable)
 	const FAppliedStatusEffects& GetAppliedStatusEffect();
  

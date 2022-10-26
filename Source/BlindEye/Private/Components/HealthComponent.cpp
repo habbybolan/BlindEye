@@ -24,7 +24,6 @@ UHealthComponent::UHealthComponent(const FObjectInitializer& ObjectInitializer) 
 	// MUST SET REPLICATED TO TRUE IN BLUEPRINTS, CRASHES IF SET HERE
 }
 
-
 const FAppliedStatusEffects& UHealthComponent::GetAppliedStatusEffect()
 {
 	return AppliedStatusEffects;
@@ -188,6 +187,26 @@ void UHealthComponent::TryApplyMarker(EMarkerType MarkerType, AActor* DamageCaus
 			return;
 		}
 	}
+	// Otherwise Hunter mark being applied
+	else
+	{
+		// If Current marker exists and is not hunter
+		if (CurrMark != nullptr && CurrMark->MarkerType != EMarkerType::Hunter)
+		{
+			MarkedRemovedDelegate.Broadcast();
+			AddMarkerHelper(MarkerType);
+		}
+		else
+		{
+			AddMarkerHelper(MarkerType);
+		}
+	}
+
+	// If marked by hunter, dont do anything else
+	if (CurrMark != nullptr && CurrMark->MarkerType == EMarkerType::Hunter)
+	{
+		return;
+	}
 	
 	if (CurrMark != nullptr)
 	{
@@ -201,11 +220,19 @@ void UHealthComponent::TryApplyMarker(EMarkerType MarkerType, AActor* DamageCaus
 	{
 		// Set the decay timer on marker
 		world->GetTimerManager().SetTimer(MarkerDecayTimerHandle, this, &UHealthComponent::RemoveMark, MarkerDecay, false);
-		CurrMark = new FMarkData();
-		CurrMark->InitializeData(MarkerType);
-		MarkedAddedDelegate.Broadcast(MarkerType);
+		AddMarkerHelper(MarkerType);
 	}
 }
+
+
+void UHealthComponent::AddMarkerHelper(EMarkerType MarkerType)
+{
+	CurrMark = new FMarkData();
+	CurrMark->InitializeData(MarkerType);
+	MarkedAddedDelegate.Broadcast(MarkerType);
+}
+
+
 
 void UHealthComponent::TryDetonation(EPlayerType PlayerType, AActor* DamageCause)
 {
