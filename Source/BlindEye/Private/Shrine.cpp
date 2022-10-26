@@ -14,12 +14,9 @@ AShrine::AShrine()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
-
-	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("Capsule");
-	RootComponent = CapsuleComponent;
 	
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
-	Mesh->SetupAttachment(RootComponent);
+	RootComponent = Mesh;
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
 	CurrShrineHealth = MaxShrineHealth;
@@ -76,6 +73,29 @@ UHealthComponent* AShrine::GetHealthComponent()
 	return HealthComponent;
 }
 
+void AShrine::ChannelingStarted(ABlindEyeEnemyBase* EnemyChannelling)
+{
+	if (!EnemiesCurrentlyChanneling.Contains(EnemyChannelling))
+	{
+		EnemiesCurrentlyChanneling.Add(EnemyChannelling);
+		EnemyChannelling->GetHealthComponent()->OnDeathDelegate.AddDynamic(this, &AShrine::ChannellingEnded);
+	}
+}
+
+void AShrine::ChannellingEnded(AActor* EnemyChannelling)
+{
+	// remove enemy delegate and from set of channelling enemies
+	ABlindEyeEnemyBase* Enemy = Cast<ABlindEyeEnemyBase>(EnemyChannelling);
+	if (ensure(Enemy))
+	{
+		if (EnemiesCurrentlyChanneling.Contains(Enemy))
+		{
+			Enemy->GetHealthComponent()->OnDeathDelegate.Remove(this, TEXT("OnChannellingEnemyDied"));
+			EnemiesCurrentlyChanneling.Remove(Enemy);
+		}
+	}
+}
+
 // Called when the game starts or when spawned
 void AShrine::BeginPlay()
 {
@@ -85,6 +105,11 @@ void AShrine::BeginPlay()
 void AShrine::OnRep_HealthUpdated()
 {
 	ShrineHealthChange.Broadcast();
+} 
+
+void AShrine::OnChannellingEnemyDied(AActor* DeadChannellingEnemy)
+{
+	ChannellingEnded(DeadChannellingEnemy);
 }
 
 void AShrine::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
