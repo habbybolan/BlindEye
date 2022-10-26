@@ -8,7 +8,7 @@ public class BlindEye : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "AIModule", "GameplayTasks", "Niagara", "NavigationSystem" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "AIModule", "GameplayTasks", "Niagara", "NavigationSystem", "UMGEditor", "UMG" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "VaRest" });
 
