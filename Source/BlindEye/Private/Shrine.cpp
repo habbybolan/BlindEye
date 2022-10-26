@@ -90,7 +90,7 @@ void AShrine::ChannellingEnded(AActor* EnemyChannelling)
 	{
 		if (EnemiesCurrentlyChanneling.Contains(Enemy))
 		{
-			Enemy->GetHealthComponent()->OnDeathDelegate.Remove(this, TEXT("OnChannellingEnemyDied"));
+			Enemy->GetHealthComponent()->OnDeathDelegate.Remove(this, TEXT("ChannellingEnded"));
 			EnemiesCurrentlyChanneling.Remove(Enemy);
 		}
 	}
