@@ -66,6 +66,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=Charged, meta=(ClampMin=0, ClampMax=1, ToolTip="Percent of Damage to apply while Hunter not charged"))
 	float UnchargedDamagePercent = 0.1;
 
+	UPROPERTY(EditDefaultsOnly, Category=Charged, meta=(ClampMin=0, ClampMax=1, ToolTip="Percent of Damage to apply while hunter is charged"))
+	float ChargedDamagePercent = 1;
+ 
+	UPROPERTY(EditDefaultsOnly, Category=Charged, meta=(ClampMin=0, ClampMax=1, ToolTip="Percent of Damage to apply while Hunter is stunned"))
+	float StunnedDamagePercent = 3;
+
 	UPROPERTY(EditDefaultsOnly, Category=Charged, meta=(ClampMin=0, ClampMax=1))
 	float MovementSpeedAlteredDuringNotCharged = 0.5f;
  
