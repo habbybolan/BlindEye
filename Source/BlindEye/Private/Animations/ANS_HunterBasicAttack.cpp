@@ -21,6 +21,7 @@ void UANS_HunterBasicAttack::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSe
 	Super::NotifyEnd(MeshComp, Animation);
 
 	HitActors.Empty();
+	bPlayerHit = false;
 }
 
 void UANS_HunterBasicAttack::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
@@ -47,7 +48,7 @@ void UANS_HunterBasicAttack::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimS
 			{
 				HitActors.Add(Hit.Actor.Get());
 
-				// Check if mark should be applied (Hit player and hasn't hit player shit attack yet)
+				// Check if mark should be applied (Hit player and hasn't hit player with attack yet)
 				bool bApplyMark = false;
 				if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Hit.Actor.Get()))
 				{

@@ -174,6 +174,7 @@ protected:
 	void SetCharged();
 	void SetNotCharged();
 
+	void ApplyAttackDamageHelper(float Damage, bool IfShouldApplyHunterMark, TSubclassOf<UBaseDamageType> DamageType, FHitResult Hit);
 	virtual void OnMarkDetonated() override;
 };
 

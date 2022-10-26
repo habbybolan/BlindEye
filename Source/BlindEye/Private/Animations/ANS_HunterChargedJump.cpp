@@ -31,6 +31,7 @@ void UANS_HunterChargedJump::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSe
 	Super::NotifyEnd(MeshComp, Animation);
 
 	HitActors.Empty();
+	bPlayerHit = false;
 } 
 
 void UANS_HunterChargedJump::PerformSwing(FName BoneNameHand, FName BoneNameForeArm, USkeletalMeshComponent* MeshComp)

@@ -248,21 +248,33 @@ void AHunterEnemy::ApplyBasicAttackDamage(FHitResult Hit, bool IfShouldApplyHunt
 {
 	// base DamageType and damage amount if Hunter Charged and if marking target
 	TSubclassOf<UBaseDamageType> DamageTypeToApply = IfShouldApplyHunterMark ? BasicAttackDamageTypeWithMark : BasicAttackDamageTypeNoMark;
-	UGameplayStatics::ApplyPointDamage(Hit.Actor.Get(), BasicAttackDamage, Hit.ImpactNormal, Hit, GetController(), this, DamageTypeToApply);
-
-	// Mark player and Remove Charged
-	if (bCharged && IfShouldApplyHunterMark)
-	{
-		SetPlayerMarked(Hit.Actor.Get());
-	}
+	ApplyAttackDamageHelper(BasicAttackDamage, IfShouldApplyHunterMark, DamageTypeToApply, Hit);
 }
 
 void AHunterEnemy::ApplyChargedJumpDamage(FHitResult Hit, bool IfShouldApplyHunterMark)
 {
+	// base DamageType and damage amount if Hunter Charged and if marking target
 	TSubclassOf<UBaseDamageType> DamageTypeToApply = IfShouldApplyHunterMark ? ChargedJumpDamageTypeWithMark : ChargedJumpDamageTypeNoMark;
-	UGameplayStatics::ApplyPointDamage(Hit.Actor.Get(), ChargedAttackDamage, Hit.ImpactNormal, Hit, GetController(), this, DamageTypeToApply);
+	ApplyAttackDamageHelper(ChargedAttackDamage, IfShouldApplyHunterMark, DamageTypeToApply, Hit);
+}
 
-	if (IfShouldApplyHunterMark)
+void AHunterEnemy::ApplyAttackDamageHelper(float Damage, bool IfShouldApplyHunterMark,
+	TSubclassOf<UBaseDamageType> DamageType, FHitResult Hit)
+{
+	bool HasHunterMark = false;
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Hit.Actor.Get());
+	// Check if Player already hunter marked
+	if (Player && Player->GetHealthComponent()->GetCurrMark())
+	{
+		if (Player->GetHealthComponent()->GetCurrMark()->MarkerType == EMarkerType::Hunter)
+		{
+			return;
+		}
+	}
+	
+	UGameplayStatics::ApplyPointDamage(Hit.Actor.Get(), Damage, Hit.ImpactNormal, Hit, GetController(), this, DamageType);
+
+	if (!HasHunterMark && IfShouldApplyHunterMark)
 	{
 		SetPlayerMarked(Hit.Actor.Get());
 	}
@@ -299,7 +311,7 @@ void AHunterEnemy::SetPlayerMarked(AActor* NewTarget)
 	
 	ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(NewTarget);
 	if (ensure(BlindEyePlayerCharacter))
-	{
+	{	
 		BlindEyePlayerCharacter->GetHealthComponent()->DetonateDelegate.AddDynamic(this, &AHunterEnemy::OnHunterMarkDetonated);
 		BlindEyePlayerCharacter->GetHealthComponent()->MarkedRemovedDelegate.AddDynamic(this, &AHunterEnemy::AHunterEnemy::OnHunterMarkRemoved);
 	}
