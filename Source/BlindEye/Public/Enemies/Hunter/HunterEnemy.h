@@ -135,13 +135,18 @@ public:
 	bool GetIsFleeing();
 
 	void ChannelingAnimFinished();
+
+	void SetAttackFinished();
  
 protected:
 
 	bool bAttacking = false;
  
 	bool bFleeing = false;
+
+	UPROPERTY(EditDefaultsOnly, Category=Charged)
 	bool bCharged = false;
+	
 	bool bChannelling = false;
 	float CachedRunningSpeed;
 
@@ -152,9 +157,7 @@ protected:
 
 	UPROPERTY()
 	AShrine* Shrine;
-
-	FTimerHandle BasicAttackTimerHandle;
-	void SetBasicAttackFinished();
+	
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_PerformBasicAttackHelper();
 

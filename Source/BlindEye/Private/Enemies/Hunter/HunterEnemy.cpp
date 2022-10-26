@@ -58,8 +58,8 @@ void AHunterEnemy::PerformChargedJump()
 
 void AHunterEnemy::MULT_PerformChargedJumpHelper_Implementation(FVector StartLoc, FVector EndLoc)
 {
-	PlayAnimMontage(ChargedJumpAnim, 1);
-	ChargedJumpDuration = ChargedJumpAnim->GetPlayLength();
+	PlayAnimMontage(ChargedJumpAnim);
+	ChargedJumpDuration = 1.70;
 	// Set Start and end locations of jump for Easing
 	ChargedJumpStartLocation = StartLoc;
 	ChargedJumpTargetLocation = EndLoc;
@@ -100,7 +100,6 @@ void AHunterEnemy::PerformingJumpAttack()
 		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		CurrTimeOfChargedJump = 0;
-		bAttacking = false;
 	}
 }
 
@@ -196,20 +195,7 @@ void AHunterEnemy::PerformBasicAttack()
 
 void AHunterEnemy::MULT_PerformBasicAttackHelper_Implementation()
 {
-	UWorld* World = GetWorld();
-	if (World == nullptr) return;
-	
-	float Duration = PlayAnimMontage(BasicAttackAnimation, 1);
-	World->GetTimerManager().SetTimer(BasicAttackTimerHandle, this, &AHunterEnemy::SetBasicAttackFinished, Duration, false);
-}
-
-void AHunterEnemy::SetBasicAttackFinished()
-{
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		bAttacking = false;
-	}
-	StopAnimMontage(BasicAttackAnimation);
+	PlayAnimMontage(BasicAttackAnimation);
 }
 
 void AHunterEnemy::OnHunterMarkDetonated()
@@ -358,6 +344,12 @@ void AHunterEnemy::ChannelingAnimFinished()
 {
 	bChannelling = false;
 	SetCharged();
+}
+
+void AHunterEnemy::SetAttackFinished()
+{
+	bAttacking = false;
+	GetMesh()->GetAnimInstance()->StopAllMontages(0);
 }
 
 void AHunterEnemy::OnStunStart(float StunDuration)
