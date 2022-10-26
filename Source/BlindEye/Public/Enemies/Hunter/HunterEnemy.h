@@ -39,6 +39,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Movement)
 	float RunningMaxWalkSpeed = 600;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Channelling)
+	float ChannellingDuration = 5.f;
+
 	UPROPERTY(EditDefaultsOnly, Category=BasicAttack, meta=(ClampMin=0))
 	float BasicAttackDamage = 10.f;
 
@@ -127,6 +130,8 @@ protected:
 
 	FTimerHandle ChargedCooldownTimerHandle;
 	FTimerHandle ChargedDurationTimerHandle;
+
+	FTimerHandle ChannellingTimerHandle;
 
 	UPROPERTY()
 	AShrine* Shrine;

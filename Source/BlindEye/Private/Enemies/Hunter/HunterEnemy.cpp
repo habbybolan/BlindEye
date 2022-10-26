@@ -273,16 +273,19 @@ void AHunterEnemy::StartChanneling()
 	if (bChannelling) return;
 	// TODO: Tells shrine hunter started channeling with it
 	//	Setup timer to stop channeling and enter charged phase
-	
-	bChannelling = true;
-	StopChanneling();
+
+	UWorld* World = GetWorld();
+	if (ensure(World))
+	{
+		bChannelling = true;
+		World->GetTimerManager().SetTimer(ChannellingTimerHandle, this, &AHunterEnemy::StopChanneling, ChannellingDuration, false);
+		check(Shrine);
+		Shrine->ChannelingStarted(this);
+	}
 }
 
 void AHunterEnemy::StopChanneling()
 {
-	// TODO: Notify Shrine that channeling stopped
-	//	Enter charged phase and set target
-
 	bChannelling = false;
 	check(Shrine);
 	Shrine->ChannellingEnded(this);

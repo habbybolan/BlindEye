@@ -42,8 +42,10 @@ public:
 	virtual void OnDeath(AActor* ActorThatKilled) override;
 	virtual bool GetIsDead() override;
 	virtual UHealthComponent* GetHealthComponent() override;
- 
+
+	UFUNCTION()
 	void ChannelingStarted(ABlindEyeEnemyBase* EnemyChannelling);
+	UFUNCTION()
 	void ChannellingEnded(AActor* EnemyChannelling); 
  
 protected:
