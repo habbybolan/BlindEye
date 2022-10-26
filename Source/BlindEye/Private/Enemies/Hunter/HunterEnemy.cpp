@@ -299,17 +299,9 @@ void AHunterEnemy::ApplyChargedJumpDamage(FHitResult Hit, bool IfShouldApplyHunt
 void AHunterEnemy::ApplyAttackDamageHelper(float Damage, bool IfShouldApplyHunterMark,
 	TSubclassOf<UBaseDamageType> DamageType, FHitResult Hit)
 {
-	bool HasHunterMark = false;
-	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Hit.Actor.Get());
-	// Check if Player already hunter marked
-	if (Player && Player->GetHealthComponent()->GetCurrMark())
-	{
-		HasHunterMark = Player->GetHealthComponent()->GetCurrMark()->MarkerType == EMarkerType::Hunter;
-	}
-	
 	UGameplayStatics::ApplyPointDamage(Hit.Actor.Get(), Damage, Hit.ImpactNormal, Hit, GetController(), this, DamageType);
 
-	if (!bPlayerMarked && !HasHunterMark && IfShouldApplyHunterMark)
+	if (!bPlayerMarked && IfShouldApplyHunterMark)
 	{
 		SetPlayerMarked(Hit.Actor.Get());
 	}
