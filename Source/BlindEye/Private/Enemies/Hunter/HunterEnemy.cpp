@@ -140,6 +140,20 @@ void AHunterEnemy::SetNotCharged()
 void AHunterEnemy::OnMarkDetonated()
 {
 	Super::OnMarkDetonated();
+	// if (GetIsCharged())
+	// {
+	// 	AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(Controller);
+	// 	check(HunterController);
+	// 	
+	// 	AActor* Target = HunterController->GetBTTarget();
+	// 	HealthComponent->Stun(5, Target);
+	// 	SetNotCharged();
+	// }
+}
+
+void AHunterEnemy::OnMarkAdded(EMarkerType MarkerType)
+{
+	Super::OnMarkAdded(MarkerType);
 	if (GetIsCharged())
 	{
 		AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(Controller);
@@ -349,7 +363,8 @@ void AHunterEnemy::OnStunStart(float StunDuration)
 
 void AHunterEnemy::OnStunEnd()
 {
-	// TODO;
+	// TODO: roar that launches players?
+	TrySetVisibility(false);
 }
 
 void AHunterEnemy::SetPlayerMarked(AActor* NewTarget)

@@ -34,7 +34,7 @@ void AHunterEnemyController::BeginPlay()
 		BurrowerVolume->OnActorBeginOverlap.AddDynamic(this, &AHunterEnemyController::SetEnteredNewIsland);
 	}
 	
-	World->GetTimerManager().SetTimer(SpawnDelayTimerHandle, this, &AHunterEnemyController::SpawnHunter, SpawnDelay, false);
+	World->GetTimerManager().SetTimer(InitialSpawnDelayTimerHandle, this, &AHunterEnemyController::SpawnHunter, InitialSpawnDelay, false);
 }
 
 void AHunterEnemyController::SetEnteredNewIsland(AActor* OverlappedActor, AActor* OtherActor)
@@ -111,7 +111,7 @@ void AHunterEnemyController::DebugSpawnHunter()
 	if (Hunter) return;
 
 	SpawnHunter();
-	World->GetTimerManager().ClearTimer(SpawnDelayTimerHandle);
+	World->GetTimerManager().ClearTimer(InitialSpawnDelayTimerHandle);
 }
 
 void AHunterEnemyController::TrySetVisibility(bool visibility)
@@ -162,7 +162,29 @@ void AHunterEnemyController::OnStunEnd()
 	if (Hunter)
 	{
 		Hunter->OnStunEnd();
-	}	
+		UWorld* World = GetWorld();
+		if (ensure(World))
+		{
+			World->GetTimerManager().SetTimer(InvisDelayTimerHandle, this, &AHunterEnemyController::InvisDelayFinished, 1, false);
+		}
+	}	 
+}
+
+void AHunterEnemyController::InvisDelayFinished()
+{
+	UnPossess();
+	Hunter->Destroy();
+	RemoveHunterHelper();
+	DelayedReturn(AfterStunReturnDelay);
+}
+
+void AHunterEnemyController::DelayedReturn(float ReturnDelay)
+{
+	UWorld* World = GetWorld();
+	if (ensure(World))
+	{
+		World->GetTimerManager().SetTimer(ReturnDelayTimerHandle, this, &AHunterEnemyController::SpawnHunter, ReturnDelay, false);
+	}
 }
 
 void AHunterEnemyController::OnPossess(APawn* InPawn)
@@ -223,10 +245,13 @@ ABurrowerTriggerVolume* AHunterEnemyController::CheckIslandSpawnedOn()
 
 void AHunterEnemyController::OnHunterDeath(AActor* HunterKilled)
 {
-	UWorld* world = GetWorld();
-	if (!world) return;
+	DelayedReturn(AfterDeathReturnDelay);
+	RemoveHunterHelper();
+	
+}
 
-	world->GetTimerManager().SetTimer(SpawnDelayTimerHandle, this, &AHunterEnemyController::SpawnHunter, SpawnDelay, false);
+void AHunterEnemyController::RemoveHunterHelper()
+{
 	Hunter = nullptr;
 
 	GetBrainComponent()->GetBlackboardComponent()->SetValueAsBool("bDead", false);

@@ -22,7 +22,7 @@ public:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float SpawnDelay = 15.f;
+	float InitialSpawnDelay = 15.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AHunterEnemy> HunterType;
@@ -30,6 +30,12 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TArray<TEnumAsByte<EObjectTypeQuery>> IslandTriggerObjectType;
 
+	UPROPERTY(EditDefaultsOnly)
+	float AfterStunReturnDelay = 10;
+
+	UPROPERTY(EditDefaultsOnly)
+	float AfterDeathReturnDelay = 30;
+	
 	void SetAlwaysVisible(bool IsAlwaysVisible);
 
 	// Calls blueprint to initialize behavior tree
@@ -56,11 +62,18 @@ public:
 	
 protected:
 
-	FTimerHandle SpawnDelayTimerHandle;
+	FTimerHandle InitialSpawnDelayTimerHandle;
  
 	TMap<EIslandPosition, ABurrowerTriggerVolume*> TriggerVolumes;
 	UPROPERTY()
 	ABurrowerTriggerVolume* CurrIsland;
+
+	FTimerHandle ReturnDelayTimerHandle;
+	
+	FTimerHandle InvisDelayTimerHandle;
+	void InvisDelayFinished();
+
+	void RemoveHunterHelper();
 
 	UFUNCTION()
 	void SetEnteredNewIsland(AActor* OverlappedActor, AActor* OtherActor);
@@ -72,6 +85,8 @@ protected:
 
 	virtual void OnStunStart(float StunDuration) override;
 	virtual void OnStunEnd() override;
+
+	void DelayedReturn(float ReturnDelay);
 
 	UPROPERTY() 
 	AHunterEnemy* Hunter;
