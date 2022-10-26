@@ -89,7 +89,7 @@ void ABurrowerSpawnManager::SpawnBurrower()
 		SpawnedBurrowers[SpawnPoint->IslandType].Add(SpawnedBurrower);
 		if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(SpawnedBurrower))
 		{
-			HealthInterface->GetHealthComponent()->OnDeathDelegate.AddUFunction(this, FName("OnBurrowerDeath"));
+			HealthInterface->GetHealthComponent()->OnDeathDelegate.AddDynamic(this, &ABurrowerSpawnManager::OnBurrowerDeath);
 		}
 	}
 }

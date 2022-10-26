@@ -51,6 +51,8 @@ public:
 	
 	UFUNCTION()
 	void OnHunterDeath(AActor* HunterKilled);
+
+	void StartChanneling();
 	
 protected:
 

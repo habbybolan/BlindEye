@@ -25,13 +25,12 @@ void UBTS_HunterState::OnSearchStart(FBehaviorTreeSearchData& SearchData)
 	UWorld* World = GetWorld();
 	if (ensure(World))
 	{
-		TArray<AActor*> OutActors;
-		UGameplayStatics::GetAllActorsOfClass(World, AShrine::StaticClass(), OutActors);
-		if (OutActors.Num() > 0)
+		if (AActor* Actor = UGameplayStatics::GetActorOfClass(World, AShrine::StaticClass()))
 		{
+			AShrine* Shrine = Cast<AShrine>(Actor);
 			if (UBlackboardComponent* BBComp = SearchData.OwnerComp.GetBlackboardComponent())
 			{
-				BBComp->SetValueAsObject(ShrineKey.SelectedKeyName, OutActors[0]);
+				BBComp->SetValueAsObject(ShrineKey.SelectedKeyName, Shrine);
 			}
 		}
 	}
@@ -45,8 +44,9 @@ void UBTS_HunterState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 	if (ensure(BBComp))
 	{
 		BBComp->SetValueAsBool(IsAttackingKey.SelectedKeyName, Hunter->GetIsAttacking());
-		BBComp->SetValueAsBool(bChargedOnCooldownKey.SelectedKeyName, !Hunter->GetIsCharged());
-
+		BBComp->SetValueAsBool(bChargedOnCooldownKey.SelectedKeyName, Hunter->GetIsCharged());
+		BBComp->SetValueAsBool(IsChannellingKey.SelectedKeyName, Hunter->GetIsChannelling());
+	
 		FAppliedStatusEffects StatusEffects = Hunter->GetAppliedStatusEffects();
 		BBComp->SetValueAsBool(IsImmobilizedKey.SelectedKeyName, StatusEffects.IsStun || StatusEffects.IsStaggered);
 	}

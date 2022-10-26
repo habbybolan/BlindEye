@@ -21,7 +21,7 @@ class BLINDEYE_API UBTT_HunterMoveTo : public UBTTask_MoveTo
 	TSubclassOf<UNavigationQueryFilter> LargeJumpQF;
 
 	UPROPERTY(EditAnywhere)
-	FBlackboardKeySelector bChargedAttackOnCooldownKey;
+	FBlackboardKeySelector bCharged;
 	
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	

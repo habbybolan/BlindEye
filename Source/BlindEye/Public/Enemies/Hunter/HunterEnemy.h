@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Shrine.h"
 #include "Enemies/BlindEyeEnemyBase.h"
 #include "HunterEnemy.generated.h"
 
@@ -108,19 +109,27 @@ public:
 	bool GetIsAttacking();
 
 	bool GetIsCharged(); 
- 
+	bool GetIsChannelling();
+	
 	void ApplyBasicAttackDamage(FHitResult Hit, bool IfShouldApplyHunterMark);
 	void ApplyChargedJumpDamage(FHitResult Hit, bool IfShouldApplyHunterMark);
+
+	void StartChanneling();
+	void StopChanneling(); 
  
 protected:
 
 	bool bAttacking = false;
 
-	bool bCharged = true;
+	bool bCharged = false;
+	bool bChannelling = false;
 	float CachedRunningSpeed;
 
 	FTimerHandle ChargedCooldownTimerHandle;
 	FTimerHandle ChargedDurationTimerHandle;
+
+	UPROPERTY()
+	AShrine* Shrine;
 
 	FTimerHandle BasicAttackTimerHandle;
 	void SetBasicAttackFinished();

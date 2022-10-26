@@ -160,7 +160,7 @@ void AHunterEnemyController::OnPossess(APawn* InPawn)
 	
 	if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(Hunter))
 	{
-		HealthInterface->GetHealthComponent()->OnDeathDelegate.AddUFunction(this, FName("OnHunterDeath"));
+		HealthInterface->GetHealthComponent()->OnDeathDelegate.AddDynamic(this, &AHunterEnemyController::OnHunterDeath);
 	}
 
 	// Get random player to attack
@@ -216,6 +216,14 @@ void AHunterEnemyController::OnHunterDeath(AActor* HunterKilled)
 	GetBrainComponent()->GetBlackboardComponent()->SetValueAsBool("bDead", false);
 	GetBrainComponent()->GetBlackboardComponent()->SetValueAsBool("IsFirstRun", false);
 	GetBrainComponent()->StopLogic(TEXT("HunterDeath"));
+}
+
+void AHunterEnemyController::StartChanneling()
+{
+	if (Hunter)
+	{
+		Hunter->StartChanneling();
+	}
 }
 
 void AHunterEnemyController::SpawnHunter() 

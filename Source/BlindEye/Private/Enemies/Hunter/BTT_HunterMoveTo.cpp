@@ -8,20 +8,22 @@
 EBTNodeResult::Type UBTT_HunterMoveTo::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
-	if (Result != EBTNodeResult::InProgress) return Result;
+	if (Result != EBTNodeResult::InProgress)
+	{
+		return Result;
+	}
 
 	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
 	if (ensure(BlackboardComp))
 	{
-		if (BlackboardComp->GetValueAsBool(bChargedAttackOnCooldownKey.SelectedKeyName))
-		{
-			FilterClass = SmallJumpQF;
-		} else
+		if (BlackboardComp->GetValueAsBool(bCharged.SelectedKeyName))
 		{
 			FilterClass = LargeJumpQF;
+		} else
+		{
+			FilterClass = SmallJumpQF;
 		}
-	
-		return PerformMoveTask(OwnerComp, NodeMemory);
+		return Result;
 	}
 	return EBTNodeResult::Failed;
 }

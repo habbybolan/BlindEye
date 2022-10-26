@@ -23,11 +23,15 @@ void AHunterEnemy::BeginPlay()
 	Super::BeginPlay();
 
 	CachedRunningSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed * MovementSpeedAlteredDuringNotCharged;
 
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
-	
-	SetCharged();
+
+	if (AActor* ShrineActor = UGameplayStatics::GetActorOfClass(World, AShrine::StaticClass()))
+	{
+		Shrine = Cast<AShrine>(ShrineActor);
+	}
 }
 
 void AHunterEnemy::PerformChargedJump()
@@ -102,6 +106,8 @@ void AHunterEnemy::SetCharged()
 	UWorld* World = GetWorld();
 	if (!ensure(World)) return;
 
+	bCharged = true;
+
 	GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed;
 
 	World->GetTimerManager().ClearTimer(ChargedCooldownTimerHandle);
@@ -120,7 +126,7 @@ void AHunterEnemy::SetNotCharged()
 	
 	bCharged = false;
 	World->GetTimerManager().ClearTimer(ChargedDurationTimerHandle);
-	World->GetTimerManager().SetTimer(ChargedCooldownTimerHandle, this, &AHunterEnemy::SetCharged, ChargedCooldown, false);
+	//World->GetTimerManager().SetTimer(ChargedCooldownTimerHandle, this, &AHunterEnemy::SetCharged, ChargedCooldown, false);
 }
 
 void AHunterEnemy::OnMarkDetonated()
@@ -233,6 +239,11 @@ bool AHunterEnemy::GetIsCharged()
 	return bCharged;
 }
 
+bool AHunterEnemy::GetIsChannelling()
+{
+	return bChannelling;
+}
+
 void AHunterEnemy::ApplyBasicAttackDamage(FHitResult Hit, bool IfShouldApplyHunterMark)
 {
 	// base DamageType and damage amount if Hunter Charged and if marking target
@@ -255,6 +266,27 @@ void AHunterEnemy::ApplyChargedJumpDamage(FHitResult Hit, bool IfShouldApplyHunt
 	{
 		SetPlayerMarked(Hit.Actor.Get());
 	}
+}
+
+void AHunterEnemy::StartChanneling()
+{
+	if (bChannelling) return;
+	// TODO: Tells shrine hunter started channeling with it
+	//	Setup timer to stop channeling and enter charged phase
+	
+	bChannelling = true;
+	StopChanneling();
+}
+
+void AHunterEnemy::StopChanneling()
+{
+	// TODO: Notify Shrine that channeling stopped
+	//	Enter charged phase and set target
+
+	bChannelling = false;
+	check(Shrine);
+	Shrine->ChannellingEnded(this);
+	SetCharged();
 }
 
 void AHunterEnemy::SetPlayerMarked(AActor* NewTarget)

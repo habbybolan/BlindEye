@@ -58,8 +58,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	const FAppliedStatusEffects& GetAppliedStatusEffect();
-
-	DECLARE_MULTICAST_DELEGATE_OneParam(FDeathSignature, AActor*)
+ 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDeathSignature, AActor*, EnemyKilled);
+	UPROPERTY()
 	FDeathSignature OnDeathDelegate;
 	
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)

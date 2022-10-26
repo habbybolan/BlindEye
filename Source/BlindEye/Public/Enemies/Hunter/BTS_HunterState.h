@@ -25,6 +25,9 @@ class BLINDEYE_API UBTS_HunterState : public UBTService
 	UPROPERTY(EditAnywhere) 
 	FBlackboardKeySelector ShrineKey;
 
+	UPROPERTY(EditAnywhere)  
+	FBlackboardKeySelector IsChannellingKey;
+
 	UPROPERTY()
 	AHunterEnemy* Hunter;
 
