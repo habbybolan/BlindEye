@@ -335,6 +335,7 @@ void AHunterEnemy::StartChanneling()
 	// TODO: Tells shrine hunter started channeling with it
 	//	Setup timer to stop channeling and enter charged phase
 
+	PlayAnimMontage(ChannelingAnim);
 	UWorld* World = GetWorld();
 	if (ensure(World))
 	{
@@ -347,9 +348,15 @@ void AHunterEnemy::StartChanneling()
 
 void AHunterEnemy::StopChanneling()
 {
-	bChannelling = false;
 	check(Shrine);
 	Shrine->ChannellingEnded(this);
+	GetMesh()->GetAnimInstance()->Montage_JumpToSection("End", ChannelingAnim);
+	// TODO: Set Channeling Anim to End section
+}
+
+void AHunterEnemy::ChannelingAnimFinished()
+{
+	bChannelling = false;
 	SetCharged();
 }
 

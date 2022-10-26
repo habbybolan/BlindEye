@@ -42,6 +42,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Channelling)
 	float ChannellingDuration = 5.f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Channelling)
+	UAnimMontage* ChannelingAnim;
+
 	UPROPERTY(EditDefaultsOnly, Category=BasicAttack, meta=(ClampMin=0))
 	float BasicAttackDamage = 10.f;
 
@@ -130,6 +133,8 @@ public:
 	void OnStunEnd();
 
 	bool GetIsFleeing();
+
+	void ChannelingAnimFinished();
  
 protected:
 
