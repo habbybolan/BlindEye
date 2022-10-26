@@ -355,6 +355,7 @@ void AHunterEnemy::StopChanneling()
 
 void AHunterEnemy::OnStunStart(float StunDuration)
 {
+	bFleeing = true;
 	SetNotCharged();
 	RemoveHunterMarkOnPlayer();
 }
@@ -363,6 +364,11 @@ void AHunterEnemy::OnStunEnd()
 {
 	// TODO: roar that launches players?
 	TrySetVisibility(false);
+}
+
+bool AHunterEnemy::GetIsFleeing()
+{
+	return bFleeing;
 }
 
 void AHunterEnemy::SetPlayerMarked(AActor* NewTarget)

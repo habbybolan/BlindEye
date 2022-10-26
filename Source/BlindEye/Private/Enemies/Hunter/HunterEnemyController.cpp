@@ -253,8 +253,6 @@ void AHunterEnemyController::OnHunterDeath(AActor* HunterKilled)
 void AHunterEnemyController::RemoveHunterHelper()
 {
 	Hunter = nullptr;
-
-	GetBrainComponent()->GetBlackboardComponent()->SetValueAsBool("bDead", false);
 	GetBrainComponent()->GetBlackboardComponent()->SetValueAsBool("IsFirstRun", false);
 	GetBrainComponent()->StopLogic(TEXT("HunterDeath"));
 }

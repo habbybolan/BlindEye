@@ -128,11 +128,14 @@ public:
 
 	void OnStunStart(float StunDuration);
 	void OnStunEnd();
+
+	bool GetIsFleeing();
  
 protected:
 
 	bool bAttacking = false;
-
+ 
+	bool bFleeing = false;
 	bool bCharged = false;
 	bool bChannelling = false;
 	float CachedRunningSpeed;

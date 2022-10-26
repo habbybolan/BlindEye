@@ -16,6 +16,15 @@ class BLINDEYE_API UBTS_HunterState : public UBTService
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere) 
+	FBlackboardKeySelector IsFirstRunKey;
+
+	UPROPERTY(EditAnywhere)  
+	FBlackboardKeySelector IsDeadKey;
+
+	UPROPERTY(EditAnywhere)   
+	FBlackboardKeySelector IsFleeingKey;
+
 	UPROPERTY(EditAnywhere)
 	FBlackboardKeySelector IsAttackingKey;
 

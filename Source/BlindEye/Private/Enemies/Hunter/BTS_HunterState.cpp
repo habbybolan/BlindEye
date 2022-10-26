@@ -18,20 +18,25 @@ UBTS_HunterState::UBTS_HunterState()
 
 void UBTS_HunterState::OnSearchStart(FBehaviorTreeSearchData& SearchData)
 {
-	AAIController* Controller = SearchData.OwnerComp.GetAIOwner();
-	HunterController = Cast<AHunterEnemyController>(Controller);
-	Hunter = Cast<AHunterEnemy>(HunterController->GetPawn());
-
-	UWorld* World = GetWorld();
-	if (ensure(World))
+	UBlackboardComponent* BBComp = SearchData.OwnerComp.GetBlackboardComponent();
+	check(BBComp);
+	
+	if (BBComp->GetValueAsBool(IsFirstRunKey.SelectedKeyName))
 	{
-		if (AActor* Actor = UGameplayStatics::GetActorOfClass(World, AShrine::StaticClass()))
+		AAIController* Controller = SearchData.OwnerComp.GetAIOwner();
+		HunterController = Cast<AHunterEnemyController>(Controller);
+		Hunter = Cast<AHunterEnemy>(HunterController->GetPawn());
+
+		UWorld* World = GetWorld();
+		if (ensure(World))
 		{
-			AShrine* Shrine = Cast<AShrine>(Actor);
-			if (UBlackboardComponent* BBComp = SearchData.OwnerComp.GetBlackboardComponent())
+			if (AActor* Actor = UGameplayStatics::GetActorOfClass(World, AShrine::StaticClass()))
 			{
+				AShrine* Shrine = Cast<AShrine>(Actor);
 				BBComp->SetValueAsObject(ShrineKey.SelectedKeyName, Shrine);
 			}
+			BBComp->SetValueAsBool(IsDeadKey.SelectedKeyName, false);
+			BBComp->SetValueAsBool(IsFleeingKey.SelectedKeyName, false);
 		}
 	}
 }
