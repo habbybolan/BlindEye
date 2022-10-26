@@ -4,11 +4,14 @@
 #include "Enemies/Hunter/HunterEnemy.h"
 
 #include "Characters/BlindEyePlayerCharacter.h"
+#include "Characters/BlindEyePlayerController.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Enemies/Hunter/HunterEnemyController.h"
 #include "Enemies/Hunter/HunterHealthComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/GameStateBase.h"
+#include "GameFramework/PlayerState.h"
 #include "Kismet/KismetMathLibrary.h"
 
 AHunterEnemy::AHunterEnemy(const FObjectInitializer& ObjectInitializer)
@@ -21,6 +24,8 @@ AHunterEnemy::AHunterEnemy(const FObjectInitializer& ObjectInitializer)
 void AHunterEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+
+	bCharged = true;
 
 	CachedRunningSpeed = GetCharacterMovement()->MaxWalkSpeed;
 	GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed * MovementSpeedAlteredDuringNotCharged;
@@ -143,6 +148,31 @@ void AHunterEnemy::OnMarkDetonated()
 		AActor* Target = HunterController->GetBTTarget();
 		HealthComponent->Stun(5, Target);
 		SetNotCharged();
+	}
+}
+
+void AHunterEnemy::RemoveHunterMarkOnPlayer()
+{
+	UWorld* World = GetWorld();
+	if (!ensure(World)) return;
+	
+	// Remove any hunter mark on any of the players 
+	AGameStateBase* GameState = UGameplayStatics::GetGameState(World);
+	TArray<APlayerState*> LocalPlayers = GameState->PlayerArray;
+	for (APlayerState* LocalPlayer : LocalPlayers)
+	{
+		APawn* PlayerPawn = LocalPlayer->GetPawn();
+		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerPawn);
+		check(Player);
+		// remove the mark from player if it's a hunter mark
+		if (FMarkData* Mark =  Player->GetHealthComponent()->GetCurrMark())
+		{
+			if (Mark->MarkerType == EMarkerType::Hunter)
+			{
+				Player->GetHealthComponent()->RemoveMark();
+				return;
+			}
+		}
 	}
 }
 
@@ -314,6 +344,7 @@ void AHunterEnemy::StopChanneling()
 void AHunterEnemy::OnStunStart(float StunDuration)
 {
 	SetNotCharged();
+	RemoveHunterMarkOnPlayer();
 }
 
 void AHunterEnemy::OnStunEnd()

@@ -185,5 +185,7 @@ protected:
 
 	void ApplyAttackDamageHelper(float Damage, bool IfShouldApplyHunterMark, TSubclassOf<UBaseDamageType> DamageType, FHitResult Hit);
 	virtual void OnMarkDetonated() override;
+
+	void RemoveHunterMarkOnPlayer();
 };
 
