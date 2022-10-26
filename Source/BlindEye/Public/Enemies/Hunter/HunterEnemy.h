@@ -139,7 +139,13 @@ protected:
 	FTimerHandle BasicAttackTimerHandle;
 	void SetBasicAttackFinished();
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_PerformBasicAttackHelper(); 
+	void MULT_PerformBasicAttackHelper();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_ChargedStarted();
+  
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_ChargedEnded();
 
 	void SetPlayerMarked(AActor* NewTarget);
 

@@ -107,6 +107,7 @@ void AHunterEnemy::SetCharged()
 	if (!ensure(World)) return;
 
 	bCharged = true;
+	BP_ChargedStarted();
 
 	GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed;
 
@@ -125,6 +126,8 @@ void AHunterEnemy::SetNotCharged()
 	GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed * MovementSpeedAlteredDuringNotCharged;
 	
 	bCharged = false;
+	BP_ChargedEnded();
+	
 	World->GetTimerManager().ClearTimer(ChargedDurationTimerHandle);
 	//World->GetTimerManager().SetTimer(ChargedCooldownTimerHandle, this, &AHunterEnemy::SetCharged, ChargedCooldown, false);
 }
