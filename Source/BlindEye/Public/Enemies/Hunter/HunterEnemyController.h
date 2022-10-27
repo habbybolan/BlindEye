@@ -35,6 +35,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	float AfterDeathReturnDelay = 30;
+ 
+	UPROPERTY(EditDefaultsOnly)
+	float AfterKillingPlayerDelay = 10;
 	
 	void SetAlwaysVisible(bool IsAlwaysVisible);
 
@@ -59,6 +62,8 @@ public:
 	void OnHunterDeath(AActor* HunterKilled);
 
 	void StartChanneling();
+
+	void OnMarkedPlayerDeath();
 	
 protected:
 
@@ -85,6 +90,8 @@ protected:
 
 	virtual void OnStunStart(float StunDuration) override;
 	virtual void OnStunEnd() override;
+
+	void DespawnHunter();
 
 	void DelayedReturn(float ReturnDelay);
 

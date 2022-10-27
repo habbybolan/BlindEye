@@ -171,11 +171,16 @@ void AHunterEnemyController::OnStunEnd()
 	}	 
 }
 
-void AHunterEnemyController::InvisDelayFinished()
+void AHunterEnemyController::DespawnHunter()
 {
 	UnPossess();
 	Hunter->Destroy();
 	RemoveHunterHelper();
+}
+
+void AHunterEnemyController::InvisDelayFinished()
+{
+	DespawnHunter();
 	DelayedReturn(AfterStunReturnDelay);
 }
 
@@ -263,6 +268,30 @@ void AHunterEnemyController::StartChanneling()
 	if (Hunter)
 	{
 		Hunter->StartChanneling();
+	}
+}
+
+void AHunterEnemyController::OnMarkedPlayerDeath()
+{
+	// Find other alive players
+	UWorld* World = GetWorld();
+	if (!World) return;
+	
+	AGameStateBase* GameState = UGameplayStatics::GetGameState(World);
+	if (GameState)
+	{
+		TArray<APlayerState*> Players = GameState->PlayerArray;
+		for (APlayerState* FoundPlayerState : Players)
+		{
+			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(FoundPlayerState->GetPawn());
+			check(Player);
+			if (!Player->GetIsDead())
+			{
+				SetBTTarget(Player);
+				DespawnHunter();
+				DelayedReturn(AfterKillingPlayerDelay);
+			}
+		}
 	}
 }
 

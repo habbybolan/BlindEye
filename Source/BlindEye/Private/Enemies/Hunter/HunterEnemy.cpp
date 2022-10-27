@@ -218,25 +218,9 @@ void AHunterEnemy::OnHunterMarkRemoved()
 
 void AHunterEnemy::OnMarkedPlayerDied(AActor* PlayerKilled)
 {
-	// Find other alive players
-	UWorld* World = GetWorld();
-	if (!World) return;
-	
-	AGameStateBase* GameState = UGameplayStatics::GetGameState(World);
-	if (GameState)
-	{
-		TArray<APlayerState*> Players = GameState->PlayerArray;
-		for (APlayerState* FoundPlayerState : Players)
-		{
-			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(FoundPlayerState->GetPawn());
-			check(Player);
-			if (!Player->GetIsDead())
-			{
-				AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(Controller);
-				HunterController->SetBTTarget(Player);
-			}
-		}
-	}
+	AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(Controller);
+	ensure(HunterController);
+	HunterController->OnMarkedPlayerDeath();
 }
 
 void AHunterEnemy::UnsubscribeToTargetMarks()
