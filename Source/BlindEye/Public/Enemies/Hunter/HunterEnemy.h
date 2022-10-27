@@ -179,6 +179,9 @@ protected:
 	UFUNCTION() 
 	void OnHunterMarkRemoved();
 
+	UFUNCTION()
+	void OnMarkedPlayerDied(AActor* PlayerDied);
+
 	void UnsubscribeToTargetMarks();
 
 	bool bChargeAttackCooldown = false;

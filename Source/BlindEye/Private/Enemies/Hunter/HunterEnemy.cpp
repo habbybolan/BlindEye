@@ -10,6 +10,7 @@
 #include "Enemies/Hunter/HunterEnemyController.h"
 #include "Enemies/Hunter/HunterHealthComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/GameState.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -215,6 +216,29 @@ void AHunterEnemy::OnHunterMarkRemoved()
 	UnsubscribeToTargetMarks();
 }
 
+void AHunterEnemy::OnMarkedPlayerDied(AActor* PlayerKilled)
+{
+	// Find other alive players
+	UWorld* World = GetWorld();
+	if (!World) return;
+	
+	AGameStateBase* GameState = UGameplayStatics::GetGameState(World);
+	if (GameState)
+	{
+		TArray<APlayerState*> Players = GameState->PlayerArray;
+		for (APlayerState* FoundPlayerState : Players)
+		{
+			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(FoundPlayerState->GetPawn());
+			check(Player);
+			if (!Player->GetIsDead())
+			{
+				AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(Controller);
+				HunterController->SetBTTarget(Player);
+			}
+		}
+	}
+}
+
 void AHunterEnemy::UnsubscribeToTargetMarks()
 {
 	AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(Controller);
@@ -227,6 +251,7 @@ void AHunterEnemy::UnsubscribeToTargetMarks()
 		check(Player);
 		Player->GetHealthComponent()->DetonateDelegate.Remove(this, TEXT("OnHunterMarkDetonated"));
 		Player->GetHealthComponent()->MarkedRemovedDelegate.Remove(this, TEXT("OnHunterMarkRemoved"));
+		Player->GetHealthComponent()->OnDeathDelegate.Remove(this, TEXT("OnMarkedPlayerDied"));
 	}
 } 
 
@@ -379,6 +404,7 @@ void AHunterEnemy::SetPlayerMarked(AActor* NewTarget)
 		bPlayerMarked = true;
 		BlindEyePlayerCharacter->GetHealthComponent()->DetonateDelegate.AddDynamic(this, &AHunterEnemy::OnHunterMarkDetonated);
 		BlindEyePlayerCharacter->GetHealthComponent()->MarkedRemovedDelegate.AddDynamic(this, &AHunterEnemy::OnHunterMarkRemoved);
+		BlindEyePlayerCharacter->GetHealthComponent()->OnDeathDelegate.AddDynamic(this, &AHunterEnemy::OnMarkedPlayerDied);
 		HunterController->SetBTTarget(NewTarget);
 	}
 }
