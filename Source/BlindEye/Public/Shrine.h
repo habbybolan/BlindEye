@@ -20,6 +20,9 @@ public:
 	// Sets default values for this actor's properties
 	AShrine();
 
+	UPROPERTY(EditDefaultsOnly)
+	UCapsuleComponent* CapsuleComponent;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UStaticMeshComponent* Mesh;
 
