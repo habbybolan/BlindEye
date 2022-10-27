@@ -350,15 +350,6 @@ void ASnapperEnemy::OnDeath(AActor* ActorThatKilled)
 	{
 		SnapperController->OnSnapperDeath();
 	}
-
-	UWorld* World = GetWorld();
-	if (World == nullptr) return;
-	World->GetTimerManager().SetTimer(DeathTimerHandle, this, &ASnapperEnemy::DestroySnapper, DeathDelay, false);
-}
-
-void ASnapperEnemy::DestroySnapper()
-{
-	Destroy();
 }
 
 void ASnapperEnemy::GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const

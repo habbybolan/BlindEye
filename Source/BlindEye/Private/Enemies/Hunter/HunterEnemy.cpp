@@ -245,16 +245,16 @@ void AHunterEnemy::TrySetVisibility(bool visibility)
 	IsVisible = visibility;
 	MULT_TurnVisible(visibility);
 }
-
+ 
 void AHunterEnemy::OnDeath(AActor* ActorThatKilled)
 {
+	Super::OnDeath(ActorThatKilled);
 	if (AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(GetController()))
 	{
 		HunterController->OnHunterDeath(nullptr);
 	}
-	Super::OnDeath(ActorThatKilled);
+	RemoveHunterMarkOnPlayer();
 	UnPossessed();
-	Destroy();
 }
 
 void AHunterEnemy::SetChargedJumpOffCooldown()
@@ -366,7 +366,7 @@ void AHunterEnemy::OnStunStart(float StunDuration)
 }
 
 bool AHunterEnemy::GetIsFleeing()
-{
+{ 
 	return bFleeing;
 }
 
