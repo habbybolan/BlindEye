@@ -10,8 +10,6 @@ ABlindEyeEnemyBase::ABlindEyeEnemyBase(const FObjectInitializer& ObjectInitializ
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	CurrHealth = MaxHealth;
 	Team = TEAMS::Enemy;
 }
 
@@ -29,6 +27,7 @@ bool ABlindEyeEnemyBase::GetIsDead()
 void ABlindEyeEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
+	CurrHealth = MaxHealth;
 }
 
 void ABlindEyeEnemyBase::DestroyEnemy()

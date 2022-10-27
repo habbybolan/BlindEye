@@ -24,6 +24,13 @@ UHealthComponent::UHealthComponent(const FObjectInitializer& ObjectInitializer) 
 	// MUST SET REPLICATED TO TRUE IN BLUEPRINTS, CRASHES IF SET HERE
 }
 
+
+void UHealthComponent::AddMarkerHelper(EMarkerType MarkerType)
+{
+	CurrMark.SetMark(MarkerType);
+	MarkedAddedDelegate.Broadcast(MarkerType);
+}
+
 const FAppliedStatusEffects& UHealthComponent::GetAppliedStatusEffect()
 {
 	return AppliedStatusEffects;
@@ -224,15 +231,6 @@ void UHealthComponent::TryApplyMarker(EMarkerType MarkerType, AActor* DamageCaus
 	}
 }
 
-
-void UHealthComponent::AddMarkerHelper(EMarkerType MarkerType)
-{
-	CurrMark.SetMark(MarkerType);
-	MarkedAddedDelegate.Broadcast(MarkerType);
-}
-
-
-
 void UHealthComponent::TryDetonation(EPlayerType PlayerType, AActor* DamageCause)
 {
 	UWorld* world = GetWorld();
@@ -258,46 +256,45 @@ void UHealthComponent::PerformDetonationEffect(AActor* DamageCause)
 	// If enemy is being detonated 
 	if (ABlindEyeEnemyBase* BLindEyeEnemy = Cast<ABlindEyeEnemyBase>(GetOwner()))
 	{
+		UBaseDamageType* DamageType = NewObject<UBaseDamageType>(GetTransientPackage(), UBaseDamageType::StaticClass());
 		// Stun to detonated enemy (Detonate Crow Mark on Enemy)
 		if (CurrMark.MarkerType == EMarkerType::Crow)
 		{
-			UBaseDamageType* StunDamage = NewObject<UBaseDamageType>(GetTransientPackage(), DarkDetonationOnEnemyDamageType);
-			SetDamage(DarkDetonationOnEnemyDamage, GetOwner()->GetActorLocation(), StunDamage, DamageCause);
+			SetDamage(ExtraDetonationDamage, GetOwner()->GetActorLocation(), DamageType, DamageCause);
 		}
 		// Burn on detonated (Detonate Phoenix Mark on Enemy)
-		else if (CurrMark.MarkerType == EMarkerType::Phoenix)
+		else if (CurrMark.MarkerType == EMarkerType::Phoenix) 
 		{
-			UBaseDamageType* BurnDamage = NewObject<UBaseDamageType>(GetTransientPackage(), FireDetonationOnEnemyDamageType);
-			SetDamage(1, GetOwner()->GetActorLocation(), BurnDamage, DamageCause);
+			SetDamage(ExtraDetonationDamage, GetOwner()->GetActorLocation(), DamageType, DamageCause);
 		}
 	}
-	// If player being detonated
-	else if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
-	{
-		// Explosion around detonated player (Detonate Crow Mark on Phoenix)
-		if (CurrMark.MarkerType == EMarkerType::Crow)
-		{
-			UWorld* World = GetWorld();
-			if (!World) return;
-			
-			UGameplayStatics::ApplyRadialDamage(World, DarkDetonationOnPlayerDamage, GetOwner()->GetActorLocation(),
-				DarkDetonationOnPlayerRadius, DarkDetonationOnPlayerDamageType, TArray<AActor*>(), DamageCause);
-			UBaseDamageType* ExplosionDamage = NewObject<UBaseDamageType>(GetTransientPackage(), DarkDetonationOnPlayerDamageType);
-			SetDamage(1, GetOwner()->GetActorLocation(), ExplosionDamage, DamageCause);
-		}
-		// Healing well around detonated player (Detonate Phoenix Mark on Crow)
-		else if (CurrMark.MarkerType == EMarkerType::Phoenix)
-		{
-			UWorld* World = GetWorld();
-			if (!World) return;
-
-			FActorSpawnParameters params;
-			params.Instigator = Cast<APawn>(GetOwner());
-			params.Owner = GetOwner();
-			AHealingWell* HealingWell = World->SpawnActor<AHealingWell>(HealingWellType, GetOwner()->GetActorLocation(), FRotator::ZeroRotator, params);
-			HealingWell->AttachToActor(GetOwner(), FAttachmentTransformRules::KeepWorldTransform);
-		}
-	}
+	// // If player being detonated
+	// else if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	// {
+	// 	// Explosion around detonated player (Detonate Crow Mark on Phoenix)
+	// 	if (CurrMark->MarkerType == EMarkerType::Crow)
+	// 	{
+	// 		UWorld* World = GetWorld();
+	// 		if (!World) return;
+	// 		
+	// 		UGameplayStatics::ApplyRadialDamage(World, DarkDetonationOnPlayerDamage, GetOwner()->GetActorLocation(),
+	// 			DarkDetonationOnPlayerRadius, DarkDetonationOnPlayerDamageType, TArray<AActor*>(), DamageCause);
+	// 		UBaseDamageType* ExplosionDamage = NewObject<UBaseDamageType>(GetTransientPackage(), DarkDetonationOnPlayerDamageType);
+	// 		SetDamage(1, GetOwner()->GetActorLocation(), ExplosionDamage, DamageCause);
+	// 	}
+	// 	// Healing well around detonated player (Detonate Phoenix Mark on Crow)
+	// 	else if (CurrMark->MarkerType == EMarkerType::Phoenix)
+	// 	{
+	// 		UWorld* World = GetWorld();
+	// 		if (!World) return;
+	//
+	// 		FActorSpawnParameters params;
+	// 		params.Instigator = Cast<APawn>(GetOwner());
+	// 		params.Owner = GetOwner();
+	// 		AHealingWell* HealingWell = World->SpawnActor<AHealingWell>(HealingWellType, GetOwner()->GetActorLocation(), FRotator::ZeroRotator, params);
+	// 		HealingWell->AttachToActor(GetOwner(), FAttachmentTransformRules::KeepWorldTransform);
+	// 	}
+	// }
 }
 
 void UHealthComponent::TryTaunt(float Duration, AActor* Taunter)
