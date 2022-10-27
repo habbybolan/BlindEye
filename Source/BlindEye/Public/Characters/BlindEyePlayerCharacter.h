@@ -278,6 +278,9 @@ protected:
 	UFUNCTION()
 	void ChargedAttackReleased();
 
+	UFUNCTION() 
+	void TryJump();
+
 	UFUNCTION()  
 	void DashPressed();
 	UFUNCTION() 
