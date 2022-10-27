@@ -127,6 +127,8 @@ public:
 	void ApplyChargedJumpDamage(FHitResult Hit, bool IfShouldApplyHunterMark);
 
 	void StartChanneling();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_StartChannelingHelper();
 	void StopChanneling();
 
 	void OnStunStart(float StunDuration);

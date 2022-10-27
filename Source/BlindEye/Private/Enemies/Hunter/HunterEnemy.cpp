@@ -328,17 +328,20 @@ void AHunterEnemy::ApplyAttackDamageHelper(float Damage, bool IfShouldApplyHunte
 void AHunterEnemy::StartChanneling()
 {
 	if (bChannelling) return;
-	// TODO: Tells shrine hunter started channeling with it
-	//	Setup timer to stop channeling and enter charged phase
 
+	MULT_StartChannelingHelper();
+	check(Shrine);
+	Shrine->ChannelingStarted(this);
+}
+
+void AHunterEnemy::MULT_StartChannelingHelper_Implementation()
+{
 	PlayAnimMontage(ChannelingAnim);
 	UWorld* World = GetWorld();
 	if (ensure(World))
 	{
 		bChannelling = true;
 		World->GetTimerManager().SetTimer(ChannellingTimerHandle, this, &AHunterEnemy::StopChanneling, ChannellingDuration, false);
-		check(Shrine);
-		Shrine->ChannelingStarted(this);
 	}
 }
 
