@@ -76,7 +76,8 @@ protected:
 	FTimerHandle ReturnDelayTimerHandle;
 	
 	FTimerHandle InvisDelayTimerHandle;
-	void InvisDelayFinished();
+	void StunInvisDelayFinished();
+	void TargetKilledInvisDelayFinished(); 
 
 	void RemoveHunterHelper();
 

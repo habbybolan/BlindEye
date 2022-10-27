@@ -166,22 +166,28 @@ void AHunterEnemyController::OnStunEnd()
 		UWorld* World = GetWorld();
 		if (ensure(World))
 		{
-			World->GetTimerManager().SetTimer(InvisDelayTimerHandle, this, &AHunterEnemyController::InvisDelayFinished, 1, false);
+			World->GetTimerManager().SetTimer(InvisDelayTimerHandle, this, &AHunterEnemyController::StunInvisDelayFinished, 1, false);
 		}
 	}	 
 }
 
 void AHunterEnemyController::DespawnHunter()
-{
+{ 
 	UnPossess();
 	Hunter->Destroy();
 	RemoveHunterHelper();
 }
 
-void AHunterEnemyController::InvisDelayFinished()
+void AHunterEnemyController::StunInvisDelayFinished()
 {
-	DespawnHunter();
+	DespawnHunter(); 
 	DelayedReturn(AfterStunReturnDelay);
+}
+
+void AHunterEnemyController::TargetKilledInvisDelayFinished()
+{
+	DespawnHunter(); 
+	DelayedReturn(AfterKillingPlayerDelay);
 }
 
 void AHunterEnemyController::DelayedReturn(float ReturnDelay)
@@ -288,8 +294,7 @@ void AHunterEnemyController::OnMarkedPlayerDeath()
 			if (!Player->GetIsDead())
 			{
 				SetBTTarget(Player);
-				DespawnHunter();
-				DelayedReturn(AfterKillingPlayerDelay);
+				World->GetTimerManager().SetTimer(InvisDelayTimerHandle, this, &AHunterEnemyController::TargetKilledInvisDelayFinished, 1, false);
 			}
 		}
 	}

@@ -220,6 +220,8 @@ void AHunterEnemy::OnMarkedPlayerDied(AActor* PlayerKilled)
 {
 	AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(Controller);
 	ensure(HunterController);
+	TrySetVisibility(false);
+	bFleeing = true;
 	HunterController->OnMarkedPlayerDeath();
 }
 
