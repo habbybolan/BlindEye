@@ -12,17 +12,20 @@ FAbilityState::FAbilityState(AAbilityBase* ability)
 
 void FAbilityState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
+	check(Ability);
 	RemoveBlockers();
 }
 
 void FAbilityState::ExitState()
 {
+	check(Ability);
 	CurrInnerState = EInnerState::Exit;
 	RemoveBlockers();
 }
 
 void FAbilityState::RunState(EAbilityInputTypes abilityUsageType)
 {
+	check(Ability);
 	CurrInnerState = EInnerState::Running;
 	RemoveBlockers();
 	if (Ability)
