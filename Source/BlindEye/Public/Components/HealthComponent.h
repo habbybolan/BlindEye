@@ -112,8 +112,8 @@ public:
 	virtual void ImprovedHealing(float HealPercentIncrease, float Duration) override;
 	FTimerHandle ImprovedHealingTimerHandle;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<AHealingWell> HealingWellType;
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	// TSubclassOf<AHealingWell> HealingWellType;
 
 	void RemoveMark();
 	FMarkData* GetCurrMark();
