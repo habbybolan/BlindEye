@@ -112,6 +112,7 @@ void AHunterEnemyController::DebugSpawnHunter()
 
 	SpawnHunter();
 	World->GetTimerManager().ClearTimer(InitialSpawnDelayTimerHandle);
+	World->GetTimerManager().ClearTimer(ReturnDelayTimerHandle);
 }
 
 void AHunterEnemyController::TrySetVisibility(bool visibility)
