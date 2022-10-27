@@ -148,6 +148,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category=Charged)
 	bool bCharged = false;
+
+	UPROPERTY(EditDefaultsOnly, Category=Charged, meta=(ToolTip="Used for debugging to more easily stun the hunter"))
+	bool bDebugStunOnMark = false; 
 	
 	bool bChannelling = false;
 	float CachedRunningSpeed;

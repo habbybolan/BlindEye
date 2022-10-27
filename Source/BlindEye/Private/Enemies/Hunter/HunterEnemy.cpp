@@ -138,20 +138,6 @@ void AHunterEnemy::SetNotCharged()
 void AHunterEnemy::OnMarkDetonated()
 {
 	Super::OnMarkDetonated();
-	// if (GetIsCharged())
-	// {
-	// 	AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(Controller);
-	// 	check(HunterController);
-	// 	
-	// 	AActor* Target = HunterController->GetBTTarget();
-	// 	HealthComponent->Stun(5, Target);
-	// 	SetNotCharged();
-	// }
-}
-
-void AHunterEnemy::OnMarkAdded(EMarkerType MarkerType)
-{
-	Super::OnMarkAdded(MarkerType);
 	if (GetIsCharged())
 	{
 		AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(Controller);
@@ -160,6 +146,23 @@ void AHunterEnemy::OnMarkAdded(EMarkerType MarkerType)
 		AActor* Target = HunterController->GetBTTarget();
 		HealthComponent->Stun(5, Target);
 		SetNotCharged();
+	}
+}
+
+void AHunterEnemy::OnMarkAdded(EMarkerType MarkerType)
+{
+	Super::OnMarkAdded(MarkerType);
+	if (bDebugStunOnMark)
+	{
+		if (GetIsCharged())
+		{
+			AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(Controller);
+			check(HunterController);
+		
+			AActor* Target = HunterController->GetBTTarget();
+			HealthComponent->Stun(5, Target);
+			SetNotCharged();
+		}
 	}
 }
 
@@ -373,6 +376,7 @@ bool AHunterEnemy::GetIsFleeing()
 
 void AHunterEnemy::SetPlayerMarked(AActor* NewTarget)
 {
+	
 	AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(GetController());
 	if (!ensure(HunterController)) return;
 	
