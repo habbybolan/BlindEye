@@ -4,6 +4,7 @@
 #include "Abilities/CrowRush.h"
 
 #include "Characters/BlindEyePlayerCharacter.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -12,15 +13,9 @@
 ACrowRush::ACrowRush()
 {
 	AbilityStates.Add(new FAimingStartState(this));
+	AbilityStates.Add(new FMovingState(this));
+	AbilityStates.Add(new FEndState(this));
 	AbilityType = EAbilityTypes::Unique1;
-}
-
-void ACrowRush::UpdatePlayerSpeed()
-{
-	if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
-	{
-		StartingPosition = BlindEyePlayer->GetActorLocation();
-	}
 }
 
 void ACrowRush::ResetPlayerSpeed()
@@ -87,7 +82,7 @@ void ACrowRush::StartAiming()
 	{
 		Target = World->SpawnActor<ACrowRushTarget>(TargetType);
 
-		World->GetTimerManager().SetTimer(UpdateTargetTimerHandle, this, &ACrowRush::UpdateTargetPosition, UpdateTargetDelay, true);
+		World->GetTimerManager().SetTimer(UpdateTargetTimerHandle, this, &ACrowRush::UpdateTargetPosition, UpdateMovementDelay, true);
 	}
 }
 
@@ -124,9 +119,48 @@ FVector ACrowRush::CalculateTargetPosition()
 	return FVector::ZeroVector;
 }
 
+void ACrowRush::EndAbilityLogic()
+{
+	Super::EndAbilityLogic();
+	CurrDuration = 0;
+
+	// reset player state
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+	Player->GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Falling;
+	Player->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+}
+
 void ACrowRush::StartMovement()
 {
 	Target->Destroy();
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		StartingPosition = GetInstigator()->GetActorLocation();
+		EndPosition = CalculateTargetPosition();
+		CalculatedDuration = (FVector::Distance(StartingPosition, EndPosition) / MaxDistance) * DurationAtMaxDistance;
+		
+		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+		Player->GetCharacterMovement()->MovementMode = EMovementMode::MOVE_None;
+		Player->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		
+		World->GetTimerManager().SetTimer(UpdateTargetTimerHandle, this, &ACrowRush::UpdatePlayerMovement, UpdateMovementDelay, true);
+	}
+}
+
+void ACrowRush::UpdatePlayerMovement()
+{
+	FVector Ease = UKismetMathLibrary::VEase(StartingPosition, EndPosition, CurrDuration / CalculatedDuration, EasingFunction);
+	GetInstigator()->SetActorLocation(Ease);
+	CurrDuration += UpdateMovementDelay;
+
+	if (CurrDuration >= CalculatedDuration)
+	{
+		UWorld* World = GetWorld();
+		check(World);
+		World->GetTimerManager().ClearTimer(UpdateTargetTimerHandle);
+		AbilityStates[CurrState]->ExitState();
+	}
 }
 
 // **** States *******
@@ -168,6 +202,7 @@ void FAimingStartState::ExitState()
 {
 	FAbilityState::ExitState();
 	Ability->EndCurrState();
+	Ability->UseAbility(EAbilityInputTypes::None);
 }
 
 // Moving to target state ******************
@@ -177,16 +212,27 @@ FMovingState::FMovingState(AAbilityBase* ability) : FAbilityState(ability) {}
 void FMovingState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
+	RunState();
 }
 
 void FMovingState::RunState(EAbilityInputTypes abilityUsageType)
 {
+	// prevent user input
+	if (abilityUsageType > EAbilityInputTypes::None) return;
+	
 	FAbilityState::RunState(abilityUsageType);
+
+	Ability->Blockers.IsMovementBlocked = true;
+	ACrowRush* CrowRush = Cast<ACrowRush>(Ability);
+	check(CrowRush);
+	CrowRush->StartMovement();
 }
 
 void FMovingState::ExitState()
 {
 	FAbilityState::ExitState();
+	Ability->EndCurrState();
+	Ability->UseAbility(EAbilityInputTypes::None);
 }
 
 // Ending State ******************
@@ -196,14 +242,17 @@ FEndState::FEndState(AAbilityBase* ability) : FAbilityState(ability) {}
 void FEndState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
+	RunState();
 }
 
 void FEndState::RunState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::RunState(abilityUsageType);
+	ExitState();
 }
 
 void FEndState::ExitState()
 {
 	FAbilityState::ExitState();
+	Ability->EndCurrState();
 }

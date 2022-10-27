@@ -6,6 +6,7 @@
 #include "CrowRushTarget.h"
 #include "Abilities/AbilityBase.h"
 #include "DamageTypes/BaseDamageType.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "CrowRush.generated.h"
 
 // Aiming start state
@@ -94,13 +95,15 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<ACrowRushTarget> TargetType;
 
-	UPROPERTY(EditDefaultsOnly)
-	float UpdateTargetDelay = 0.02;
+	UPROPERTY(EditDefaultsOnly) 
+	float UpdateMovementDelay = 0.02;
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<TEnumAsByte<EObjectTypeQuery>> TargetObjectBlocker;
 
-	void UpdatePlayerSpeed(); 
+	UPROPERTY(EditDefaultsOnly)
+	TEnumAsByte<EEasingFunc::Type> EasingFunction;
+	
 	void ResetPlayerSpeed();
 
 	void StartAiming();
@@ -108,12 +111,22 @@ public:
 
 protected:
 
-	FVector StartingPosition;
+	FVector StartingPosition; 
+	FVector EndPosition;
+	float CalculatedDuration;
 
 	void UpdateTargetPosition();
 	FTimerHandle UpdateTargetTimerHandle;
 
 	FVector CalculateTargetPosition();
+
+	UFUNCTION()
+	void UpdatePlayerMovement();
+	
+	FTimerHandle UpdatePlayerTimerHandle; 
+	float CurrDuration = 0;
+
+	virtual void EndAbilityLogic() override;
 
 	UPROPERTY()
 	ACrowRushTarget* Target;
