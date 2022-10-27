@@ -45,7 +45,7 @@ void UANS_HunterChargedJump::PerformSwing(FName BoneNameHand, FName BoneNameFore
 
 	TArray<FHitResult> HitResults;
 	if (UKismetSystemLibrary::SphereTraceMultiForObjects(World, SwingStartLOC, SwingEndLOC, Radius, DamageObjectTypes, false, TArray<AActor*>(),
-		EDrawDebugTrace::ForDuration, HitResults, true))
+		EDrawDebugTrace::None, HitResults, true))
 	{
 		for (FHitResult Hit : HitResults)
 		{
