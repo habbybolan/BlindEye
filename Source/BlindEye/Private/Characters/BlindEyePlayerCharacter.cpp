@@ -712,6 +712,14 @@ float ABlindEyePlayerCharacter::GetShrineHealthPercent()
 	return 0;
 }
 
+void ABlindEyePlayerCharacter::TryJump()
+{
+	if (!HealthComponent->GetIsHunterDebuff() && !GetIsDead())
+	{
+		Jump();
+	}
+}
+
 void ABlindEyePlayerCharacter::MoveForward(float Value)
 {
 	if (IsActionsBlocked()) return;
@@ -724,7 +732,7 @@ void ABlindEyePlayerCharacter::MoveForward(float Value)
 		// slow movement if hunter debuff active
 		if (HealthComponent->GetIsHunterDebuff())
 		{
-			MovementAlter *= 0.25;
+			MovementAlter *= HunterMarkMovementAlter;
 		}
 		
 		// find out which way is forward
@@ -749,7 +757,7 @@ void ABlindEyePlayerCharacter::MoveRight(float Value)
 		// slow movement if hunter debuff active
 		if (HealthComponent->GetIsHunterDebuff())
 		{
-			MovementAlter *= 0.25;
+			MovementAlter *= HunterMarkMovementAlter;
 		}
 		
 		// find out which way is right
@@ -786,7 +794,7 @@ void ABlindEyePlayerCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &ABlindEyePlayerCharacter::LookUpAtRate);
 
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABlindEyePlayerCharacter::TryJump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAction("BasicAttack", IE_Pressed, this, &ABlindEyePlayerCharacter::BasicAttackPressed);

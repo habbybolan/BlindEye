@@ -95,9 +95,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=SurfacingDamage)
 	float SurfacingDamage = 20.f;
 
-	UPROPERTY(EditDefaultsOnly)
-	float DeathDelay = 1.0f;
-
 	// Stored here purely for passing to Controller
 	TScriptInterface<IBurrowerSpawnManagerListener> Listener;
 	EIslandPosition IslandType; 
@@ -149,9 +146,6 @@ public:
 protected:
 
 	virtual void BeginPlay() override;
-	
-	FTimerHandle DeathTimerHandle;
-	void DestroyBurrower();
 
 	virtual void OnDeath(AActor* ActorThatKilled) override;
 	

@@ -30,6 +30,11 @@ void ABlindEyeEnemyBase::BeginPlay()
 	CurrHealth = MaxHealth;
 }
 
+void ABlindEyeEnemyBase::DestroyEnemy()
+{
+	Destroy();
+}
+
 void ABlindEyeEnemyBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 
@@ -64,6 +69,11 @@ void ABlindEyeEnemyBase::OnDeath(AActor* ActorThatKilled)
 {
 	Super::OnDeath(ActorThatKilled);
 	bIsDead = true;
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		World->GetTimerManager().SetTimer(DestroyTimerHandle, this, &ABlindEyeEnemyBase::DestroyEnemy, DestroyDelay, false);
+	}
 }
 
 float ABlindEyeEnemyBase::GetHealthPercent()

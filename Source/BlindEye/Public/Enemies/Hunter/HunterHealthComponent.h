@@ -15,4 +15,6 @@ class BLINDEYE_API UHunterHealthComponent : public UHealthComponent
 	GENERATED_BODY()
 
 	virtual void KnockBack(FVector KnockBackForce, AActor* DamageCause) override;
+
+	virtual float ProcessDamage(float Damage) override;
 };
