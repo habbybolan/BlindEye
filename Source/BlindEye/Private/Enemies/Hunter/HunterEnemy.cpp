@@ -187,7 +187,6 @@ void AHunterEnemy::RemoveHunterMarkOnPlayer()
 		}
 	}
 }
-
 void AHunterEnemy::PerformBasicAttack()
 {
 	bAttacking = true;
@@ -220,8 +219,6 @@ void AHunterEnemy::OnMarkedPlayerDied(AActor* PlayerKilled)
 {
 	AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(Controller);
 	ensure(HunterController);
-	TrySetVisibility(false);
-	bFleeing = true;
 	HunterController->OnMarkedPlayerDeath();
 }
 
@@ -363,15 +360,9 @@ void AHunterEnemy::SetAttackFinished()
 
 void AHunterEnemy::OnStunStart(float StunDuration)
 {
-	bFleeing = true;
 	SetNotCharged();
 	RemoveHunterMarkOnPlayer();
-}
-
-void AHunterEnemy::OnStunEnd()
-{
-	// TODO: roar that launches players?
-	TrySetVisibility(false);
+	GetMesh()->GetAnimInstance()->StopAllMontages(.2);
 }
 
 bool AHunterEnemy::GetIsFleeing()
@@ -394,4 +385,12 @@ void AHunterEnemy::SetPlayerMarked(AActor* NewTarget)
 		HunterController->SetBTTarget(NewTarget);
 	}
 }
+
+void AHunterEnemy::SetFleeing()
+{
+	bFleeing = true;
+	TrySetVisibility(false);
+	RemoveHunterMarkOnPlayer();
+}
+
 

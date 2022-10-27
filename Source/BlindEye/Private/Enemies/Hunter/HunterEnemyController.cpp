@@ -162,7 +162,7 @@ void AHunterEnemyController::OnStunEnd()
 {
 	if (Hunter)
 	{
-		Hunter->OnStunEnd();
+		Hunter->SetFleeing();
 		UWorld* World = GetWorld();
 		if (ensure(World))
 		{
@@ -293,6 +293,7 @@ void AHunterEnemyController::OnMarkedPlayerDeath()
 			check(Player);
 			if (!Player->GetIsDead())
 			{
+				Hunter->SetFleeing();
 				SetBTTarget(Player);
 				World->GetTimerManager().SetTimer(InvisDelayTimerHandle, this, &AHunterEnemyController::TargetKilledInvisDelayFinished, 1, false);
 			}

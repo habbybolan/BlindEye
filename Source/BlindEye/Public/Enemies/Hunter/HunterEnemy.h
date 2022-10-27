@@ -130,13 +130,14 @@ public:
 	void StopChanneling();
 
 	void OnStunStart(float StunDuration);
-	void OnStunEnd();
 
 	bool GetIsFleeing();
 
 	void ChannelingAnimFinished();
 
 	void SetAttackFinished();
+
+	void SetFleeing();
  
 protected:
 
