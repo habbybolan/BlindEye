@@ -3,15 +3,36 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CrowRushTarget.h"
 #include "Abilities/AbilityBase.h"
 #include "DamageTypes/BaseDamageType.h"
 #include "CrowRush.generated.h"
 
-// Dash State
-class BLINDEYE_API FCrowRushStartState : public FAbilityState
+// Aiming start state
+class BLINDEYE_API FAimingStartState : public FAbilityState
 {
 public:
-	FCrowRushStartState(AAbilityBase* ability);
+	FAimingStartState(AAbilityBase* ability);
+	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void ExitState() override;
+};
+
+// Moving to target state 
+class BLINDEYE_API FMovingState : public FAbilityState
+{
+public:
+	FMovingState(AAbilityBase* ability);
+	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void ExitState() override;
+};
+
+// End State
+class BLINDEYE_API FEndState : public FAbilityState
+{ 
+public:
+	FEndState(AAbilityBase* ability);
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
@@ -27,15 +48,12 @@ class BLINDEYE_API ACrowRush : public AAbilityBase
 
 public:
 	ACrowRush();
+ 
+	UPROPERTY(EditDefaultsOnly)
+	float DurationAtMaxDistance = 1.f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float DashDuration = 0.8f;
-
-	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=1))
-	float DashSpeedIncrease = 10.f;
-
-	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=1))
-	float DashAccelerationIncrease = 10.f;
+	float MaxDistance = 1500.f;
 
 	UPROPERTY(EditDefaultsOnly, Category=Pull)
 	float PullSphereRadius = 100.f;
@@ -73,11 +91,30 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	float DamageAmount = 20;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ACrowRushTarget> TargetType;
+
+	UPROPERTY(EditDefaultsOnly)
+	float UpdateTargetDelay = 0.02;
+
+	UPROPERTY(EditDefaultsOnly)
+	TArray<TEnumAsByte<EObjectTypeQuery>> TargetObjectBlocker;
+
 	void UpdatePlayerSpeed(); 
 	void ResetPlayerSpeed();
+
+	void StartAiming();
+	void StartMovement();
 
 protected:
 
 	FVector StartingPosition;
-	
+
+	void UpdateTargetPosition();
+	FTimerHandle UpdateTargetTimerHandle;
+
+	FVector CalculateTargetPosition();
+
+	UPROPERTY()
+	ACrowRushTarget* Target;
 };

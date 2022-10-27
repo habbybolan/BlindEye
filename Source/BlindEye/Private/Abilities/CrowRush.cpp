@@ -11,7 +11,7 @@
 
 ACrowRush::ACrowRush()
 {
-	AbilityStates.Add(new FCrowRushStartState(this));
+	AbilityStates.Add(new FAimingStartState(this));
 	AbilityType = EAbilityTypes::Unique1;
 }
 
@@ -20,7 +20,6 @@ void ACrowRush::UpdatePlayerSpeed()
 	if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
 		StartingPosition = BlindEyePlayer->GetActorLocation();
-		BlindEyePlayer->MULT_UpdateWalkMovementSpeed(DashSpeedIncrease, DashAccelerationIncrease);
 	}
 }
 
@@ -81,47 +80,130 @@ void ACrowRush::ResetPlayerSpeed()
 	}
 }
 
+void ACrowRush::StartAiming()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		Target = World->SpawnActor<ACrowRushTarget>(TargetType);
+
+		World->GetTimerManager().SetTimer(UpdateTargetTimerHandle, this, &ACrowRush::UpdateTargetPosition, UpdateTargetDelay, true);
+	}
+}
+
+void ACrowRush::UpdateTargetPosition()
+{
+	Target->SetActorLocation(CalculateTargetPosition());
+}
+
+FVector ACrowRush::CalculateTargetPosition()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		FVector ViewportLocation;
+		FRotator ViewportRotation;
+		GetInstigator()->GetController()->GetPlayerViewPoint(ViewportLocation, ViewportRotation);
+
+		FVector EndLocation = ViewportLocation + ViewportRotation.Vector() * MaxDistance;
+
+		FVector TargetPosition;
+		FHitResult Hit;
+		// if Hit point
+		if (UKismetSystemLibrary::LineTraceSingleForObjects(World, ViewportLocation, EndLocation, TargetObjectBlocker,
+			false, TArray<AActor*>(), EDrawDebugTrace::None, Hit, true))
+		{
+			return Hit.Location;
+		}
+		// Otherwise, set to furthest endpoint
+		else
+		{
+			return EndLocation;
+		}
+	}
+	return FVector::ZeroVector;
+}
+
+void ACrowRush::StartMovement()
+{
+	Target->Destroy();
+}
+
 // **** States *******
 
-// Dash Start State *********************
+// Start Aiming state ******************
 
-FCrowRushStartState::FCrowRushStartState(AAbilityBase* ability) : FAbilityState(ability) {}
+FAimingStartState::FAimingStartState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-void FCrowRushStartState::TryEnterState(EAbilityInputTypes abilityUsageType)
+void FAimingStartState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
 	// Enter on pressed
 	if (abilityUsageType == EAbilityInputTypes::Pressed)
 	{
+		//Ability->BP_AbilityStarted();
 		RunState();
 	}
 }
 
-void FCrowRushStartState::RunState(EAbilityInputTypes abilityUsageType)
+void FAimingStartState::RunState(EAbilityInputTypes abilityUsageType)
 {
-	// prevent user input
-	if (abilityUsageType > EAbilityInputTypes::None) return;
-	
 	FAbilityState::RunState(abilityUsageType);
-	if (Ability == nullptr) return;
-
-	Ability->BP_AbilityStarted();
 	Ability->Blockers.IsOtherAbilitiesBlocked = true;
-	ACrowRush* Dash = Cast<ACrowRush>(Ability);
-	if (Dash == nullptr) return;
-
-	Dash->UpdatePlayerSpeed();
-	Dash->DelayToNextState(Dash->DashDuration, true);
+	// Start Aiming hold
+	if (abilityUsageType == EAbilityInputTypes::None)
+	{
+		ACrowRush* Rush = Cast<ACrowRush>(Ability);
+		check(Rush)
+		Rush->StartAiming();
+	}
+	// stop aiming and goto moving state
+	else if (abilityUsageType == EAbilityInputTypes::Released)
+	{
+		ExitState();
+	}
 }
 
-void FCrowRushStartState::ExitState()
+void FAimingStartState::ExitState()
 {
 	FAbilityState::ExitState();
-	if (Ability == nullptr) return;
-
-	ACrowRush* Dash = Cast<ACrowRush>(Ability);
-	if (Dash == nullptr) return;
-
-	Dash->ResetPlayerSpeed();
 	Ability->EndCurrState();
+}
+
+// Moving to target state ******************
+
+FMovingState::FMovingState(AAbilityBase* ability) : FAbilityState(ability) {}
+
+void FMovingState::TryEnterState(EAbilityInputTypes abilityUsageType)
+{
+	FAbilityState::TryEnterState(abilityUsageType);
+}
+
+void FMovingState::RunState(EAbilityInputTypes abilityUsageType)
+{
+	FAbilityState::RunState(abilityUsageType);
+}
+
+void FMovingState::ExitState()
+{
+	FAbilityState::ExitState();
+}
+
+// Ending State ******************
+
+FEndState::FEndState(AAbilityBase* ability) : FAbilityState(ability) {}
+
+void FEndState::TryEnterState(EAbilityInputTypes abilityUsageType)
+{
+	FAbilityState::TryEnterState(abilityUsageType);
+}
+
+void FEndState::RunState(EAbilityInputTypes abilityUsageType)
+{
+	FAbilityState::RunState(abilityUsageType);
+}
+
+void FEndState::ExitState()
+{
+	FAbilityState::ExitState();
 }
