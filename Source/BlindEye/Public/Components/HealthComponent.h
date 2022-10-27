@@ -112,8 +112,8 @@ public:
 	virtual void ImprovedHealing(float HealPercentIncrease, float Duration) override;
 	FTimerHandle ImprovedHealingTimerHandle;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<AHealingWell> HealingWellType;
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	// TSubclassOf<AHealingWell> HealingWellType;
 
 	void RemoveMark();
 	FMarkData* GetCurrMark();
@@ -189,20 +189,23 @@ protected:
 
 	// Detonation Effect properties *********
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
-	TSubclassOf<UBaseDamageType> DarkDetonationOnEnemyDamageType;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
-	float DarkDetonationOnEnemyDamage = 15;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
-	TSubclassOf<UBaseDamageType> FireDetonationOnEnemyDamageType;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
-	TSubclassOf<UBaseDamageType> DarkDetonationOnPlayerDamageType;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
-	float DarkDetonationOnPlayerDamage = 35;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
-	float DarkDetonationOnPlayerRadius = 450;
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
+	// TSubclassOf<UBaseDamageType> DarkDetonationOnEnemyDamageType;
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
+	// float DarkDetonationOnEnemyDamage = 15;
+	//
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
+	// TSubclassOf<UBaseDamageType> FireDetonationOnEnemyDamageType;
+	//
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
+	// TSubclassOf<UBaseDamageType> DarkDetonationOnPlayerDamageType;
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
+	// float DarkDetonationOnPlayerDamage = 35;
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Detonation")
+	// float DarkDetonationOnPlayerRadius = 450;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Detonation)
+	float ExtraDetonationDamage = 30.f;
  
 	// End Detonation Effect properties *********
 	
