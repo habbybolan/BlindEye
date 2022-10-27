@@ -172,7 +172,8 @@ void AHunterEnemyController::OnStunEnd()
 }
 
 void AHunterEnemyController::DespawnHunter()
-{ 
+{
+	CachedHealth = Hunter->GetHealth();
 	UnPossess();
 	Hunter->Destroy();
 	RemoveHunterHelper();
@@ -188,6 +189,14 @@ void AHunterEnemyController::TargetKilledInvisDelayFinished()
 {
 	DespawnHunter(); 
 	DelayedReturn(AfterKillingPlayerDelay);
+}
+
+void AHunterEnemyController::MULT_SetCachedHealth_Implementation()
+{
+	if (Hunter)
+	{
+		Hunter->BP_OnTakeDamage(0, FVector::ZeroVector, nullptr, nullptr);
+	}
 }
 
 void AHunterEnemyController::DelayedReturn(float ReturnDelay)
@@ -207,10 +216,10 @@ void AHunterEnemyController::OnPossess(APawn* InPawn)
 	if (!world) return;
 	
 	Hunter = Cast<AHunterEnemy>(InPawn);
-	
-	if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(Hunter))
+	if (CachedHealth > 0)
 	{
-		HealthInterface->GetHealthComponent()->OnDeathDelegate.AddDynamic(this, &AHunterEnemyController::OnHunterDeath);
+		Hunter->SetHealth(CachedHealth);
+		MULT_SetCachedHealth();
 	}
 
 	// Get random player to attack
@@ -257,6 +266,7 @@ ABurrowerTriggerVolume* AHunterEnemyController::CheckIslandSpawnedOn()
 
 void AHunterEnemyController::OnHunterDeath(AActor* HunterKilled)
 {
+	CachedHealth = Hunter->GetMaxHealth();
 	DelayedReturn(AfterDeathReturnDelay);
 	RemoveHunterHelper();
 	

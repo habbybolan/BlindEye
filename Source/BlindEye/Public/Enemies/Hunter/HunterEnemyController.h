@@ -67,6 +67,8 @@ public:
 	
 protected:
 
+	float CachedHealth = 0;
+
 	FTimerHandle InitialSpawnDelayTimerHandle;
  
 	TMap<EIslandPosition, ABurrowerTriggerVolume*> TriggerVolumes;
@@ -77,7 +79,10 @@ protected:
 	
 	FTimerHandle InvisDelayTimerHandle;
 	void StunInvisDelayFinished();
-	void TargetKilledInvisDelayFinished(); 
+	void TargetKilledInvisDelayFinished();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_SetCachedHealth();
 
 	void RemoveHunterHelper();
 
