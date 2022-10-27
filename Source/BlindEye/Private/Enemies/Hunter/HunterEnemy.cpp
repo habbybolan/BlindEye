@@ -25,7 +25,7 @@ AHunterEnemy::AHunterEnemy(const FObjectInitializer& ObjectInitializer)
 void AHunterEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	CachedRunningSpeed = GetCharacterMovement()->MaxWalkSpeed;
 	GetCharacterMovement()->MaxWalkSpeed = bCharged ? CachedRunningSpeed : CachedRunningSpeed * MovementSpeedAlteredDuringNotCharged;
 
@@ -253,6 +253,7 @@ void AHunterEnemy::TrySetVisibility(bool visibility)
 void AHunterEnemy::OnDeath(AActor* ActorThatKilled)
 {
 	Super::OnDeath(ActorThatKilled);
+	GetMesh()->GetAnimInstance()->StopAllMontages(.25);
 	if (AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(GetController()))
 	{
 		HunterController->OnHunterDeath(nullptr);
