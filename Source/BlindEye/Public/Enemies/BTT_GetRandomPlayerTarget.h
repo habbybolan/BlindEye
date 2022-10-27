@@ -18,5 +18,8 @@ class BLINDEYE_API UBTT_GetRandomPlayerTarget : public UBTTask_BlackboardBase
 	FBlackboardKeySelector EnemyActorKey;
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-	
+
+	AActor* FindValidPlayer();
+
+	bool CheckPlayerValid(APlayerState* PlayerState);
 };
