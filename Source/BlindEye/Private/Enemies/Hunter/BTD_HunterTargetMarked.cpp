@@ -21,9 +21,10 @@ bool UBTD_HunterTargetMarked::CalculateRawConditionValue(UBehaviorTreeComponent&
 	{
 		if (ABlindEyeBaseCharacter* Player = Cast<ABlindEyePlayerCharacter>(BBComp->GetValueAsObject(EnemyActorKey.SelectedKeyName)))
 		{
-			if (FMarkData* MarkerData = Player->GetHealthComponent()->GetCurrMark())
+			FMarkData MarkerData = Player->GetHealthComponent()->GetCurrMark();
+			if (MarkerData.bHasMark)
 			{
-				return MarkerData->MarkerType == EMarkerType::Hunter;
+				return MarkerData.MarkerType == EMarkerType::Hunter;
 			}
 		}
 	}

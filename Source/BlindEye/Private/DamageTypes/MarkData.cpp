@@ -6,7 +6,14 @@
 
 enum class EMarkerType : uint8;
 
-void FMarkData::InitializeData(EMarkerType markerType)
+
+void FMarkData::SetMark(EMarkerType NewMarkerType)
 {
-	this->MarkerType = markerType;
+	bHasMark = true;
+	MarkerType = NewMarkerType;
+}
+
+void FMarkData::RemoveMark()
+{
+	bHasMark = false;
 }

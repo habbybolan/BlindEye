@@ -177,9 +177,10 @@ void AHunterEnemy::RemoveHunterMarkOnPlayer()
 		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerPawn);
 		check(Player);
 		// remove the mark from player if it's a hunter mark
-		if (FMarkData* Mark =  Player->GetHealthComponent()->GetCurrMark())
+		FMarkData Mark =  Player->GetHealthComponent()->GetCurrMark();
+		if (Mark.bHasMark)
 		{
-			if (Mark->MarkerType == EMarkerType::Hunter)
+			if (Mark.MarkerType == EMarkerType::Hunter)
 			{
 				Player->GetHealthComponent()->RemoveMark();
 				return;

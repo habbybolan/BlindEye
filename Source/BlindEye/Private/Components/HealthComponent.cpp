@@ -137,9 +137,9 @@ void UHealthComponent::KnockBack(FVector KnockBackForce, AActor* DamageCause)
 
 bool UHealthComponent::GetIsHunterDebuff()
 {
-	if (CurrMark)
+	if (CurrMark.bHasMark)
 	{
-		return CurrMark->MarkerType == EMarkerType::Hunter;
+		return CurrMark.MarkerType == EMarkerType::Hunter;
 	}
 	return false;
 }
@@ -190,8 +190,8 @@ void UHealthComponent::TryApplyMarker(EMarkerType MarkerType, AActor* DamageCaus
 	// Otherwise Hunter mark being applied
 	else
 	{
-		// If Current marker exists and is not hunter
-		if (CurrMark != nullptr && CurrMark->MarkerType != EMarkerType::Hunter)
+		// If Current marker exists and is not hunter, replcae it
+		if (CurrMark.bHasMark && CurrMark.MarkerType != EMarkerType::Hunter)
 		{
 			MarkedRemovedDelegate.Broadcast();
 			AddMarkerHelper(MarkerType);
@@ -203,12 +203,12 @@ void UHealthComponent::TryApplyMarker(EMarkerType MarkerType, AActor* DamageCaus
 	}
 
 	// If marked by hunter, dont do anything else
-	if (CurrMark != nullptr && CurrMark->MarkerType == EMarkerType::Hunter)
+	if (CurrMark.bHasMark && CurrMark.MarkerType == EMarkerType::Hunter)
 	{
 		return;
 	}
 	
-	if (CurrMark != nullptr)
+	if (CurrMark.bHasMark)
 	{
 		// Refresh the Mark if same mark used on enemy
 		float TimeRemaining = UKismetSystemLibrary::K2_GetTimerRemainingTimeHandle(world, MarkerDecayTimerHandle);
@@ -227,8 +227,7 @@ void UHealthComponent::TryApplyMarker(EMarkerType MarkerType, AActor* DamageCaus
 
 void UHealthComponent::AddMarkerHelper(EMarkerType MarkerType)
 {
-	CurrMark = new FMarkData();
-	CurrMark->InitializeData(MarkerType);
+	CurrMark.SetMark(MarkerType);
 	MarkedAddedDelegate.Broadcast(MarkerType);
 }
 
@@ -239,13 +238,13 @@ void UHealthComponent::TryDetonation(EPlayerType PlayerType, AActor* DamageCause
 	UWorld* world = GetWorld();
 	if (!world) return;
 	
-	if (CurrMark != nullptr)
+	if (CurrMark.bHasMark)
 	{
 		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetOwner());
 		// Detonate mark if of different type, clear decay timer
-		if (CurrMark->MarkerType == EMarkerType::Crow && PlayerType != EPlayerType::CrowPlayer ||
-			CurrMark->MarkerType == EMarkerType::Phoenix && PlayerType != EPlayerType::PhoenixPlayer ||
-			(Player != nullptr && CurrMark->MarkerType == EMarkerType::Hunter && Player->PlayerType != PlayerType))
+		if (CurrMark.MarkerType == EMarkerType::Crow && PlayerType != EPlayerType::CrowPlayer ||
+			CurrMark.MarkerType == EMarkerType::Phoenix && PlayerType != EPlayerType::PhoenixPlayer ||
+			(Player != nullptr && CurrMark.MarkerType == EMarkerType::Hunter && Player->PlayerType != PlayerType))
 		{
 			world->GetTimerManager().ClearTimer(MarkerDecayTimerHandle);
 			PerformDetonationEffect(DamageCause);
@@ -260,13 +259,13 @@ void UHealthComponent::PerformDetonationEffect(AActor* DamageCause)
 	if (ABlindEyeEnemyBase* BLindEyeEnemy = Cast<ABlindEyeEnemyBase>(GetOwner()))
 	{
 		// Stun to detonated enemy (Detonate Crow Mark on Enemy)
-		if (CurrMark->MarkerType == EMarkerType::Crow)
+		if (CurrMark.MarkerType == EMarkerType::Crow)
 		{
 			UBaseDamageType* StunDamage = NewObject<UBaseDamageType>(GetTransientPackage(), DarkDetonationOnEnemyDamageType);
 			SetDamage(DarkDetonationOnEnemyDamage, GetOwner()->GetActorLocation(), StunDamage, DamageCause);
 		}
 		// Burn on detonated (Detonate Phoenix Mark on Enemy)
-		else if (CurrMark->MarkerType == EMarkerType::Phoenix)
+		else if (CurrMark.MarkerType == EMarkerType::Phoenix)
 		{
 			UBaseDamageType* BurnDamage = NewObject<UBaseDamageType>(GetTransientPackage(), FireDetonationOnEnemyDamageType);
 			SetDamage(1, GetOwner()->GetActorLocation(), BurnDamage, DamageCause);
@@ -276,7 +275,7 @@ void UHealthComponent::PerformDetonationEffect(AActor* DamageCause)
 	else if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
 		// Explosion around detonated player (Detonate Crow Mark on Phoenix)
-		if (CurrMark->MarkerType == EMarkerType::Crow)
+		if (CurrMark.MarkerType == EMarkerType::Crow)
 		{
 			UWorld* World = GetWorld();
 			if (!World) return;
@@ -287,7 +286,7 @@ void UHealthComponent::PerformDetonationEffect(AActor* DamageCause)
 			SetDamage(1, GetOwner()->GetActorLocation(), ExplosionDamage, DamageCause);
 		}
 		// Healing well around detonated player (Detonate Phoenix Mark on Crow)
-		else if (CurrMark->MarkerType == EMarkerType::Phoenix)
+		else if (CurrMark.MarkerType == EMarkerType::Phoenix)
 		{
 			UWorld* World = GetWorld();
 			if (!World) return;
@@ -326,11 +325,11 @@ void UHealthComponent::RemoveMark()
 	if (World == nullptr)  return;
 
 	World->GetTimerManager().ClearTimer(MarkerDecayTimerHandle);
-	CurrMark = nullptr;
+	CurrMark.RemoveMark();
 	MarkedRemovedDelegate.Broadcast();
 }
 
-FMarkData* UHealthComponent::GetCurrMark()
+FMarkData& UHealthComponent::GetCurrMark()
 {
 	return CurrMark;
 }
@@ -338,7 +337,7 @@ FMarkData* UHealthComponent::GetCurrMark()
 void UHealthComponent::DetonateMark()
 {
 	DetonateDelegate.Broadcast();
-	CurrMark = nullptr;
+	CurrMark.RemoveMark();
 }
 
 
@@ -431,4 +430,5 @@ void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UHealthComponent, IsInvincible);
+	DOREPLIFETIME(UHealthComponent, CurrMark);
 }

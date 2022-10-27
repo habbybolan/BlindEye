@@ -122,7 +122,7 @@ public:
 	TSubclassOf<AHealingWell> HealingWellType;
 
 	void RemoveMark();
-	FMarkData* GetCurrMark();
+	FMarkData& GetCurrMark();
 
 	virtual void KnockBack(FVector KnockBackForce, AActor* DamageCause) override;
 
@@ -154,8 +154,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	// Status effect properties ***
+
+	UPROPERTY(Replicated)
+	FMarkData CurrMark;
 	
-	FMarkData* CurrMark;
 	FAppliedStatusEffects AppliedStatusEffects;
 
 	FTimerHandle StunTimerHandle; 
