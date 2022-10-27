@@ -7,14 +7,6 @@
 #include "Enemies/Hunter/HunterEnemy.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-void UANS_HunterChargedJump::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
-                                         float TotalDuration)
-{
-	Super::NotifyBegin(MeshComp, Animation, TotalDuration);
-
-	Hunter = Cast<AHunterEnemy>(MeshComp->GetOwner());
-}
-
 void UANS_HunterChargedJump::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
 	float FrameDeltaTime)
 {
@@ -25,14 +17,6 @@ void UANS_HunterChargedJump::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimS
 	PerformSwing(TEXT("RightHand"), TEXT("RightForeArm"), MeshComp);
 	PerformSwing(TEXT("LeftHand"), TEXT("LeftForeArm"), MeshComp);
 }
-
-void UANS_HunterChargedJump::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
-{
-	Super::NotifyEnd(MeshComp, Animation);
-
-	HitActors.Empty();
-	bPlayerHit = false;
-} 
 
 void UANS_HunterChargedJump::PerformSwing(FName BoneNameHand, FName BoneNameForeArm, USkeletalMeshComponent* MeshComp)
 {
@@ -47,23 +31,11 @@ void UANS_HunterChargedJump::PerformSwing(FName BoneNameHand, FName BoneNameFore
 	if (UKismetSystemLibrary::SphereTraceMultiForObjects(World, SwingStartLOC, SwingEndLOC, Radius, DamageObjectTypes, false, TArray<AActor*>(),
 		EDrawDebugTrace::None, HitResults, true))
 	{
-		for (FHitResult Hit : HitResults)
-		{
-			if (!HitActors.Contains(Hit.Actor.Get()))
-			{
-				HitActors.Add(Hit.Actor.Get());
-
-				bool bApplyMark = false;
-				if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Hit.Actor.Get()))
-				{
-					if (!bPlayerHit)
-					{
-						bPlayerHit = true;
-						bApplyMark = true;
-					}
-				}
-				Hunter->ApplyChargedJumpDamage(Hit, bApplyMark);
-			}
-		}
+		TryAttack(HitResults);
 	}
+}
+
+void UANS_HunterChargedJump::ApplyHit(FHitResult Hit, bool bApplyMark)
+{
+	Hunter->ApplyChargedJumpDamage(Hit, bApplyMark);
 }
