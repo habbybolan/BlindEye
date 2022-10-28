@@ -125,7 +125,7 @@ FVector ACrowRush::CalculateTargetPosition()
 		{
 			// Move target based on the different between player height and how close it's to the ground
 			float DistFromGround = FVector::Distance(HitTargetBelow.Location, TargetPosition);
-			TargetPosition += FVector::UpVector * FMath::Abs(DistFromGround - PlayerHeight);
+			TargetPosition += FVector::UpVector * FMath::Abs(DistFromGround - PlayerHeight) + FVector::UpVector * TargetPositionOffset;
 		}
 	}
 	return TargetPosition;

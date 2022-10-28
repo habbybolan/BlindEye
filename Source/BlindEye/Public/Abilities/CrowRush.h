@@ -83,25 +83,28 @@ public:
 	UPROPERTY(EditDefaultsOnly,Category=Pull)
 	float MaxKnockUpToEndForce = 200.f;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category=Target, meta=(ToolTip="Offset the target position when hovering above ground"))
+	float TargetPositionOffset = 0.f;
+
+	UPROPERTY(EditDefaultsOnly,Category=Pull)
 	TArray<TEnumAsByte<EObjectTypeQuery>> EnemyObjectTypes;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly,Category=Pull)
 	TSubclassOf<UBaseDamageType> DamageType;
+	 
+	UPROPERTY(EditDefaultsOnly, Category=Target)
+	TArray<TEnumAsByte<EObjectTypeQuery>> TargetObjectBlocker;
+
+	UPROPERTY(EditDefaultsOnly, Category=Target)
+	TSubclassOf<ACrowRushTarget> TargetType;
 
 	UPROPERTY(EditDefaultsOnly)
 	float DamageAmount = 20;
 
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<ACrowRushTarget> TargetType;
-
-	UPROPERTY(EditDefaultsOnly) 
+	UPROPERTY(EditDefaultsOnly, Category=Movement) 
 	float UpdateMovementDelay = 0.02;
 
-	UPROPERTY(EditDefaultsOnly)
-	TArray<TEnumAsByte<EObjectTypeQuery>> TargetObjectBlocker;
-
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category=Movement)
 	TEnumAsByte<EEasingFunc::Type> EasingFunction;
 	
 	void ResetPlayerSpeed();
