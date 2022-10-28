@@ -3,15 +3,37 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CrowRushTarget.h"
 #include "Abilities/AbilityBase.h"
 #include "DamageTypes/BaseDamageType.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "CrowRush.generated.h"
 
-// Dash State
-class BLINDEYE_API FCrowRushStartState : public FAbilityState
+// Aiming start state
+class BLINDEYE_API FAimingStartState : public FAbilityState
 {
 public:
-	FCrowRushStartState(AAbilityBase* ability);
+	FAimingStartState(AAbilityBase* ability);
+	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void ExitState() override;
+};
+
+// Moving to target state 
+class BLINDEYE_API FMovingState : public FAbilityState
+{
+public:
+	FMovingState(AAbilityBase* ability);
+	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void ExitState() override;
+};
+
+// End State
+class BLINDEYE_API FEndState : public FAbilityState
+{ 
+public:
+	FEndState(AAbilityBase* ability);
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
@@ -27,15 +49,12 @@ class BLINDEYE_API ACrowRush : public AAbilityBase
 
 public:
 	ACrowRush();
+ 
+	UPROPERTY(EditDefaultsOnly)
+	float DurationAtMaxDistance = 1.f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float DashDuration = 0.8f;
-
-	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=1))
-	float DashSpeedIncrease = 10.f;
-
-	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=1))
-	float DashAccelerationIncrease = 10.f;
+	float MaxDistance = 1500.f;
 
 	UPROPERTY(EditDefaultsOnly, Category=Pull)
 	float PullSphereRadius = 100.f;
@@ -64,20 +83,64 @@ public:
 	UPROPERTY(EditDefaultsOnly,Category=Pull)
 	float MaxKnockUpToEndForce = 200.f;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category=Target, meta=(ToolTip="Offset the target position when hovering above ground"))
+	float TargetPositionOffset = 0.f;
+
+	UPROPERTY(EditDefaultsOnly,Category=Pull)
 	TArray<TEnumAsByte<EObjectTypeQuery>> EnemyObjectTypes;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly,Category=Pull)
 	TSubclassOf<UBaseDamageType> DamageType;
+	 
+	UPROPERTY(EditDefaultsOnly, Category=Target)
+	TArray<TEnumAsByte<EObjectTypeQuery>> TargetObjectBlocker;
+
+	UPROPERTY(EditDefaultsOnly, Category=Target)
+	TSubclassOf<ACrowRushTarget> TargetType;
 
 	UPROPERTY(EditDefaultsOnly)
 	float DamageAmount = 20;
 
-	void UpdatePlayerSpeed(); 
-	void ResetPlayerSpeed();
+	UPROPERTY(EditDefaultsOnly, Category=Movement) 
+	float UpdateMovementDelay = 0.02;
+
+	UPROPERTY(EditDefaultsOnly, Category=Movement)
+	TEnumAsByte<EEasingFunc::Type> EasingFunction;
+	
+	void ApplyDamage();
+
+	UFUNCTION(Client, Reliable)
+	void CLI_StartAiming();
+
+	void StartMovement();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_StartMovementHelper(FVector StartPos, FVector CalculatedEndPos);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_ResetPlayerState();
+
+	UFUNCTION(Client, Reliable)
+	void CLI_RemoveTarget();
 
 protected:
 
-	FVector StartingPosition;
+	FVector StartingPosition; 
+	FVector EndPosition;
+	float CalculatedDuration;
+
+	void UpdateTargetPosition();
+	FTimerHandle UpdateTargetTimerHandle;
+
+	FVector CalculateTargetPosition();
+
+	UFUNCTION()
+	void UpdatePlayerMovement();
 	
+	FTimerHandle UpdatePlayerTimerHandle; 
+	float CurrDuration = 0;
+
+	virtual void EndAbilityLogic() override;
+
+	UPROPERTY()
+	ACrowRushTarget* Target;
 };
