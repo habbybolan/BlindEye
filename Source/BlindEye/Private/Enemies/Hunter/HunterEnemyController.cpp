@@ -4,6 +4,7 @@
 #include "Enemies/Hunter/HunterEnemyController.h"
 
 #include "BrainComponent.h"
+#include "Island.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "Enemies/Burrower/BurrowerTriggerVolume.h"
@@ -25,24 +26,24 @@ void AHunterEnemyController::BeginPlay()
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
 
-	TArray<AActor*> OutTriggerVolumes;
-	UGameplayStatics::GetAllActorsOfClass(World, ABurrowerTriggerVolume::StaticClass(), OutTriggerVolumes);
-	for (AActor* VolumeActor : OutTriggerVolumes)
+	TArray<AActor*> OutIslands;
+	UGameplayStatics::GetAllActorsOfClass(World, AIsland::StaticClass(), OutIslands);
+	for (AActor* IslandActor : OutIslands)
 	{
-		ABurrowerTriggerVolume* BurrowerVolume = Cast<ABurrowerTriggerVolume>(VolumeActor);
-		TriggerVolumes.Add(BurrowerVolume->IslandType, BurrowerVolume);
-		BurrowerVolume->OnActorBeginOverlap.AddDynamic(this, &AHunterEnemyController::SetEnteredNewIsland);
+		AIsland* Island = Cast<AIsland>(IslandActor);
+		TriggerVolumes.Add(Island->IslandTrigger->IslandType, Island->IslandTrigger);
+		Island->IslandTrigger->CustomOverlapStartDelegate.AddDynamic(this, &AHunterEnemyController::SetEnteredNewIsland);
 	}
 	
 	World->GetTimerManager().SetTimer(InitialSpawnDelayTimerHandle, this, &AHunterEnemyController::SpawnHunter, InitialSpawnDelay, false);
 }
 
-void AHunterEnemyController::SetEnteredNewIsland(AActor* OverlappedActor, AActor* OtherActor)
+void AHunterEnemyController::SetEnteredNewIsland(UPrimitiveComponent* OverlappedActor, AActor* OtherActor)
 {
 	if (Hunter == nullptr) return;
 	if (OtherActor == Hunter)
 	{
-		CurrIsland = Cast<ABurrowerTriggerVolume>(OverlappedActor);
+		CurrIsland = Cast<UBurrowerTriggerVolume>(OverlappedActor);
 	}
 }
 
@@ -247,19 +248,18 @@ void AHunterEnemyController::OnPossess(APawn* InPawn)
 		CurrIsland = TriggerVolumes[EIslandPosition::IslandA];
 	}
 }
-
-ABurrowerTriggerVolume* AHunterEnemyController::CheckIslandSpawnedOn()
+UBurrowerTriggerVolume* AHunterEnemyController::CheckIslandSpawnedOn()
 {
 	if (Hunter == nullptr) return nullptr;
 
 	UWorld* World = GetWorld();
 	if (World == nullptr) return nullptr;
 
-	TArray<AActor*> OurActors;
+	TArray<AActor*> OutIslandVolumes; 
 	if (UKismetSystemLibrary::SphereOverlapActors(World, Hunter->GetActorLocation(), 50, IslandTriggerObjectType,
-		nullptr, TArray<AActor*>(), OurActors))
+		nullptr, TArray<AActor*>(), OutIslandVolumes))
 	{
-		return Cast<ABurrowerTriggerVolume>(OurActors[0]);
+		return Cast<UBurrowerTriggerVolume>(OutIslandVolumes[0]);
 	}
 	return nullptr;
 }

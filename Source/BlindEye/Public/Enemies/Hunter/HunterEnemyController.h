@@ -7,7 +7,7 @@
 #include "Enemies/BlindEyeEnemyController.h"
 #include "HunterEnemyController.generated.h"
 
-class ABurrowerTriggerVolume;
+class UBurrowerTriggerVolume;
 
 /**
  * 
@@ -71,9 +71,9 @@ protected:
 
 	FTimerHandle InitialSpawnDelayTimerHandle;
  
-	TMap<EIslandPosition, ABurrowerTriggerVolume*> TriggerVolumes;
+	TMap<EIslandPosition, UBurrowerTriggerVolume*> TriggerVolumes;
 	UPROPERTY()
-	ABurrowerTriggerVolume* CurrIsland;
+	UBurrowerTriggerVolume* CurrIsland;
 
 	FTimerHandle ReturnDelayTimerHandle;
 	
@@ -87,7 +87,7 @@ protected:
 	void RemoveHunterHelper();
 
 	UFUNCTION()
-	void SetEnteredNewIsland(AActor* OverlappedActor, AActor* OtherActor);
+	void SetEnteredNewIsland(UPrimitiveComponent* OverlappedActor, AActor* OtherActor);
  
 	bool IsInChargedJumpRange(AActor* Target);
 	bool IsInBasicAttackRange(AActor* Target);
@@ -106,7 +106,7 @@ protected:
 
 	virtual void OnPossess(APawn* InPawn) override;
 
-	ABurrowerTriggerVolume* CheckIslandSpawnedOn();
+	UBurrowerTriggerVolume* CheckIslandSpawnedOn();
 	
 	UFUNCTION()
 	void SpawnHunter();

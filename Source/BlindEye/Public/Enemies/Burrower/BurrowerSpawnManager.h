@@ -36,7 +36,7 @@ protected:
 	FTimerHandle SpawnTimerHandle;
 
 	TMap<EIslandPosition, TArray<ABurrowerEnemy*>> SpawnedBurrowers;
-	TMap<EIslandPosition, ABurrowerTriggerVolume*> BurrowerTriggerVolumes;
+	TMap<EIslandPosition, UBurrowerTriggerVolume*> BurrowerTriggerVolumes;
 
 	void InitializeMaps();
 
@@ -47,9 +47,9 @@ protected:
 	void CacheSpawnPoints();
 
 	UFUNCTION()
-	void TriggerVolumeOverlapped(AActor* OverlappedActor, AActor* OtherActor);
+	void TriggerVolumeOverlapped(UPrimitiveComponent* OverlappedActor, AActor* OtherActor);
 	UFUNCTION()  
-	void TriggerVolumeLeft(AActor* EndOverlappedActor, AActor* OtherActor);
+	void TriggerVolumeLeft(UPrimitiveComponent* EndOverlappedActor, AActor* OtherActor);
 
 	UFUNCTION()
 	void PlayerEnteredIsland(ABlindEyePlayerCharacter* Player, EIslandPosition IslandType);

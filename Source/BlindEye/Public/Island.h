@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/BoxComponent.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "Enemies/Burrower/BurrowerTriggerVolume.h"
 #include "GameFramework/Actor.h"
@@ -18,10 +19,18 @@ public:
 	AIsland();
 
 	UPROPERTY(EditDefaultsOnly)
-	ABurrowerTriggerVolume* BurrowerTriggerVolume;
+	UBurrowerTriggerVolume* BurrowerTriggerVolume;
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<UChildActorComponent*> BurrowerSpawnPoints;
+
+	UPROPERTY(EditDefaultsOnly)
+	UBurrowerTriggerVolume* IslandTrigger;
+
+	
+
+	UPROPERTY(EditDefaultsOnly)
+	uint8 NumIslands = 2;
 
 	uint8 IslandID;
 

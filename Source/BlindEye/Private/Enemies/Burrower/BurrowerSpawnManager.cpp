@@ -4,6 +4,7 @@
 #include "Enemies/Burrower/BurrowerSpawnManager.h"
 
 #include "AIController.h"
+#include "Island.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Enemies/Burrower/BurrowerEnemyController.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
@@ -33,14 +34,14 @@ void ABurrowerSpawnManager::BeginPlay()
 	world->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ABurrowerSpawnManager::SpawnBurrower, SpawnDelay, true, 0.1);
 
 	// Find all trigger volumes and subscribe to their events
-	TArray<AActor*> OutTriggerVolumes;
-	UGameplayStatics::GetAllActorsOfClass(world, ABurrowerTriggerVolume::StaticClass(), OutTriggerVolumes);
-	for (AActor* VolumeActor : OutTriggerVolumes)
+	TArray<AActor*> OutIslands; 
+	UGameplayStatics::GetAllActorsOfClass(world, AIsland::StaticClass(), OutIslands);
+	for (AActor* IslandActor : OutIslands) 
 	{
-		ABurrowerTriggerVolume* BurrowerVolume = Cast<ABurrowerTriggerVolume>(VolumeActor);
-		BurrowerTriggerVolumes.Add(BurrowerVolume->IslandType, BurrowerVolume);
-		BurrowerVolume->OnActorBeginOverlap.AddDynamic(this, &ABurrowerSpawnManager::TriggerVolumeOverlapped);
-		BurrowerVolume->CustomOverlapDelegate.AddUFunction(this, TEXT("TriggerVolumeLeft"));
+		AIsland* Island = Cast<AIsland>(IslandActor);
+		BurrowerTriggerVolumes.Add(Island->IslandTrigger->IslandType, Island->IslandTrigger);
+		Island->IslandTrigger->CustomOverlapStartDelegate.AddDynamic(this, &ABurrowerSpawnManager::TriggerVolumeOverlapped);
+		Island->IslandTrigger->CustomOverlapEndDelegate.AddDynamic(this, &ABurrowerSpawnManager::TriggerVolumeLeft);
 	}
 }
 
@@ -90,13 +91,13 @@ void ABurrowerSpawnManager::SpawnBurrower()
 		if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(SpawnedBurrower))
 		{
 			HealthInterface->GetHealthComponent()->OnDeathDelegate.AddDynamic(this, &ABurrowerSpawnManager::OnBurrowerDeath);
-		}
+		} 
 	}
 }
 
 TArray<ABlindEyePlayerCharacter*> ABurrowerSpawnManager::GetPlayersOnIsland(EIslandPosition IslandType)
 {
-	ABurrowerTriggerVolume* Trigger = BurrowerTriggerVolumes[IslandType];
+	UBurrowerTriggerVolume* Trigger = BurrowerTriggerVolumes[IslandType];
 	TArray<ABlindEyePlayerCharacter*> PlayersInTrigger = Trigger->GetPlayerActorsOverlapping();
 	return PlayersInTrigger;
 }
@@ -126,22 +127,22 @@ void ABurrowerSpawnManager::CacheSpawnPoints()
 	}
 }
 
-void ABurrowerSpawnManager::TriggerVolumeOverlapped(AActor* OverlappedActor, AActor* OtherActor)
+void ABurrowerSpawnManager::TriggerVolumeOverlapped(UPrimitiveComponent* OverlappedActor, AActor* OtherActor)
 {
 	// Check if it is a player that entered the island
 	if (ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(OtherActor))
 	{
-		ABurrowerTriggerVolume* BurrowerVolume = Cast<ABurrowerTriggerVolume>(OverlappedActor);
+		UBurrowerTriggerVolume* BurrowerVolume = Cast<UBurrowerTriggerVolume>(OverlappedActor);
 		PlayerEnteredIsland(BlindEyePlayerCharacter, BurrowerVolume->IslandType);
 	}
 }
 
-void ABurrowerSpawnManager::TriggerVolumeLeft(AActor* EndOverlappedActor, AActor* OtherActor)
+void ABurrowerSpawnManager::TriggerVolumeLeft(UPrimitiveComponent* EndOverlappedActor, AActor* OtherActor)
 {
 	// Check if it is a player that left the island
 	if (ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(OtherActor))
 	{
-		ABurrowerTriggerVolume* BurrowerVolume = Cast<ABurrowerTriggerVolume>(EndOverlappedActor);
+		UBurrowerTriggerVolume* BurrowerVolume = Cast<UBurrowerTriggerVolume>(EndOverlappedActor);
 		PlayerLeftIsland(BlindEyePlayerCharacter, BurrowerVolume->IslandType);
 	}
 }

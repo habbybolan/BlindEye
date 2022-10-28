@@ -3,40 +3,42 @@
 
 #include "Enemies/Burrower/BurrowerTriggerVolume.h"
 
-ABurrowerTriggerVolume::ABurrowerTriggerVolume()
+UBurrowerTriggerVolume::UBurrowerTriggerVolume()
 {
-	bGenerateOverlapEventsDuringLevelStreaming = true;
+	SetGenerateOverlapEvents(true);
 }
 
-void ABurrowerTriggerVolume::BeginPlay()
+void UBurrowerTriggerVolume::BeginPlay()
 {
 	Super::BeginPlay();
 
-	OnActorBeginOverlap.AddDynamic(this, &ABurrowerTriggerVolume::OnPlayerOverlap);
-	OnActorEndOverlap.AddDynamic(this, &ABurrowerTriggerVolume::OnPlayerEndOverlap);
+	OnComponentBeginOverlap.AddDynamic(this, &UBurrowerTriggerVolume::OnPlayerOverlap);
+	OnComponentEndOverlap.AddDynamic(this, &UBurrowerTriggerVolume::OnPlayerEndOverlap);
 }
 
-TArray<ABlindEyePlayerCharacter*> ABurrowerTriggerVolume::GetPlayerActorsOverlapping()
+TArray<ABlindEyePlayerCharacter*> UBurrowerTriggerVolume::GetPlayerActorsOverlapping()
 {
 	return PlayersInsideTriggerVolume;
 }
 
-void ABurrowerTriggerVolume::OnPlayerOverlap(AActor* OverlappedActor, AActor* OtherActor)
+void UBurrowerTriggerVolume::OnPlayerOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(OtherActor))
 	{
 		PlayersInsideTriggerVolume.AddUnique(Player);
+		CustomOverlapStartDelegate.Broadcast(OverlappedComponent, OtherActor);
 	}
 }
 
-void ABurrowerTriggerVolume::OnPlayerEndOverlap(AActor* OverlappedActor, AActor* OtherActor)
+void UBurrowerTriggerVolume::OnPlayerEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	for (uint8 i = 0; i < PlayersInsideTriggerVolume.Num(); i++)
 	{
 		if (PlayersInsideTriggerVolume[i] == OtherActor)
 		{
 			PlayersInsideTriggerVolume.RemoveAt(i);
-			CustomOverlapDelegate.Broadcast(OverlappedActor, OtherActor);
+			CustomOverlapEndDelegate.Broadcast(OverlappedComponent, OtherActor);
 			return;
 		}
 	}
