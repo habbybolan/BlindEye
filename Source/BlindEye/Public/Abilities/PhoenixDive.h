@@ -110,6 +110,8 @@ public:
 	// launches character upwards and sets transition
 	void LaunchPlayerUpwards();
 	void HangInAir();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_HandInAirHelper();
 	void HangInAirTimer();
 	void LaunchToGround();
 

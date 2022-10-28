@@ -45,14 +45,19 @@ void APhoenixDive::LaunchPlayerUpwards()
 void APhoenixDive::HangInAir()
 {
 	BP_AbilityInnerState(1);
-	ACharacter* Character = Cast<ACharacter>(GetInstigator());
-	Character->GetCharacterMovement()->GravityScale = 0.f;
-	Character->GetCharacterMovement()->StopMovementImmediately();
-
-	// Ground Target
+	
+	MULT_HandInAirHelper();
+	// Spawn Ground Target only for client 
 	CLI_SpawnGroundTarget();
 	
 	AbilityStates[CurrState]->ExitState();
+}
+
+void APhoenixDive::MULT_HandInAirHelper_Implementation()
+{
+	ACharacter* Character = Cast<ACharacter>(GetInstigator());
+	Character->GetCharacterMovement()->GravityScale = 0.f;
+	Character->GetCharacterMovement()->StopMovementImmediately();
 }
 
 void APhoenixDive::HangInAirTimer()
