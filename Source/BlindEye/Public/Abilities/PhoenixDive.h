@@ -68,6 +68,8 @@ class BLINDEYE_API APhoenixDive : public AAbilityBase
 public:
 	APhoenixDive();
 
+	virtual void BeginPlay() override;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Damage = 50;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -133,6 +135,8 @@ protected:
 	
 	FTimerHandle UpdateGroundTargetPositionTimerHandle;
 	void UpdateGroundTargetPosition();
+
+	float CachedGravityScale = 1;
 
 	UFUNCTION(Client, Reliable)
 	void CLI_SpawnGroundTarget();

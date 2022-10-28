@@ -22,6 +22,14 @@ APhoenixDive::APhoenixDive() : AAbilityBase()
 	AbilityType = EAbilityTypes::Unique2;
 }
 
+void APhoenixDive::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	ACharacter* Character = Cast<ACharacter>(GetInstigator());
+	CachedGravityScale = Character->GetCharacterMovement()->GravityScale;
+}
+
 void APhoenixDive::LaunchPlayerUpwards()
 {
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
@@ -63,7 +71,7 @@ void APhoenixDive::LaunchToGround()
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
 	if (Character == nullptr) return;
 
-	Character->GetCharacterMovement()->GravityScale = 1.f;
+	Character->GetCharacterMovement()->GravityScale = CachedGravityScale;
 
 	FVector position;	// Position of ground target
 	FVector ImpulseVec;	// Force vector to apply to player
