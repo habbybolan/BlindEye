@@ -128,7 +128,7 @@ FVector ACrowRush::CalculateTargetPosition()
 		FHitResult HitTargetBelow;
 		// Move target position off ground based on player height
 		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
-		float PlayerHeight = Player->GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
+		float PlayerHeight = Player->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 		if (UKismetSystemLibrary::LineTraceSingleForObjects(World, TargetPosition, TargetPosition + FVector::DownVector * PlayerHeight, TargetObjectBlocker,
 			false, TArray<AActor*>(), EDrawDebugTrace::None, HitTargetBelow, true))
 		{
