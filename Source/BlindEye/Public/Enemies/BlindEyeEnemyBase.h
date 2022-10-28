@@ -8,7 +8,8 @@
 #include "GameFramework/Character.h"
 #include "Interfaces/HealthInterface.h"
 #include "BlindEyeEnemyBase.generated.h"
- 
+
+class ABlindEyePlayerCharacter;
 class UMarkerComponent;
 
 UCLASS()
@@ -30,6 +31,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	float DestroyDelay = 1;
+
+	virtual void ApplyPulse(ABlindEyePlayerCharacter* PlayerEffectToApply);
 
 protected:
 	// Called when the game starts or when spawned

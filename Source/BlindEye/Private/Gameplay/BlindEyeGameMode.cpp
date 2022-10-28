@@ -7,7 +7,10 @@
 #include "Characters/BlindEyePlayerController.h"
 #include "Enemies/Hunter/HunterEnemyController.h"
 #include "GameFramework/PlayerStart.h"
+#include "GameFramework/PlayerState.h"
 #include "Gameplay/BlindEyeGameState.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void ABlindEyeGameMode::PostLogin(APlayerController* NewPlayer)
 {
@@ -78,6 +81,26 @@ void ABlindEyeGameMode::OnGameWon()
 	}
 }
 
+void ABlindEyeGameMode::PerformPulse()
+{
+	ABlindEyeGameState* BlindEyeGameState = GetGameState<ABlindEyeGameState>();
+	check(BlindEyeGameState);
+
+	TArray<APlayerState*> Players = BlindEyeGameState->PlayerArray;
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		// Kill all Enemies
+		TArray<AActor*> EnemyActors;
+		UGameplayStatics::GetAllActorsOfClass(World, ABlindEyeEnemyBase::StaticClass(), EnemyActors);
+		for (AActor* EnemyActor : EnemyActors)
+		{
+			ABlindEyeEnemyBase* Enemy = Cast<ABlindEyeEnemyBase>(EnemyActor);
+			Enemy->ApplyPulse(BlindEyeGameState->GetRandomPlayer());
+		} 
+	}
+}
+
 void ABlindEyeGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -105,6 +128,7 @@ void ABlindEyeGameMode::Tick(float DeltaSeconds)
 	{
 		CurrPulseIndex++;
 		BP_Pulse(CurrPulseIndex);
+		PerformPulse();
 	}
 
 	// Won condition check

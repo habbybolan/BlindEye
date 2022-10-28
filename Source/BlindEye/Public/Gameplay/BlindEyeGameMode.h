@@ -57,6 +57,8 @@ protected:
 	
 	void OnGameEnded();
 	void OnGameWon();
+
+	void PerformPulse();
  
 	float GameTimer = 0;
 
