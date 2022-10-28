@@ -45,8 +45,15 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_LevelShift();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_Pulse(uint8 PulseIndex);
+
 protected:
 	virtual void BeginPlay() override;
+
+	uint8 CurrPulseIndex = 0;
+	uint8 NumPulses = 3;
+	float TimeBetweenPulses;
 	
 	void OnGameEnded();
 	void OnGameWon();

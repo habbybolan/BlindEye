@@ -100,6 +100,13 @@ void ABlindEyeGameMode::Tick(float DeltaSeconds)
 		}
 	}
 
+	// Check for pulse events
+	if (GameTimer >= TimeBetweenPulses * (CurrPulseIndex + 1))
+	{
+		CurrPulseIndex++;
+		BP_Pulse(CurrPulseIndex);
+	}
+
 	// Won condition check
 	if (BlindEyeGameState->GameOverState == EGameOverState::InProgress)
 	{
@@ -138,5 +145,6 @@ void ABlindEyeGameMode::BeginPlay()
 	if (!world) return;
 
 	world->SpawnActor(HunterControllerType);
-
+ 
+	TimeBetweenPulses = TimerUntilGameWon / NumPulses;
 }
