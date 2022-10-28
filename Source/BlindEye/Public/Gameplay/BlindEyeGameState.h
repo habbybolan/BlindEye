@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Shrine.h"
+#include "Characters/BlindEyePlayerController.h"
 #include "GameFramework/GameState.h"
 #include "BlindEyeGameState.generated.h"
 
@@ -31,6 +32,8 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	ABlindEyePlayerCharacter* GetRandomPlayer();
 
 	UFUNCTION(BlueprintCallable)
 	AShrine* GetShrine();
