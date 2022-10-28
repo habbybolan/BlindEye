@@ -188,8 +188,12 @@ void ACrowRush::UpdatePlayerMovement()
 		UWorld* World = GetWorld();
 		check(World);
 		World->GetTimerManager().ClearTimer(UpdateTargetTimerHandle);
-		ApplyDamage();
-		AbilityStates[CurrState]->ExitState();
+
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			ApplyDamage();
+			AbilityStates[CurrState]->ExitState();
+		}
 	}
 }
 
