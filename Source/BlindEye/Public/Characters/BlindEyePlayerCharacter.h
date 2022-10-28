@@ -32,6 +32,9 @@ class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityU
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
+	float HunterMarkMovementAlter = 0;
 	
 public:
 	ABlindEyePlayerCharacter(const FObjectInitializer& ObjectInitializer);
@@ -274,6 +277,9 @@ protected:
 	void ChargedAttackPressed();
 	UFUNCTION()
 	void ChargedAttackReleased();
+
+	UFUNCTION() 
+	void TryJump();
 
 	UFUNCTION()  
 	void DashPressed();

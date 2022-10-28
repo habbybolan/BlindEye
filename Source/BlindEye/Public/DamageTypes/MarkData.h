@@ -16,12 +16,15 @@ USTRUCT()
 struct BLINDEYE_API FMarkData
 {
 	GENERATED_BODY();
- 
-	void InitializeData(EMarkerType MarkerType);
-	
+
+	UPROPERTY()
+	bool bHasMark = false;
+
+	UPROPERTY()
 	EMarkerType MarkerType = EMarkerType::Crow;
 	uint8 UniqueAbilityMarkerIndex;
 
-	
+	void SetMark(EMarkerType NewMarkerType);
+	void RemoveMark();
 	
 };

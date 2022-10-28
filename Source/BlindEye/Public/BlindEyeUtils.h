@@ -18,6 +18,7 @@ enum class EIslandPosition : uint8
 	IslandB,
 	IslandC,
 	IslandD,
+	IslandShrine,
 	Count UMETA(Hidden) 
 };
 

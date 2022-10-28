@@ -10,12 +10,20 @@
 AActor* ABlindEyeEnemyController::GetBTTarget()
 {
 	UBlackboardComponent* BBComp = GetBlackboardComponent();
-	if (BBComp == nullptr) return nullptr;
+	check(BBComp);
 
 	UObject* ObjectActor = BBComp->GetValueAsObject("EnemyActor");
-	if (ObjectActor == nullptr) return nullptr;
+	check(ObjectActor);
 
 	return Cast<AActor>(ObjectActor);
+}
+
+void ABlindEyeEnemyController::SetBTTarget(AActor* NewTarget)
+{
+	UBlackboardComponent* BBComp = GetBlackboardComponent();
+	check(BBComp);
+
+	BBComp->SetValueAsObject("EnemyActor", NewTarget);
 }
 
 void ABlindEyeEnemyController::BeginPlay()

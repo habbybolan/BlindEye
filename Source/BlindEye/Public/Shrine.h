@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/CapsuleComponent.h"
+#include "Enemies/BlindEyeEnemyBase.h"
 #include "GameFramework/Actor.h"
 #include "Interfaces/HealthInterface.h"
 #include "Shrine.generated.h"
@@ -19,11 +20,11 @@ public:
 	// Sets default values for this actor's properties
 	AShrine();
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UStaticMeshComponent* Mesh;
+	UPROPERTY(EditDefaultsOnly)
+	UCapsuleComponent* CapsuleComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UCapsuleComponent* CapsuleComponent;
+	UStaticMeshComponent* Mesh;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UHealthComponent* HealthComponent;
@@ -45,15 +46,26 @@ public:
 	virtual bool GetIsDead() override;
 	virtual UHealthComponent* GetHealthComponent() override;
 
+	UFUNCTION()
+	void ChannelingStarted(ABlindEyeEnemyBase* EnemyChannelling);
+	UFUNCTION()
+	void ChannellingEnded(AActor* EnemyChannelling); 
+ 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY()
+	TSet<ABlindEyeEnemyBase*> EnemiesCurrentlyChanneling;
 
 	UPROPERTY(Replicated, ReplicatedUsing="OnRep_HealthUpdated")
 	float CurrShrineHealth;
 
 	UFUNCTION()
 	void OnRep_HealthUpdated();
+
+	UFUNCTION()
+	void OnChannellingEnemyDied(AActor* DeadChannellingEnemy);
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	

@@ -7,22 +7,7 @@
 #include "Enemies/BlindEyeEnemyController.h"
 #include "HunterEnemyController.generated.h"
 
-UENUM(BlueprintType)
-enum class EStrafeDirection : uint8
-{
-	None,
-	Left,
-	Right
-};
-
-
-UENUM(BlueprintType) 
-enum class EHunterStates : uint8
-{
-	Stalking,
-	Attacking,
-	Running
-};
+class ABurrowerTriggerVolume;
 
 /**
  * 
@@ -36,52 +21,92 @@ public:
 	AHunterEnemyController();
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
-	float DistanceToJumpAttack = 200.f;
- 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
-	float JumpAttackDelay = 1.5f;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float SpawnDelay = 15.f;
+	float InitialSpawnDelay = 15.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AHunterEnemy> HunterType;
 
+	UPROPERTY(EditDefaultsOnly)
+	TArray<TEnumAsByte<EObjectTypeQuery>> IslandTriggerObjectType;
+
+	UPROPERTY(EditDefaultsOnly)
+	float AfterStunReturnDelay = 10;
+
+	UPROPERTY(EditDefaultsOnly)
+	float AfterDeathReturnDelay = 30;
+ 
+	UPROPERTY(EditDefaultsOnly)
+	float AfterKillingPlayerDelay = 10;
+	
 	void SetAlwaysVisible(bool IsAlwaysVisible);
 
 	// Calls blueprint to initialize behavior tree
 	UFUNCTION(BlueprintImplementableEvent)
 	void InitializeBehaviorTree();
-	
-	bool CanJumpAttack(AActor* Target);
-	void PerformJumpAttack();
+
+	void PerformChargedJump();
+	void PerformBasicAttack(); 
+
+	bool CanChargedJump(AActor* Target);
+
+	bool CanBasicAttack(AActor* Target); 
 
 	// Debugger functionality for spawning a hunter
 	//	If a hunter is already alive, then dont do anything
 	void DebugSpawnHunter();
 
 	void TrySetVisibility(bool visibility);
-
-	void UpdateMovementSpeed(EHunterStates NewHunterState);
-
+	
 	UFUNCTION()
 	void OnHunterDeath(AActor* HunterKilled);
+
+	void StartChanneling();
+
+	void OnMarkedPlayerDeath();
 	
 protected:
 
-	bool IsJumpAttackOnDelay = false;
-	FTimerHandle JumpAttackDelayTimerHandle;
+	float CachedHealth = 0;
 
-	FTimerHandle SpawnDelayTimerHandle;
+	FTimerHandle InitialSpawnDelayTimerHandle;
  
-	bool IsInJumpAttackRange(AActor* Target);
+	TMap<EIslandPosition, ABurrowerTriggerVolume*> TriggerVolumes;
+	UPROPERTY()
+	ABurrowerTriggerVolume* CurrIsland;
+
+	FTimerHandle ReturnDelayTimerHandle;
+	
+	FTimerHandle InvisDelayTimerHandle;
+	void StunInvisDelayFinished();
+	void TargetKilledInvisDelayFinished();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_SetCachedHealth();
+
+	void RemoveHunterHelper();
+
+	UFUNCTION()
+	void SetEnteredNewIsland(AActor* OverlappedActor, AActor* OtherActor);
+ 
+	bool IsInChargedJumpRange(AActor* Target);
+	bool IsInBasicAttackRange(AActor* Target);
+
+	bool IsOnSameIslandAsPlayer(AActor* Target);
+
+	virtual void OnStunStart(float StunDuration) override;
+	virtual void OnStunEnd() override;
+
+	void DespawnHunter();
+
+	void DelayedReturn(float ReturnDelay);
 
 	UPROPERTY() 
 	AHunterEnemy* Hunter;
 
 	virtual void OnPossess(APawn* InPawn) override;
-	void SetCanBasicAttack();
+
+	ABurrowerTriggerVolume* CheckIslandSpawnedOn();
 	
 	UFUNCTION()
 	void SpawnHunter();

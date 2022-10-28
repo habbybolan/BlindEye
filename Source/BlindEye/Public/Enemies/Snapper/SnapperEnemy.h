@@ -56,9 +56,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0.1, ClampMax=1), Category=Spawning)
 	float ColliderHeightAlteredOnSpawn = 0.5f; 
- 
-	UPROPERTY(EditDefaultsOnly)
-	float DeathDelay = 1.0f;
 
 	void PerformJumpAttack();
 	void PerformBasicAttack(); 
@@ -92,7 +89,6 @@ protected:
 	FTimerHandle LaunchSwingTimerHandle;
 	FTimerHandle StopRagdollTimerHandle;
 	FTimerHandle GetupAnimTimerHandle;
-	FTimerHandle DeathTimerHandle;
 
 	float AlphaBlendWeight = 1;
 
@@ -124,7 +120,6 @@ protected:
 	bool IsLayingOnFront();
 
 	virtual void OnDeath(AActor* ActorThatKilled) override;
-	void DestroySnapper();
 
 	void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const;
 	

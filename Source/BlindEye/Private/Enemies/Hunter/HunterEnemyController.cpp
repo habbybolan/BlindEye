@@ -6,6 +6,8 @@
 #include "BrainComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
+#include "Enemies/Burrower/BurrowerTriggerVolume.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
 #include "Gameplay/BlindEyeGameState.h"
@@ -22,8 +24,26 @@ void AHunterEnemyController::BeginPlay()
 
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
+
+	TArray<AActor*> OutTriggerVolumes;
+	UGameplayStatics::GetAllActorsOfClass(World, ABurrowerTriggerVolume::StaticClass(), OutTriggerVolumes);
+	for (AActor* VolumeActor : OutTriggerVolumes)
+	{
+		ABurrowerTriggerVolume* BurrowerVolume = Cast<ABurrowerTriggerVolume>(VolumeActor);
+		TriggerVolumes.Add(BurrowerVolume->IslandType, BurrowerVolume);
+		BurrowerVolume->OnActorBeginOverlap.AddDynamic(this, &AHunterEnemyController::SetEnteredNewIsland);
+	}
 	
-	World->GetTimerManager().SetTimer(SpawnDelayTimerHandle, this, &AHunterEnemyController::SpawnHunter, SpawnDelay, false);
+	World->GetTimerManager().SetTimer(InitialSpawnDelayTimerHandle, this, &AHunterEnemyController::SpawnHunter, InitialSpawnDelay, false);
+}
+
+void AHunterEnemyController::SetEnteredNewIsland(AActor* OverlappedActor, AActor* OtherActor)
+{
+	if (Hunter == nullptr) return;
+	if (OtherActor == Hunter)
+	{
+		CurrIsland = Cast<ABurrowerTriggerVolume>(OverlappedActor);
+	}
 }
 
 void AHunterEnemyController::SetAlwaysVisible(bool IsAlwaysVisible)
@@ -45,17 +65,42 @@ void AHunterEnemyController::SetAlwaysVisible(bool IsAlwaysVisible)
 	}
 }
 
-bool AHunterEnemyController::CanJumpAttack(AActor* Target)
+void AHunterEnemyController::PerformChargedJump()
 {
-	return !IsJumpAttackOnDelay && IsInJumpAttackRange(Target);
+	if (Hunter)
+	{
+		Hunter->PerformChargedJump();
+	}
 }
 
-void AHunterEnemyController::PerformJumpAttack()
+void AHunterEnemyController::PerformBasicAttack()
 {
-	IsJumpAttackOnDelay = true;
-	GetBlackboardComponent()->SetValueAsBool("bAttacking", true);
-	Hunter->PerformJumpAttack();
-	GetWorldTimerManager().SetTimer(JumpAttackDelayTimerHandle, this, &AHunterEnemyController::SetCanBasicAttack, JumpAttackDelay, false);
+	if (Hunter)
+	{
+		Hunter->PerformBasicAttack();
+	}
+}
+
+bool AHunterEnemyController::CanChargedJump(AActor* Target)
+{
+	if (Hunter == nullptr) return false;
+	
+	// TODO: Check if visible sight to player and no obstacles in the way	
+	return !Hunter->GetIsChargedJumpOnCooldown() &&
+			IsInChargedJumpRange(Target) &&
+			IsOnSameIslandAsPlayer(Target) &&
+			Hunter->GetIsCharged() &&
+			!Hunter->GetCharacterMovement()->IsFalling() &&
+			!Hunter->GetIsAttacking();
+}
+
+bool AHunterEnemyController::CanBasicAttack(AActor* Target)
+{
+	if (Hunter == nullptr) return false;
+	
+	return  IsInBasicAttackRange(Target) &&
+			IsOnSameIslandAsPlayer(Target) &&
+			!Hunter->GetIsAttacking();
 }
 
 void AHunterEnemyController::DebugSpawnHunter()
@@ -66,7 +111,8 @@ void AHunterEnemyController::DebugSpawnHunter()
 	if (Hunter) return;
 
 	SpawnHunter();
-	World->GetTimerManager().ClearTimer(SpawnDelayTimerHandle);
+	World->GetTimerManager().ClearTimer(InitialSpawnDelayTimerHandle);
+	World->GetTimerManager().ClearTimer(ReturnDelayTimerHandle);
 }
 
 void AHunterEnemyController::TrySetVisibility(bool visibility)
@@ -75,18 +121,91 @@ void AHunterEnemyController::TrySetVisibility(bool visibility)
 	Hunter->TrySetVisibility(visibility);
 }
 
-void AHunterEnemyController::UpdateMovementSpeed(EHunterStates NewHunterState)
+bool AHunterEnemyController::IsInChargedJumpRange(AActor* Target)
 {
-	if (!Hunter) return;
-	Hunter->UpdateMovementSpeed(NewHunterState);
+	if (Hunter)
+	{
+		float Distance = FVector::Distance(Target->GetActorLocation(), Hunter->GetActorLocation());
+		return Distance < Hunter->MaxDistanceToChargeJump &&  Distance > Hunter->MinDistanceToChargeJump;
+	}
+	return false;
 }
 
-bool AHunterEnemyController::IsInJumpAttackRange(AActor* Target)
+bool AHunterEnemyController::IsInBasicAttackRange(AActor* Target)
 {
-	if (GetPawn() == nullptr) return false;
-	
-	float Distance = FVector::Distance(Target->GetActorLocation(), GetPawn()->GetActorLocation());
-	return Distance < DistanceToJumpAttack;
+	if (Hunter)
+	{
+		float Distance = FVector::Distance(Target->GetActorLocation(), Hunter->GetActorLocation());
+		return Distance < Hunter->MaxDistanceForBasicAttack;
+	}
+	return false;
+}
+
+bool AHunterEnemyController::IsOnSameIslandAsPlayer(AActor* Target)
+{
+	for (ABlindEyePlayerCharacter* Player : CurrIsland->GetPlayerActorsOverlapping())
+	{
+		if (Player == Target) return true;
+	}
+	return false;
+}
+
+void AHunterEnemyController::OnStunStart(float StunDuration)
+{
+	if (Hunter)
+	{
+		Hunter->OnStunStart(StunDuration);
+	}
+}
+
+void AHunterEnemyController::OnStunEnd()
+{
+	if (Hunter)
+	{
+		Hunter->SetFleeing();
+		UWorld* World = GetWorld();
+		if (ensure(World))
+		{
+			World->GetTimerManager().SetTimer(InvisDelayTimerHandle, this, &AHunterEnemyController::StunInvisDelayFinished, 1, false);
+		}
+	}	 
+}
+
+void AHunterEnemyController::DespawnHunter()
+{
+	CachedHealth = Hunter->GetHealth();
+	UnPossess();
+	Hunter->Destroy();
+	RemoveHunterHelper();
+}
+
+void AHunterEnemyController::StunInvisDelayFinished()
+{
+	DespawnHunter(); 
+	DelayedReturn(AfterStunReturnDelay);
+}
+
+void AHunterEnemyController::TargetKilledInvisDelayFinished()
+{
+	DespawnHunter(); 
+	DelayedReturn(AfterKillingPlayerDelay);
+}
+
+void AHunterEnemyController::MULT_SetCachedHealth_Implementation()
+{
+	if (Hunter)
+	{
+		Hunter->BP_OnTakeDamage(0, FVector::ZeroVector, nullptr, nullptr);
+	}
+}
+
+void AHunterEnemyController::DelayedReturn(float ReturnDelay)
+{
+	UWorld* World = GetWorld();
+	if (ensure(World))
+	{
+		World->GetTimerManager().SetTimer(ReturnDelayTimerHandle, this, &AHunterEnemyController::SpawnHunter, ReturnDelay, false);
+	}
 }
 
 void AHunterEnemyController::OnPossess(APawn* InPawn)
@@ -97,10 +216,10 @@ void AHunterEnemyController::OnPossess(APawn* InPawn)
 	if (!world) return;
 	
 	Hunter = Cast<AHunterEnemy>(InPawn);
-	
-	if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(Hunter))
+	if (CachedHealth > 0)
 	{
-		HealthInterface->GetHealthComponent()->OnDeathDelegate.AddUFunction(this, FName("OnHunterDeath"));
+		Hunter->SetHealth(CachedHealth);
+		MULT_SetCachedHealth();
 	}
 
 	// Get random player to attack
@@ -117,26 +236,79 @@ void AHunterEnemyController::OnPossess(APawn* InPawn)
 	
 	InitializeBehaviorTree();
 	GetBrainComponent()->GetBlackboardComponent()->SetValueAsBool("bDead", false);
+	GetBrainComponent()->GetBlackboardComponent()->SetValueAsBool("bFirstRun", true);
 
 	InPawn->OnTakeAnyDamage.AddDynamic(this, &AHunterEnemyController::OnTakeDamage);
+
+	// Initial check for which island Hunter spawned on
+	CurrIsland = CheckIslandSpawnedOn();
+	if (CurrIsland == nullptr)
+	{
+		CurrIsland = TriggerVolumes[EIslandPosition::IslandA];
+	}
 }
 
-void AHunterEnemyController::SetCanBasicAttack()
+ABurrowerTriggerVolume* AHunterEnemyController::CheckIslandSpawnedOn()
 {
-	IsJumpAttackOnDelay = false;
+	if (Hunter == nullptr) return nullptr;
+
+	UWorld* World = GetWorld();
+	if (World == nullptr) return nullptr;
+
+	TArray<AActor*> OurActors;
+	if (UKismetSystemLibrary::SphereOverlapActors(World, Hunter->GetActorLocation(), 50, IslandTriggerObjectType,
+		nullptr, TArray<AActor*>(), OurActors))
+	{
+		return Cast<ABurrowerTriggerVolume>(OurActors[0]);
+	}
+	return nullptr;
 }
 
 void AHunterEnemyController::OnHunterDeath(AActor* HunterKilled)
 {
-	UWorld* world = GetWorld();
-	if (!world) return;
+	CachedHealth = Hunter->GetMaxHealth();
+	DelayedReturn(AfterDeathReturnDelay);
+	RemoveHunterHelper();
+	
+}
 
-	world->GetTimerManager().SetTimer(SpawnDelayTimerHandle, this, &AHunterEnemyController::SpawnHunter, SpawnDelay, false);
+void AHunterEnemyController::RemoveHunterHelper()
+{
 	Hunter = nullptr;
-
-	GetBrainComponent()->GetBlackboardComponent()->SetValueAsBool("bDead", false);
 	GetBrainComponent()->GetBlackboardComponent()->SetValueAsBool("IsFirstRun", false);
 	GetBrainComponent()->StopLogic(TEXT("HunterDeath"));
+}
+
+void AHunterEnemyController::StartChanneling()
+{
+	if (Hunter)
+	{
+		Hunter->StartChanneling();
+	}
+}
+
+void AHunterEnemyController::OnMarkedPlayerDeath()
+{
+	// Find other alive players
+	UWorld* World = GetWorld();
+	if (!World) return;
+	
+	AGameStateBase* GameState = UGameplayStatics::GetGameState(World);
+	if (GameState)
+	{
+		TArray<APlayerState*> Players = GameState->PlayerArray;
+		for (APlayerState* FoundPlayerState : Players)
+		{
+			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(FoundPlayerState->GetPawn());
+			check(Player);
+			if (!Player->GetIsDead())
+			{
+				Hunter->SetFleeing();
+				SetBTTarget(Player);
+				World->GetTimerManager().SetTimer(InvisDelayTimerHandle, this, &AHunterEnemyController::TargetKilledInvisDelayFinished, 1, false);
+			}
+		}
+	}
 }
 
 void AHunterEnemyController::SpawnHunter() 
