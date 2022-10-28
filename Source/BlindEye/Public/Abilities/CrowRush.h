@@ -113,11 +113,14 @@ public:
 	void CLI_StartAiming();
 
 	void StartMovement();
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_StartMovementHelper(FVector CalculatedEndPos);
+	//UFUNCTION(NetMulticast, Reliable)
+	void MULT_StartMovementHelper(FVector StartPos, FVector CalculatedEndPos);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_ResetPlayerState();
+
+	UFUNCTION(Client, Reliable)
+	void CLI_RemoveTarget();
 
 protected:
 
