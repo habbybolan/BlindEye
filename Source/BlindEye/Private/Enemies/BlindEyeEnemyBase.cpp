@@ -4,6 +4,7 @@
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Components/HealthComponent.h"
 #include "Components/MarkerComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
 ABlindEyeEnemyBase::ABlindEyeEnemyBase(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -33,6 +34,12 @@ void ABlindEyeEnemyBase::BeginPlay()
 void ABlindEyeEnemyBase::DestroyEnemy()
 {
 	Destroy();
+}
+
+void ABlindEyeEnemyBase::ApplyPulse(ABlindEyePlayerCharacter* PlayerEffectToApply)
+{
+	UGameplayStatics::ApplyPointDamage(this, 100000, FVector::ZeroVector, FHitResult(), PlayerEffectToApply->GetController(),
+		PlayerEffectToApply, UBaseDamageType::StaticClass());
 }
 
 void ABlindEyeEnemyBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

@@ -73,6 +73,13 @@ void APhoenixFireballCast::DelayedDestruction()
 	Destroy();
 }
 
+void APhoenixFireballCast::MULT_HideFireball_Implementation()
+{
+	SphereComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Mesh->SetHiddenInGame(true);
+	SpawnedFireTrailParticle->Deactivate();
+}
+
 
 void APhoenixFireballCast::BurnLogic()
 {
@@ -104,9 +111,7 @@ void APhoenixFireballCast::CollisionLogic()
 	
 	world->GetTimerManager().ClearTimer(LifespanTimerHandle);
 	
-	SphereComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Mesh->SetHiddenInGame(true);
-	SpawnedFireTrailParticle->Deactivate();
+	MULT_HideFireball();
 
 	TArray<AActor*> ignoreActors;
 	ignoreActors.Add(this);

@@ -4,6 +4,7 @@
 #include "Abilities/CrowRush.h"
 
 #include "Characters/BlindEyePlayerCharacter.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -11,28 +12,19 @@
 
 ACrowRush::ACrowRush()
 {
-	AbilityStates.Add(new FCrowRushStartState(this));
+	AbilityStates.Add(new FAimingStartState(this));
+	AbilityStates.Add(new FMovingState(this));
+	AbilityStates.Add(new FEndState(this));
 	AbilityType = EAbilityTypes::Unique1;
 }
 
-void ACrowRush::UpdatePlayerSpeed()
-{
-	if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
-	{
-		StartingPosition = BlindEyePlayer->GetActorLocation();
-		BlindEyePlayer->MULT_UpdateWalkMovementSpeed(DashSpeedIncrease, DashAccelerationIncrease);
-	}
-}
-
-void ACrowRush::ResetPlayerSpeed()
+void ACrowRush::ApplyDamage()
 {
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
 	
 	if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
-		BlindEyePlayer->MULT_ResetWalkMovementToNormal();
-
 		FVector EndLocation = BlindEyePlayer->GetActorLocation();
 
 		TArray<FHitResult> OutHits;
@@ -81,47 +73,238 @@ void ACrowRush::ResetPlayerSpeed()
 	}
 }
 
+void ACrowRush::CLI_StartAiming_Implementation()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		Target = World->SpawnActor<ACrowRushTarget>(TargetType);
+
+		World->GetTimerManager().SetTimer(UpdateTargetTimerHandle, this, &ACrowRush::UpdateTargetPosition, UpdateMovementDelay, true);
+	}
+}
+
+void ACrowRush::MULT_ResetPlayerState_Implementation()
+{
+	CurrDuration = 0;
+	
+	// reset player state
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+	Player->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	Player->GetCharacterMovement()->PrimaryComponentTick.bCanEverTick = true;
+}
+ 
+void ACrowRush::UpdateTargetPosition()
+{
+	if (Target)
+	{
+		Target->SetActorLocation(CalculateTargetPosition());
+	}
+}
+
+FVector ACrowRush::CalculateTargetPosition()
+{
+	FVector TargetPosition;
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		FVector ViewportLocation;
+		FRotator ViewportRotation;
+		GetInstigator()->GetController()->GetPlayerViewPoint(OUT ViewportLocation, OUT ViewportRotation);
+
+		FVector EndLocation = ViewportLocation + ViewportRotation.Vector() * MaxDistance;
+		
+		FHitResult HitTargetLocation;
+		// if Hit point
+		if (UKismetSystemLibrary::LineTraceSingleForObjects(World, ViewportLocation, EndLocation, TargetObjectBlocker,
+			false, TArray<AActor*>(), EDrawDebugTrace::None, HitTargetLocation, true))
+		{
+			TargetPosition = HitTargetLocation.Location;
+		}
+		// Otherwise, set to furthest endpoint
+		else
+		{
+			TargetPosition = EndLocation;
+		}
+ 
+		FHitResult HitTargetBelow;
+		// Move target position off ground based on player height
+		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+		float PlayerHeight = Player->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+		if (UKismetSystemLibrary::LineTraceSingleForObjects(World, TargetPosition, TargetPosition + FVector::DownVector * PlayerHeight, TargetObjectBlocker,
+			false, TArray<AActor*>(), EDrawDebugTrace::None, HitTargetBelow, true))
+		{
+			// Move target based on the different between player height and how close it's to the ground
+			float DistFromGround = FVector::Distance(HitTargetBelow.Location, TargetPosition);
+			TargetPosition += FVector::UpVector * FMath::Abs(DistFromGround - PlayerHeight) + FVector::UpVector * TargetPositionOffset;
+		}
+	}
+	return TargetPosition;
+}
+
+void ACrowRush::EndAbilityLogic()
+{
+	Super::EndAbilityLogic();
+
+	MULT_ResetPlayerState();
+}
+
+void ACrowRush::StartMovement()
+{
+	FVector CalcEndPos = CalculateTargetPosition();
+	FVector StartPos = GetInstigator()->GetActorLocation();
+	CLI_RemoveTarget();
+	MULT_StartMovementHelper(StartPos, CalcEndPos);
+}
+ 
+ 
+void ACrowRush::MULT_StartMovementHelper_Implementation(FVector StartPos, FVector CalculatedEndPos) 
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{ 
+		StartingPosition = StartPos;
+		EndPosition = CalculatedEndPos;
+		CalculatedDuration = (FVector::Distance(StartingPosition, EndPosition) / MaxDistance) * DurationAtMaxDistance;
+
+		GetInstigator()->SetActorLocation(EndPosition);
+
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			ApplyDamage();
+			AbilityStates[CurrState]->ExitState();
+		}
+		
+		// ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+		// Player->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		// Player->GetCharacterMovement()->PrimaryComponentTick.bCanEverTick = false;
+		// Player->GetCharacterMovement()->Deactivate();
+		//
+		// World->GetTimerManager().SetTimer(UpdateTargetTimerHandle, this, &ACrowRush::UpdatePlayerMovement, UpdateMovementDelay, true);
+	}
+}
+
+void ACrowRush::CLI_RemoveTarget_Implementation()
+{
+	if (Target)
+	{
+		Target->Destroy();
+	}
+}
+
+void ACrowRush::UpdatePlayerMovement()
+{
+	FVector Ease = UKismetMathLibrary::VEase(StartingPosition, EndPosition, CurrDuration / CalculatedDuration, EasingFunction);
+	GetInstigator()->SetActorLocation(Ease);
+	CurrDuration += UpdateMovementDelay;
+
+	// If finished movement
+	if (CurrDuration >= CalculatedDuration)
+	{
+		UWorld* World = GetWorld();
+		check(World);
+		World->GetTimerManager().ClearTimer(UpdateTargetTimerHandle);
+
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			ApplyDamage();
+			AbilityStates[CurrState]->ExitState();
+		}
+	}
+}
+
 // **** States *******
 
-// Dash Start State *********************
+// Start Aiming state ******************
 
-FCrowRushStartState::FCrowRushStartState(AAbilityBase* ability) : FAbilityState(ability) {}
+FAimingStartState::FAimingStartState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-void FCrowRushStartState::TryEnterState(EAbilityInputTypes abilityUsageType)
+void FAimingStartState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
 	// Enter on pressed
 	if (abilityUsageType == EAbilityInputTypes::Pressed)
 	{
+		//Ability->BP_AbilityStarted();
 		RunState();
 	}
 }
 
-void FCrowRushStartState::RunState(EAbilityInputTypes abilityUsageType)
+void FAimingStartState::RunState(EAbilityInputTypes abilityUsageType)
+{
+	FAbilityState::RunState(abilityUsageType);
+	Ability->Blockers.IsOtherAbilitiesBlocked = true;
+	// Start Aiming hold
+	if (abilityUsageType == EAbilityInputTypes::None)
+	{
+		Ability->BP_AbilityStarted();
+		ACrowRush* Rush = Cast<ACrowRush>(Ability);
+		check(Rush)
+		Rush->CLI_StartAiming();
+	}
+	// stop aiming and goto moving state
+	else if (abilityUsageType == EAbilityInputTypes::Released)
+	{
+		Ability->BP_AbilityInnerState(1);
+		ExitState();
+	}
+}
+
+void FAimingStartState::ExitState()
+{
+	FAbilityState::ExitState();
+	Ability->EndCurrState();
+	Ability->UseAbility(EAbilityInputTypes::None);
+}
+
+// Moving to target state ******************
+
+FMovingState::FMovingState(AAbilityBase* ability) : FAbilityState(ability) {}
+
+void FMovingState::TryEnterState(EAbilityInputTypes abilityUsageType)
+{
+	FAbilityState::TryEnterState(abilityUsageType);
+	RunState();
+}
+
+void FMovingState::RunState(EAbilityInputTypes abilityUsageType)
 {
 	// prevent user input
 	if (abilityUsageType > EAbilityInputTypes::None) return;
 	
 	FAbilityState::RunState(abilityUsageType);
-	if (Ability == nullptr) return;
 
-	Ability->BP_AbilityStarted();
-	Ability->Blockers.IsOtherAbilitiesBlocked = true;
-	ACrowRush* Dash = Cast<ACrowRush>(Ability);
-	if (Dash == nullptr) return;
-
-	Dash->UpdatePlayerSpeed();
-	Dash->DelayToNextState(Dash->DashDuration, true);
+	Ability->Blockers.IsMovementBlocked = true;
+	ACrowRush* CrowRush = Cast<ACrowRush>(Ability);
+	check(CrowRush);
+	CrowRush->StartMovement();
 }
 
-void FCrowRushStartState::ExitState()
+void FMovingState::ExitState()
 {
 	FAbilityState::ExitState();
-	if (Ability == nullptr) return;
+	Ability->EndCurrState();
+	Ability->UseAbility(EAbilityInputTypes::None);
+}
 
-	ACrowRush* Dash = Cast<ACrowRush>(Ability);
-	if (Dash == nullptr) return;
+// Ending State ******************
 
-	Dash->ResetPlayerSpeed();
+FEndState::FEndState(AAbilityBase* ability) : FAbilityState(ability) {}
+
+void FEndState::TryEnterState(EAbilityInputTypes abilityUsageType)
+{
+	FAbilityState::TryEnterState(abilityUsageType);
+	RunState();
+}
+
+void FEndState::RunState(EAbilityInputTypes abilityUsageType)
+{
+	FAbilityState::RunState(abilityUsageType);
+	ExitState();
+}
+
+void FEndState::ExitState()
+{
+	FAbilityState::ExitState();
 	Ability->EndCurrState();
 }

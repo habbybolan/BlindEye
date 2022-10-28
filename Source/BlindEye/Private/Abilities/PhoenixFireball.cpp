@@ -5,6 +5,7 @@
 
 #include "NiagaraFunctionLibrary.h"
 #include "Characters/BlindEyePlayerCharacter.h"
+#include "Characters/BlindEyePlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -72,8 +73,28 @@ void APhoenixFireball::CastFireball()
 	params.Instigator = GetInstigator();
 	params.Owner = this;
 
-	FVector spawnLocation = GetInstigator()->GetActorLocation() + GetInstigator()->GetControlRotation().Vector() * FVector(100, 100, 0);
-	FireballCast = world->SpawnActor<APhoenixFireballCast>(FireballCastType, spawnLocation, GetInstigator()->GetControlRotation(), params);
+	FVector ViewportLocation;
+	FRotator ViewportRotation;
+
+	GetInstigator()->GetController()->GetPlayerViewPoint(ViewportLocation, ViewportRotation);
+
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+	check(Player)
+	FVector SpawnLocation = Player->GetMesh()->GetBoneLocation("RightHand") + Player->GetActorForwardVector() * 25;
+
+	// Find Rotation of phoenix fireball
+	FVector vectorRotation;
+	FHitResult Hit;
+	if (UKismetSystemLibrary::LineTraceSingleForObjects(world, ViewportLocation, ViewportLocation + ViewportRotation.Vector() * 10000, FireballCastObjectTypes,
+		false, TArray<AActor*>(), EDrawDebugTrace::None, Hit, true))
+	{
+		vectorRotation = Hit.Location - SpawnLocation;
+	} else
+	{
+		vectorRotation = (ViewportLocation + ViewportRotation.Vector() * 10000) - SpawnLocation;
+	}
+	
+	FireballCast = world->SpawnActor<APhoenixFireballCast>(FireballCastType, SpawnLocation, vectorRotation.Rotation(), params);
 	FireballCast->GetSphereComponent()->OnComponentHit.AddDynamic(this, &APhoenixFireball::OnFireballCastHit);
 }
 
