@@ -107,7 +107,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=Movement)
 	TEnumAsByte<EEasingFunc::Type> EasingFunction;
 	
-	void ResetPlayerSpeed();
+	void ApplyDamage();
 
 	void StartAiming();
 	void StartMovement();

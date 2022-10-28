@@ -18,15 +18,13 @@ ACrowRush::ACrowRush()
 	AbilityType = EAbilityTypes::Unique1;
 }
 
-void ACrowRush::ResetPlayerSpeed()
+void ACrowRush::ApplyDamage()
 {
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
 	
 	if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
-		BlindEyePlayer->MULT_ResetWalkMovementToNormal();
-
 		FVector EndLocation = BlindEyePlayer->GetActorLocation();
 
 		TArray<FHitResult> OutHits;
@@ -166,11 +164,13 @@ void ACrowRush::UpdatePlayerMovement()
 	GetInstigator()->SetActorLocation(Ease);
 	CurrDuration += UpdateMovementDelay;
 
+	// If finished movement
 	if (CurrDuration >= CalculatedDuration)
 	{
 		UWorld* World = GetWorld();
 		check(World);
 		World->GetTimerManager().ClearTimer(UpdateTargetTimerHandle);
+		ApplyDamage();
 		AbilityStates[CurrState]->ExitState();
 	}
 }
