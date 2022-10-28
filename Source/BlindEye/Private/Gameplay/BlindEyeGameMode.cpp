@@ -128,7 +128,13 @@ void ABlindEyeGameMode::Tick(float DeltaSeconds)
 	{
 		CurrPulseIndex++;
 		BP_Pulse(CurrPulseIndex);
-		PerformPulse();
+
+		// Pulse kills all enemies after duration
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			World->GetTimerManager().SetTimer(PulseKillDelayTimerHandle, this, &ABlindEyeGameMode::PerformPulse, PulseKillDelay, false);
+		}
 	}
 
 	// Won condition check

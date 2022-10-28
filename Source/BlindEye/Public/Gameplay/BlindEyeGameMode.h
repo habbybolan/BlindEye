@@ -30,6 +30,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float TimeUntilLevelShift = 60.f;
 
+	UPROPERTY(EditDefaultsOnly)
+	float PulseKillDelay = 1.0f;
+
 	// called by shrine when it's destroyed
 	void OnShrineDeath();
 
@@ -54,6 +57,8 @@ protected:
 	uint8 CurrPulseIndex = 0;
 	uint8 NumPulses = 3;
 	float TimeBetweenPulses;
+
+	FTimerHandle PulseKillDelayTimerHandle;
 	
 	void OnGameEnded();
 	void OnGameWon();
