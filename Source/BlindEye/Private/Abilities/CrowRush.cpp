@@ -91,6 +91,7 @@ void ACrowRush::MULT_ResetPlayerState_Implementation()
 	// reset player state
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
 	Player->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	Player->GetCharacterMovement()->PrimaryComponentTick.bCanEverTick = true;
 }
  
 void ACrowRush::UpdateTargetPosition()
@@ -155,9 +156,9 @@ void ACrowRush::StartMovement()
 	CLI_RemoveTarget();
 	MULT_StartMovementHelper(StartPos, CalcEndPos);
 }
-
  
-void ACrowRush::MULT_StartMovementHelper(FVector StartPos, FVector CalculatedEndPos) 
+ 
+void ACrowRush::MULT_StartMovementHelper_Implementation(FVector StartPos, FVector CalculatedEndPos) 
 {
 	UWorld* World = GetWorld();
 	if (World)
@@ -165,11 +166,21 @@ void ACrowRush::MULT_StartMovementHelper(FVector StartPos, FVector CalculatedEnd
 		StartingPosition = StartPos;
 		EndPosition = CalculatedEndPos;
 		CalculatedDuration = (FVector::Distance(StartingPosition, EndPosition) / MaxDistance) * DurationAtMaxDistance;
+
+		GetInstigator()->SetActorLocation(EndPosition);
+
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			ApplyDamage();
+			AbilityStates[CurrState]->ExitState();
+		}
 		
-		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
-		Player->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		
-		World->GetTimerManager().SetTimer(UpdateTargetTimerHandle, this, &ACrowRush::UpdatePlayerMovement, UpdateMovementDelay, true);
+		// ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+		// Player->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		// Player->GetCharacterMovement()->PrimaryComponentTick.bCanEverTick = false;
+		// Player->GetCharacterMovement()->Deactivate();
+		//
+		// World->GetTimerManager().SetTimer(UpdateTargetTimerHandle, this, &ACrowRush::UpdatePlayerMovement, UpdateMovementDelay, true);
 	}
 }
 

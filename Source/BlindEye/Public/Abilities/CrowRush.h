@@ -113,7 +113,7 @@ public:
 	void CLI_StartAiming();
 
 	void StartMovement();
-	//UFUNCTION(NetMulticast, Reliable)
+	UFUNCTION(NetMulticast, Reliable)
 	void MULT_StartMovementHelper(FVector StartPos, FVector CalculatedEndPos);
 
 	UFUNCTION(NetMulticast, Reliable)
