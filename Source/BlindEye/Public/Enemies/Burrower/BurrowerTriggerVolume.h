@@ -20,9 +20,9 @@ public:
 	UBurrowerTriggerVolume();
 
 	virtual void BeginPlay() override;
-
+ 
 	UPROPERTY(EditAnywhere)
-	EIslandPosition IslandType;
+	uint8 IslandID;
 
 	UPROPERTY()
 	TArray<ABlindEyePlayerCharacter*> PlayersInsideTriggerVolume;

@@ -71,7 +71,7 @@ protected:
 
 	FTimerHandle InitialSpawnDelayTimerHandle;
  
-	TMap<EIslandPosition, UBurrowerTriggerVolume*> TriggerVolumes;
+	TMap<uint8, UBurrowerTriggerVolume*> TriggerVolumes;
 	UPROPERTY()
 	UBurrowerTriggerVolume* CurrIsland;
 

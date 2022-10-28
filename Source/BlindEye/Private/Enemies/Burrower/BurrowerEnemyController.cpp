@@ -82,7 +82,7 @@ void ABurrowerEnemyController::CacheSpawnPoints()
 	UWorld* world = GetWorld();
 	if (!world) return;
 	
-	UGameplayStatics::GetAllActorsOfClass(world, ABurrowerSpawnPoint::StaticClass(), SpawnLocation);
+	UGameplayStatics::GetAllActorsOfClass(world, UBurrowerSpawnPoint::StaticClass(), SpawnLocation);
 }
 
 FTransform ABurrowerEnemyController::FindRandSpawnPoint()
@@ -124,7 +124,7 @@ void ABurrowerEnemyController::NotifyPlayerLeftIsland(ABlindEyePlayerCharacter* 
 	if (Brain == nullptr) return;
 	UBlackboardComponent* BBComp = Brain->GetBlackboardComponent();
 	
-	TArray<ABlindEyePlayerCharacter*> PlayersOnIsland = CachedBurrower->Listener->GetPlayersOnIsland(CachedBurrower->IslandType);
+	TArray<ABlindEyePlayerCharacter*> PlayersOnIsland = CachedBurrower->Listener->GetPlayersOnIsland(CachedBurrower->IslandID);
 	// If players still on island, set to attack remaining player
 	if (PlayersOnIsland.Num() > 0)
 	{
@@ -150,7 +150,7 @@ void ABurrowerEnemyController::CancelHide()
 
 TArray<ABlindEyePlayerCharacter*> ABurrowerEnemyController::GetPlayersOnIsland()
 {
-	return CachedBurrower->Listener->GetPlayersOnIsland(CachedBurrower->IslandType);
+	return CachedBurrower->Listener->GetPlayersOnIsland(CachedBurrower->IslandID);
 }
 
 void ABurrowerEnemyController::StartWarningParticles()

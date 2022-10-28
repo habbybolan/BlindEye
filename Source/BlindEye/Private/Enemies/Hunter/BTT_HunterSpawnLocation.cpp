@@ -19,7 +19,7 @@ EBTNodeResult::Type UBTT_HunterSpawnLocation::ExecuteTask(UBehaviorTreeComponent
 	if (World == nullptr) return EBTNodeResult::Failed;
 
 	TArray<AActor*> OutPoints;
-	UGameplayStatics::GetAllActorsOfClass(World, ABurrowerSpawnPoint::StaticClass(), OutPoints);
+	UGameplayStatics::GetAllActorsOfClass(World, UBurrowerSpawnPoint::StaticClass(), OutPoints);
 	for (AActor* Point : OutPoints)
 	{
 		UBlackboardComponent* BBComp = OwnerComp.GetBlackboardComponent();

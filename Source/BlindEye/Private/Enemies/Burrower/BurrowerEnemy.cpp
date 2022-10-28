@@ -60,9 +60,9 @@ void ABurrowerEnemy::OnDeath(AActor* ActorThatKilled)
 	Super::OnDeath(ActorThatKilled); 
 }
 
-void ABurrowerEnemy::SpawnMangerSetup(EIslandPosition islandType, TScriptInterface<IBurrowerSpawnManagerListener> listener)
-{
-	IslandType = islandType;
+void ABurrowerEnemy::SpawnMangerSetup(uint8 islandID, TScriptInterface<IBurrowerSpawnManagerListener> listener)
+{ 
+	IslandID = islandID;
 	Listener = listener;
 }
 

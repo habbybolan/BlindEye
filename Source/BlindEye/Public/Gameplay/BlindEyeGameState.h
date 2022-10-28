@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "IslandManager.h"
 #include "Shrine.h"
 #include "Characters/BlindEyePlayerController.h"
 #include "GameFramework/GameState.h"
@@ -37,6 +38,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	AShrine* GetShrine();
+
+	AIslandManager* GetIslandManager();
 	
 	UPROPERTY(Replicated)
 	bool bWinConditionPaused = false;
@@ -54,6 +57,9 @@ public:
 
 protected:
 	TWeakObjectPtr<AShrine> Shrine;
+
+	UPROPERTY()
+	AIslandManager* IslandManager;
 
 	
 	

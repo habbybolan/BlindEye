@@ -3,25 +3,48 @@
 
 #include "IslandManager.h"
 
-// Sets default values
+#include "Island.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
+
 AIslandManager::AIslandManager()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
+}
+
+uint8 AIslandManager::GetNumOfIslands()
+{
+	return CachedIslands.Num();
+}
+
+const TArray<AIsland*> AIslandManager::GetIslands()
+{
+	return CachedIslands;
 }
 
 // Called when the game starts or when spawned
 void AIslandManager::BeginPlay()
 {
 	Super::BeginPlay();
+
+	uint8 Index = 0;
+
+	// Cache all child islands and give them IDs
+	UWorld* World = GetWorld();
+	if (World)
+	{ 
+		TArray<AActor*> AllIslands;
+		UGameplayStatics::GetAllActorsOfClass(World, AIsland::StaticClass(), AllIslands);
+		for (AActor* IslandActor : AllIslands)
+		{
+			if (AIsland* Island = Cast<AIsland>(IslandActor))
+			{
+				Island->IslandID = Index++;
+				CachedIslands.Add(Island);
+			}
+		}
+	}
 	
-}
-
-// Called every frame
-void AIslandManager::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
 }
 

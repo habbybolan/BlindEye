@@ -5,6 +5,7 @@
 
 #include "BrainComponent.h"
 #include "Island.h"
+#include "IslandManager.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "Enemies/Burrower/BurrowerTriggerVolume.h"
@@ -31,7 +32,7 @@ void AHunterEnemyController::BeginPlay()
 	for (AActor* IslandActor : OutIslands)
 	{
 		AIsland* Island = Cast<AIsland>(IslandActor);
-		TriggerVolumes.Add(Island->IslandTrigger->IslandType, Island->IslandTrigger);
+		TriggerVolumes.Add(Island->IslandTrigger->IslandID, Island->IslandTrigger);
 		Island->IslandTrigger->CustomOverlapStartDelegate.AddDynamic(this, &AHunterEnemyController::SetEnteredNewIsland);
 	}
 	
@@ -224,7 +225,8 @@ void AHunterEnemyController::OnPossess(APawn* InPawn)
 	}
 
 	// Get random player to attack
-	AGameStateBase* GameState = UGameplayStatics::GetGameState(world);
+	ABlindEyeGameState* GameState = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(world));
+	check(GameState);
 	AActor* RandPlayerTarget;
 	if (GameState->PlayerArray.Num() == 1)
 	{
@@ -245,7 +247,7 @@ void AHunterEnemyController::OnPossess(APawn* InPawn)
 	CurrIsland = CheckIslandSpawnedOn();
 	if (CurrIsland == nullptr)
 	{
-		CurrIsland = TriggerVolumes[EIslandPosition::IslandA];
+		CurrIsland = GameState->GetIslandManager()->GetIslands()[0]->IslandTrigger;
 	}
 }
 UBurrowerTriggerVolume* AHunterEnemyController::CheckIslandSpawnedOn()
@@ -317,7 +319,7 @@ void AHunterEnemyController::SpawnHunter()
 	if (!World) return;
 
 	TArray<AActor*> SpawnPoints;
-	UGameplayStatics::GetAllActorsOfClass(World, ABurrowerSpawnPoint::StaticClass(),SpawnPoints);
+	UGameplayStatics::GetAllActorsOfClass(World, UBurrowerSpawnPoint::StaticClass(),SpawnPoints);
 	if (SpawnPoints.Num() == 0) return;
 	AActor* SpawnPoint = SpawnPoints[UKismetMathLibrary::RandomIntegerInRange(0, SpawnPoints.Num() - 1)];
 	

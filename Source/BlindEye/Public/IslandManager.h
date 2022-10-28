@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Island.h"
 #include "GameFramework/Actor.h"
 #include "IslandManager.generated.h"
 
@@ -11,16 +12,18 @@ class BLINDEYE_API AIslandManager : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
-	// Sets default values for this actor's properties
-	AIslandManager();
+public:
+
+	uint8 GetNumOfIslands(); 
+	const TArray<AIsland*> GetIslands();;
 
 protected:
-	// Called when the game starts or when spawned
+	
+	AIslandManager();
+	
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UPROPERTY(EditInstanceOnly)
+	TArray<AIsland*> CachedIslands;
 
 };

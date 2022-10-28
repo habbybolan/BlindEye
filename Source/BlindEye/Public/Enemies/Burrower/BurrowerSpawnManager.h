@@ -26,8 +26,8 @@ public:
 	TSubclassOf<ABurrowerEnemy> BurrowerType;
  
 	void SpawnBurrower();
-
-	TArray<ABlindEyePlayerCharacter*> GetPlayersOnIsland(EIslandPosition IslandType) override;
+ 
+	TArray<ABlindEyePlayerCharacter*> GetPlayersOnIsland(uint8 islandID) override;
 
 protected:
 	// Called when the game starts or when spawned
@@ -35,15 +35,16 @@ protected:
 
 	FTimerHandle SpawnTimerHandle;
 
-	TMap<EIslandPosition, TArray<ABurrowerEnemy*>> SpawnedBurrowers;
-	TMap<EIslandPosition, UBurrowerTriggerVolume*> BurrowerTriggerVolumes;
+	TMap<uint8, TArray<ABurrowerEnemy*>> SpawnedBurrowers;
+	UPROPERTY()
+	TMap<uint8, UBurrowerTriggerVolume*> BurrowerTriggerVolumes;
 
 	void InitializeMaps();
 
 	UFUNCTION()
 	void OnBurrowerDeath(AActor* BurrowerActor);
 	
-	ABurrowerSpawnPoint* FindRandomSpawnPoint();
+	UBurrowerSpawnPoint* FindRandomSpawnPoint();
 	void CacheSpawnPoints();
 
 	UFUNCTION()
@@ -52,11 +53,11 @@ protected:
 	void TriggerVolumeLeft(UPrimitiveComponent* EndOverlappedActor, AActor* OtherActor);
 
 	UFUNCTION()
-	void PlayerEnteredIsland(ABlindEyePlayerCharacter* Player, EIslandPosition IslandType);
+	void PlayerEnteredIsland(ABlindEyePlayerCharacter* Player, uint8 IslandType);
  
 	UFUNCTION()
-	void PlayerLeftIsland(ABlindEyePlayerCharacter* Player, EIslandPosition IslandType);
+	void PlayerLeftIsland(ABlindEyePlayerCharacter* Player, uint8 islandID);
 	
-	TMap<EIslandPosition, TArray<ABurrowerSpawnPoint*>> BurrowerSpawnPoints;
+	TMap<uint8, TArray<UBurrowerSpawnPoint*>> BurrowerSpawnPoints;
 
 };

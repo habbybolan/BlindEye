@@ -17,6 +17,9 @@ class BLINDEYE_API AIsland : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AIsland();
+	
+	UPROPERTY()
+	USceneComponent* EmptyRoot;
 
 	UPROPERTY(EditDefaultsOnly)
 	UBurrowerTriggerVolume* BurrowerTriggerVolume;
@@ -27,8 +30,6 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	UBurrowerTriggerVolume* IslandTrigger;
 
-	
-
 	UPROPERTY(EditDefaultsOnly)
 	uint8 NumIslands = 2;
 
@@ -37,5 +38,8 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY()
+	TArray<USceneComponent*> OwnedBurrowerSpawnPoints;
 
 };
