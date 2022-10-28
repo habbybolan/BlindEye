@@ -22,6 +22,14 @@ APhoenixDive::APhoenixDive() : AAbilityBase()
 	AbilityType = EAbilityTypes::Unique2;
 }
 
+void APhoenixDive::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	ACharacter* Character = Cast<ACharacter>(GetInstigator());
+	CachedGravityScale = Character->GetCharacterMovement()->GravityScale;
+}
+
 void APhoenixDive::LaunchPlayerUpwards()
 {
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
@@ -37,14 +45,19 @@ void APhoenixDive::LaunchPlayerUpwards()
 void APhoenixDive::HangInAir()
 {
 	BP_AbilityInnerState(1);
-	ACharacter* Character = Cast<ACharacter>(GetInstigator());
-	Character->GetCharacterMovement()->GravityScale = 0.f;
-	Character->GetCharacterMovement()->StopMovementImmediately();
-
-	// Ground Target
+	
+	MULT_HandInAirHelper();
+	// Spawn Ground Target only for client 
 	CLI_SpawnGroundTarget();
 	
 	AbilityStates[CurrState]->ExitState();
+}
+
+void APhoenixDive::MULT_HandInAirHelper_Implementation()
+{
+	ACharacter* Character = Cast<ACharacter>(GetInstigator());
+	Character->GetCharacterMovement()->GravityScale = 0.f;
+	Character->GetCharacterMovement()->StopMovementImmediately();
 }
 
 void APhoenixDive::HangInAirTimer()
@@ -63,7 +76,7 @@ void APhoenixDive::LaunchToGround()
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
 	if (Character == nullptr) return;
 
-	Character->GetCharacterMovement()->GravityScale = 1.f;
+	Character->GetCharacterMovement()->GravityScale = CachedGravityScale;
 
 	FVector position;	// Position of ground target
 	FVector ImpulseVec;	// Force vector to apply to player

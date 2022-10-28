@@ -68,6 +68,8 @@ class BLINDEYE_API APhoenixDive : public AAbilityBase
 public:
 	APhoenixDive();
 
+	virtual void BeginPlay() override;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Damage = 50;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -108,6 +110,8 @@ public:
 	// launches character upwards and sets transition
 	void LaunchPlayerUpwards();
 	void HangInAir();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_HandInAirHelper();
 	void HangInAirTimer();
 	void LaunchToGround();
 
@@ -133,6 +137,8 @@ protected:
 	
 	FTimerHandle UpdateGroundTargetPositionTimerHandle;
 	void UpdateGroundTargetPosition();
+
+	float CachedGravityScale = 1;
 
 	UFUNCTION(Client, Reliable)
 	void CLI_SpawnGroundTarget();

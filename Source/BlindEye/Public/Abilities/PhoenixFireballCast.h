@@ -76,6 +76,9 @@ protected:
 	UFUNCTION()
 	void DelayedDestruction();
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_HideFireball(); 
+
 	// called continually until actor deleted for applying burn at location
 	UFUNCTION()
 	void BurnLogic();
