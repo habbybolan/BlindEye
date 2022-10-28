@@ -109,8 +109,15 @@ public:
 	
 	void ApplyDamage();
 
-	void StartAiming();
+	UFUNCTION(Client, Reliable)
+	void CLI_StartAiming();
+
 	void StartMovement();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_StartMovementHelper(FVector CalculatedEndPos);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_ResetPlayerState();
 
 protected:
 

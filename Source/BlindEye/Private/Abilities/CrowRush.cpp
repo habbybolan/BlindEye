@@ -73,7 +73,7 @@ void ACrowRush::ApplyDamage()
 	}
 }
 
-void ACrowRush::StartAiming()
+void ACrowRush::CLI_StartAiming_Implementation()
 {
 	UWorld* World = GetWorld();
 	if (World)
@@ -82,6 +82,17 @@ void ACrowRush::StartAiming()
 
 		World->GetTimerManager().SetTimer(UpdateTargetTimerHandle, this, &ACrowRush::UpdateTargetPosition, UpdateMovementDelay, true);
 	}
+}
+
+void ACrowRush::MULT_ResetPlayerState_Implementation()
+{
+	CurrDuration = 0;
+	
+	// reset player state
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+	Player->GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Falling;
+	Player->GetCharacterMovement()->StopMovementImmediately();
+	Player->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
 
 void ACrowRush::UpdateTargetPosition()
@@ -97,7 +108,7 @@ FVector ACrowRush::CalculateTargetPosition()
 	{
 		FVector ViewportLocation;
 		FRotator ViewportRotation;
-		GetInstigator()->GetController()->GetPlayerViewPoint(ViewportLocation, ViewportRotation);
+		GetInstigator()->GetController()->GetPlayerViewPoint(OUT ViewportLocation, OUT ViewportRotation);
 
 		FVector EndLocation = ViewportLocation + ViewportRotation.Vector() * MaxDistance;
 		
@@ -132,22 +143,29 @@ FVector ACrowRush::CalculateTargetPosition()
 void ACrowRush::EndAbilityLogic()
 {
 	Super::EndAbilityLogic();
-	CurrDuration = 0;
 
-	// reset player state
-	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
-	Player->GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Falling;
-	Player->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	MULT_ResetPlayerState();
 }
 
 void ACrowRush::StartMovement()
 {
-	Target->Destroy();
+	FVector CalcEndPos = CalculateTargetPosition();
+	MULT_StartMovementHelper(CalcEndPos);
+}
+
+
+void ACrowRush::MULT_StartMovementHelper_Implementation(FVector CalculatedEndPos) 
+{
+	if (Target)
+	{
+		Target->Destroy();
+	}
+	
 	UWorld* World = GetWorld();
 	if (World)
 	{
 		StartingPosition = GetInstigator()->GetActorLocation();
-		EndPosition = CalculateTargetPosition();
+		EndPosition = CalculatedEndPos;
 		CalculatedDuration = (FVector::Distance(StartingPosition, EndPosition) / MaxDistance) * DurationAtMaxDistance;
 		
 		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
@@ -201,7 +219,7 @@ void FAimingStartState::RunState(EAbilityInputTypes abilityUsageType)
 	{
 		ACrowRush* Rush = Cast<ACrowRush>(Ability);
 		check(Rush)
-		Rush->StartAiming();
+		Rush->CLI_StartAiming();
 	}
 	// stop aiming and goto moving state
 	else if (abilityUsageType == EAbilityInputTypes::Released)
