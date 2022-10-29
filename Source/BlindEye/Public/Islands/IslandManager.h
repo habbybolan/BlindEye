@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Island.h"
+#include "IslandSpawnPoint.h"
 #include "ShrineIsland.h"
 #include "GameFramework/Actor.h"
 #include "IslandManager.generated.h"
@@ -15,16 +16,24 @@ class BLINDEYE_API AIslandManager : public AActor
 	
 public:
 
+	UPROPERTY(EditInstanceOnly)
+	TArray<AIslandSpawnPoint*> IslandSpawnPoints; 
+
 	uint8 GetNumOfIslands(); 
 	const TArray<AIsland*> GetActiveIslands();
 	AIsland* GetIslandOfID(uint8 islandID);
 	AShrineIsland* GetShrineIsland();
+
+	UFUNCTION()
+	void ActivateNextIsland();
 
 protected:
 	
 	AIslandManager();
 	
 	virtual void BeginPlay() override;
+
+	FTimerHandle TempSpawnIslandTimer;
 
 	UPROPERTY()
 	TArray<AIsland*> ActiveIslands; 
@@ -34,5 +43,7 @@ protected:
 
 	UPROPERTY()
 	AShrineIsland* ShrineIsland;
+
+	void IslandSpawningFinished(AIsland* Island);
 
 };

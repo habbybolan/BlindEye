@@ -13,6 +13,17 @@ AIsland::AIsland()
 	BurrowerSpawnPoint->SetupAttachment(EmptyRoot);
 }
 
+void AIsland::BeginPlay()
+{
+	Super::BeginPlay();
+
+	CachedTargetPosition = GetActorLocation();
+	if (bActive == false)
+	{
+		Disable(true);
+	}
+}
+
 void AIsland::Initialize(uint8 islandID)
 {
 	Super::Initialize(islandID);
@@ -33,9 +44,40 @@ TArray<UBurrowerSpawnPoint*> AIsland::GetBurrowerSpawnPoints()
 	return OwnedBurrowerSpawnPoints;
 }
 
-// Called when the game starts or when spawned
-void AIsland::BeginPlay()
+void AIsland::SpawnIsland(FVector StartLocation)
 {
-	Super::BeginPlay();
+	if (bActive) return;
+	
+	// TODO:
+	bSpawning = true;
+
+	// TODO: Notify BP to start transition
+	Disable(false);
+	IslandFinishedSpawning();
+}
+
+bool AIsland::GetIsActive()
+{
+	return bActive;
+}
+
+void AIsland::IslandFinishedSpawning()
+{
+	SpawnFinishedDelegate.Broadcast(this);
+	bSpawning = false;
+	bActive = true;
+	SetActorLocation(CachedTargetPosition);
+}
+
+void AIsland::Disable(bool bDisabled)
+{
+	if (bDisabled)
+	{
+		SetActorLocation(FVector::ZeroVector);
+		RootComponent->Deactivate();
+	} else
+	{
+		RootComponent->Activate();
+	}
 }
 
