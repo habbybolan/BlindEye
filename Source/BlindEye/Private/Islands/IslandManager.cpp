@@ -41,12 +41,19 @@ AShrineIsland* AIslandManager::GetShrineIsland()
 void AIslandManager::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	UWorld* World = GetWorld();
+	check(World)
 
 	uint8 Index = 0;
 
+	// Cache shrine island
+	AActor* ShrineIslandActor = UGameplayStatics::GetActorOfClass(World, AShrineIsland::StaticClass());
+	check(ShrineIslandActor);
+	ShrineIsland = Cast<AShrineIsland>(ShrineIslandActor);
+	ShrineIsland->Initialize(Index++);
+
 	// Cache all child islands and give them IDs
-	UWorld* World = GetWorld();
-	if (World)
 	{
 		// Cache all surrounding islands
 		TArray<AActor*> AllIslands;
@@ -59,11 +66,6 @@ void AIslandManager::BeginPlay()
 				ActiveIslands.Add(Island);
 			}
 		}
-
-		// Cache shrine island
-		AActor* ShrineIslandActor = UGameplayStatics::GetActorOfClass(World, AShrineIsland::StaticClass());
-		check(ShrineIslandActor);
-		ShrineIsland = Cast<AShrineIsland>(ShrineIslandActor);
 	}
 	
 }

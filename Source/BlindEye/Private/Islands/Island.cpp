@@ -15,7 +15,7 @@ AIsland::AIsland()
 
 void AIsland::Initialize(uint8 islandID)
 {
-	IslandID = islandID;
+	Super::Initialize(islandID);
 	TSet<UActorComponent*> AllComponents = GetComponents();
 	for (auto ChildActor : AllComponents)
 	{

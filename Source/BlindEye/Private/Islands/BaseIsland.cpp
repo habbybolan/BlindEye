@@ -24,6 +24,7 @@ void ABaseIsland::BeginPlay()
 
 void ABaseIsland::Initialize(uint8 islandID)
 {
+	IslandID = islandID;
 	IslandTrigger->IslandID = islandID;
 }
 

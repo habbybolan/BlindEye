@@ -147,33 +147,39 @@ void ABurrowerSpawnManager::TriggerVolumeLeft(UPrimitiveComponent* EndOverlapped
 	// Check if it is a player that left the island
 	if (ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(OtherActor))
 	{
-		UBurrowerTriggerVolume* BurrowerVolume = Cast<UBurrowerTriggerVolume>(EndOverlappedActor);
+ 		UBurrowerTriggerVolume* BurrowerVolume = Cast<UBurrowerTriggerVolume>(EndOverlappedActor);
 		PlayerLeftIsland(BlindEyePlayerCharacter, BurrowerVolume->IslandID);
 	}
 }
  
 void ABurrowerSpawnManager::PlayerEnteredIsland(ABlindEyePlayerCharacter* Player, uint8 islandID)
 {
-	for (ABurrowerEnemy* Burrower : SpawnedBurrowers[islandID])
+	if (SpawnedBurrowers.Contains(islandID))
 	{
-		AController* Controller =  Burrower->GetController();
-		if (Controller)
+		for (ABurrowerEnemy* Burrower : SpawnedBurrowers[islandID])
 		{
-			ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Controller);
-			BurrowerController->NotifyPlayerEnteredIsland(Player);
+			AController* Controller =  Burrower->GetController();
+			if (Controller)
+			{
+				ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Controller);
+				BurrowerController->NotifyPlayerEnteredIsland(Player);
+			}
 		}
 	}
 }
 
 void ABurrowerSpawnManager::PlayerLeftIsland(ABlindEyePlayerCharacter* Player, uint8 islandID)
 {
-	for (ABurrowerEnemy* Burrower : SpawnedBurrowers[islandID])
+	if (SpawnedBurrowers.Contains(islandID))
 	{
-		AController* Controller =  Burrower->GetController();
-		if (Controller)
+		for (ABurrowerEnemy* Burrower : SpawnedBurrowers[islandID])
 		{
-			ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Controller);
-			BurrowerController->NotifyPlayerLeftIsland(Player);
+			AController* Controller =  Burrower->GetController();
+			if (Controller)
+			{
+				ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Controller);
+				BurrowerController->NotifyPlayerLeftIsland(Player);
+			}
 		}
 	}
 }

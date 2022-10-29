@@ -24,10 +24,10 @@ public:
 
 	uint8 IslandID;
 
+	virtual void Initialize(uint8 islandID);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	virtual void Initialize(uint8 islandID);
 
 };
