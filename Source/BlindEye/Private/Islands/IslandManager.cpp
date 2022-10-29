@@ -61,6 +61,7 @@ void AIslandManager::CacheOuterIslands(uint8& index)
 			}
 		}
 	}
+	InactiveIslands.Sort();
 }
 
 void AIslandManager::CacheSpawnPoints()

@@ -18,6 +18,9 @@ public:
 	AIsland();
 
 	UPROPERTY(EditInstanceOnly)
+	uint8 Priority = 0;
+
+	UPROPERTY(EditInstanceOnly)
 	bool bActive = true;
 
 	// guarantee at least one burrower spawn point
@@ -34,6 +37,11 @@ public:
 	void SpawnIsland(FVector startLocation);
 	bool GetIsActive();
 
+	FORCEINLINE bool operator<(const AIsland &Other) const
+	{
+		return Priority < Other.Priority;
+	}
+	
 protected:
 	virtual void BeginPlay() override;
 	
