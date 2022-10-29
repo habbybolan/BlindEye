@@ -15,7 +15,8 @@ class BLINDEYE_API AIslandManager : public AActor
 public:
 
 	uint8 GetNumOfIslands(); 
-	const TArray<AIsland*> GetIslands();;
+	const TArray<AIsland*> GetActiveIslands();
+	AIsland* GetIslandOfID(uint8 islandID);
 
 protected:
 	
@@ -24,6 +25,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditInstanceOnly)
-	TArray<AIsland*> CachedIslands;
+	TArray<AIsland*> ActiveIslands; 
+ 
+	UPROPERTY(EditInstanceOnly)
+	TArray<AIsland*> InactiveIslands;
+	
 
 };

@@ -15,12 +15,21 @@ AIslandManager::AIslandManager()
 
 uint8 AIslandManager::GetNumOfIslands()
 {
-	return CachedIslands.Num();
+	return ActiveIslands.Num();
 }
 
-const TArray<AIsland*> AIslandManager::GetIslands()
+const TArray<AIsland*> AIslandManager::GetActiveIslands()
 {
-	return CachedIslands;
+	return ActiveIslands;
+}
+
+AIsland* AIslandManager::GetIslandOfID(uint8 islandID)
+{
+	for (AIsland* Island : ActiveIslands)
+	{
+		if (Island->IslandID == islandID) return Island;
+	}
+	return nullptr;
 }
 
 // Called when the game starts or when spawned
@@ -40,8 +49,8 @@ void AIslandManager::BeginPlay()
 		{
 			if (AIsland* Island = Cast<AIsland>(IslandActor))
 			{
-				Island->IslandID = Index++;
-				CachedIslands.Add(Island);
+				Island->Initialize(Index++);
+				ActiveIslands.Add(Island);
 			}
 		}
 	}

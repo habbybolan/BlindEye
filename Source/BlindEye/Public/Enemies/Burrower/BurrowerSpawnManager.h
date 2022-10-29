@@ -6,6 +6,8 @@
 #include "BurrowerEnemy.h"
 #include "BurrowerSpawnPoint.h"
 #include "BurrowerTriggerVolume.h"
+#include "Island.h"
+#include "IslandManager.h"
 #include "GameFramework/Actor.h"
 #include "Interfaces/BurrowerSpawnManagerListener.h"
 #include "BurrowerSpawnManager.generated.h"
@@ -33,11 +35,13 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// Called after level loaded
+	UFUNCTION()
+	void Initialize();
+
 	FTimerHandle SpawnTimerHandle;
 
 	TMap<uint8, TArray<ABurrowerEnemy*>> SpawnedBurrowers;
-	UPROPERTY()
-	TMap<uint8, UBurrowerTriggerVolume*> BurrowerTriggerVolumes;
 
 	void InitializeMaps();
 
@@ -45,7 +49,6 @@ protected:
 	void OnBurrowerDeath(AActor* BurrowerActor);
 	
 	UBurrowerSpawnPoint* FindRandomSpawnPoint();
-	void CacheSpawnPoints();
 
 	UFUNCTION()
 	void TriggerVolumeOverlapped(UPrimitiveComponent* OverlappedActor, AActor* OtherActor);
@@ -57,7 +60,8 @@ protected:
  
 	UFUNCTION()
 	void PlayerLeftIsland(ABlindEyePlayerCharacter* Player, uint8 islandID);
-	
-	TMap<uint8, TArray<UBurrowerSpawnPoint*>> BurrowerSpawnPoints;
+
+	UPROPERTY()
+	AIslandManager* IslandManager;
 
 };

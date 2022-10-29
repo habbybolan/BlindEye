@@ -247,7 +247,7 @@ void AHunterEnemyController::OnPossess(APawn* InPawn)
 	CurrIsland = CheckIslandSpawnedOn();
 	if (CurrIsland == nullptr)
 	{
-		CurrIsland = GameState->GetIslandManager()->GetIslands()[0]->IslandTrigger;
+		CurrIsland = GameState->GetIslandManager()->GetActiveIslands()[0]->IslandTrigger;
 	}
 }
 UBurrowerTriggerVolume* AHunterEnemyController::CheckIslandSpawnedOn()

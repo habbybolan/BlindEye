@@ -21,11 +21,9 @@ public:
 	UPROPERTY()
 	USceneComponent* EmptyRoot;
 
+	// guarantee at least one burrower spawn point
 	UPROPERTY(EditDefaultsOnly)
-	UBurrowerTriggerVolume* BurrowerTriggerVolume;
-
-	UPROPERTY(EditDefaultsOnly)
-	TArray<UChildActorComponent*> BurrowerSpawnPoints;
+	UBurrowerSpawnPoint* BurrowerSpawnPoint;
 
 	UPROPERTY(EditDefaultsOnly)
 	UBurrowerTriggerVolume* IslandTrigger;
@@ -35,11 +33,14 @@ public:
 
 	uint8 IslandID;
 
+	void Initialize(uint8 islandID);
+	TArray<UBurrowerSpawnPoint*> GetBurrowerSpawnPoints();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UPROPERTY()
-	TArray<USceneComponent*> OwnedBurrowerSpawnPoints;
+	TArray<UBurrowerSpawnPoint*> OwnedBurrowerSpawnPoints;
 
 };

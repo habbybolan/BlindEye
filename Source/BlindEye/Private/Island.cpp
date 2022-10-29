@@ -13,26 +13,36 @@ AIsland::AIsland()
 	SetRootComponent(EmptyRoot);
 	IslandTrigger = CreateDefaultSubobject<UBurrowerTriggerVolume>("Trigger Volume");
 	IslandTrigger->SetupAttachment(EmptyRoot);
+
+	BurrowerSpawnPoint = CreateDefaultSubobject<UBurrowerSpawnPoint>("Burrower Spawn Point");
+	BurrowerSpawnPoint->SetupAttachment(EmptyRoot);
+}
+
+void AIsland::Initialize(uint8 islandID)
+{
+	IslandID = islandID;
+	TSet<UActorComponent*> AllComponents = GetComponents();
+	for (auto ChildActor : AllComponents)
+	{
+		// cache all owned burrower spawn points
+		if (UBurrowerSpawnPoint* BSpawnPoint = Cast<UBurrowerSpawnPoint>(ChildActor))
+		{
+			BSpawnPoint->IslandID = islandID;
+			OwnedBurrowerSpawnPoints.Add(BSpawnPoint);
+		}
+	}
+
+	IslandTrigger->IslandID = islandID;
+}
+
+TArray<UBurrowerSpawnPoint*> AIsland::GetBurrowerSpawnPoints()
+{
+	return OwnedBurrowerSpawnPoints;
 }
 
 // Called when the game starts or when spawned
 void AIsland::BeginPlay()
 {
 	Super::BeginPlay();
-
-	TArray<AActor*> AllChildActors;
-	GetAllChildActors(AllChildActors, true);
-	for (AActor* ChildActor : AllChildActors)
-	{
-		// cache all owned burrower spawn points
-		if (UBurrowerSpawnPoint* BSpawnPoint = Cast<UBurrowerSpawnPoint>(ChildActor))
-		{
-			BSpawnPoint->IslandID = IslandID;
-			OwnedBurrowerSpawnPoints.Add(BSpawnPoint);
-		}
-	}
-
-	IslandTrigger->IslandID = IslandID;
-	
 }
 

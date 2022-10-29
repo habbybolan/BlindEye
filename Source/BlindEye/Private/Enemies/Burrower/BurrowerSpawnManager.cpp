@@ -27,23 +27,32 @@ void ABurrowerSpawnManager::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		World->OnWorldBeginPlay.AddUFunction(this, TEXT("Initialize"));
+	}
+}
+
+void ABurrowerSpawnManager::Initialize()
+{
 	InitializeMaps();
-	CacheSpawnPoints();
 
 	UWorld* world = GetWorld();
 	if (!world) return;
 
 	world->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ABurrowerSpawnManager::SpawnBurrower, SpawnDelay, true, 0.1);
 
-	// Find all trigger volumes and subscribe to their events
-	TArray<AActor*> OutIslands; 
-	UGameplayStatics::GetAllActorsOfClass(world, AIsland::StaticClass(), OutIslands);
-	for (AActor* IslandActor : OutIslands) 
+	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(world));
+	check(BlindEyeGS)
+	IslandManager = BlindEyeGS->GetIslandManager();
+	check(IslandManager)
+	
+	// Subscribe to all delegate volume triggers on the islands
+	for (AIsland* Islands : IslandManager->GetActiveIslands() )
 	{
-		AIsland* Island = Cast<AIsland>(IslandActor);
-		BurrowerTriggerVolumes.Add(Island->IslandTrigger->IslandID, Island->IslandTrigger);
-		Island->IslandTrigger->CustomOverlapStartDelegate.AddDynamic(this, &ABurrowerSpawnManager::TriggerVolumeOverlapped);
-		Island->IslandTrigger->CustomOverlapEndDelegate.AddDynamic(this, &ABurrowerSpawnManager::TriggerVolumeLeft);
+		Islands->IslandTrigger->CustomOverlapStartDelegate.AddDynamic(this, &ABurrowerSpawnManager::TriggerVolumeOverlapped);
+		Islands->IslandTrigger->CustomOverlapEndDelegate.AddDynamic(this, &ABurrowerSpawnManager::TriggerVolumeLeft);
 	}
 }
 
@@ -54,11 +63,10 @@ void ABurrowerSpawnManager::InitializeMaps()
 	{
 		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
 		// Initialize Map enum keys to empty arrays
-		TArray<AIsland*> Islands = BlindEyeGS->GetIslandManager()->GetIslands();
+		TArray<AIsland*> Islands = BlindEyeGS->GetIslandManager()->GetActiveIslands();
 		for (uint8 i = 0; i < Islands.Num(); i++)
 		{
 			SpawnedBurrowers.Add(Islands[i]->IslandID, TArray<ABurrowerEnemy*>());
-			BurrowerSpawnPoints.Add(Islands[i]->IslandID, TArray<UBurrowerSpawnPoint*>());
 		}
 	}
 }
@@ -66,7 +74,7 @@ void ABurrowerSpawnManager::InitializeMaps()
 void ABurrowerSpawnManager::OnBurrowerDeath(AActor* BurrowerToDelete)
 { 
 	for (TPair<uint8, TArray<ABurrowerEnemy*>>& pair : SpawnedBurrowers)
-	{
+	{ 
 		uint8 index = 0;
 		for (ABurrowerEnemy* Burrower : pair.Value)
 		{
@@ -101,9 +109,11 @@ void ABurrowerSpawnManager::SpawnBurrower()
 }
 
 TArray<ABlindEyePlayerCharacter*> ABurrowerSpawnManager::GetPlayersOnIsland(uint8 islandID)
-{ 
-	UBurrowerTriggerVolume* Trigger = BurrowerTriggerVolumes[islandID];
-	TArray<ABlindEyePlayerCharacter*> PlayersInTrigger = Trigger->GetPlayerActorsOverlapping();
+{
+	AIsland* Island = IslandManager->GetIslandOfID(islandID);
+	check(Island)
+
+	TArray<ABlindEyePlayerCharacter*> PlayersInTrigger = Island->IslandTrigger->GetPlayerActorsOverlapping();
 	return PlayersInTrigger;
 }
 
@@ -112,29 +122,14 @@ UBurrowerSpawnPoint* ABurrowerSpawnManager::FindRandomSpawnPoint()
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
-		uint8 randIslandIndex = UKismetMathLibrary::RandomInteger(BlindEyeGS->GetIslandManager()->GetNumOfIslands());
-		AIsland* RandIsland = BlindEyeGS->GetIslandManager()->GetIslands()[randIslandIndex];
-		uint8 randIndexSpawnPoint = UKismetMathLibrary::RandomInteger(RandIsland->BurrowerSpawnPoints.Num());
-		UBurrowerSpawnPoint* RandSpawnPoint = BurrowerSpawnPoints[RandIsland->IslandID][randIndexSpawnPoint];
+		uint8 randIslandIndex = UKismetMathLibrary::RandomInteger(IslandManager->GetNumOfIslands());
+		AIsland* RandIsland = IslandManager->GetActiveIslands()[randIslandIndex];
+		uint8 randIndexSpawnPoint = UKismetMathLibrary::RandomInteger(RandIsland->GetBurrowerSpawnPoints().Num());
+		UBurrowerSpawnPoint* RandSpawnPoint = RandIsland->GetBurrowerSpawnPoints()[randIndexSpawnPoint];
 	
 		return RandSpawnPoint;
 	}
 	return nullptr;
-}
-
-void ABurrowerSpawnManager::CacheSpawnPoints()
-{
-	UWorld* world = GetWorld();
-	if (!world) return;
-	
-	TArray<AActor*> SpawnPoints;
-	UGameplayStatics::GetAllActorsOfClass(world, UBurrowerSpawnPoint::StaticClass(), SpawnPoints);
-	for (AActor* SpawnPoint : SpawnPoints)
-	{
-		UBurrowerSpawnPoint* BurrowerSpawnPoint = Cast<UBurrowerSpawnPoint>(SpawnPoint);
-		BurrowerSpawnPoints[BurrowerSpawnPoint->IslandID].Add(BurrowerSpawnPoint);
-	}
 }
 
 void ABurrowerSpawnManager::TriggerVolumeOverlapped(UPrimitiveComponent* OverlappedActor, AActor* OtherActor)
