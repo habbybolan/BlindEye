@@ -9,11 +9,8 @@ ABaseIsland::ABaseIsland()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	EmptyRoot = CreateDefaultSubobject<USceneComponent>("Root");
-	SetRootComponent(EmptyRoot);
-
 	BaseIslandMesh = CreateDefaultSubobject<UStaticMeshComponent>("Base Mesh");
-	BaseIslandMesh->SetupAttachment(RootComponent);
+	SetRootComponent(BaseIslandMesh);
 
 	Shield = CreateDefaultSubobject<UStaticMeshComponent>("Shield");
 	Shield->SetupAttachment(BaseIslandMesh);

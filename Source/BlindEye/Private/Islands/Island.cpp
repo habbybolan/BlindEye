@@ -10,7 +10,7 @@ AIsland::AIsland()
 	PrimaryActorTick.bCanEverTick = false;
 
 	BurrowerSpawnPoint = CreateDefaultSubobject<UBurrowerSpawnPoint>("Burrower Spawn Point");
-	BurrowerSpawnPoint->SetupAttachment(EmptyRoot);
+	BurrowerSpawnPoint->SetupAttachment(RootComponent);
 }
 
 void AIsland::BeginPlay()
@@ -72,13 +72,23 @@ void AIsland::IslandFinishedSpawning()
 
 void AIsland::Disable(bool bDisabled)
 {
-	if (bDisabled)
+	for (UActorComponent* Component : GetComponents())
 	{
-		SetActorLocation(FVector::ZeroVector);
-		RootComponent->Deactivate();
-	} else
-	{
-		RootComponent->Activate();
+		if (UStaticMeshComponent* Mesh = Cast<UStaticMeshComponent>(Component))
+		{
+			Mesh->SetHiddenInGame(bDisabled);
+			if (bDisabled)
+			{
+				Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+				SetActorLocation(FVector::ZeroVector);
+				IslandTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			} else
+			{
+				Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+				IslandTrigger->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+			}
+			
+		}
 	}
 }
 

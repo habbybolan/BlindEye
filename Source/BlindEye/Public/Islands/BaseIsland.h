@@ -16,9 +16,6 @@ public:
 	// Sets default values for this actor's properties
 	ABaseIsland();
 
-	UPROPERTY()
-	USceneComponent* EmptyRoot;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UStaticMeshComponent* BaseIslandMesh;
 
