@@ -11,8 +11,15 @@ ABaseIsland::ABaseIsland()
 
 	EmptyRoot = CreateDefaultSubobject<USceneComponent>("Root");
 	SetRootComponent(EmptyRoot);
+
+	BaseIslandMesh = CreateDefaultSubobject<UStaticMeshComponent>("Base Mesh");
+	BaseIslandMesh->SetupAttachment(RootComponent);
+
+	Shield = CreateDefaultSubobject<UStaticMeshComponent>("Shield");
+	Shield->SetupAttachment(BaseIslandMesh);
+	
 	IslandTrigger = CreateDefaultSubobject<UBurrowerTriggerVolume>("Trigger Volume");
-	IslandTrigger->SetupAttachment(EmptyRoot);
+	IslandTrigger->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned

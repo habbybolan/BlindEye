@@ -61,6 +61,11 @@ protected:
 	UFUNCTION()
 	void PlayerLeftIsland(ABlindEyePlayerCharacter* Player, uint8 islandID);
 
+	UFUNCTION()
+	void NewIslandAdded(AIsland* Island);
+
+	void SubscribeToIsland(AIsland* Island);
+
 	UPROPERTY()
 	AIslandManager* IslandManager;
 

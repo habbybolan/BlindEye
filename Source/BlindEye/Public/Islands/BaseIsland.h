@@ -19,6 +19,12 @@ public:
 	UPROPERTY()
 	USceneComponent* EmptyRoot;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UStaticMeshComponent* BaseIslandMesh;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite) 
+	UStaticMeshComponent* Shield;
+
 	UPROPERTY(EditDefaultsOnly)
 	UBurrowerTriggerVolume* IslandTrigger;
 

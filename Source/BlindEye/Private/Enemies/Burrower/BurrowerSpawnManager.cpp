@@ -47,12 +47,13 @@ void ABurrowerSpawnManager::Initialize()
 	check(BlindEyeGS)
 	IslandManager = BlindEyeGS->GetIslandManager();
 	check(IslandManager)
+
+	IslandManager->IslandAddedDelegate.AddDynamic(this, &ABurrowerSpawnManager::NewIslandAdded);
 	
 	// Subscribe to all delegate volume triggers on the islands
-	for (AIsland* Islands : IslandManager->GetActiveIslands() )
+	for (AIsland* Island : IslandManager->GetActiveIslands() )
 	{
-		Islands->IslandTrigger->CustomOverlapStartDelegate.AddDynamic(this, &ABurrowerSpawnManager::TriggerVolumeOverlapped);
-		Islands->IslandTrigger->CustomOverlapEndDelegate.AddDynamic(this, &ABurrowerSpawnManager::TriggerVolumeLeft);
+		SubscribeToIsland(Island);
 	}
 }
 
@@ -69,6 +70,18 @@ void ABurrowerSpawnManager::InitializeMaps()
 			SpawnedBurrowers.Add(Islands[i]->IslandID, TArray<ABurrowerEnemy*>());
 		}
 	}
+}
+
+void ABurrowerSpawnManager::NewIslandAdded(AIsland* Island)
+{
+	SubscribeToIsland(Island);
+	SpawnedBurrowers.Add(Island->IslandID, TArray<ABurrowerEnemy*>());
+}
+
+void ABurrowerSpawnManager::SubscribeToIsland(AIsland* Island)
+{
+	Island->IslandTrigger->CustomOverlapStartDelegate.AddDynamic(this, &ABurrowerSpawnManager::TriggerVolumeOverlapped);
+	Island->IslandTrigger->CustomOverlapEndDelegate.AddDynamic(this, &ABurrowerSpawnManager::TriggerVolumeLeft);
 }
 
 void ABurrowerSpawnManager::OnBurrowerDeath(AActor* BurrowerToDelete)

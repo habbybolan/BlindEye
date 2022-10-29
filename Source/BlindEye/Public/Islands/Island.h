@@ -31,14 +31,18 @@ public:
 	UPROPERTY()
 	FSpawnFinishSignature SpawnFinishedDelegate;
 
-	void SpawnIsland(FVector StartLocation);
+	void SpawnIsland(FVector startLocation);
 	bool GetIsActive();
 
 protected:
 	virtual void BeginPlay() override;
 	
 	bool bSpawning = false;
-	FVector CachedTargetPosition;
+
+	UPROPERTY(BlueprintReadOnly)
+	FVector StartLocation;
+	UPROPERTY(BlueprintReadOnly)
+	FVector EndLocation;
 
 	UPROPERTY()
 	TArray<UBurrowerSpawnPoint*> OwnedBurrowerSpawnPoints;
@@ -47,5 +51,8 @@ protected:
 	void IslandFinishedSpawning();
 
 	void Disable(bool bDisabled);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_StartLevelMovement();
 
 };

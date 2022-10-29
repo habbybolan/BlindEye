@@ -17,7 +17,7 @@ void AIsland::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CachedTargetPosition = GetActorLocation();
+	EndLocation = GetActorLocation();
 	if (bActive == false)
 	{
 		Disable(true);
@@ -44,16 +44,18 @@ TArray<UBurrowerSpawnPoint*> AIsland::GetBurrowerSpawnPoints()
 	return OwnedBurrowerSpawnPoints;
 }
 
-void AIsland::SpawnIsland(FVector StartLocation)
+void AIsland::SpawnIsland(FVector startLocation)
 {
 	if (bActive) return;
-	
-	// TODO:
+
+	StartLocation = startLocation;
+	SetActorLocation(StartLocation);
 	bSpawning = true;
 
 	// TODO: Notify BP to start transition
 	Disable(false);
-	IslandFinishedSpawning();
+
+	BP_StartLevelMovement();
 }
 
 bool AIsland::GetIsActive()
@@ -66,7 +68,6 @@ void AIsland::IslandFinishedSpawning()
 	SpawnFinishedDelegate.Broadcast(this);
 	bSpawning = false;
 	bActive = true;
-	SetActorLocation(CachedTargetPosition);
 }
 
 void AIsland::Disable(bool bDisabled)

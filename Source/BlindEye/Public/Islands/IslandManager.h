@@ -24,6 +24,10 @@ public:
 	AIsland* GetIslandOfID(uint8 islandID);
 	AShrineIsland* GetShrineIsland();
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSpawnFinishSignature, AIsland*, Island);
+	UPROPERTY()
+	FSpawnFinishSignature IslandAddedDelegate; 
+
 	UFUNCTION()
 	void ActivateNextIsland();
 
@@ -44,6 +48,11 @@ protected:
 	UPROPERTY()
 	AShrineIsland* ShrineIsland;
 
+	void CacheShrineIsland(uint8& index);
+	void CacheOuterIslands(uint8& index);
+	void CacheSpawnPoints();
+
+	UFUNCTION()
 	void IslandSpawningFinished(AIsland* Island);
 
 };

@@ -14,6 +14,9 @@ class BLINDEYE_API AIslandSpawnPoint : public AActor
 public:	
 	AIslandSpawnPoint();
 
+	UPROPERTY(EditDefaultsOnly)
+	UStaticMeshComponent* Root;
+
 protected:
 	virtual void BeginPlay() override;
 
