@@ -107,6 +107,9 @@ protected:
 
 	void DelayedReturn(float ReturnDelay);
 
+	UFUNCTION()
+	void NewIslandAdded(AIsland* Island);
+
 	UPROPERTY() 
 	AHunterEnemy* Hunter;
 

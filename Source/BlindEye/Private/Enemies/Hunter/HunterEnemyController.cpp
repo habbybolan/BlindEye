@@ -39,16 +39,23 @@ void AHunterEnemyController::Initialize()
 	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
 	check(BlindEyeGS)
 	IslandManager = BlindEyeGS->GetIslandManager();
-	check(IslandManager) 
+	check(IslandManager)
+
+	IslandManager->IslandAddedDelegate.AddDynamic(this, &AHunterEnemyController::NewIslandAdded);
 
 	TArray<AIsland*> Islands = IslandManager->GetActiveIslands();
 	for (AIsland* Island : Islands)
 	{
-		Island->IslandTrigger->CustomOverlapStartDelegate.AddDynamic(this, &AHunterEnemyController::SetEnteredNewIsland);
+		NewIslandAdded(Island);
 	}
 	IslandManager->GetShrineIsland()->IslandTrigger->CustomOverlapStartDelegate.AddDynamic(this, &AHunterEnemyController::SetEnteredNewIsland);
 	
 	World->GetTimerManager().SetTimer(InitialSpawnDelayTimerHandle, this, &AHunterEnemyController::SpawnHunter, InitialSpawnDelay, false);
+}
+
+void AHunterEnemyController::NewIslandAdded(AIsland* Island)
+{
+	Island->IslandTrigger->CustomOverlapStartDelegate.AddDynamic(this, &AHunterEnemyController::SetEnteredNewIsland);
 }
 
 void AHunterEnemyController::SetEnteredNewIsland(UPrimitiveComponent* OverlappedActor, AActor* OtherActor)
