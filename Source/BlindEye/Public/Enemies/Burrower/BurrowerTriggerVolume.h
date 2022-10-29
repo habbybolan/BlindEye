@@ -10,7 +10,7 @@
 
 enum class EIslandPosition : uint8;
 
-UCLASS()
+UCLASS(ClassGroup=Custom, meta=(BlueprintSpawnableComponent))
 class BLINDEYE_API UBurrowerTriggerVolume : public UBoxComponent
 {
 	GENERATED_BODY()
