@@ -1,11 +1,11 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
-#include "IslandManager.h"
+#include "Islands/IslandManager.h"
 
-#include "Island.h"
+#include "Islands/Island.h"
+#include "Islands/ShrineIsland.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetSystemLibrary.h"
 
 AIslandManager::AIslandManager()
 {
@@ -32,6 +32,11 @@ AIsland* AIslandManager::GetIslandOfID(uint8 islandID)
 	return nullptr;
 }
 
+AShrineIsland* AIslandManager::GetShrineIsland()
+{
+	return ShrineIsland;
+}
+
 // Called when the game starts or when spawned
 void AIslandManager::BeginPlay()
 {
@@ -42,7 +47,8 @@ void AIslandManager::BeginPlay()
 	// Cache all child islands and give them IDs
 	UWorld* World = GetWorld();
 	if (World)
-	{ 
+	{
+		// Cache all surrounding islands
 		TArray<AActor*> AllIslands;
 		UGameplayStatics::GetAllActorsOfClass(World, AIsland::StaticClass(), AllIslands);
 		for (AActor* IslandActor : AllIslands)
@@ -53,6 +59,11 @@ void AIslandManager::BeginPlay()
 				ActiveIslands.Add(Island);
 			}
 		}
+
+		// Cache shrine island
+		AActor* ShrineIslandActor = UGameplayStatics::GetActorOfClass(World, AShrineIsland::StaticClass());
+		check(ShrineIslandActor);
+		ShrineIsland = Cast<AShrineIsland>(ShrineIslandActor);
 	}
 	
 }

@@ -3,37 +3,25 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/BoxComponent.h"
+#include "BaseIsland.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "Enemies/Burrower/BurrowerTriggerVolume.h"
-#include "GameFramework/Actor.h"
 #include "Island.generated.h"
 
 UCLASS()
-class BLINDEYE_API AIsland : public AActor
+class BLINDEYE_API AIsland : public ABaseIsland
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
 	AIsland();
-	
-	UPROPERTY()
-	USceneComponent* EmptyRoot;
 
 	// guarantee at least one burrower spawn point
 	UPROPERTY(EditDefaultsOnly)
 	UBurrowerSpawnPoint* BurrowerSpawnPoint;
 
-	UPROPERTY(EditDefaultsOnly)
-	UBurrowerTriggerVolume* IslandTrigger;
-
-	UPROPERTY(EditDefaultsOnly)
-	uint8 NumIslands = 2;
-
-	uint8 IslandID;
-
-	void Initialize(uint8 islandID);
+	virtual void Initialize(uint8 islandID) override;
 	TArray<UBurrowerSpawnPoint*> GetBurrowerSpawnPoints();
 
 protected:

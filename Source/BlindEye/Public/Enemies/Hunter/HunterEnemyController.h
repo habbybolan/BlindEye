@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "HunterEnemy.h"
+#include "Islands/IslandManager.h"
 #include "Enemies/BlindEyeEnemyController.h"
 #include "HunterEnemyController.generated.h"
 
@@ -70,16 +71,21 @@ protected:
 	float CachedHealth = 0;
 
 	FTimerHandle InitialSpawnDelayTimerHandle;
- 
-	TMap<uint8, UBurrowerTriggerVolume*> TriggerVolumes;
+	
 	UPROPERTY()
 	UBurrowerTriggerVolume* CurrIsland;
 
 	FTimerHandle ReturnDelayTimerHandle;
+
+	UPROPERTY()
+	AIslandManager* IslandManager;
 	
 	FTimerHandle InvisDelayTimerHandle;
 	void StunInvisDelayFinished();
 	void TargetKilledInvisDelayFinished();
+
+	UFUNCTION()
+	void Initialize();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_SetCachedHealth();

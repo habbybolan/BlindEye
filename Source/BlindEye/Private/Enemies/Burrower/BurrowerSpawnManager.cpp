@@ -4,8 +4,8 @@
 #include "Enemies/Burrower/BurrowerSpawnManager.h"
 
 #include "AIController.h"
-#include "Island.h"
-#include "IslandManager.h"
+#include "Islands/Island.h"
+#include "Islands/IslandManager.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Enemies/Burrower/BurrowerEnemyController.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"

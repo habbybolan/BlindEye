@@ -27,19 +27,23 @@ void UBurrowerTriggerVolume::OnPlayerOverlap(UPrimitiveComponent* OverlappedComp
 	if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(OtherActor))
 	{
 		PlayersInsideTriggerVolume.AddUnique(Player);
-		CustomOverlapStartDelegate.Broadcast(OverlappedComponent, OtherActor);
 	}
+	CustomOverlapStartDelegate.Broadcast(OverlappedComponent, OtherActor);
 }
 
 void UBurrowerTriggerVolume::OnPlayerEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	for (uint8 i = 0; i < PlayersInsideTriggerVolume.Num(); i++)
+	if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(OtherComp))
 	{
-		if (PlayersInsideTriggerVolume[i] == OtherActor)
+		for (uint8 i = 0; i < PlayersInsideTriggerVolume.Num(); i++)
 		{
-			PlayersInsideTriggerVolume.RemoveAt(i);
-			CustomOverlapEndDelegate.Broadcast(OverlappedComponent, OtherActor);
-			return;
+			if (PlayersInsideTriggerVolume[i] == OtherActor)
+			{
+				PlayersInsideTriggerVolume.RemoveAt(i);
+			
+			}
 		}
 	}
+	
+	CustomOverlapEndDelegate.Broadcast(OverlappedComponent, OtherActor);
 }

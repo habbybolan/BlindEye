@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Island.h"
+#include "ShrineIsland.h"
 #include "GameFramework/Actor.h"
 #include "IslandManager.generated.h"
 
@@ -17,6 +18,7 @@ public:
 	uint8 GetNumOfIslands(); 
 	const TArray<AIsland*> GetActiveIslands();
 	AIsland* GetIslandOfID(uint8 islandID);
+	AShrineIsland* GetShrineIsland();
 
 protected:
 	
@@ -24,11 +26,13 @@ protected:
 	
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditInstanceOnly)
+	UPROPERTY()
 	TArray<AIsland*> ActiveIslands; 
  
-	UPROPERTY(EditInstanceOnly)
+	UPROPERTY()
 	TArray<AIsland*> InactiveIslands;
-	
+
+	UPROPERTY()
+	AShrineIsland* ShrineIsland;
 
 };

@@ -3,9 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "IslandManager.h"
+#include "Islands/IslandManager.h"
 #include "Shrine.h"
-#include "Characters/BlindEyePlayerController.h"
 #include "GameFramework/GameState.h"
 #include "BlindEyeGameState.generated.h"
 
