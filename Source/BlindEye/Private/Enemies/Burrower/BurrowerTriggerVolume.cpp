@@ -3,6 +3,8 @@
 
 #include "Enemies/Burrower/BurrowerTriggerVolume.h"
 
+#include "Kismet/KismetSystemLibrary.h"
+
 UBurrowerTriggerVolume::UBurrowerTriggerVolume()
 {
 	SetGenerateOverlapEvents(true);
@@ -12,8 +14,19 @@ void UBurrowerTriggerVolume::BeginPlay()
 {
 	Super::BeginPlay();
 
-	OnComponentBeginOverlap.AddDynamic(this, &UBurrowerTriggerVolume::OnPlayerOverlap);
-	OnComponentEndOverlap.AddDynamic(this, &UBurrowerTriggerVolume::OnPlayerEndOverlap);
+	OnComponentBeginOverlap.AddDynamic(this, &UBurrowerTriggerVolume::OnBeginOverlapHelper);
+	OnComponentEndOverlap.AddDynamic(this, &UBurrowerTriggerVolume::OnEndOverlapHelper);
+
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		World->OnWorldBeginPlay.AddUFunction(this, TEXT("Initialize"));
+	}
+}
+
+void UBurrowerTriggerVolume::Initialize()
+{
+	CheckOverlappingPlayersOnSpawn();
 }
 
 TArray<ABlindEyePlayerCharacter*> UBurrowerTriggerVolume::GetPlayerActorsOverlapping()
@@ -21,7 +34,7 @@ TArray<ABlindEyePlayerCharacter*> UBurrowerTriggerVolume::GetPlayerActorsOverlap
 	return PlayersInsideTriggerVolume;
 }
 
-void UBurrowerTriggerVolume::OnPlayerOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+void UBurrowerTriggerVolume::OnBeginOverlapHelper(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(OtherActor))
@@ -31,7 +44,7 @@ void UBurrowerTriggerVolume::OnPlayerOverlap(UPrimitiveComponent* OverlappedComp
 	CustomOverlapStartDelegate.Broadcast(OverlappedComponent, OtherActor);
 }
 
-void UBurrowerTriggerVolume::OnPlayerEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void UBurrowerTriggerVolume::OnEndOverlapHelper(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(OtherComp))
 	{
@@ -46,4 +59,14 @@ void UBurrowerTriggerVolume::OnPlayerEndOverlap(UPrimitiveComponent* OverlappedC
 	}
 	
 	CustomOverlapEndDelegate.Broadcast(OverlappedComponent, OtherActor);
+}
+
+void UBurrowerTriggerVolume::CheckOverlappingPlayersOnSpawn()
+{
+	TArray<AActor*> OverlappingActors;
+	GetOverlappingActors(OverlappingActors, ABlindEyePlayerCharacter::StaticClass());
+	for (AActor* PlayerActor : OverlappingActors)
+	{
+		PlayersInsideTriggerVolume.Add(Cast<ABlindEyePlayerCharacter>(PlayerActor));
+	}
 }
