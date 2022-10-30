@@ -6,6 +6,7 @@
 #include "Islands/Island.h"
 #include "Islands/ShrineIsland.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 AIslandManager::AIslandManager()
 {
@@ -24,6 +25,7 @@ void AIslandManager::BeginPlay()
 	uint8 Index = 0;
 	CacheShrineIsland(Index);
 	CacheOuterIslands(Index);
+	CacheSpawnPoints();
 
 	World->GetTimerManager().SetTimer(TempSpawnIslandTimer, this, &AIslandManager::ActivateNextIsland, 5.0f, true);
 }
@@ -113,7 +115,10 @@ void AIslandManager::ActivateNextIsland()
 		InactiveIslands.RemoveAt(0);
 
 		// TODO: Get random spawn point
-		Island->SpawnIsland(IslandSpawnPoints[0]->GetActorLocation());
+		uint8 RandSpawnIndex = UKismetMathLibrary::RandomIntegerInRange(0, IslandSpawnPoints.Num() - 1);
+		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Red, FString::SanitizeFloat(RandSpawnIndex));
+		AIslandSpawnPoint* RandSpawnPoint = IslandSpawnPoints[RandSpawnIndex];
+		Island->SpawnIsland(RandSpawnPoint->GetActorLocation());
 		Island->SpawnFinishedDelegate.AddDynamic(this, &AIslandManager::IslandSpawningFinished);
 	}
 }

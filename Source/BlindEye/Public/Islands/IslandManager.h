@@ -15,9 +15,7 @@ class BLINDEYE_API AIslandManager : public AActor
 	GENERATED_BODY()
 	
 public:
-
-	UPROPERTY(EditInstanceOnly)
-	TArray<AIslandSpawnPoint*> IslandSpawnPoints; 
+	AIslandManager();
 
 	uint8 GetNumOfIslands(); 
 	const TArray<AIsland*> GetActiveIslands();
@@ -32,10 +30,11 @@ public:
 	void ActivateNextIsland();
 
 protected:
-	
-	AIslandManager();
-	
+
 	virtual void BeginPlay() override;
+
+	UPROPERTY()
+	TArray<AIslandSpawnPoint*> IslandSpawnPoints; 
 
 	FTimerHandle TempSpawnIslandTimer;
 
