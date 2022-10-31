@@ -21,7 +21,7 @@ class ABlindEyePlayerCharacter;
  * 
  */
 UCLASS()
-class BLINDEYE_API ABlindEyeGameState : public AGameStateBase
+class BLINDEYE_API ABlindEyeGameState : public AGameState
 {
 	GENERATED_BODY()
 
@@ -50,13 +50,24 @@ public:
 	UPROPERTY(Replicated)
 	EGameOverState GameOverState = EGameOverState::InProgress;
 
+	virtual void SetInProgressMatchState(FName NewInProgressState);
+
+	// getters for player characters to check the state of the game
+	bool IsBlindEyeMatchWaitingPlayers();
+	bool IsBlindEyeMatchTutorial();
+	bool IsBlindEyeMatchInProgress();
+	bool IsBlindEyeMatchEnding();
+
 protected:
 	TWeakObjectPtr<AShrine> Shrine;
 
+	UPROPERTY(ReplicatedUsing=OnRep_InProgressMatchState, BlueprintReadOnly, VisibleInstanceOnly, Category = GameState)
+	FName InProgressMatchState;
+
 	UPROPERTY()
 	AIslandManager* IslandManager;
-
 	
-	
+	UFUNCTION()
+	virtual void OnRep_InProgressMatchState();
 	
 };
