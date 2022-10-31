@@ -3,41 +3,70 @@
 
 #include "Enemies/Burrower/BurrowerTriggerVolume.h"
 
-ABurrowerTriggerVolume::ABurrowerTriggerVolume()
+#include "Kismet/KismetSystemLibrary.h"
+
+UBurrowerTriggerVolume::UBurrowerTriggerVolume()
 {
-	bGenerateOverlapEventsDuringLevelStreaming = true;
+	SetGenerateOverlapEvents(true);
 }
 
-void ABurrowerTriggerVolume::BeginPlay()
+void UBurrowerTriggerVolume::BeginPlay()
 {
 	Super::BeginPlay();
 
-	OnActorBeginOverlap.AddDynamic(this, &ABurrowerTriggerVolume::OnPlayerOverlap);
-	OnActorEndOverlap.AddDynamic(this, &ABurrowerTriggerVolume::OnPlayerEndOverlap);
+	OnComponentBeginOverlap.AddDynamic(this, &UBurrowerTriggerVolume::OnBeginOverlapHelper);
+	OnComponentEndOverlap.AddDynamic(this, &UBurrowerTriggerVolume::OnEndOverlapHelper);
+
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		World->OnWorldBeginPlay.AddUFunction(this, TEXT("Initialize"));
+	}
 }
 
-TArray<ABlindEyePlayerCharacter*> ABurrowerTriggerVolume::GetPlayerActorsOverlapping()
+void UBurrowerTriggerVolume::Initialize()
+{
+	CheckOverlappingPlayersOnSpawn();
+}
+
+TArray<ABlindEyePlayerCharacter*> UBurrowerTriggerVolume::GetPlayerActorsOverlapping()
 {
 	return PlayersInsideTriggerVolume;
 }
 
-void ABurrowerTriggerVolume::OnPlayerOverlap(AActor* OverlappedActor, AActor* OtherActor)
+void UBurrowerTriggerVolume::OnBeginOverlapHelper(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(OtherActor))
 	{
 		PlayersInsideTriggerVolume.AddUnique(Player);
 	}
+	CustomOverlapStartDelegate.Broadcast(OverlappedComponent, OtherActor);
 }
 
-void ABurrowerTriggerVolume::OnPlayerEndOverlap(AActor* OverlappedActor, AActor* OtherActor)
+void UBurrowerTriggerVolume::OnEndOverlapHelper(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	for (uint8 i = 0; i < PlayersInsideTriggerVolume.Num(); i++)
+	if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(OtherComp))
 	{
-		if (PlayersInsideTriggerVolume[i] == OtherActor)
+		for (uint8 i = 0; i < PlayersInsideTriggerVolume.Num(); i++)
 		{
-			PlayersInsideTriggerVolume.RemoveAt(i);
-			CustomOverlapDelegate.Broadcast(OverlappedActor, OtherActor);
-			return;
+			if (PlayersInsideTriggerVolume[i] == OtherActor)
+			{
+				PlayersInsideTriggerVolume.RemoveAt(i);
+			
+			}
 		}
+	}
+	
+	CustomOverlapEndDelegate.Broadcast(OverlappedComponent, OtherActor);
+}
+
+void UBurrowerTriggerVolume::CheckOverlappingPlayersOnSpawn()
+{
+	TArray<AActor*> OverlappingActors;
+	GetOverlappingActors(OverlappingActors, ABlindEyePlayerCharacter::StaticClass());
+	for (AActor* PlayerActor : OverlappingActors)
+	{
+		PlayersInsideTriggerVolume.Add(Cast<ABlindEyePlayerCharacter>(PlayerActor));
 	}
 }

@@ -23,6 +23,6 @@ class BLINDEYE_API IBurrowerSpawnManagerListener
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-
-	virtual TArray<ABlindEyePlayerCharacter*> GetPlayersOnIsland(EIslandPosition IslandType) = 0;
+ 
+	virtual TArray<ABlindEyePlayerCharacter*> GetPlayersOnIsland(uint8 islandID) = 0;
 };

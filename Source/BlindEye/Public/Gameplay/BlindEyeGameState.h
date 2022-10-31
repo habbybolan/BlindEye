@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Islands/IslandManager.h"
 #include "Shrine.h"
-#include "Characters/BlindEyePlayerController.h"
 #include "GameFramework/GameState.h"
 #include "BlindEyeGameState.generated.h"
 
@@ -37,6 +37,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	AShrine* GetShrine();
+
+	AIslandManager* GetIslandManager();
 	
 	UPROPERTY(Replicated)
 	bool bWinConditionPaused = false;
@@ -45,15 +47,14 @@ public:
 	UPROPERTY(Replicated)
 	bool bHunterAlwaysVisible = false;
 
-	// If level shifting event has occurred
-	UPROPERTY(Replicated)
-	bool bHasLevelShifted = false;
-
 	UPROPERTY(Replicated)
 	EGameOverState GameOverState = EGameOverState::InProgress;
 
 protected:
 	TWeakObjectPtr<AShrine> Shrine;
+
+	UPROPERTY()
+	AIslandManager* IslandManager;
 
 	
 	
