@@ -3,18 +3,24 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/ArrowComponent.h"
 #include "BurrowerSpawnPoint.generated.h"
 
 enum class EIslandPosition : uint8;
 
-UCLASS()
-class BLINDEYE_API ABurrowerSpawnPoint : public AActor
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+class BLINDEYE_API UBurrowerSpawnPoint : public USceneComponent
 {
 	GENERATED_BODY()
 	
 public:
 
+	UBurrowerSpawnPoint();
+
+	//UPROPERTY(EditDefaultsOnly)
+	//UArrowComponent* ArrowComponent;
+
 	UPROPERTY(EditAnywhere)
-	EIslandPosition IslandType;
+	uint8 IslandID; 
 
 };

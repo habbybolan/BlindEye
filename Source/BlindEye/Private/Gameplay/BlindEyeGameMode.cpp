@@ -112,15 +112,13 @@ void ABlindEyeGameMode::Tick(float DeltaSeconds)
 	{
 		GameTimer += DeltaSeconds;
 	}
-	
+
+	CurrIslandLevelTime += DeltaSeconds;
 	// Level shift check
-	if (BlindEyeGameState->bHasLevelShifted == false)
+	if (CurrIslandLevelTime > DelayBetweenLevelShifts)
 	{
-		if (GameTimer > TimeUntilLevelShift)
-		{
-			BP_LevelShift();
-			BlindEyeGameState->bHasLevelShifted = true;
-		}
+		BP_LevelShift();
+		CurrIslandLevelTime = 0;
 	}
 
 	// Check for pulse events
@@ -174,7 +172,9 @@ void ABlindEyeGameMode::BeginPlay()
 	UWorld* world = GetWorld();
 	if (!world) return;
 
+	IslandManager = Cast<AIslandManager>(UGameplayStatics::GetActorOfClass(world, AIslandManager::StaticClass()));
+	check(IslandManager);
+
 	world->SpawnActor(HunterControllerType);
- 
 	TimeBetweenPulses = TimerUntilGameWon / NumPulses;
 }

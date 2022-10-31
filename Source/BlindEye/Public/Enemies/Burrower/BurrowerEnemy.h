@@ -97,9 +97,9 @@ public:
 
 	// Stored here purely for passing to Controller
 	TScriptInterface<IBurrowerSpawnManagerListener> Listener;
-	EIslandPosition IslandType; 
+	uint8 IslandID; 
 
-	void SpawnMangerSetup(EIslandPosition islandType, TScriptInterface<IBurrowerSpawnManagerListener> listener);
+	void SpawnMangerSetup(uint8 islandID, TScriptInterface<IBurrowerSpawnManagerListener> listener);
 	
 	void StartSurfacing();
 	void PerformSurfacingDamage();

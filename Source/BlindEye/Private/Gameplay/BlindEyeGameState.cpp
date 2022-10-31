@@ -24,6 +24,12 @@ void ABlindEyeGameState::BeginPlay()
 	{
 		Shrine = MakeWeakObjectPtr(Cast<AShrine>(ShrineActor));
 	}
+ 
+	AActor* IslandManageActor = UGameplayStatics::GetActorOfClass(world, AIslandManager::StaticClass());
+	if (IslandManageActor)
+	{
+		IslandManager = Cast<AIslandManager>(IslandManageActor);
+	}
 }
 
 void ABlindEyeGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -31,7 +37,6 @@ void ABlindEyeGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ABlindEyeGameState, bWinConditionPaused)
 	DOREPLIFETIME(ABlindEyeGameState, bHunterAlwaysVisible)
-	DOREPLIFETIME(ABlindEyeGameState, bHasLevelShifted)
 	DOREPLIFETIME(ABlindEyeGameState, GameOverState)
 }
 
@@ -45,4 +50,9 @@ AShrine* ABlindEyeGameState::GetShrine()
 	if (Shrine.IsValid())
 		return Shrine.Get();
 	return nullptr;
+}
+
+AIslandManager* ABlindEyeGameState::GetIslandManager()
+{
+	return IslandManager;
 }

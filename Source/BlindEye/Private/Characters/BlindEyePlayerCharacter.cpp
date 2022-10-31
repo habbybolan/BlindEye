@@ -392,13 +392,13 @@ void ABlindEyePlayerCharacter::SER_DebugSpawnSnapper_Implementation()
 	if (World == nullptr) return;
 	
 	TArray<AActor*> BurrowerSpawnPoints;
-	UGameplayStatics::GetAllActorsOfClass(World, ABurrowerSpawnPoint::StaticClass(), BurrowerSpawnPoints);
+	UGameplayStatics::GetAllActorsOfClass(World, UBurrowerSpawnPoint::StaticClass(), BurrowerSpawnPoints);
 	if (BurrowerSpawnPoints.Num() == 0) return;
 	
-	ABurrowerSpawnPoint* BurrSpawnPoint = Cast<ABurrowerSpawnPoint>(BurrowerSpawnPoints[UKismetMathLibrary::RandomIntegerInRange(0, BurrowerSpawnPoints.Num() - 1)]);
+	UBurrowerSpawnPoint* BurrSpawnPoint = Cast<UBurrowerSpawnPoint>(BurrowerSpawnPoints[UKismetMathLibrary::RandomIntegerInRange(0, BurrowerSpawnPoints.Num() - 1)]);
 	if (BurrSpawnPoint)
 	{
-		World->SpawnActor<ASnapperEnemy>(SnapperType, BurrSpawnPoint->GetActorLocation(), BurrSpawnPoint->GetActorRotation());
+		World->SpawnActor<ASnapperEnemy>(SnapperType, BurrSpawnPoint->GetComponentLocation(), BurrSpawnPoint->GetComponentRotation());
 	}
 }
 

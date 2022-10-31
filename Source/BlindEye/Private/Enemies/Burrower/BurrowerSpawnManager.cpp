@@ -4,10 +4,13 @@
 #include "Enemies/Burrower/BurrowerSpawnManager.h"
 
 #include "AIController.h"
+#include "Islands/Island.h"
+#include "Islands/IslandManager.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Enemies/Burrower/BurrowerEnemyController.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "Enemies/Burrower/BurrowerTriggerVolume.h"
+#include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -24,42 +27,67 @@ void ABurrowerSpawnManager::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		World->OnWorldBeginPlay.AddUFunction(this, TEXT("Initialize"));
+	}
+}
+
+void ABurrowerSpawnManager::Initialize()
+{
 	InitializeMaps();
-	CacheSpawnPoints();
 
 	UWorld* world = GetWorld();
 	if (!world) return;
 
 	world->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ABurrowerSpawnManager::SpawnBurrower, SpawnDelay, true, 0.1);
 
-	// Find all trigger volumes and subscribe to their events
-	TArray<AActor*> OutTriggerVolumes;
-	UGameplayStatics::GetAllActorsOfClass(world, ABurrowerTriggerVolume::StaticClass(), OutTriggerVolumes);
-	for (AActor* VolumeActor : OutTriggerVolumes)
+	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(world));
+	check(BlindEyeGS)
+	IslandManager = BlindEyeGS->GetIslandManager();
+	check(IslandManager)
+
+	IslandManager->IslandAddedDelegate.AddDynamic(this, &ABurrowerSpawnManager::NewIslandAdded);
+	
+	// Subscribe to all delegate volume triggers on the islands
+	for (AIsland* Island : IslandManager->GetActiveIslands() )
 	{
-		ABurrowerTriggerVolume* BurrowerVolume = Cast<ABurrowerTriggerVolume>(VolumeActor);
-		BurrowerTriggerVolumes.Add(BurrowerVolume->IslandType, BurrowerVolume);
-		BurrowerVolume->OnActorBeginOverlap.AddDynamic(this, &ABurrowerSpawnManager::TriggerVolumeOverlapped);
-		BurrowerVolume->CustomOverlapDelegate.AddUFunction(this, TEXT("TriggerVolumeLeft"));
+		SubscribeToIsland(Island);
 	}
 }
 
 void ABurrowerSpawnManager::InitializeMaps()
 {
-	// Initialize Map enum keys to empty arrays
-	for (uint8 i = 0; i < (uint8)EIslandPosition::Count; i++)
+	UWorld* World = GetWorld();
+	if (World)
 	{
-		EIslandPosition position = static_cast<EIslandPosition>(i);
-		SpawnedBurrowers.Add(position, TArray<ABurrowerEnemy*>());
-		BurrowerSpawnPoints.Add(position, TArray<ABurrowerSpawnPoint*>());
-		
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+		// Initialize Map enum keys to empty arrays
+		TArray<AIsland*> Islands = BlindEyeGS->GetIslandManager()->GetActiveIslands();
+		for (uint8 i = 0; i < Islands.Num(); i++)
+		{
+			SpawnedBurrowers.Add(Islands[i]->IslandID, TArray<ABurrowerEnemy*>());
+		}
 	}
+}
+
+void ABurrowerSpawnManager::NewIslandAdded(AIsland* Island)
+{
+	SubscribeToIsland(Island);
+	SpawnedBurrowers.Add(Island->IslandID, TArray<ABurrowerEnemy*>());
+}
+
+void ABurrowerSpawnManager::SubscribeToIsland(AIsland* Island)
+{
+	Island->IslandTrigger->CustomOverlapStartDelegate.AddDynamic(this, &ABurrowerSpawnManager::TriggerVolumeOverlapped);
+	Island->IslandTrigger->CustomOverlapEndDelegate.AddDynamic(this, &ABurrowerSpawnManager::TriggerVolumeLeft);
 }
 
 void ABurrowerSpawnManager::OnBurrowerDeath(AActor* BurrowerToDelete)
 { 
-	for (TPair<EIslandPosition, TArray<ABurrowerEnemy*>>& pair : SpawnedBurrowers)
-	{
+	for (TPair<uint8, TArray<ABurrowerEnemy*>>& pair : SpawnedBurrowers)
+	{ 
 		uint8 index = 0;
 		for (ABurrowerEnemy* Burrower : pair.Value)
 		{
@@ -71,7 +99,6 @@ void ABurrowerSpawnManager::OnBurrowerDeath(AActor* BurrowerToDelete)
 			index++;
 		}
 	}
-	//SpawnedBurrowers.Remove(BurrowerActor->GetUniqueID());
 }
 
 void ABurrowerSpawnManager::SpawnBurrower()
@@ -79,97 +106,93 @@ void ABurrowerSpawnManager::SpawnBurrower()
 	UWorld* world = GetWorld();
 	if (!world) return;
 	
-	ABurrowerSpawnPoint* SpawnPoint = FindRandomSpawnPoint();
+	UBurrowerSpawnPoint* SpawnPoint = FindRandomSpawnPoint();
 	FActorSpawnParameters params;
 	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn; 
-	ABurrowerEnemy* SpawnedBurrower = world->SpawnActor<ABurrowerEnemy>(BurrowerType, SpawnPoint->GetActorLocation(), SpawnPoint->GetActorRotation(), params);
+	ABurrowerEnemy* SpawnedBurrower = world->SpawnActor<ABurrowerEnemy>(BurrowerType, SpawnPoint->GetComponentLocation(), SpawnPoint->GetComponentRotation(), params);
 	if (SpawnedBurrower)
 	{
-		SpawnedBurrower->SpawnMangerSetup(SpawnPoint->IslandType, this);
-		SpawnedBurrowers[SpawnPoint->IslandType].Add(SpawnedBurrower);
+		SpawnedBurrower->SpawnMangerSetup(SpawnPoint->IslandID, this);
+		SpawnedBurrowers[SpawnPoint->IslandID].Add(SpawnedBurrower);
 		if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(SpawnedBurrower))
 		{
 			HealthInterface->GetHealthComponent()->OnDeathDelegate.AddDynamic(this, &ABurrowerSpawnManager::OnBurrowerDeath);
-		}
+		} 
 	}
 }
 
-TArray<ABlindEyePlayerCharacter*> ABurrowerSpawnManager::GetPlayersOnIsland(EIslandPosition IslandType)
+TArray<ABlindEyePlayerCharacter*> ABurrowerSpawnManager::GetPlayersOnIsland(uint8 islandID)
 {
-	ABurrowerTriggerVolume* Trigger = BurrowerTriggerVolumes[IslandType];
-	TArray<ABlindEyePlayerCharacter*> PlayersInTrigger = Trigger->GetPlayerActorsOverlapping();
+	AIsland* Island = IslandManager->GetIslandOfID(islandID);
+	check(Island)
+
+	TArray<ABlindEyePlayerCharacter*> PlayersInTrigger = Island->IslandTrigger->GetPlayerActorsOverlapping();
 	return PlayersInTrigger;
 }
 
-ABurrowerSpawnPoint* ABurrowerSpawnManager::FindRandomSpawnPoint()
+UBurrowerSpawnPoint* ABurrowerSpawnManager::FindRandomSpawnPoint()
 {
-	// TODO: Way to check when last island added (but Still ignore shrine island)
-	uint8 randIndexIsland = UKismetMathLibrary::RandomInteger((uint8)EIslandPosition::Count - 2);
-	EIslandPosition type = static_cast<EIslandPosition>(randIndexIsland);
-	uint8 randIndexSpawnPoint = UKismetMathLibrary::RandomInteger(BurrowerSpawnPoints[type].Num());
-	ABurrowerSpawnPoint* RandSpawnPoint = BurrowerSpawnPoints[type][randIndexSpawnPoint];
-	
-	return RandSpawnPoint;
-}
-
-void ABurrowerSpawnManager::CacheSpawnPoints()
-{
-	UWorld* world = GetWorld();
-	if (!world) return;
-	
-	TArray<AActor*> SpawnPoints;
-	UGameplayStatics::GetAllActorsOfClass(world, ABurrowerSpawnPoint::StaticClass(), SpawnPoints);
-	for (AActor* SpawnPoint : SpawnPoints)
+	UWorld* World = GetWorld();
+	if (World)
 	{
-		ABurrowerSpawnPoint* BurrowerSpawnPoint = Cast<ABurrowerSpawnPoint>(SpawnPoint);
-		BurrowerSpawnPoints[BurrowerSpawnPoint->IslandType].Add(BurrowerSpawnPoint);
+		uint8 randIslandIndex = UKismetMathLibrary::RandomInteger(IslandManager->GetNumOfIslands());
+		AIsland* RandIsland = IslandManager->GetActiveIslands()[randIslandIndex];
+		uint8 randIndexSpawnPoint = UKismetMathLibrary::RandomInteger(RandIsland->GetBurrowerSpawnPoints().Num());
+		UBurrowerSpawnPoint* RandSpawnPoint = RandIsland->GetBurrowerSpawnPoints()[randIndexSpawnPoint];
+	
+		return RandSpawnPoint;
 	}
+	return nullptr;
 }
 
-void ABurrowerSpawnManager::TriggerVolumeOverlapped(AActor* OverlappedActor, AActor* OtherActor)
+void ABurrowerSpawnManager::TriggerVolumeOverlapped(UPrimitiveComponent* OverlappedActor, AActor* OtherActor)
 {
 	// Check if it is a player that entered the island
 	if (ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(OtherActor))
 	{
-		ABurrowerTriggerVolume* BurrowerVolume = Cast<ABurrowerTriggerVolume>(OverlappedActor);
-		PlayerEnteredIsland(BlindEyePlayerCharacter, BurrowerVolume->IslandType);
+		UBurrowerTriggerVolume* BurrowerVolume = Cast<UBurrowerTriggerVolume>(OverlappedActor);
+		PlayerEnteredIsland(BlindEyePlayerCharacter, BurrowerVolume->IslandID);
 	}
 }
 
-void ABurrowerSpawnManager::TriggerVolumeLeft(AActor* EndOverlappedActor, AActor* OtherActor)
+void ABurrowerSpawnManager::TriggerVolumeLeft(UPrimitiveComponent* EndOverlappedActor, AActor* OtherActor)
 {
 	// Check if it is a player that left the island
 	if (ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(OtherActor))
 	{
-		ABurrowerTriggerVolume* BurrowerVolume = Cast<ABurrowerTriggerVolume>(EndOverlappedActor);
-		PlayerLeftIsland(BlindEyePlayerCharacter, BurrowerVolume->IslandType);
+ 		UBurrowerTriggerVolume* BurrowerVolume = Cast<UBurrowerTriggerVolume>(EndOverlappedActor);
+		PlayerLeftIsland(BlindEyePlayerCharacter, BurrowerVolume->IslandID);
 	}
 }
-
-void ABurrowerSpawnManager::PlayerEnteredIsland(ABlindEyePlayerCharacter* Player, EIslandPosition IslandType)
+ 
+void ABurrowerSpawnManager::PlayerEnteredIsland(ABlindEyePlayerCharacter* Player, uint8 islandID)
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 4.0f, FColor::Cyan, "Player entered island: " + UEnum::GetValueAsString(IslandType));
-	for (ABurrowerEnemy* Burrower : SpawnedBurrowers[IslandType])
+	if (SpawnedBurrowers.Contains(islandID))
 	{
-		AController* Controller =  Burrower->GetController();
-		if (Controller)
+		for (ABurrowerEnemy* Burrower : SpawnedBurrowers[islandID])
 		{
-			ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Controller);
-			BurrowerController->NotifyPlayerEnteredIsland(Player);
+			AController* Controller =  Burrower->GetController();
+			if (Controller)
+			{
+				ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Controller);
+				BurrowerController->NotifyPlayerEnteredIsland(Player);
+			}
 		}
 	}
 }
 
-void ABurrowerSpawnManager::PlayerLeftIsland(ABlindEyePlayerCharacter* Player, EIslandPosition IslandType)
+void ABurrowerSpawnManager::PlayerLeftIsland(ABlindEyePlayerCharacter* Player, uint8 islandID)
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 4.0f, FColor::Cyan, "Player left island: " + UEnum::GetValueAsString(IslandType));
-	for (ABurrowerEnemy* Burrower : SpawnedBurrowers[IslandType])
+	if (SpawnedBurrowers.Contains(islandID))
 	{
-		AController* Controller =  Burrower->GetController();
-		if (Controller)
+		for (ABurrowerEnemy* Burrower : SpawnedBurrowers[islandID])
 		{
-			ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Controller);
-			BurrowerController->NotifyPlayerLeftIsland(Player);
+			AController* Controller =  Burrower->GetController();
+			if (Controller)
+			{
+				ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Controller);
+				BurrowerController->NotifyPlayerLeftIsland(Player);
+			}
 		}
 	}
 }

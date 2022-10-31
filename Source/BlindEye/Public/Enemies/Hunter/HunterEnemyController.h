@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "HunterEnemy.h"
+#include "Islands/IslandManager.h"
 #include "Enemies/BlindEyeEnemyController.h"
 #include "HunterEnemyController.generated.h"
 
-class ABurrowerTriggerVolume;
+class UBurrowerTriggerVolume;
 
 /**
  * 
@@ -70,16 +71,21 @@ protected:
 	float CachedHealth = 0;
 
 	FTimerHandle InitialSpawnDelayTimerHandle;
- 
-	TMap<EIslandPosition, ABurrowerTriggerVolume*> TriggerVolumes;
+	
 	UPROPERTY()
-	ABurrowerTriggerVolume* CurrIsland;
+	UBurrowerTriggerVolume* CurrIsland;
 
 	FTimerHandle ReturnDelayTimerHandle;
+
+	UPROPERTY()
+	AIslandManager* IslandManager;
 	
 	FTimerHandle InvisDelayTimerHandle;
 	void StunInvisDelayFinished();
 	void TargetKilledInvisDelayFinished();
+
+	UFUNCTION()
+	void Initialize();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_SetCachedHealth();
@@ -87,7 +93,7 @@ protected:
 	void RemoveHunterHelper();
 
 	UFUNCTION()
-	void SetEnteredNewIsland(AActor* OverlappedActor, AActor* OtherActor);
+	void SetEnteredNewIsland(UPrimitiveComponent* OverlappedActor, AActor* OtherActor);
  
 	bool IsInChargedJumpRange(AActor* Target);
 	bool IsInBasicAttackRange(AActor* Target);
@@ -101,12 +107,15 @@ protected:
 
 	void DelayedReturn(float ReturnDelay);
 
+	UFUNCTION()
+	void NewIslandAdded(AIsland* Island);
+
 	UPROPERTY() 
 	AHunterEnemy* Hunter;
 
 	virtual void OnPossess(APawn* InPawn) override;
 
-	ABurrowerTriggerVolume* CheckIslandSpawnedOn();
+	UBurrowerTriggerVolume* CheckIslandSpawnedOn();
 	
 	UFUNCTION()
 	void SpawnHunter();

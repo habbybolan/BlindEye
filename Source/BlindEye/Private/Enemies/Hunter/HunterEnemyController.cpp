@@ -4,6 +4,8 @@
 #include "Enemies/Hunter/HunterEnemyController.h"
 
 #include "BrainComponent.h"
+#include "Islands/Island.h"
+#include "Islands/IslandManager.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "Enemies/Burrower/BurrowerTriggerVolume.h"
@@ -23,26 +25,45 @@ void AHunterEnemyController::BeginPlay()
 	Super::BeginPlay();
 
 	UWorld* World = GetWorld();
+	if (World)
+	{
+		World->OnWorldBeginPlay.AddUFunction(this, TEXT("Initialize"));
+	}
+}
+
+void AHunterEnemyController::Initialize()
+{
+	UWorld* World = GetWorld();
 	if (World == nullptr) return;
 
-	TArray<AActor*> OutTriggerVolumes;
-	UGameplayStatics::GetAllActorsOfClass(World, ABurrowerTriggerVolume::StaticClass(), OutTriggerVolumes);
-	for (AActor* VolumeActor : OutTriggerVolumes)
+	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+	check(BlindEyeGS)
+	IslandManager = BlindEyeGS->GetIslandManager();
+	check(IslandManager)
+
+	IslandManager->IslandAddedDelegate.AddDynamic(this, &AHunterEnemyController::NewIslandAdded);
+
+	TArray<AIsland*> Islands = IslandManager->GetActiveIslands();
+	for (AIsland* Island : Islands)
 	{
-		ABurrowerTriggerVolume* BurrowerVolume = Cast<ABurrowerTriggerVolume>(VolumeActor);
-		TriggerVolumes.Add(BurrowerVolume->IslandType, BurrowerVolume);
-		BurrowerVolume->OnActorBeginOverlap.AddDynamic(this, &AHunterEnemyController::SetEnteredNewIsland);
+		NewIslandAdded(Island);
 	}
+	IslandManager->GetShrineIsland()->IslandTrigger->CustomOverlapStartDelegate.AddDynamic(this, &AHunterEnemyController::SetEnteredNewIsland);
 	
 	World->GetTimerManager().SetTimer(InitialSpawnDelayTimerHandle, this, &AHunterEnemyController::SpawnHunter, InitialSpawnDelay, false);
 }
 
-void AHunterEnemyController::SetEnteredNewIsland(AActor* OverlappedActor, AActor* OtherActor)
+void AHunterEnemyController::NewIslandAdded(AIsland* Island)
+{
+	Island->IslandTrigger->CustomOverlapStartDelegate.AddDynamic(this, &AHunterEnemyController::SetEnteredNewIsland);
+}
+
+void AHunterEnemyController::SetEnteredNewIsland(UPrimitiveComponent* OverlappedActor, AActor* OtherActor)
 {
 	if (Hunter == nullptr) return;
 	if (OtherActor == Hunter)
 	{
-		CurrIsland = Cast<ABurrowerTriggerVolume>(OverlappedActor);
+		CurrIsland = Cast<UBurrowerTriggerVolume>(OverlappedActor);
 	}
 }
 
@@ -223,7 +244,8 @@ void AHunterEnemyController::OnPossess(APawn* InPawn)
 	}
 
 	// Get random player to attack
-	AGameStateBase* GameState = UGameplayStatics::GetGameState(world);
+	ABlindEyeGameState* GameState = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(world));
+	check(GameState);
 	AActor* RandPlayerTarget;
 	if (GameState->PlayerArray.Num() == 1)
 	{
@@ -244,22 +266,21 @@ void AHunterEnemyController::OnPossess(APawn* InPawn)
 	CurrIsland = CheckIslandSpawnedOn();
 	if (CurrIsland == nullptr)
 	{
-		CurrIsland = TriggerVolumes[EIslandPosition::IslandA];
+		CurrIsland = GameState->GetIslandManager()->GetActiveIslands()[0]->IslandTrigger;
 	}
 }
-
-ABurrowerTriggerVolume* AHunterEnemyController::CheckIslandSpawnedOn()
+UBurrowerTriggerVolume* AHunterEnemyController::CheckIslandSpawnedOn()
 {
 	if (Hunter == nullptr) return nullptr;
 
 	UWorld* World = GetWorld();
 	if (World == nullptr) return nullptr;
 
-	TArray<AActor*> OurActors;
+	TArray<AActor*> OutIslandVolumes; 
 	if (UKismetSystemLibrary::SphereOverlapActors(World, Hunter->GetActorLocation(), 50, IslandTriggerObjectType,
-		nullptr, TArray<AActor*>(), OurActors))
+		nullptr, TArray<AActor*>(), OutIslandVolumes))
 	{
-		return Cast<ABurrowerTriggerVolume>(OurActors[0]);
+		return Cast<UBurrowerTriggerVolume>(OutIslandVolumes[0]);
 	}
 	return nullptr;
 }
@@ -316,13 +337,11 @@ void AHunterEnemyController::SpawnHunter()
 	UWorld* World = GetWorld();
 	if (!World) return;
 
-	TArray<AActor*> SpawnPoints;
-	UGameplayStatics::GetAllActorsOfClass(World, ABurrowerSpawnPoint::StaticClass(),SpawnPoints);
-	if (SpawnPoints.Num() == 0) return;
-	AActor* SpawnPoint = SpawnPoints[UKismetMathLibrary::RandomIntegerInRange(0, SpawnPoints.Num() - 1)];
+	AIsland* RandIsland = IslandManager->GetActiveIslands()[UKismetMathLibrary::RandomIntegerInRange(0, IslandManager->GetActiveIslands().Num() - 1)];
+	UBurrowerSpawnPoint* RandSpawnPoint = RandIsland->GetBurrowerSpawnPoints()[UKismetMathLibrary::RandomIntegerInRange(0, RandIsland->GetBurrowerSpawnPoints().Num() - 1)];
 	
-	FVector SpawnLocation = SpawnPoint->GetActorLocation();
-	FRotator Rotation = SpawnPoint->GetActorRotation();
+	FVector SpawnLocation = RandSpawnPoint->GetComponentLocation();
+	FRotator Rotation = RandSpawnPoint->GetComponentRotation();
 	FActorSpawnParameters params; 
 	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 	AHunterEnemy* SpawnedHunter = World->SpawnActor<AHunterEnemy>(HunterType, SpawnLocation, Rotation, params);
