@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "GameFramework/GameMode.h"
+#include "Islands/IslandManager.h"
 #include "BlindEyeGameMode.generated.h"
 
 class AHunterEnemyController;
@@ -28,7 +29,7 @@ public:
 	float TimerUntilGameWon = 60;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float TimeUntilLevelShift = 60.f;
+	float DelayBetweenLevelShifts = 60.f;
 
 	UPROPERTY(EditDefaultsOnly)
 	float PulseKillDelay = 1.0f;
@@ -53,6 +54,11 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+	UPROPERTY(BlueprintReadOnly)
+	AIslandManager* IslandManager;
+
+	float CurrIslandLevelTime = 0;
 
 	uint8 CurrPulseIndex = 0;
 	uint8 NumPulses = 3;

@@ -26,7 +26,7 @@ public:
 	UPROPERTY()
 	FSpawnFinishSignature IslandAddedDelegate; 
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void ActivateNextIsland();
 
 protected:
@@ -35,8 +35,6 @@ protected:
 
 	UPROPERTY()
 	TArray<AIslandSpawnPoint*> IslandSpawnPoints; 
-
-	FTimerHandle TempSpawnIslandTimer;
 
 	UPROPERTY()
 	TArray<AIsland*> ActiveIslands; 

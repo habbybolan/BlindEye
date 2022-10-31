@@ -26,8 +26,6 @@ void AIslandManager::BeginPlay()
 	CacheShrineIsland(Index);
 	CacheOuterIslands(Index);
 	CacheSpawnPoints();
-
-	World->GetTimerManager().SetTimer(TempSpawnIslandTimer, this, &AIslandManager::ActivateNextIsland, 5.0f, true);
 }
 
 void AIslandManager::CacheShrineIsland(uint8& index)
@@ -116,7 +114,6 @@ void AIslandManager::ActivateNextIsland()
 
 		// TODO: Get random spawn point
 		uint8 RandSpawnIndex = UKismetMathLibrary::RandomIntegerInRange(0, IslandSpawnPoints.Num() - 1);
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Red, FString::SanitizeFloat(RandSpawnIndex));
 		AIslandSpawnPoint* RandSpawnPoint = IslandSpawnPoints[RandSpawnIndex];
 		Island->SpawnIsland(RandSpawnPoint->GetActorLocation());
 		Island->SpawnFinishedDelegate.AddDynamic(this, &AIslandManager::IslandSpawningFinished);
