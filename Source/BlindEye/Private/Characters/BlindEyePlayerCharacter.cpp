@@ -139,12 +139,20 @@ void ABlindEyePlayerCharacter::TryFinishTutorial(ETutorialChecklist CheckListIte
 		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
 		if (BlindEyeGS->IsBlindEyeMatchTutorial())
 		{
+			if ((!bTutorial1Finished && CheckListItem <= ETutorialChecklist::Ability2) ||
+				(bTutorial1Finished && CheckListItem > ETutorialChecklist::Ability2))
 			// Check if checklist item not yet done
 			if (!ChecklistFinishedTasks.Contains(CheckListItem))
 			{
 				// Send checklist item to BP
 				BP_TutorialCheckList(CheckListItem);
 				ChecklistFinishedTasks.Add(CheckListItem);
+				
+				// Swap to next tutorial if finished first
+				if (!bTutorial1Finished && ChecklistFinishedTasks.Num() > 6)
+				{
+					bTutorial1Finished = !bTutorial1Finished;
+				}
 			}
 		}
 	}

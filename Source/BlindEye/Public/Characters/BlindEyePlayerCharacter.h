@@ -247,6 +247,7 @@ public:
 protected:
 
 	TSet<ETutorialChecklist> ChecklistFinishedTasks;
+	bool bTutorial1Finished = false;
 
 	UFUNCTION()
 	void RegenBirdMeter();
