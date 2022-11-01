@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="EncodableAsset" id="{8b525466-3ed7-4cc3-a1ec-7eae0349fe78}">
+		<property name="assetPath">
+			<value>Blind_Eye_SFX/Player/Phoenix/</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{ac5f5264-6d3e-4c54-93a0-f535a51777e4}</destination>
+		</relationship>
+	</object>
+</objects>
