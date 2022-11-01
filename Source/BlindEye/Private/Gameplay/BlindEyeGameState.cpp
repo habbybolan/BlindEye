@@ -70,6 +70,11 @@ void ABlindEyeGameState::SetInProgressMatchState(FName NewInProgressState)
 	}
 }
 
+bool ABlindEyeGameState::IsBlindEyeMatchNotInProgress()
+{
+	return InProgressMatchState == InProgressStates::NotInProgress;
+}
+
 bool ABlindEyeGameState::IsBlindEyeMatchWaitingPlayers()
 {
 	return InProgressMatchState == InProgressStates::WaitingLoadingPhase;

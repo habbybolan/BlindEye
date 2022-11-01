@@ -5,6 +5,9 @@
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "BlindEyeUtils.h"
 #include "MarkerStaticMesh.h"
+#include "GameFramework/GameStateBase.h"
+#include "GameFramework/PlayerState.h"
+#include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -85,6 +88,27 @@ void UMarkerComponent::DetonateMark(EMarkerType MarkerType)
 		ActiveMark->GetStaticMeshComponent()->SetVisibility(false);
 	}
 	bMarked = false;
+
+	// Marker logic for tutorial
+	if (MarkerType == EMarkerType::Crow)
+	{
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+			for (APlayerState* PlayerState : BlindEyeGS->PlayerArray)
+			{
+				if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerState->GetPawn()))
+				{
+					if (Player->PlayerType == EPlayerType::CrowPlayer && MarkerType == EMarkerType::Phoenix ||
+						Player->PlayerType == EPlayerType::PhoenixPlayer && MarkerType == EMarkerType::Crow)
+					{
+						Player->TryFinishTutorial(ETutorialChecklist::Detonate);
+					}
+				}
+			}
+		}
+	}
 }
 
 void UMarkerComponent::AddMark(EMarkerType MarkerType)
@@ -95,6 +119,27 @@ void UMarkerComponent::AddMark(EMarkerType MarkerType)
 	HunterMark->GetStaticMeshComponent()->SetVisibility(MarkerType == EMarkerType::Hunter);
 	bMarked = true;
 	GetActiveMark()->BP_AddMark(MarkerType);
+
+	// Marker logic for tutorial
+	if (MarkerType == EMarkerType::Crow)
+	{
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+			for (APlayerState* PlayerState : BlindEyeGS->PlayerArray)
+			{
+				if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerState->GetPawn()))
+				{
+					if (Player->PlayerType == EPlayerType::CrowPlayer && MarkerType == EMarkerType::Crow ||
+						Player->PlayerType == EPlayerType::PhoenixPlayer && MarkerType == EMarkerType::Phoenix)
+					{
+						Player->TryFinishTutorial(ETutorialChecklist::MarkEnemy);
+					}
+				}
+			}
+		}
+	}
 }
 
 void UMarkerComponent::RefreshMark(EMarkerType MarkerType)

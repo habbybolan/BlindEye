@@ -44,7 +44,7 @@ protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	float CachedZPosition;
-
+	
 	UFUNCTION()
 	virtual void OnOwnerDestroyed(AActor* OwnerDestroyed);
 

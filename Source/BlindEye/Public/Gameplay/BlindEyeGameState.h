@@ -62,6 +62,7 @@ public:
 	virtual void SetInProgressMatchState(FName NewInProgressState);
 
 	// getters for player characters to check the state of the game
+	bool IsBlindEyeMatchNotInProgress(); 
 	bool IsBlindEyeMatchWaitingPlayers();
 	bool IsBlindEyeMatchTutorial();
 	bool IsBlindEyeMatchInProgress();

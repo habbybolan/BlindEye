@@ -119,14 +119,9 @@ void ABlindEyePlayerCharacter::BeginPlay()
 		StartTutorial();
 	}
 	// Check if waiting for players, subscribe to tutorial starting event
-	else if (BlindEyeGS->IsBlindEyeMatchWaitingPlayers())
+	else 
 	{
 		BlindEyeGS->TutorialStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::StartTutorial);
-	}
-	// otherwise game in progress
-	else
-	{
-		// TODO:?
 	}
 }
 
@@ -160,7 +155,19 @@ void ABlindEyePlayerCharacter::TryFinishTutorial(ETutorialChecklist CheckListIte
 
 void ABlindEyePlayerCharacter::StartTutorial()
 {
-	BP_ShowTutorialChecklist();
+	BP_DisplayTutorialChecklist(true);
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+		check(BlindEyeGS)
+		BlindEyeGS->GameStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::StartGame);
+	}
+}
+
+void ABlindEyePlayerCharacter::StartGame()
+{
+	BP_DisplayTutorialChecklist(false);
 }
 
 ABlindEyePlayerState* ABlindEyePlayerCharacter::GetAllyPlayerState()
@@ -353,6 +360,7 @@ void ABlindEyePlayerCharacter::SER_OnRevive_Implementation()
 
 void ABlindEyePlayerCharacter::BasicAttackPressed() 
 {
+	TryFinishTutorial(ETutorialChecklist::BasicAttack);
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Basic, EAbilityInputTypes::Pressed);
 }
@@ -371,6 +379,7 @@ void ABlindEyePlayerCharacter::ChargedAttackReleased()
 
 void ABlindEyePlayerCharacter::DashPressed()
 {
+	TryFinishTutorial(ETutorialChecklist::Dash);
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Dash, EAbilityInputTypes::Pressed);
 }
@@ -383,6 +392,7 @@ void ABlindEyePlayerCharacter::DashReleased()
 
 void ABlindEyePlayerCharacter::Unique1Pressed()
 {
+	TryFinishTutorial(ETutorialChecklist::Ability1);
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Pressed);
 }
@@ -395,6 +405,7 @@ void ABlindEyePlayerCharacter::Unique1Released()
 
 void ABlindEyePlayerCharacter::Unique2Pressed()
 {
+	TryFinishTutorial(ETutorialChecklist::Ability2);
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Pressed);
 }
@@ -777,6 +788,7 @@ float ABlindEyePlayerCharacter::GetShrineHealthPercent()
 
 void ABlindEyePlayerCharacter::TryJump()
 {
+	TryFinishTutorial(ETutorialChecklist::Jump);
 	if (!HealthComponent->GetIsHunterDebuff() && !GetIsDead())
 	{
 		Jump();

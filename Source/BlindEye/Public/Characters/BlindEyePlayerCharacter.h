@@ -238,11 +238,16 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void TutorialFinished();
 
+	// Entrance method when tutorial started
 	UFUNCTION()
 	void StartTutorial();
-	
+
+	// Entrance method for when main game loop starts
+	UFUNCTION()
+	void StartGame(); 
+ 
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_ShowTutorialChecklist();
+	void BP_DisplayTutorialChecklist(bool bShowChecklist);
 
 protected:
 
