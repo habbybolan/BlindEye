@@ -270,10 +270,10 @@ void ABlindEyePlayerCharacter::SER_OnCheckAllyHealing_Implementation()
 		CurrRevivePercent += AllyHealCheckDelay * ReviveSpeedAutoPercentPerSec;
 	}
 	
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0.2f, FColor::Green, "Revive %: " + FString::SanitizeFloat(CurrRevivePercent));
 	if (CurrRevivePercent >= 100)
 	{
 		SER_OnRevive();
+		BP_PlayerRevived();
 	}
 }
 

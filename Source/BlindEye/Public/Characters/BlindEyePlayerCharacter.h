@@ -266,7 +266,12 @@ protected:
 	void SER_OnCheckAllyHealing();
 	FTimerHandle AllyHealingCheckTimerHandle;
 	const float AllyHealCheckDelay = 0.2f;
-	float CurrRevivePercent = 0; 
+
+	UPROPERTY(BlueprintReadOnly)
+	float CurrRevivePercent = 0;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_PlayerRevived();
 
 	UFUNCTION(Server, Reliable)
 	void SER_OnRevive();
