@@ -50,6 +50,9 @@ public:
 	UPROPERTY(Replicated)
 	EGameOverState GameOverState = EGameOverState::InProgress;
 
+	TArray<ABlindEyePlayerCharacter*> GetPlayers();
+	ABlindEyePlayerCharacter* GetPlayer(EPlayerType PlayerType);
+
 protected:
 	TWeakObjectPtr<AShrine> Shrine;
 

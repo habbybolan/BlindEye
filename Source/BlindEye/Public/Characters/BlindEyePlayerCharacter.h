@@ -35,6 +35,9 @@ class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityU
 
 	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
 	float HunterMarkMovementAlter = 0;
+
+	UPROPERTY(EditDefaultsOnly)
+	float AbilityCooldownLossOnDetonate = 2.f;
 	
 public:
 	ABlindEyePlayerCharacter(const FObjectInitializer& ObjectInitializer);
@@ -216,6 +219,11 @@ public:
 	void MULT_UpdateWalkMovementSpeed(float PercentWalkSpeedChange, float PercentAccelerationChange);
 	UFUNCTION(NetMulticast, Reliable)  
 	void MULT_ResetWalkMovementToNormal();
+
+	UFUNCTION()
+	void OnEnemyMarkDetonated();
+	UFUNCTION(BlueprintImplementableEvent) 
+	void BP_CooldownRefreshed(float RefreshAmount);
 
 protected:
 
