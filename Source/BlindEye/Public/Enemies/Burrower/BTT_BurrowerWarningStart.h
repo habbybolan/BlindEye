@@ -35,6 +35,8 @@ class BLINDEYE_API UBTT_BurrowerWarningStart : public UBTTask_BlackboardBase
 
 	virtual uint16 GetInstanceMemorySize() const override;
 
+	virtual EBTNodeResult::Type AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+
 	virtual void DescribeRuntimeValues(const UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTDescriptionVerbosity::Type Verbosity, TArray<FString>& Values) const override;
 	
 
