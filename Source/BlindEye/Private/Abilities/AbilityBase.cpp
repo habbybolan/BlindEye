@@ -5,6 +5,7 @@
 
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Interfaces/AbilityUserInterface.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
@@ -60,10 +61,22 @@ void AAbilityBase::SetOnCooldown()
 void AAbilityBase::CalculateCooldown()
 {
 	CurrCooldown -= CooldownTimerDelay;
+	// TODO: Lots of network calls
 	CLI_UpdateCooldown();
 	if (CurrCooldown <= 0)
 	{
 		SetOffCooldown();
+	}
+}
+
+void AAbilityBase::RefreshCooldown(float CooldownRefreshAmount)
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	if (bOnCooldown)
+	{
+		CurrCooldown = UKismetMathLibrary::Max(0, CurrCooldown - CooldownRefreshAmount);
 	}
 }
 

@@ -86,6 +86,8 @@ public:
 
 	DECLARE_DELEGATE(FAnimNotifySignature)
 	FAnimNotifySignature AnimNotifyDelegate;
+
+	void RefreshCooldown(float CooldownRefreshAmount);
 	
 protected:
 	// Called when the game starts

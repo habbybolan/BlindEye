@@ -123,6 +123,14 @@ void UAbilityManager::UpdateCooldownUI(EAbilityTypes abilityType, float CurrCool
 	}
 }
 
+void UAbilityManager::RefreshAllCooldowns(float CooldownRefreshAmount)
+{
+	for (AAbilityBase* Ability : AllAbilities)
+	{
+		Ability->RefreshCooldown(CooldownRefreshAmount);
+	}
+}
+
 
 // Called when the game starts
 void UAbilityManager::BeginPlay()
@@ -154,7 +162,9 @@ void UAbilityManager::SetupAbilities()
 	ChargedBasicAttack = world->SpawnActor<AAbilityBase>(ChargedBasicAttackType, params);
 	for (TSubclassOf<AAbilityBase> AbilityType : UniqueAbilityTypes)
 	{
-		UniqueAbilities.Add(world->SpawnActor<AAbilityBase>(AbilityType, params));
+		AAbilityBase* UniqueAbility = world->SpawnActor<AAbilityBase>(AbilityType, params);
+		UniqueAbilities.Add(UniqueAbility);
+		AllAbilities.Add(UniqueAbility);
 	}
 
 	// Basic attack delegates
@@ -162,6 +172,7 @@ void UAbilityManager::SetupAbilities()
 	{
 		BasicAttack->AbilityEndedDelegate.BindUObject(this, &UAbilityManager::AbilityEnded);
 		BasicAttack->AbilityEnteredRunState.BindUObject(this, &UAbilityManager::SetAbilityInUse);
+		AllAbilities.Add(BasicAttack);
 	}
 
 	// Dash attack delegates
@@ -169,6 +180,7 @@ void UAbilityManager::SetupAbilities()
 	{
 		Dash->AbilityEndedDelegate.BindUObject(this, &UAbilityManager::AbilityEnded);
 		Dash->AbilityEnteredRunState.BindUObject(this, &UAbilityManager::SetAbilityInUse);
+		AllAbilities.Add(Dash);
 	}
 	
 	// Unique abilities delegates

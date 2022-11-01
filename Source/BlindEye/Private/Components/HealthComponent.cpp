@@ -10,6 +10,8 @@
 #include "Enemies/BlindEyeEnemyBase.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Gameplay/BlindEyeGameState.h"
+#include "Gameplay/BlindEyePlayerState.h"
 #include "Interfaces/HealthInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -261,6 +263,16 @@ void UHealthComponent::PerformDetonationEffect(AActor* DamageCause)
 		if (CurrMark.MarkerType == EMarkerType::Crow)
 		{
 			SetDamage(ExtraDetonationDamage, GetOwner()->GetActorLocation(), DamageType, DamageCause);
+			UWorld* World = GetWorld();
+			if (World)
+			{
+				ABlindEyeGameState* BLindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+				for (ABlindEyePlayerCharacter* Players : BLindEyeGS->GetPlayers())
+				{
+					Players->OnEnemyMarkDetonated();
+				}
+			}
+			
 		}
 		// Burn on detonated (Detonate Phoenix Mark on Enemy)
 		else if (CurrMark.MarkerType == EMarkerType::Phoenix) 
