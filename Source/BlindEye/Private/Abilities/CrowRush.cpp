@@ -237,7 +237,7 @@ void FAimingStartState::RunState(EAbilityInputTypes abilityUsageType)
 	// Start Aiming hold
 	if (abilityUsageType == EAbilityInputTypes::None)
 	{
-		Ability->BP_AbilityStarted();
+		Ability->AbilityStarted();
 		ACrowRush* Rush = Cast<ACrowRush>(Ability);
 		check(Rush)
 		Rush->CLI_StartAiming();
@@ -264,6 +264,8 @@ FMovingState::FMovingState(AAbilityBase* ability) : FAbilityState(ability) {}
 void FMovingState::TryEnterState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
+	if (!Ability) return;
+	Ability->SetOnCooldown();
 	RunState();
 }
 

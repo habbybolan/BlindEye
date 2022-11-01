@@ -102,7 +102,6 @@ void UAbilityManager::SetAbilityInUse(AAbilityBase* abilityInUse)
 {
 	if (CurrUsedAbility == nullptr)
 	{
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Purple, "Ability in use: " + abilityInUse->GetName());
 		CurrUsedAbility = abilityInUse;
 	}
 }
@@ -120,6 +119,14 @@ void UAbilityManager::UpdateCooldownUI(EAbilityTypes abilityType, float CurrCool
 	if (ABlindEyePlayerCharacter* BlindEyeCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
 		BlindEyeCharacter->BP_UpdateCooldownUI(abilityType, CurrCooldown, MaxCooldown);
+	}
+}
+
+void UAbilityManager::RefreshAllCooldowns(float CooldownRefreshAmount)
+{
+	for (AAbilityBase* Ability : AllAbilities)
+	{
+		Ability->RefreshCooldown(CooldownRefreshAmount);
 	}
 }
 
@@ -154,7 +161,9 @@ void UAbilityManager::SetupAbilities()
 	ChargedBasicAttack = world->SpawnActor<AAbilityBase>(ChargedBasicAttackType, params);
 	for (TSubclassOf<AAbilityBase> AbilityType : UniqueAbilityTypes)
 	{
-		UniqueAbilities.Add(world->SpawnActor<AAbilityBase>(AbilityType, params));
+		AAbilityBase* UniqueAbility = world->SpawnActor<AAbilityBase>(AbilityType, params);
+		UniqueAbilities.Add(UniqueAbility);
+		AllAbilities.Add(UniqueAbility);
 	}
 
 	// Basic attack delegates
@@ -162,6 +171,7 @@ void UAbilityManager::SetupAbilities()
 	{
 		BasicAttack->AbilityEndedDelegate.BindUObject(this, &UAbilityManager::AbilityEnded);
 		BasicAttack->AbilityEnteredRunState.BindUObject(this, &UAbilityManager::SetAbilityInUse);
+		AllAbilities.Add(BasicAttack);
 	}
 
 	// Dash attack delegates
@@ -169,6 +179,7 @@ void UAbilityManager::SetupAbilities()
 	{
 		Dash->AbilityEndedDelegate.BindUObject(this, &UAbilityManager::AbilityEnded);
 		Dash->AbilityEnteredRunState.BindUObject(this, &UAbilityManager::SetAbilityInUse);
+		AllAbilities.Add(Dash);
 	}
 	
 	// Unique abilities delegates

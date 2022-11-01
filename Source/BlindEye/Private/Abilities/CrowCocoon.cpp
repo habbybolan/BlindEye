@@ -104,7 +104,7 @@ void UCrowCocoonStart::RunState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::RunState(abilityUsageType);
 	if (!Ability) return;
-	Ability->BP_AbilityStarted();
+	Ability->AbilityStarted();
 	Ability->Blockers.IsMovementSlowBlocked = true;
 	Ability->Blockers.MovementSlowAmount = 0.2;
 	Ability->Blockers.IsOtherAbilitiesBlocked = true;

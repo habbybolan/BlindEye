@@ -216,6 +216,12 @@ void ABlindEyePlayerCharacter::MULT_ResetWalkMovementToNormal_Implementation()
 	GetCharacterMovement()->MaxAcceleration = CachedAcceleration;
 }
 
+void ABlindEyePlayerCharacter::OnEnemyMarkDetonated()
+{
+	AbilityManager->RefreshAllCooldowns(AbilityCooldownLossOnDetonate);
+	BP_CooldownRefreshed(AbilityCooldownLossOnDetonate);
+}
+
 void ABlindEyePlayerCharacter::RegenBirdMeter()
 {
 	if (ABlindEyePlayerState* BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState()))

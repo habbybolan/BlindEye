@@ -220,5 +220,6 @@ protected:
 	
 	FTimerHandle MarkerDecayTimerHandle;
 	void DetonateMark();
-	void PerformDetonationEffect(AActor* DamageCause); 
+	void PerformDetonationEffect(AActor* DamageCause);
+	void NotifyPlayersOnDetonation();
 };
