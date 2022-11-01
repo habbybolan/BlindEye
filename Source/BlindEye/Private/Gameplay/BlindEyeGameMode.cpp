@@ -163,6 +163,7 @@ void ABlindEyeGameMode::PauseWinCondition(bool IsPauseWinCond)
 void ABlindEyeGameMode::IncrementTimeByAMinute()
 {
 	GameTimer += 60;
+	CurrIslandLevelTime += 60;
 }
 
 void ABlindEyeGameMode::BeginPlay()
