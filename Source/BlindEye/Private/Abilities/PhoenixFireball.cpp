@@ -165,6 +165,7 @@ void FStartCastingAbilityState::TryEnterState(EAbilityInputTypes abilityUsageTyp
 		if (!PhoenixFireball->TryConsumeBirdMeter(PhoenixFireball->CostPercent)) return;
 	}
 	if (abilityUsageType != EAbilityInputTypes::Pressed) return;
+	Ability->SetOnCooldown();
 	RunState();
 }
 
@@ -175,7 +176,7 @@ void FStartCastingAbilityState::RunState(EAbilityInputTypes abilityUsageType)
 	
 	FAbilityState::RunState(abilityUsageType);
 	if (!Ability) return;
-	Ability->BP_AbilityStarted();
+	Ability->AbilityStarted();
 	
 	APhoenixFireball* PhoenixFireball = Cast<APhoenixFireball>(Ability);
 	if (!PhoenixFireball) return;
