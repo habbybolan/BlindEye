@@ -33,6 +33,15 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTutorialStartedSignature);
+	FTutorialStartedSignature TutorialStartedDelegate;
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTutorialEndedSignature);
+	FTutorialEndedSignature TutorialEndedDelegate;
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGameStartedSignature);
+	FGameStartedSignature GameStartedDelegate; 
+
 	ABlindEyePlayerCharacter* GetRandomPlayer();
 
 	UFUNCTION(BlueprintCallable)
@@ -58,6 +67,9 @@ public:
 	bool IsBlindEyeMatchInProgress();
 	bool IsBlindEyeMatchEnding();
 
+	void TutorialFinished();
+	void StartGame();
+
 protected:
 	TWeakObjectPtr<AShrine> Shrine;
 
@@ -69,5 +81,7 @@ protected:
 	
 	UFUNCTION()
 	virtual void OnRep_InProgressMatchState();
+
+	void TutorialState();
 	
 };

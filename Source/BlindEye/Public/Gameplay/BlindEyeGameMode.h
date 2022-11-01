@@ -42,15 +42,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	float PulseKillDelay = 1.0f;
-
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTutorialStartedSignature);
-	FTutorialStartedSignature TutorialStartedDelegate;
-
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTutorialEndedSignature);
-	FTutorialEndedSignature TutorialEndedDelegate;
-
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGameStartedSignature);
-	FGameStartedSignature GameStartedDelegate; 
 	
 	// called by shrine when it's destroyed
 	void OnShrineDeath();
@@ -112,6 +103,4 @@ protected:
 	float GameTimer = 0;
 
 	virtual void Tick(float DeltaSeconds) override;
-	
-	
 };

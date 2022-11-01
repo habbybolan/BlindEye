@@ -109,8 +109,31 @@ void ABlindEyePlayerCharacter::BeginPlay()
 		world->GetTimerManager().SetTimer(BirdRegenTimerHandle, this, &ABlindEyePlayerCharacter::RegenBirdMeter, RegenBirdMeterCallDelay, true);
 		world->GetTimerManager().SetTimer(HealthRegenTimerHandle, this, &ABlindEyePlayerCharacter::RegenHealth, RegenHealthCallDelay, true);
 	}
+
+	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(world));
+	check(BlindEyeGS);
+
+	// Check if state is Tutorial
+	if (BlindEyeGS->IsBlindEyeMatchTutorial())
+	{
+		StartTutorial();
+	}
+	// Check if waiting for players, subscribe to tutorial starting event
+	else if (BlindEyeGS->IsBlindEyeMatchWaitingPlayers())
+	{
+		BlindEyeGS->TutorialStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::StartTutorial);
+	}
+	// otherwise game in progress
+	else
+	{
+		// TODO:?
+	}
 }
 
+void ABlindEyePlayerCharacter::StartTutorial()
+{
+	BP_ShowTutorialChecklist();
+}
 
 ABlindEyePlayerState* ABlindEyePlayerCharacter::GetAllyPlayerState()
 {
@@ -214,6 +237,18 @@ void ABlindEyePlayerCharacter::MULT_ResetWalkMovementToNormal_Implementation()
 {
 	GetCharacterMovement()->MaxWalkSpeed = CachedMovementSpeed;
 	GetCharacterMovement()->MaxAcceleration = CachedAcceleration;
+}
+
+void ABlindEyePlayerCharacter::TutorialFinished()
+{
+	// TODO: Add ready-up button hold before sending notify GM tutorial finished
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		ABlindEyeGameMode* BlindEyeGM = Cast<ABlindEyeGameMode>(UGameplayStatics::GetGameMode(World));
+		BlindEyeGM->TutorialFinished(this);
+	}
+	
 }
 
 void ABlindEyePlayerCharacter::RegenBirdMeter()

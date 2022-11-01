@@ -45,16 +45,15 @@ void ABlindEyeGameMode::OnShrineDeath()
 	OnGameEnded();
 }
 
-void ABlindEyeGameMode::HandleMatchHasStarted()
+void ABlindEyeGameMode::HandleMatchHasStarted() 
 {
-
 	Super::HandleMatchHasStarted();
+	SetInProgressMatchState(InProgressStates::Tutorial);
 }
 
 void ABlindEyeGameMode::TutorialState()
 {
 	// TODO:
-	TutorialStartedDelegate.Broadcast();
 }
 
 void ABlindEyeGameMode::GameInProgressState()
@@ -236,14 +235,20 @@ void ABlindEyeGameMode::TutorialFinished(ABlindEyePlayerCharacter* Player)
 	// TODO: Keep track of players that have readied up to see if game should start
 	// TODO: De-spawn dummies, send delegate that tutorial ended
 	// TODO: Send delegate that game has started
-	TutorialEndedDelegate.Broadcast();
+	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(GameState);
+	check(BlindEyeGS)
+	BlindEyeGS->TutorialFinished();
+	
 	StartGame();
 }
 
 void ABlindEyeGameMode::StartGame()
 {
-	GameStartedDelegate.Broadcast();
 	SetInProgressMatchState(InProgressStates::GameInProgress);
+	
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(GameState);
+    	check(BlindEyeGS)
+    	BlindEyeGS->StartGame();
 }
 
 void ABlindEyeGameMode::BeginPlay()

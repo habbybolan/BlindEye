@@ -39,6 +39,7 @@ void ABlindEyeGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(ABlindEyeGameState, bWinConditionPaused)
 	DOREPLIFETIME(ABlindEyeGameState, bHunterAlwaysVisible)
 	DOREPLIFETIME(ABlindEyeGameState, GameOverState)
+	DOREPLIFETIME(ABlindEyeGameState, InProgressMatchState)
 }
 
 ABlindEyePlayerCharacter* ABlindEyeGameState::GetRandomPlayer()
@@ -89,6 +90,16 @@ bool ABlindEyeGameState::IsBlindEyeMatchEnding()
 	return InProgressMatchState == InProgressStates::GameEnding;
 }
 
+void ABlindEyeGameState::TutorialFinished()
+{
+	TutorialEndedDelegate.Broadcast();
+}
+
+void ABlindEyeGameState::StartGame()
+{
+	GameStartedDelegate.Broadcast();
+}
+
 void ABlindEyeGameState::OnRep_InProgressMatchState()
 {
 	if (InProgressMatchState == InProgressStates::NotInProgress)
@@ -101,7 +112,7 @@ void ABlindEyeGameState::OnRep_InProgressMatchState()
 	}
 	else if (InProgressMatchState == InProgressStates::Tutorial)
 	{
-		// TODO:?
+		TutorialState();
 	}
 	else if (InProgressMatchState == InProgressStates::GameInProgress)
 	{
@@ -111,4 +122,9 @@ void ABlindEyeGameState::OnRep_InProgressMatchState()
 	{
 		// TODO:?
 	}
+}
+
+void ABlindEyeGameState::TutorialState()
+{
+	TutorialStartedDelegate.Broadcast();
 }
