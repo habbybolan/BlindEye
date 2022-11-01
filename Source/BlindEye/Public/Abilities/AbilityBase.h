@@ -69,6 +69,8 @@ public:
 	bool GetIsOnCooldown();
 
 	bool TryConsumeBirdMeter(float BirdMeterAmount);
+	
+	void AbilityStarted();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_AbilityStarted();
@@ -119,8 +121,7 @@ protected:
 	bool bDelayToExit = false;
 	// Execute the delay to next state timer
 	void ExecuteDelayToNextState();
-
-	void SetOnCooldown();
+	
 	void SetOffCooldown();
 
 	// called when all ability inner states finished or ability cancelled
@@ -129,6 +130,8 @@ protected:
 	FTimerHandle NextStateDelayTimerHandle;
 
 public:
+
+	void SetOnCooldown();
 
 	// called from state to signal state ended
 	void EndCurrState();

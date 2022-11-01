@@ -32,6 +32,12 @@ bool AAbilityBase::TryConsumeBirdMeter(float BirdMeterAmount)
 	return true;
 }
 
+void AAbilityBase::AbilityStarted()
+{
+	BP_AbilityStarted();
+	bIsRunning = true;
+}
+
 void AAbilityBase::StartLockRotation(float Duration)
 {
 	if (ABlindEyePlayerCharacter* BlindEyeCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
@@ -71,13 +77,20 @@ void AAbilityBase::CalculateCooldown()
 
 void AAbilityBase::RefreshCooldown(float CooldownRefreshAmount)
 {
-	UWorld* World = GetWorld();
-	if (World == nullptr) return;
-	
-	if (bOnCooldown)
+	if (GetLocalRole() == ROLE_Authority)
 	{
-		CurrCooldown = UKismetMathLibrary::Max(0, CurrCooldown - CooldownRefreshAmount);
+		UWorld* World = GetWorld();
+		if (World == nullptr) return;
+	
+		if (bOnCooldown)
+		{
+			CurrCooldown = UKismetMathLibrary::Max(0, CurrCooldown - CooldownRefreshAmount);
+		}
+	}else
+	{
+		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 3.0f, FColor::Red, "SHOULDNT BE HERE");
 	}
+	
 }
 
 void AAbilityBase::CLI_UpdateCooldown_Implementation()
@@ -152,6 +165,11 @@ void AAbilityBase::EndAbilityLogic()
 	{
 		GetWorldTimerManager().ClearTimer(NextStateDelayTimerHandle);
 	}
+
+	if (!bOnCooldown)
+	{
+		SetOnCooldown();
+	}
 	
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, "Ability ended");
 	CurrState = 0;
@@ -159,7 +177,6 @@ void AAbilityBase::EndAbilityLogic()
 	bIsRunning = false;
 	AbilityEndedDelegate.ExecuteIfBound();
 	BP_AbilityEnded();
-	SetOnCooldown();
 }
 
 void AAbilityBase::EndCurrState()

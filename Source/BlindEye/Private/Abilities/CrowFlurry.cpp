@@ -158,6 +158,7 @@ void FPerformCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType)
 	
 	// apply initial cost
 	if (!Ability) return;
+	Ability->SetOnCooldown();
 	if (ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability))
 	{
 		if (!CrowFlurry->TryConsumeBirdMeter(CrowFlurry->InitialCostPercent)) return;
@@ -176,7 +177,7 @@ void FPerformCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
 	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);
 	if (!CrowFlurry) return;
 	
-	Ability->BP_AbilityStarted();
+	Ability->AbilityStarted();
 	// wait for ability startup to goto end state
 	CrowFlurry->PlayAbilityAnimation();
 

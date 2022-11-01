@@ -263,21 +263,13 @@ void UHealthComponent::PerformDetonationEffect(AActor* DamageCause)
 		if (CurrMark.MarkerType == EMarkerType::Crow)
 		{
 			SetDamage(ExtraDetonationDamage, GetOwner()->GetActorLocation(), DamageType, DamageCause);
-			UWorld* World = GetWorld();
-			if (World)
-			{
-				ABlindEyeGameState* BLindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
-				for (ABlindEyePlayerCharacter* Players : BLindEyeGS->GetPlayers())
-				{
-					Players->OnEnemyMarkDetonated();
-				}
-			}
-			
+			NotifyPlayersOnDetonation();
 		}
 		// Burn on detonated (Detonate Phoenix Mark on Enemy)
 		else if (CurrMark.MarkerType == EMarkerType::Phoenix) 
 		{
 			SetDamage(ExtraDetonationDamage, GetOwner()->GetActorLocation(), DamageType, DamageCause);
+			NotifyPlayersOnDetonation();
 		}
 	}
 	// // If player being detonated
@@ -307,6 +299,19 @@ void UHealthComponent::PerformDetonationEffect(AActor* DamageCause)
 	// 		HealingWell->AttachToActor(GetOwner(), FAttachmentTransformRules::KeepWorldTransform);
 	// 	}
 	// }
+}
+
+void UHealthComponent::NotifyPlayersOnDetonation()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		ABlindEyeGameState* BLindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+		for (ABlindEyePlayerCharacter* Players : BLindEyeGS->GetPlayers())
+		{
+			Players->OnEnemyMarkDetonated();
+		}
+	}
 }
 
 void UHealthComponent::TryTaunt(float Duration, AActor* Taunter)
