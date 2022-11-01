@@ -68,32 +68,22 @@ void AAbilityBase::CalculateCooldown()
 {
 	CurrCooldown -= CooldownTimerDelay;
 	// TODO: Lots of network calls
-	CLI_UpdateCooldown();
+	CLI_UpdateCooldownUI();
 	if (CurrCooldown <= 0)
 	{
 		SetOffCooldown();
 	}
 }
 
-void AAbilityBase::RefreshCooldown(float CooldownRefreshAmount)
+void AAbilityBase::CLI_CooldownFinished_Implementation()
 {
-	if (GetLocalRole() == ROLE_Authority)
+	if (OwningAbilityManager)
 	{
-		UWorld* World = GetWorld();
-		if (World == nullptr) return;
-	
-		if (bOnCooldown)
-		{
-			CurrCooldown = UKismetMathLibrary::Max(0, CurrCooldown - CooldownRefreshAmount);
-		}
-	}else
-	{
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 3.0f, FColor::Red, "SHOULDNT BE HERE");
+		OwningAbilityManager->UpdateCooldownUI(AbilityType, 0, Cooldown);
 	}
-	
 }
 
-void AAbilityBase::CLI_UpdateCooldown_Implementation()
+void AAbilityBase::CLI_UpdateCooldownUI_Implementation()
 {
 	if (OwningAbilityManager == nullptr)
 	{
@@ -110,12 +100,24 @@ void AAbilityBase::CLI_UpdateCooldown_Implementation()
 	}
 }
 
+void AAbilityBase::RefreshCooldown(float CooldownRefreshAmount)
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+
+	if (bOnCooldown)
+	{
+		CurrCooldown = UKismetMathLibrary::Max(0, CurrCooldown - CooldownRefreshAmount);
+	}
+}
+
+
 void AAbilityBase::SetOffCooldown()
 {
+	CLI_CooldownFinished();
 	// If cooldown removed by outside source
 	GetWorldTimerManager().ClearTimer(CooldownTimerHandle);
 	bOnCooldown = false;
-	
 }
 
 void AAbilityBase::TryCancelAbility()

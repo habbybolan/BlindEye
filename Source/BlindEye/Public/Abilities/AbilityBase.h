@@ -113,7 +113,10 @@ protected:
 	void CalculateCooldown();
 
 	UFUNCTION(Client, Unreliable)
-	void CLI_UpdateCooldown();
+	void CLI_UpdateCooldownUI();
+	
+	UFUNCTION(Client, Reliable) 
+	void CLI_CooldownFinished();
 
 	EAbilityTypes AbilityType;
 
