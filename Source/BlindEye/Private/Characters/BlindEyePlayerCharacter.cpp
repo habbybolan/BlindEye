@@ -130,6 +130,21 @@ void ABlindEyePlayerCharacter::BeginPlay()
 	}
 }
 
+void ABlindEyePlayerCharacter::TryFinishTutorial(ETutorialChecklist CheckListItem)
+{
+	// Check if Player in tutorial
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+		if (BlindEyeGS->IsBlindEyeMatchTutorial())
+		{
+			// Send checklist item to BP
+			BP_TutorialCheckList(CheckListItem);
+		}
+	}
+}
+
 void ABlindEyePlayerCharacter::StartTutorial()
 {
 	BP_ShowTutorialChecklist();

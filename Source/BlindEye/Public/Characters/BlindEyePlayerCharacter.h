@@ -20,6 +20,21 @@ class ABlindEyePlayerState;
 
 class UMarkerComponent;
 
+UENUM(BlueprintType)
+enum class ETutorialChecklist : uint8
+{
+	Jump, 
+	Dash,
+	BasicAttack,
+	Combo,
+	Ability1,
+	Ability2,
+	MarkEnemy,
+	Detonate, 
+	Count UMETA(Hidden)
+};
+ENUM_RANGE_BY_COUNT(ETutorialChecklist, ETutorialChecklist::Count);
+
 UCLASS(config=Game)
 class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityUserInterface
 {
@@ -45,6 +60,8 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 
 	virtual void BeginPlay() override;
+
+	void TryFinishTutorial(ETutorialChecklist CheckListItem);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_UpdateCooldownUI(EAbilityTypes abilityType, float CurrCooldown, float MaxCooldown);
@@ -278,6 +295,9 @@ protected:
 	const float AllyHealCheckDelay = 0.2f;
 	float CurrRevivePercent = 0; 
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_TutorialCheckList(ETutorialChecklist TutorialChecklist);
+	
 	UFUNCTION(Server, Reliable)
 	void SER_OnRevive();
 
