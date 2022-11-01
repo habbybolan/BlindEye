@@ -246,6 +246,8 @@ public:
 
 protected:
 
+	TSet<ETutorialChecklist> ChecklistFinishedTasks;
+
 	UFUNCTION()
 	void RegenBirdMeter();
 	const float RegenBirdMeterCallDelay = 0.2f;	// Delay on timer call for regen-ing bird meter
