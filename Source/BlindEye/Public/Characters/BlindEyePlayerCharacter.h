@@ -67,6 +67,8 @@ public:
 	void TryFinishTutorial(ETutorialChecklist CheckListItem);
 
 	void OnEnemyMarkDetonated();
+	UFUNCTION(BlueprintImplementableEvent) 
+	void BP_CooldownRefreshed(float RefreshAmount);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_UpdateCooldownUI(EAbilityTypes abilityType, float CurrCooldown, float MaxCooldown);

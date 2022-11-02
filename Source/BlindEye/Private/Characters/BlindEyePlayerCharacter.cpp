@@ -102,26 +102,26 @@ void ABlindEyePlayerCharacter::BeginPlay()
 			AShrine* Shrine = Cast<AShrine>(ShrineActor);
 			Shrine->ShrineHealthChange.AddUFunction(this, TEXT("UpdateShrineHealthUI"));
 		}
+
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(world));
+		check(BlindEyeGS);
+
+		// Check if state is Tutorial
+		if (BlindEyeGS->IsBlindEyeMatchTutorial())
+		{
+			StartTutorial();
+		}
+		// Check if waiting for players, subscribe to tutorial starting event
+		else 
+		{
+			BlindEyeGS->TutorialStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::StartTutorial);
+		}
 	}
 
 	if (GetLocalRole() == ROLE_Authority)
 	{
 		world->GetTimerManager().SetTimer(BirdRegenTimerHandle, this, &ABlindEyePlayerCharacter::RegenBirdMeter, RegenBirdMeterCallDelay, true);
 		world->GetTimerManager().SetTimer(HealthRegenTimerHandle, this, &ABlindEyePlayerCharacter::RegenHealth, RegenHealthCallDelay, true);
-	}
-
-	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(world));
-	check(BlindEyeGS);
-
-	// Check if state is Tutorial
-	if (BlindEyeGS->IsBlindEyeMatchTutorial())
-	{
-		StartTutorial();
-	}
-	// Check if waiting for players, subscribe to tutorial starting event
-	else 
-	{
-		BlindEyeGS->TutorialStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::StartTutorial);
 	}
 }
 
@@ -156,6 +156,7 @@ void ABlindEyePlayerCharacter::TryFinishTutorial(ETutorialChecklist CheckListIte
 void ABlindEyePlayerCharacter::OnEnemyMarkDetonated()
 {
 	AbilityManager->RefreshAllCooldowns(CooldownRefreshAmount);
+	BP_CooldownRefreshed(CooldownRefreshAmount);
 }
 
 void ABlindEyePlayerCharacter::StartTutorial()
