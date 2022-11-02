@@ -142,7 +142,7 @@ void UFirstAttackState::RunState(EAbilityInputTypes abilityUsageType)
 	
 	if (!Ability) return;
 	Ability->StartLockRotation(1);
-	Ability->BP_AbilityStarted();
+	Ability->AbilityStarted();
 	Ability->BP_AbilityInnerState(1);
 }
 

@@ -69,6 +69,8 @@ public:
 	bool GetIsOnCooldown();
 
 	bool TryConsumeBirdMeter(float BirdMeterAmount);
+	
+	void AbilityStarted();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_AbilityStarted();
@@ -86,6 +88,8 @@ public:
 
 	DECLARE_DELEGATE(FAnimNotifySignature)
 	FAnimNotifySignature AnimNotifyDelegate;
+
+	void RefreshCooldown(float CooldownRefreshAmount);
 	
 protected:
 	// Called when the game starts
@@ -109,7 +113,10 @@ protected:
 	void CalculateCooldown();
 
 	UFUNCTION(Client, Unreliable)
-	void CLI_UpdateCooldown();
+	void CLI_UpdateCooldownUI();
+	
+	UFUNCTION(Client, Reliable) 
+	void CLI_CooldownFinished();
 
 	EAbilityTypes AbilityType;
 
@@ -117,8 +124,7 @@ protected:
 	bool bDelayToExit = false;
 	// Execute the delay to next state timer
 	void ExecuteDelayToNextState();
-
-	void SetOnCooldown();
+	
 	void SetOffCooldown();
 
 	// called when all ability inner states finished or ability cancelled
@@ -127,6 +133,8 @@ protected:
 	FTimerHandle NextStateDelayTimerHandle;
 
 public:
+
+	void SetOnCooldown();
 
 	// called from state to signal state ended
 	void EndCurrState();

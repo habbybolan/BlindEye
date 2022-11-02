@@ -50,6 +50,9 @@ class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityU
 
 	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
 	float HunterMarkMovementAlter = 0;
+
+	UPROPERTY(EditDefaultsOnly)
+	float CooldownRefreshAmount = 2.0f;
 	
 public:
 	ABlindEyePlayerCharacter(const FObjectInitializer& ObjectInitializer);
@@ -62,6 +65,8 @@ public:
 	virtual void BeginPlay() override;
 
 	void TryFinishTutorial(ETutorialChecklist CheckListItem);
+
+	void OnEnemyMarkDetonated();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_UpdateCooldownUI(EAbilityTypes abilityType, float CurrCooldown, float MaxCooldown);

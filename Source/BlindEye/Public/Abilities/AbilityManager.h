@@ -62,6 +62,8 @@ public:
 	void PerformGenericAbilityNotify();
 
 	void UpdateCooldownUI(EAbilityTypes abilityType, float CurrCooldown, float MaxCooldown);
+	
+	void RefreshAllCooldowns(float CooldownRefreshAmount);
 
 protected:
 	// Called when the game starts
@@ -93,6 +95,8 @@ protected:
 	TArray<AAbilityBase*> UniqueAbilities;
 	UPROPERTY(Replicated)
 	AAbilityBase* CurrUsedAbility;
+
+	TArray<AAbilityBase*> AllAbilities;
 
 	UFUNCTION()
 	void SetupAbilities();

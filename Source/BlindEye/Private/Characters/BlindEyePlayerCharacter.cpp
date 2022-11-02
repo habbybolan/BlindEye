@@ -153,6 +153,11 @@ void ABlindEyePlayerCharacter::TryFinishTutorial(ETutorialChecklist CheckListIte
 	}
 }
 
+void ABlindEyePlayerCharacter::OnEnemyMarkDetonated()
+{
+	AbilityManager->RefreshAllCooldowns(CooldownRefreshAmount);
+}
+
 void ABlindEyePlayerCharacter::StartTutorial()
 {
 	BP_DisplayTutorialChecklist(true);

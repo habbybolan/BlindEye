@@ -59,6 +59,7 @@ AIslandManager* ABlindEyeGameState::GetIslandManager()
 	return IslandManager;
 }
 
+
 void ABlindEyeGameState::SetInProgressMatchState(FName NewInProgressState)
 {
 	if (GetLocalRole() == ROLE_Authority)
@@ -132,4 +133,29 @@ void ABlindEyeGameState::OnRep_InProgressMatchState()
 void ABlindEyeGameState::TutorialState()
 {
 	TutorialStartedDelegate.Broadcast();
+}
+
+TArray<ABlindEyePlayerCharacter*> ABlindEyeGameState::GetPlayers()
+{
+	TArray<ABlindEyePlayerCharacter*> Players;
+	for (APlayerState* PlayerState : PlayerArray)
+	{
+		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerState->GetPawn());
+		check(Player)
+		Players.Add(Player);
+	}
+	return Players;
+}
+
+ABlindEyePlayerCharacter* ABlindEyeGameState::GetPlayer(EPlayerType PlayerType)
+{
+	for (APlayerState* PlayerState : PlayerArray)
+	{
+		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerState->GetPawn());
+		check(Player)
+		if (Player->PlayerType == PlayerType) return Player;
+	}
+	// PlayerType player not connected
+	return nullptr;
+
 }

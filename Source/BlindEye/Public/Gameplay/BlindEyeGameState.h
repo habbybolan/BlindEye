@@ -58,7 +58,7 @@ public:
 
 	UPROPERTY(Replicated)
 	EGameOverState GameOverState = EGameOverState::InProgress;
-
+	
 	virtual void SetInProgressMatchState(FName NewInProgressState);
 
 	// getters for player characters to check the state of the game
@@ -70,6 +70,9 @@ public:
 
 	void TutorialFinished();
 	void StartGame();
+	
+	TArray<ABlindEyePlayerCharacter*> GetPlayers();
+	ABlindEyePlayerCharacter* GetPlayer(EPlayerType PlayerType);
 
 protected:
 	TWeakObjectPtr<AShrine> Shrine;

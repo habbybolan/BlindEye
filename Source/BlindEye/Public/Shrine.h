@@ -67,6 +67,9 @@ protected:
 	UFUNCTION()
 	void OnChannellingEnemyDied(AActor* DeadChannellingEnemy);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
+
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 public:

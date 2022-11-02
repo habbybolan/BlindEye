@@ -72,6 +72,8 @@ void APhoenixDive::LaunchToGround()
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
+ 
+	SetOnCooldown(); 
 
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
 	if (Character == nullptr) return;
@@ -350,14 +352,14 @@ void FJumpState::TryEnterState(EAbilityInputTypes abilityUsageType)
 	if (abilityUsageType > EAbilityInputTypes::None) return;
 	
 	FAbilityState::TryEnterState(abilityUsageType);
+	if (!Ability) return;
+	Ability->AbilityStarted();
 	RunState();
 }
 
 void FJumpState::RunState(EAbilityInputTypes abilityUsageType)
 {
 	FAbilityState::RunState(abilityUsageType);
-	if (!Ability) return;
-	Ability->BP_AbilityStarted();
 	APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability);
 	if (!PhoenixDive) return;
 
