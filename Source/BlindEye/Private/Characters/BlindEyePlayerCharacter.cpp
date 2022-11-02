@@ -355,10 +355,19 @@ void ABlindEyePlayerCharacter::OnCheckAllyHealing()
 	TArray<AActor*> OverlapActors;
 	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), GetActorLocation(), AllyReviveRadius, AllyReviveObjectTypes,
 		nullptr, ActorsToIgnore, OverlapActors);
-	if (OverlapActors.Num() > 0)
+
+	// Check if player overlapping
+	bool bPlayerOverlapped = false;
+	for (AActor* Overlap : OverlapActors)
 	{
-		CurrRevivePercent += AllyHealCheckDelay * ReviveSpeedAllyPercentPerSec;
-	} else
+		if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Overlap))
+		{
+			CurrRevivePercent += AllyHealCheckDelay * ReviveSpeedAllyPercentPerSec;
+			bPlayerOverlapped = true;
+			break;
+		}
+	}
+	if (!bPlayerOverlapped)
 	{
 		CurrRevivePercent += AllyHealCheckDelay * ReviveSpeedAutoPercentPerSec;
 	}
