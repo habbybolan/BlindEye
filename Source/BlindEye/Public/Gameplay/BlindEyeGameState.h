@@ -58,6 +58,11 @@ public:
 
 	UPROPERTY(Replicated)
 	EGameOverState GameOverState = EGameOverState::InProgress;
+
+	UPROPERTY(Replicated)
+	float CurrGameTime = 0;
+	UPROPERTY(Replicated)
+	float TimerUntilGameWon; 
 	
 	virtual void SetInProgressMatchState(FName NewInProgressState);
 
@@ -74,6 +79,15 @@ public:
 	TArray<ABlindEyePlayerCharacter*> GetPlayers();
 	ABlindEyePlayerCharacter* GetPlayer(EPlayerType PlayerType);
 
+	// Send from GameMode to update the game timers
+	void UpdateMainGameTimer(float GameTimer);
+
+	// Keeps track of main loop timers, which are periodically synced from server. Doesn't run any game logic
+	UFUNCTION()
+	void RunMainGameLoopTimers();
+
+	float GetGameDonePercent();
+
 protected:
 	TWeakObjectPtr<AShrine> Shrine;
 
@@ -83,6 +97,10 @@ protected:
 	UPROPERTY()
 	AIslandManager* IslandManager;
 	
+	FTimerHandle MainGameLoopTimer;
+	float MainGameLoopDelay = 0.1;
+
+	void GameInProgressState();
 	UFUNCTION()
 	virtual void OnRep_InProgressMatchState();
 

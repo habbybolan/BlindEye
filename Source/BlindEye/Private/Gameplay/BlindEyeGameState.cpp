@@ -31,15 +31,11 @@ void ABlindEyeGameState::BeginPlay()
 	{
 		IslandManager = Cast<AIslandManager>(IslandManageActor);
 	}
-}
 
-void ABlindEyeGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ABlindEyeGameState, bWinConditionPaused)
-	DOREPLIFETIME(ABlindEyeGameState, bHunterAlwaysVisible)
-	DOREPLIFETIME(ABlindEyeGameState, GameOverState)
-	DOREPLIFETIME(ABlindEyeGameState, InProgressMatchState)
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		
+	}
 }
 
 ABlindEyePlayerCharacter* ABlindEyeGameState::GetRandomPlayer()
@@ -122,7 +118,7 @@ void ABlindEyeGameState::OnRep_InProgressMatchState()
 	}
 	else if (InProgressMatchState == InProgressStates::GameInProgress)
 	{
-		// TODO:?
+		GameInProgressState();
 	}
 	else if (InProgressMatchState == InProgressStates::GameEnding)
 	{
@@ -147,6 +143,16 @@ TArray<ABlindEyePlayerCharacter*> ABlindEyeGameState::GetPlayers()
 	return Players;
 }
 
+void ABlindEyeGameState::GameInProgressState()
+{
+	CurrGameTime = 0;
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		World->GetTimerManager().SetTimer(MainGameLoopTimer, this, &ABlindEyeGameState::RunMainGameLoopTimers, MainGameLoopDelay, true);
+	}
+}
+
 ABlindEyePlayerCharacter* ABlindEyeGameState::GetPlayer(EPlayerType PlayerType)
 {
 	for (APlayerState* PlayerState : PlayerArray)
@@ -158,4 +164,31 @@ ABlindEyePlayerCharacter* ABlindEyeGameState::GetPlayer(EPlayerType PlayerType)
 	// PlayerType player not connected
 	return nullptr;
 
+}
+
+void ABlindEyeGameState::UpdateMainGameTimer(float GameTimer)
+{
+	CurrGameTime = GameTimer;
+}
+
+void ABlindEyeGameState::RunMainGameLoopTimers()
+{
+	CurrGameTime += MainGameLoopDelay;
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, MainGameLoopDelay, FColor::Emerald, "GS Timer: " + FString::SanitizeFloat(CurrGameTime));
+}
+
+float ABlindEyeGameState::GetGameDonePercent()
+{
+	return CurrGameTime / TimerUntilGameWon;
+}
+
+void ABlindEyeGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ABlindEyeGameState, bWinConditionPaused)
+	DOREPLIFETIME(ABlindEyeGameState, bHunterAlwaysVisible)
+	DOREPLIFETIME(ABlindEyeGameState, GameOverState)
+	DOREPLIFETIME(ABlindEyeGameState, InProgressMatchState)
+	DOREPLIFETIME(ABlindEyeGameState, CurrGameTime)
+	DOREPLIFETIME(ABlindEyeGameState, TimerUntilGameWon)
 }
