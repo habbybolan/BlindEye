@@ -5,6 +5,7 @@
 #include "Components/HealthComponent.h"
 #include "GameFramework/GameModeBase.h"
 #include "Gameplay/BlindEyeGameMode.h"
+#include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
@@ -23,6 +24,40 @@ AShrine::AShrine()
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
 	CurrShrineHealth = MaxShrineHealth;
+}
+
+
+void AShrine::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		UWorld* World = GetWorld();
+		check(World)
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+		check(BlindEyeGS)
+		BlindEyeGS->GameStartedDelegate.AddDynamic(this, &AShrine::MULT_OnGameStarted);
+	}
+}
+
+void AShrine::MULT_OnGameStarted_Implementation()
+{
+	UWorld* World = GetWorld();
+	check(World)
+	World->GetTimerManager().SetTimer(ChargeUpdatingTimerHandle, this, &AShrine::UpdateChargeUI, ChargeUpdatingDelay, true);
+}
+
+void AShrine::UpdateChargeUI()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+		check(BlindEyeGS)
+		BP_UpdateShrineCharge(BlindEyeGS->GetGameDonePercent());
+	}
+	
 }
 
 float AShrine::GetMass()
@@ -97,12 +132,6 @@ void AShrine::ChannellingEnded(AActor* EnemyChannelling)
 			EnemiesCurrentlyChanneling.Remove(Enemy);
 		}
 	}
-}
-
-// Called when the game starts or when spawned
-void AShrine::BeginPlay()
-{
-	Super::BeginPlay();
 }
 
 void AShrine::OnRep_HealthUpdated()

@@ -52,14 +52,22 @@ public:
 	void ChannellingEnded(AActor* EnemyChannelling); 
  
 protected:
-	// Called when the game starts or when spawned
+	
 	virtual void BeginPlay() override;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_OnGameStarted();
 
 	UPROPERTY()
 	TSet<ABlindEyeEnemyBase*> EnemiesCurrentlyChanneling;
 
 	UPROPERTY(Replicated, ReplicatedUsing="OnRep_HealthUpdated")
 	float CurrShrineHealth;
+
+	FTimerHandle ChargeUpdatingTimerHandle;
+	float ChargeUpdatingDelay = 0.1f;
+	UFUNCTION()
+	void UpdateChargeUI();
 
 	UFUNCTION()
 	void OnRep_HealthUpdated();
@@ -69,6 +77,9 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_UpdateShrineCharge(float ChargePercent);
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
