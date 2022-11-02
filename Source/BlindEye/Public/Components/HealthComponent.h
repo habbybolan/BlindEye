@@ -219,6 +219,6 @@ protected:
 	// End Detonation Effect properties *********
 	
 	FTimerHandle MarkerDecayTimerHandle;
-	void DetonateMark();
+	virtual void DetonateMark();
 	void PerformDetonationEffect(AActor* DamageCause); 
 };

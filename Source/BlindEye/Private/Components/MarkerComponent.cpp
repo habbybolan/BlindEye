@@ -121,21 +121,18 @@ void UMarkerComponent::AddMark(EMarkerType MarkerType)
 	GetActiveMark()->BP_AddMark(MarkerType);
 
 	// Marker logic for tutorial
-	if (MarkerType == EMarkerType::Crow)
+	UWorld* World = GetWorld();
+	if (World)
 	{
-		UWorld* World = GetWorld();
-		if (World)
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+		for (APlayerState* PlayerState : BlindEyeGS->PlayerArray)
 		{
-			ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
-			for (APlayerState* PlayerState : BlindEyeGS->PlayerArray)
+			if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerState->GetPawn()))
 			{
-				if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerState->GetPawn()))
+				if (Player->PlayerType == EPlayerType::CrowPlayer && MarkerType == EMarkerType::Crow ||
+					Player->PlayerType == EPlayerType::PhoenixPlayer && MarkerType == EMarkerType::Phoenix)
 				{
-					if (Player->PlayerType == EPlayerType::CrowPlayer && MarkerType == EMarkerType::Crow ||
-						Player->PlayerType == EPlayerType::PhoenixPlayer && MarkerType == EMarkerType::Phoenix)
-					{
-						Player->TryFinishTutorial(ETutorialChecklist::MarkEnemy);
-					}
+					Player->TryFinishTutorial(ETutorialChecklist::MarkEnemy);
 				}
 			}
 		}
