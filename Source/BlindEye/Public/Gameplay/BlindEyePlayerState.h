@@ -28,6 +28,9 @@ public:
 	bool GetIsDead();
 	void SetIsDead(bool IsDead);
 
+	bool GetIsTutorialFinished();
+	void SetTutorialFinished();
+
 protected:
 	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
 	
@@ -46,6 +49,9 @@ protected:
  
 	UPROPERTY(Replicated)
 	bool IsDead = false;
+
+	UPROPERTY(Replicated)
+	bool bFinishedTutorial = false;
 
 	UFUNCTION()
 	void OnRep_BirdMeterUpdated();

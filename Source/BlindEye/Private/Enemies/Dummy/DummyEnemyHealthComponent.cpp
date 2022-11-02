@@ -21,11 +21,11 @@ void UDummyEnemyHealthComponent::DetonateMark()
 		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
 		check(BlindEyeGS)
 		// Crow player detonating dummy
-		if (CurrMark.MarkerType == EMarkerType::Crow)
+		if (CurrMark.MarkerType == EMarkerType::Phoenix)
 		{
 			if (ABlindEyePlayerCharacter* Player = BlindEyeGS->GetPlayer(EPlayerType::CrowPlayer))
 			{
-				Player->TryFinishTutorial(ETutorialChecklist::Detonate);
+				Player->CLI_TryFinishTutorial(ETutorialChecklist::Detonate);
 			}
 		}
 		// Phoenix player detonating dummy
@@ -33,10 +33,39 @@ void UDummyEnemyHealthComponent::DetonateMark()
 		{
 			if (ABlindEyePlayerCharacter* Player = BlindEyeGS->GetPlayer(EPlayerType::PhoenixPlayer))
 			{
-				Player->TryFinishTutorial(ETutorialChecklist::Detonate);
+				Player->CLI_TryFinishTutorial(ETutorialChecklist::Detonate);
 			}
 		}
 	}
 	
 	Super::DetonateMark();
+}
+
+void UDummyEnemyHealthComponent::AddMarkerHelper(EMarkerType MarkerType)
+{
+	Super::AddMarkerHelper(MarkerType);
+
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		// Check off Adding mark from checklist
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+		check(BlindEyeGS)
+		// Crow player marking dummy
+		if (CurrMark.MarkerType == EMarkerType::Crow)
+		{
+			if (ABlindEyePlayerCharacter* Player = BlindEyeGS->GetPlayer(EPlayerType::CrowPlayer))
+			{
+				Player->CLI_TryFinishTutorial(ETutorialChecklist::MarkEnemy);
+			}
+		}
+		// Phoenix player marking dummy
+		else
+		{
+			if (ABlindEyePlayerCharacter* Player = BlindEyeGS->GetPlayer(EPlayerType::PhoenixPlayer))
+			{
+				Player->CLI_TryFinishTutorial(ETutorialChecklist::MarkEnemy);
+			}
+		}
+	}
 }

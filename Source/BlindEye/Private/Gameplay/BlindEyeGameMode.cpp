@@ -9,6 +9,7 @@
 #include "GameFramework/PlayerStart.h"
 #include "GameFramework/PlayerState.h"
 #include "Gameplay/BlindEyeGameState.h"
+#include "Gameplay/BlindEyePlayerState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -25,6 +26,19 @@ void ABlindEyeGameMode::PostLogin(APlayerController* NewPlayer)
 		BlindEyeController->SER_SpawnPlayer();
 		// TODO: Any match logic needed
 	}
+}
+
+void ABlindEyeGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	IslandManager = Cast<AIslandManager>(UGameplayStatics::GetActorOfClass(world, AIslandManager::StaticClass()));
+	check(IslandManager);
+	
+	TimeBetweenPulses = TimerUntilGameWon / NumPulses;
 }
 
 FTransform ABlindEyeGameMode::GetSpawnPoint() const
@@ -126,45 +140,6 @@ void ABlindEyeGameMode::PerformPulse()
 void ABlindEyeGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState);
-
-	// Increment game timer if not paused
-	if (!BlindEyeGameState->bWinConditionPaused)
-	{
-		GameTimer += DeltaSeconds;
-	}
-
-	CurrIslandLevelTime += DeltaSeconds;
-	// Level shift check
-	if (CurrIslandLevelTime > DelayBetweenLevelShifts)
-	{
-		BP_LevelShift();
-		CurrIslandLevelTime = 0;
-	}
-
-	// Check for pulse events
-	if (GameTimer >= TimeBetweenPulses * (CurrPulseIndex + 1))
-	{
-		CurrPulseIndex++;
-		BP_Pulse(CurrPulseIndex);
-
-		// Pulse kills all enemies after duration
-		UWorld* World = GetWorld();
-		if (World)
-		{
-			World->GetTimerManager().SetTimer(PulseKillDelayTimerHandle, this, &ABlindEyeGameMode::PerformPulse, PulseKillDelay, false);
-		}
-	}
-
-	// Won condition check
-	if (BlindEyeGameState->GameOverState == EGameOverState::InProgress)
-	{
-		if (GameTimer > TimerUntilGameWon)
-		{
-			OnGameWon();
-		}
-	}
 }
 
 void ABlindEyeGameMode::SetInProgressMatchState(FName NewInProgressState)
@@ -238,30 +213,90 @@ void ABlindEyeGameMode::TutorialFinished(ABlindEyePlayerCharacter* Player)
 	// TODO: Send delegate that game has started
 	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(GameState);
 	check(BlindEyeGS)
-	BlindEyeGS->TutorialFinished();
-	
-	StartGame();
+
+	// Set Player as finishing tutorial and check if both player's tutorials finished
+	uint8 NumPlayersFinishedTutorial = 0;
+	for (APlayerState* PlayerState : BlindEyeGS->PlayerArray)
+	{
+		ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(PlayerState);
+		if (Player == BlindEyePS->GetPawn())
+		{
+			BlindEyePS->SetTutorialFinished();
+			NumPlayersFinishedTutorial++;
+		} else if (BlindEyePS->GetIsTutorialFinished())
+		{
+			NumPlayersFinishedTutorial++;
+		}
+	}
+
+	// If all connected players finished tutorial, start game
+	if (NumPlayersFinishedTutorial == NumPlayers)
+	{
+		BlindEyeGS->TutorialFinished();
+		StartGame();
+	}
 }
 
 void ABlindEyeGameMode::StartGame()
 {
 	SetInProgressMatchState(InProgressStates::GameInProgress);
 	
-		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(GameState);
-    	check(BlindEyeGS)
-    	BlindEyeGS->StartGame();
+	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(GameState);
+    check(BlindEyeGS)
+    BlindEyeGS->StartGame();
+
+	// perform initial level shift after tutorial finished
+	BP_LevelShift();
+	
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		// Run main game loop on timer
+		World->GetTimerManager().SetTimer(MainGameLoopTimerHandle, this, &ABlindEyeGameMode::RunMainGameLoop, MainGameLoopDelay, true);
+
+		// Initialize Hunter spawning
+		World->SpawnActor(HunterControllerType);
+	}
 }
 
-void ABlindEyeGameMode::BeginPlay()
+void ABlindEyeGameMode::RunMainGameLoop()
 {
-	Super::BeginPlay();
+	ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState);
 
-	UWorld* world = GetWorld();
-	if (!world) return;
+	// Increment game timer if not paused
+	if (!BlindEyeGameState->bWinConditionPaused)
+	{
+		GameTimer += MainGameLoopDelay;
+	}
 
-	IslandManager = Cast<AIslandManager>(UGameplayStatics::GetActorOfClass(world, AIslandManager::StaticClass()));
-	check(IslandManager);
+	CurrIslandLevelTime += MainGameLoopDelay;
+	// Level shift check
+	if (CurrIslandLevelTime > DelayBetweenLevelShifts)
+	{
+		BP_LevelShift();
+		CurrIslandLevelTime = 0;
+	}
 
-	world->SpawnActor(HunterControllerType);
-	TimeBetweenPulses = TimerUntilGameWon / NumPulses;
+	// Check for pulse events
+	if (GameTimer >= TimeBetweenPulses * (CurrPulseIndex + 1))
+	{
+		CurrPulseIndex++;
+		BP_Pulse(CurrPulseIndex);
+
+		// Pulse kills all enemies after duration
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			World->GetTimerManager().SetTimer(PulseKillDelayTimerHandle, this, &ABlindEyeGameMode::PerformPulse, PulseKillDelay, false);
+		}
+	}
+
+	// Won condition check
+	if (BlindEyeGameState->GameOverState == EGameOverState::InProgress)
+	{
+		if (GameTimer > TimerUntilGameWon)
+		{
+			OnGameWon();
+		}
+	}
 }

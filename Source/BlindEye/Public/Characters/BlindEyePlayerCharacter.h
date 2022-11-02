@@ -64,7 +64,8 @@ public:
 
 	virtual void BeginPlay() override;
 
-	void TryFinishTutorial(ETutorialChecklist CheckListItem);
+	UFUNCTION(Client, Reliable)
+	void CLI_TryFinishTutorial(ETutorialChecklist CheckListItem);
 
 	void OnEnemyMarkDetonated();
 	UFUNCTION(BlueprintImplementableEvent) 
@@ -340,6 +341,9 @@ protected:
 	void Unique2Pressed();
 	UFUNCTION()
 	void Unique2Released();
+
+	UFUNCTION(Server, Reliable)
+	void SER_SetTutorialFinished();
 	
 
 protected:

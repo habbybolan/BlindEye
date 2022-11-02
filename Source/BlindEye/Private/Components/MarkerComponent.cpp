@@ -103,7 +103,7 @@ void UMarkerComponent::DetonateMark(EMarkerType MarkerType)
 					if (Player->PlayerType == EPlayerType::CrowPlayer && MarkerType == EMarkerType::Phoenix ||
 						Player->PlayerType == EPlayerType::PhoenixPlayer && MarkerType == EMarkerType::Crow)
 					{
-						Player->TryFinishTutorial(ETutorialChecklist::Detonate);
+						Player->CLI_TryFinishTutorial(ETutorialChecklist::Detonate);
 					}
 				}
 			}
@@ -132,7 +132,7 @@ void UMarkerComponent::AddMark(EMarkerType MarkerType)
 				if (Player->PlayerType == EPlayerType::CrowPlayer && MarkerType == EMarkerType::Crow ||
 					Player->PlayerType == EPlayerType::PhoenixPlayer && MarkerType == EMarkerType::Phoenix)
 				{
-					Player->TryFinishTutorial(ETutorialChecklist::MarkEnemy);
+					Player->CLI_TryFinishTutorial(ETutorialChecklist::MarkEnemy);
 				}
 			}
 		}

@@ -60,6 +60,16 @@ void ABlindEyePlayerState::SetIsDead(bool isDead)
 	IsDead = isDead;
 }
 
+bool ABlindEyePlayerState::GetIsTutorialFinished()
+{
+	return bFinishedTutorial;
+}
+
+void ABlindEyePlayerState::SetTutorialFinished()
+{
+	bFinishedTutorial = true;
+}
+
 void ABlindEyePlayerState::OnRep_HealthUpdated()
 {
 	ABlindEyePlayerCharacter* BlindEyeCharacter = Cast<ABlindEyePlayerCharacter>(GetPawn());

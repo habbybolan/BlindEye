@@ -17,5 +17,8 @@ class BLINDEYE_API UDummyEnemyHealthComponent : public UHealthComponent
 	UDummyEnemyHealthComponent(const FObjectInitializer& ObjectInitializer);
 
 	virtual void DetonateMark() override;
+
+	virtual void AddMarkerHelper(EMarkerType MarkerType) override;
+	
 	
 };

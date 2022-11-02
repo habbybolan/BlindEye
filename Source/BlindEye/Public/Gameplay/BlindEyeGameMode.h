@@ -87,6 +87,11 @@ protected:
 
 	FTimerHandle PulseKillDelayTimerHandle;
 
+	FTimerHandle MainGameLoopTimerHandle;
+	float MainGameLoopDelay = 0.05;
+	UFUNCTION()
+	void RunMainGameLoop();
+
 	// states **********
 
 	void TutorialState();
