@@ -277,7 +277,8 @@ void ABlindEyeGameMode::StartGame()
 		World->GetTimerManager().SetTimer(MainGameLoopTimerHandle, this, &ABlindEyeGameMode::RunMainGameLoop, MainGameLoopDelay, true);
 
 		// Initialize Hunter spawning
-		World->SpawnActor(HunterControllerType);
+		AHunterEnemyController* HunterController = World->SpawnActor<AHunterEnemyController>(HunterControllerType);
+		HunterController->Initialize();
 	}
 }
 
