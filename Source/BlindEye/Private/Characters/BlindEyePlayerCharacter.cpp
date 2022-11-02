@@ -444,7 +444,7 @@ void ABlindEyePlayerCharacter::TutorialSkipPressed()
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		World->GetTimerManager().SetTimer(TutorialSkipTimerHandle, this, &ABlindEyePlayerCharacter::SER_UserInputSkipTutorial, ButtonHoldToSkipTutorial, false);
+		World->GetTimerManager().SetTimer(TutorialSkipTimerHandle, this, &ABlindEyePlayerCharacter::UserSkipTutorial, ButtonHoldToSkipTutorial, false);
 	}
 }
 
@@ -455,6 +455,12 @@ void ABlindEyePlayerCharacter::TutorialSkipReleased()
 	{
 		World->GetTimerManager().ClearTimer(TutorialSkipTimerHandle);
 	}
+}
+
+void ABlindEyePlayerCharacter::UserSkipTutorial()
+{
+	BP_DisplayTutorialChecklist(false);
+	SER_UserInputSkipTutorial();
 }
 
 void ABlindEyePlayerCharacter::SER_UserInputSkipTutorial_Implementation()

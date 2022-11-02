@@ -356,6 +356,7 @@ protected:
 	void TutorialSkipPressed();
 	void TutorialSkipReleased();
 
+	void UserSkipTutorial();
 	UFUNCTION(Server, Reliable)
 	void SER_UserInputSkipTutorial();
 	FTimerHandle TutorialSkipTimerHandle;
