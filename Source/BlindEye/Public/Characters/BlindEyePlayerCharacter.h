@@ -53,6 +53,9 @@ class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityU
 
 	UPROPERTY(EditDefaultsOnly)
 	float CooldownRefreshAmount = 2.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float ButtonHoldToSkipTutorial = 3.f;
 	
 public:
 	ABlindEyePlayerCharacter(const FObjectInitializer& ObjectInitializer);
@@ -344,6 +347,13 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 	void SER_SetTutorialFinished();
+
+	void TutorialSkipPressed();
+	void TutorialSkipReleased();
+
+	UFUNCTION(Server, Reliable)
+	void SER_UserInputSkipTutorial();
+	FTimerHandle TutorialSkipTimerHandle;
 	
 
 protected:

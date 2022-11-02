@@ -439,6 +439,35 @@ void ABlindEyePlayerCharacter::Unique2Released()
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Released);
 }
 
+void ABlindEyePlayerCharacter::TutorialSkipPressed()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		World->GetTimerManager().SetTimer(TutorialSkipTimerHandle, this, &ABlindEyePlayerCharacter::SER_UserInputSkipTutorial, ButtonHoldToSkipTutorial, false);
+	}
+}
+
+void ABlindEyePlayerCharacter::TutorialSkipReleased()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		World->GetTimerManager().ClearTimer(TutorialSkipTimerHandle);
+	}
+}
+
+void ABlindEyePlayerCharacter::SER_UserInputSkipTutorial_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Emerald, "Tutorial skipped");
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		ABlindEyeGameMode* BlindEyeGM = Cast<ABlindEyeGameMode>(UGameplayStatics::GetGameMode(World));
+		BlindEyeGM->TutorialFinished(this);
+	}
+}
+
 void ABlindEyePlayerCharacter::SER_DebugInvincibility_Implementation(bool IsInvincible)
 {
 	HealthComponent->IsInvincible = IsInvincible;
@@ -911,6 +940,9 @@ void ABlindEyePlayerCharacter::SetupPlayerInputComponent(class UInputComponent* 
 
 	PlayerInputComponent->BindAction("Debug1", IE_Released, this, &ABlindEyePlayerCharacter::SER_DamageSelf);
 	PlayerInputComponent->BindAction("Debug2", IE_Released, this, &ABlindEyePlayerCharacter::SER_DamageShrine);
+	
+	PlayerInputComponent->BindAction("SkipTutorial", IE_Pressed, this, &ABlindEyePlayerCharacter::TutorialSkipPressed);
+	PlayerInputComponent->BindAction("SkipTutorial", IE_Released, this, &ABlindEyePlayerCharacter::TutorialSkipReleased);
 }
 
 
