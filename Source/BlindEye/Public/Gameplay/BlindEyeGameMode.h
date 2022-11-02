@@ -42,6 +42,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	float PulseKillDelay = 1.0f;
+
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=1))
+	float DelayInUpdatingGameState = 2;
 	
 	// called by shrine when it's destroyed
 	void OnShrineDeath();
@@ -108,6 +111,10 @@ protected:
 	void PerformPulse();
  
 	float GameTimer = 0;
+	float TimerForUpdatingGameState = 0;
+	virtual void InitGameState() override;
+
+	void UpdateGameStateValues();
 
 	virtual void Tick(float DeltaSeconds) override;
 };

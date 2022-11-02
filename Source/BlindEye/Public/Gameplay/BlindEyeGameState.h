@@ -74,6 +74,15 @@ public:
 	TArray<ABlindEyePlayerCharacter*> GetPlayers();
 	ABlindEyePlayerCharacter* GetPlayer(EPlayerType PlayerType);
 
+	// Send from GameMode to update the game timers
+	void UpdateMainGameTimer(float GameTimer);
+
+	// Keeps track of main loop timers, which are periodically synced from server. Doesn't run any game logic
+	UFUNCTION()
+	void RunMainGameLoopTimers();
+
+	void SetGameTime(float timerUntilGameWon); 
+
 protected:
 	TWeakObjectPtr<AShrine> Shrine;
 
@@ -82,7 +91,14 @@ protected:
 
 	UPROPERTY()
 	AIslandManager* IslandManager;
-	
+
+	UPROPERTY(Replicated)
+	float CurrGameTime;
+	float TimerUntilGameWon;  
+	FTimerHandle MainGameLoopTimer;
+	float MainGameLoopDelay = 0.1;
+
+	void GameInProgressState();
 	UFUNCTION()
 	virtual void OnRep_InProgressMatchState();
 

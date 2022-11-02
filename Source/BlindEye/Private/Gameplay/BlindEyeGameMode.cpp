@@ -322,4 +322,28 @@ void ABlindEyeGameMode::RunMainGameLoop()
 			OnGameWon();
 		}
 	}
+
+	TimerForUpdatingGameState += MainGameLoopDelay;
+	if (TimerForUpdatingGameState >= DelayInUpdatingGameState)
+	{
+		TimerForUpdatingGameState = 0;
+		UpdateGameStateValues();
+	}
+}
+
+void ABlindEyeGameMode::InitGameState()
+{
+	Super::InitGameState();
+	
+	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(GameState);
+	check(BlindEyeGS)
+	BlindEyeGS->SetGameTime(TimerUntilGameWon);
+}
+
+void ABlindEyeGameMode::UpdateGameStateValues()
+{
+	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(GameState);
+	check(BlindEyeGS)
+	// update calls here to keep clients in sync with GameMode values
+	BlindEyeGS->UpdateMainGameTimer(GameTimer);
 }
