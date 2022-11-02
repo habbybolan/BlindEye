@@ -115,7 +115,7 @@ void AIslandManager::ActivateNextIsland()
 		// TODO: Get random spawn point
 		uint8 RandSpawnIndex = UKismetMathLibrary::RandomIntegerInRange(0, IslandSpawnPoints.Num() - 1);
 		AIslandSpawnPoint* RandSpawnPoint = IslandSpawnPoints[RandSpawnIndex];
-		Island->SpawnIsland(RandSpawnPoint->GetActorLocation());
+		Island->MULT_SpawnIsland(RandSpawnPoint->GetActorLocation());
 		Island->SpawnFinishedDelegate.AddDynamic(this, &AIslandManager::IslandSpawningFinished);
 	}
 }

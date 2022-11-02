@@ -45,6 +45,8 @@ class BLINDEYE_API ASharedBasicAbility : public AAbilityBase
 public:
 	ASharedBasicAbility();
 
+	void SetComboFinished();
+
 	void SetLeaveAbilityTimer();
 	void ClearLeaveAbilityTimer();
 

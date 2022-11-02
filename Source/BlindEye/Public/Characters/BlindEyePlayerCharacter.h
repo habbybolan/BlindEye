@@ -20,6 +20,21 @@ class ABlindEyePlayerState;
 
 class UMarkerComponent;
 
+UENUM(BlueprintType)
+enum class ETutorialChecklist : uint8
+{
+	Jump, 
+	Dash,
+	BasicAttack,
+	Combo,
+	Ability1,
+	Ability2,
+	MarkEnemy,
+	Detonate, 
+	Count UMETA(Hidden)
+};
+ENUM_RANGE_BY_COUNT(ETutorialChecklist, ETutorialChecklist::Count);
+
 UCLASS(config=Game)
 class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityUserInterface
 {
@@ -37,7 +52,10 @@ class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityU
 	float HunterMarkMovementAlter = 0;
 
 	UPROPERTY(EditDefaultsOnly)
-	float AbilityCooldownLossOnDetonate = 2.f;
+	float CooldownRefreshAmount = 2.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float ButtonHoldToSkipTutorial = 3.f;
 	
 public:
 	ABlindEyePlayerCharacter(const FObjectInitializer& ObjectInitializer);
@@ -48,6 +66,13 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 
 	virtual void BeginPlay() override;
+
+	UFUNCTION(Client, Reliable)
+	void CLI_TryFinishTutorial(ETutorialChecklist CheckListItem);
+
+	void OnEnemyMarkDetonated();
+	UFUNCTION(BlueprintImplementableEvent) 
+	void BP_CooldownRefreshed(float RefreshAmount);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_UpdateCooldownUI(EAbilityTypes abilityType, float CurrCooldown, float MaxCooldown);
@@ -220,12 +245,25 @@ public:
 	UFUNCTION(NetMulticast, Reliable)  
 	void MULT_ResetWalkMovementToNormal();
 
+	// Called from BPs to notify player finished tutorial
+	UFUNCTION(BlueprintCallable)
+	void TutorialFinished();
+
+	// Entrance method when tutorial started
 	UFUNCTION()
-	void OnEnemyMarkDetonated();
-	UFUNCTION(BlueprintImplementableEvent) 
-	void BP_CooldownRefreshed(float RefreshAmount);
+	void StartTutorial();
+
+	// Entrance method for when main game loop starts
+	UFUNCTION()
+	void StartGame(); 
+ 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_DisplayTutorialChecklist(bool bShowChecklist);
 
 protected:
+
+	TSet<ETutorialChecklist> ChecklistFinishedTasks;
+	bool bTutorial1Finished = false;
 
 	UFUNCTION()
 	void RegenBirdMeter();
@@ -274,13 +312,11 @@ protected:
 	void SER_OnCheckAllyHealing();
 	FTimerHandle AllyHealingCheckTimerHandle;
 	const float AllyHealCheckDelay = 0.2f;
-
-	UPROPERTY(BlueprintReadOnly)
-	float CurrRevivePercent = 0;
+	float CurrRevivePercent = 0; 
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_PlayerRevived();
-
+	void BP_TutorialCheckList(ETutorialChecklist TutorialChecklist);
+	
 	UFUNCTION(Server, Reliable)
 	void SER_OnRevive();
 
@@ -308,6 +344,16 @@ protected:
 	void Unique2Pressed();
 	UFUNCTION()
 	void Unique2Released();
+
+	UFUNCTION(Server, Reliable)
+	void SER_SetTutorialFinished();
+
+	void TutorialSkipPressed();
+	void TutorialSkipReleased();
+
+	UFUNCTION(Server, Reliable)
+	void SER_UserInputSkipTutorial();
+	FTimerHandle TutorialSkipTimerHandle;
 	
 
 protected:

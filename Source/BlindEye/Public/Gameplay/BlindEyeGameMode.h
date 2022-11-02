@@ -8,12 +8,21 @@
 #include "Islands/IslandManager.h"
 #include "BlindEyeGameMode.generated.h"
 
+namespace InProgressStates 
+{
+	const FName NotInProgress = FName(TEXT("NotInProgress"));
+	const FName WaitingLoadingPhase = FName(TEXT("WaitingForPlayers"));
+	const FName Tutorial = FName(TEXT("Tutorial"));						
+	const FName GameInProgress = FName(TEXT("GameInProgress"));						
+	const FName GameEnding = FName(TEXT("GameEnding"));				
+}
+
 class AHunterEnemyController;
 /**
  * 
  */
 UCLASS()
-class BLINDEYE_API ABlindEyeGameMode : public AGameModeBase
+class BLINDEYE_API ABlindEyeGameMode : public AGameMode
 {
 	GENERATED_BODY()
 
@@ -33,9 +42,15 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	float PulseKillDelay = 1.0f;
-
+	
 	// called by shrine when it's destroyed
 	void OnShrineDeath();
+
+	virtual void HandleMatchHasStarted() override;
+
+	FName InProgressMatchState;
+	virtual void SetInProgressMatchState(FName NewInProgressState);
+	void OnBlindEyeMatchStateSet();
 
 	virtual void RestartGame();
 
@@ -52,6 +67,14 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_Pulse(uint8 PulseIndex);
 
+	// Player notifies game mode when they finished the mechanics tutorial
+	void TutorialFinished(ABlindEyePlayerCharacter* Player);
+
+	void OnAllPlayersFinishedTutorial();
+
+	// Called for setting game in progress and starting the main loop
+	void StartGame();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -65,6 +88,19 @@ protected:
 	float TimeBetweenPulses;
 
 	FTimerHandle PulseKillDelayTimerHandle;
+
+	FTimerHandle MainGameLoopTimerHandle;
+	float MainGameLoopDelay = 0.05;
+	UFUNCTION()
+	void RunMainGameLoop();
+
+	// states **********
+
+	void TutorialState();
+	void GameInProgressState();
+	void GameEndingState();
+
+	// States Ended ****
 	
 	void OnGameEnded();
 	void OnGameWon();
@@ -74,6 +110,4 @@ protected:
 	float GameTimer = 0;
 
 	virtual void Tick(float DeltaSeconds) override;
-	
-	
 };

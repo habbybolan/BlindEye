@@ -34,7 +34,8 @@ public:
 	UPROPERTY()
 	FSpawnFinishSignature SpawnFinishedDelegate;
 
-	void SpawnIsland(FVector startLocation);
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_SpawnIsland(FVector startLocation);
 	bool GetIsActive();
 
 	FORCEINLINE bool operator<(const AIsland &Other) const
