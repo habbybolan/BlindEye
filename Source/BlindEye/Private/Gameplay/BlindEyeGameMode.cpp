@@ -5,6 +5,7 @@
 
 #include "EngineUtils.h"
 #include "Characters/BlindEyePlayerController.h"
+#include "Enemies/Dummy/DummyEnemy.h"
 #include "Enemies/Hunter/HunterEnemyController.h"
 #include "GameFramework/PlayerStart.h"
 #include "GameFramework/PlayerState.h"
@@ -232,9 +233,30 @@ void ABlindEyeGameMode::TutorialFinished(ABlindEyePlayerCharacter* Player)
 	// If all connected players finished tutorial, start game
 	if (NumPlayersFinishedTutorial == NumPlayers)
 	{
-		BlindEyeGS->TutorialFinished();
-		StartGame();
+		OnAllPlayersFinishedTutorial();
 	}
+}
+
+void ABlindEyeGameMode::OnAllPlayersFinishedTutorial()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(GameState);
+	check(BlindEyeGS)
+
+	// Kill all tutorial dummy enemies in level
+	TArray<AActor*> DummyActors;
+	UGameplayStatics::GetAllActorsOfClass(World, ADummyEnemy::StaticClass(), DummyActors);
+	for (AActor* DummyActor : DummyActors)
+	{
+		ADummyEnemy* DummyEnemy = Cast<ADummyEnemy>(DummyActor);
+		DummyEnemy->OnDeath(BlindEyeGS->GetRandomPlayer());
+	}
+
+	// Start the game
+	BlindEyeGS->TutorialFinished();
+	StartGame();
 }
 
 void ABlindEyeGameMode::StartGame()

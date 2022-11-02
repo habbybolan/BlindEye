@@ -70,6 +70,8 @@ public:
 	// Player notifies game mode when they finished the mechanics tutorial
 	void TutorialFinished(ABlindEyePlayerCharacter* Player);
 
+	void OnAllPlayersFinishedTutorial();
+
 	// Called for setting game in progress and starting the main loop
 	void StartGame();
 
