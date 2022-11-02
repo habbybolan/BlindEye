@@ -92,6 +92,8 @@ public:
 	virtual void SetHealth(float NewHealth) override;
 	
 	virtual void OnDeath(AActor* ActorThatKilled) override;
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_OnDeath(AActor* ActorThatKilled);
 
 	virtual bool TryConsumeBirdMeter(float PercentAmount) override;
 
@@ -260,9 +262,6 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_DisplayTutorialChecklist(bool bShowChecklist);
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_PlayerRevived();
-
 protected:
 
 	TSet<ETutorialChecklist> ChecklistFinishedTasks;
@@ -310,20 +309,24 @@ protected:
 	void OnGameLostUI();
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnGameWonUI();
-
-	UFUNCTION(Server, Reliable)
-	void SER_OnCheckAllyHealing();
+	
+	void OnCheckAllyHealing();
 	FTimerHandle AllyHealingCheckTimerHandle;
 	const float AllyHealCheckDelay = 0.2f;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(Replicated, EditDefaultsOnly)
 	float CurrRevivePercent = 0; 
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_TutorialCheckList(ETutorialChecklist TutorialChecklist);
 	
-	UFUNCTION(Server, Reliable)
-	void SER_OnRevive();
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_PlayerRevived();
+ 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_RevivePercentUpdate(float RevivePercent);
+	
+	void OnRevive();
 
 	UFUNCTION()
 	void BasicAttackPressed();
