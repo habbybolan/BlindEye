@@ -347,7 +347,7 @@ void ABlindEyePlayerCharacter::LookUpAtRate(float Rate)
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
  
-void ABlindEyePlayerCharacter::SER_OnCheckAllyHealing_Implementation()
+void ABlindEyePlayerCharacter::OnCheckAllyHealing() 
 {
 	// TODO: Sphere cast around on timer for healing
 	TArray<AActor*> ActorsToIgnore;
@@ -355,22 +355,33 @@ void ABlindEyePlayerCharacter::SER_OnCheckAllyHealing_Implementation()
 	TArray<AActor*> OverlapActors;
 	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), GetActorLocation(), AllyReviveRadius, AllyReviveObjectTypes,
 		nullptr, ActorsToIgnore, OverlapActors);
-	if (OverlapActors.Num() > 0)
+
+	// Check if player overlapping
+	bool bPlayerOverlapped = false;
+	for (AActor* Overlap : OverlapActors)
 	{
-		CurrRevivePercent += AllyHealCheckDelay * ReviveSpeedAllyPercentPerSec;
-	} else
+		if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Overlap))
+		{
+			CurrRevivePercent += AllyHealCheckDelay * ReviveSpeedAllyPercentPerSec;
+			bPlayerOverlapped = true;
+			break;
+		}
+	}
+	if (!bPlayerOverlapped)
 	{
 		CurrRevivePercent += AllyHealCheckDelay * ReviveSpeedAutoPercentPerSec;
 	}
-	
+
 	if (CurrRevivePercent >= 100)
 	{
-		SER_OnRevive();
+		OnRevive();
 		BP_PlayerRevived();
 	}
-}
 
-void ABlindEyePlayerCharacter::SER_OnRevive_Implementation()
+	BP_RevivePercentUpdate(CurrRevivePercent);
+} 
+
+void ABlindEyePlayerCharacter::OnRevive()
 { 
 	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
 	{
@@ -620,8 +631,12 @@ void ABlindEyePlayerCharacter::OnDeath(AActor* ActorThatKilled)
 	{
 		BlindEyePS->SetIsDead(true);
 	}
+	MULT_OnDeath(ActorThatKilled);
+}
 
-	GetWorldTimerManager().SetTimer(AllyHealingCheckTimerHandle, this, &ABlindEyePlayerCharacter::SER_OnCheckAllyHealing, AllyHealCheckDelay, true);
+void ABlindEyePlayerCharacter::MULT_OnDeath_Implementation(AActor* ActorThatKilled)
+{
+	GetWorldTimerManager().SetTimer(AllyHealingCheckTimerHandle, this, &ABlindEyePlayerCharacter::OnCheckAllyHealing, AllyHealCheckDelay, true);
 }
 
 bool ABlindEyePlayerCharacter::TryConsumeBirdMeter(float PercentAmount)
@@ -909,6 +924,7 @@ void ABlindEyePlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ABlindEyePlayerCharacter, bUnlimitedBirdMeter);
 	DOREPLIFETIME(ABlindEyePlayerCharacter, PlayerType);
+	DOREPLIFETIME(ABlindEyePlayerCharacter, CurrRevivePercent);
 }
 
 //////////////////////////////////////////////////////////////////////////
