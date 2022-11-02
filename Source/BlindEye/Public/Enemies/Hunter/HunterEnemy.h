@@ -77,6 +77,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category=Charged, meta=(ClampMin=0, ClampMax=1))
 	float MovementSpeedAlteredDuringNotCharged = 0.5f;
+
+	UPROPERTY(EditDefaultsOnly, Category=Charged)
+	UAnimMontage* RoarAnimation;
  
 	UPROPERTY(EditDefaultsOnly, Category=ChargedJump)
 	float ChargedJumpCooldown = 10.f;

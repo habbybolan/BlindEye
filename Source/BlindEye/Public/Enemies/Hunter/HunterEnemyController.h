@@ -65,6 +65,9 @@ public:
 	void StartChanneling();
 
 	void OnMarkedPlayerDeath();
+
+	UFUNCTION()
+	void Initialize();
 	
 protected:
 
@@ -83,9 +86,6 @@ protected:
 	FTimerHandle InvisDelayTimerHandle;
 	void StunInvisDelayFinished();
 	void TargetKilledInvisDelayFinished();
-
-	UFUNCTION()
-	void Initialize();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_SetCachedHealth();

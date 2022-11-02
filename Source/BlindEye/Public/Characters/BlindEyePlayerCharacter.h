@@ -260,6 +260,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_DisplayTutorialChecklist(bool bShowChecklist);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_PlayerRevived();
+
 protected:
 
 	TSet<ETutorialChecklist> ChecklistFinishedTasks;
@@ -312,6 +315,8 @@ protected:
 	void SER_OnCheckAllyHealing();
 	FTimerHandle AllyHealingCheckTimerHandle;
 	const float AllyHealCheckDelay = 0.2f;
+
+	UPROPERTY(EditDefaultsOnly)
 	float CurrRevivePercent = 0; 
 
 	UFUNCTION(BlueprintImplementableEvent)

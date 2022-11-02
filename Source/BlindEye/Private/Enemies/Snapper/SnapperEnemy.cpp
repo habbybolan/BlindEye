@@ -276,6 +276,7 @@ void ASnapperEnemy::MULT_StartRagdoll_Implementation()
 void ASnapperEnemy::MULT_StopRagdoll_Implementation() 
 {
 	bGettingUp = true;
+	GetMovementComponent()->StopMovementImmediately();
 	GetMovementComponent()->SetComponentTickEnabled(true);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	
@@ -283,13 +284,11 @@ void ASnapperEnemy::MULT_StopRagdoll_Implementation()
 	float TimeForGetup;
 	if (IsLayingOnFront())
 	{
-		// TimeForGetup = PlayAnimMontage(GetUpFromInFrontMontage);
-		// TimeForGetup /= 3;
+		TimeForGetup = PlayAnimMontage(GetUpFromInFrontMontage);
 	} else
 	{
-		// TimeForGetup = PlayAnimMontage(GetUpFromBehindMontage);
+		TimeForGetup = PlayAnimMontage(GetUpFromBehindMontage);
 	}
-	TimeForGetup = 1.f;
 
 	if (GetLocalRole() == ROLE_Authority)
 	{
