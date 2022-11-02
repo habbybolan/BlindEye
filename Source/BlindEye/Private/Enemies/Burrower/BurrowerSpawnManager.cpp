@@ -30,8 +30,16 @@ void ABurrowerSpawnManager::BeginPlay()
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		World->OnWorldBeginPlay.AddUFunction(this, TEXT("Initialize"));
+		// Initialize Burrower spawner once game set as started
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+		check(BlindEyeGS)
+		BlindEyeGS->GameStartedDelegate.AddDynamic(this, &ABurrowerSpawnManager::OnGameStarted);
 	}
+}
+
+void ABurrowerSpawnManager::OnGameStarted()
+{
+	Initialize();
 }
 
 void ABurrowerSpawnManager::Initialize()

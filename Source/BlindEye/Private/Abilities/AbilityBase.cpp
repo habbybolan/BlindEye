@@ -5,6 +5,7 @@
 
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Interfaces/AbilityUserInterface.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
@@ -29,6 +30,12 @@ bool AAbilityBase::TryConsumeBirdMeter(float BirdMeterAmount)
 		return AbilityUserInterface->TryConsumeBirdMeter(BirdMeterAmount);
 	}
 	return true;
+}
+
+void AAbilityBase::AbilityStarted()
+{
+	BP_AbilityStarted();
+	bIsRunning = true;
 }
 
 void AAbilityBase::StartLockRotation(float Duration)
@@ -60,14 +67,23 @@ void AAbilityBase::SetOnCooldown()
 void AAbilityBase::CalculateCooldown()
 {
 	CurrCooldown -= CooldownTimerDelay;
-	CLI_UpdateCooldown();
+	// TODO: Lots of network calls
+	CLI_UpdateCooldownUI();
 	if (CurrCooldown <= 0)
 	{
 		SetOffCooldown();
 	}
 }
 
-void AAbilityBase::CLI_UpdateCooldown_Implementation()
+void AAbilityBase::CLI_CooldownFinished_Implementation()
+{
+	if (OwningAbilityManager)
+	{
+		OwningAbilityManager->UpdateCooldownUI(AbilityType, 0, Cooldown);
+	}
+}
+
+void AAbilityBase::CLI_UpdateCooldownUI_Implementation()
 {
 	if (OwningAbilityManager == nullptr)
 	{
@@ -84,12 +100,24 @@ void AAbilityBase::CLI_UpdateCooldown_Implementation()
 	}
 }
 
+void AAbilityBase::RefreshCooldown(float CooldownRefreshAmount)
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+
+	if (bOnCooldown)
+	{
+		CurrCooldown = UKismetMathLibrary::Max(0, CurrCooldown - CooldownRefreshAmount);
+	}
+}
+
+
 void AAbilityBase::SetOffCooldown()
 {
+	CLI_CooldownFinished();
 	// If cooldown removed by outside source
 	GetWorldTimerManager().ClearTimer(CooldownTimerHandle);
 	bOnCooldown = false;
-	
 }
 
 void AAbilityBase::TryCancelAbility()
@@ -139,6 +167,11 @@ void AAbilityBase::EndAbilityLogic()
 	{
 		GetWorldTimerManager().ClearTimer(NextStateDelayTimerHandle);
 	}
+
+	if (!bOnCooldown)
+	{
+		SetOnCooldown();
+	}
 	
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, "Ability ended");
 	CurrState = 0;
@@ -146,7 +179,6 @@ void AAbilityBase::EndAbilityLogic()
 	bIsRunning = false;
 	AbilityEndedDelegate.ExecuteIfBound();
 	BP_AbilityEnded();
-	SetOnCooldown();
 }
 
 void AAbilityBase::EndCurrState()

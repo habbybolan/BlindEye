@@ -15,6 +15,12 @@ ASharedBasicAbility::ASharedBasicAbility() : AAbilityBase()
 	AbilityType = EAbilityTypes::Basic;
 }
 
+void ASharedBasicAbility::SetComboFinished()
+{
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetOwner());
+	Player->CLI_TryFinishTutorial(ETutorialChecklist::Combo);
+}
+
 void ASharedBasicAbility::PlayAbilityAnimation()
 {
 	bIsAttacking = true;
@@ -136,7 +142,7 @@ void UFirstAttackState::RunState(EAbilityInputTypes abilityUsageType)
 	
 	if (!Ability) return;
 	Ability->StartLockRotation(1);
-	Ability->BP_AbilityStarted();
+	Ability->AbilityStarted();
 	Ability->BP_AbilityInnerState(1);
 }
 
@@ -234,6 +240,7 @@ void ULastAttackState::RunState(EAbilityInputTypes abilityUsageType)
 	SharedAbility->StartLockRotation(2);
 	SharedAbility->BP_AbilityInnerState(3);
 	SharedAbility->PlayAbilityAnimation();
+	SharedAbility->SetComboFinished();
 }
 
 void ULastAttackState::ExitState()

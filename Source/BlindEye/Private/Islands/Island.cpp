@@ -44,9 +44,9 @@ TArray<UBurrowerSpawnPoint*> AIsland::GetBurrowerSpawnPoints()
 	return OwnedBurrowerSpawnPoints;
 }
 
-void AIsland::SpawnIsland(FVector startLocation)
+void AIsland::MULT_SpawnIsland_Implementation(FVector startLocation)
 {
-	if (bActive) return;
+	if (bActive) return; 
 
 	StartLocation = startLocation;
 	SetActorLocation(StartLocation);

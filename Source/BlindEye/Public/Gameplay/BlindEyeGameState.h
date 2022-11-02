@@ -21,7 +21,7 @@ class ABlindEyePlayerCharacter;
  * 
  */
 UCLASS()
-class BLINDEYE_API ABlindEyeGameState : public AGameStateBase
+class BLINDEYE_API ABlindEyeGameState : public AGameState
 {
 	GENERATED_BODY()
 
@@ -32,6 +32,15 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTutorialStartedSignature);
+	FTutorialStartedSignature TutorialStartedDelegate;
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTutorialEndedSignature);
+	FTutorialEndedSignature TutorialEndedDelegate;
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGameStartedSignature);
+	FGameStartedSignature GameStartedDelegate; 
 
 	ABlindEyePlayerCharacter* GetRandomPlayer();
 
@@ -49,14 +58,34 @@ public:
 
 	UPROPERTY(Replicated)
 	EGameOverState GameOverState = EGameOverState::InProgress;
+	
+	virtual void SetInProgressMatchState(FName NewInProgressState);
+
+	// getters for player characters to check the state of the game
+	bool IsBlindEyeMatchNotInProgress(); 
+	bool IsBlindEyeMatchWaitingPlayers();
+	bool IsBlindEyeMatchTutorial();
+	bool IsBlindEyeMatchInProgress();
+	bool IsBlindEyeMatchEnding();
+
+	void TutorialFinished();
+	void StartGame();
+	
+	TArray<ABlindEyePlayerCharacter*> GetPlayers();
+	ABlindEyePlayerCharacter* GetPlayer(EPlayerType PlayerType);
 
 protected:
 	TWeakObjectPtr<AShrine> Shrine;
 
+	UPROPERTY(ReplicatedUsing=OnRep_InProgressMatchState, BlueprintReadOnly, VisibleInstanceOnly, Category = GameState)
+	FName InProgressMatchState;
+
 	UPROPERTY()
 	AIslandManager* IslandManager;
+	
+	UFUNCTION()
+	virtual void OnRep_InProgressMatchState();
 
-	
-	
+	void TutorialState();
 	
 };

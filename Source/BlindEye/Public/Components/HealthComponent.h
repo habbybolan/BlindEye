@@ -56,7 +56,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float RefreshMarkerAmount = 2.f;
 
-	void AddMarkerHelper(EMarkerType MarkerType);
+	virtual void AddMarkerHelper(EMarkerType MarkerType);
 
 	UFUNCTION(BlueprintCallable)
 	const FAppliedStatusEffects& GetAppliedStatusEffect();
@@ -219,6 +219,9 @@ protected:
 	// End Detonation Effect properties *********
 	
 	FTimerHandle MarkerDecayTimerHandle;
-	void DetonateMark();
+
+	virtual void DetonateMark();
 	void PerformDetonationEffect(AActor* DamageCause); 
+
+	void NotifyPlayersOnDetonation();
 };

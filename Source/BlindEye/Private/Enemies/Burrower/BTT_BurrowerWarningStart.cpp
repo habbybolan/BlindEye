@@ -49,8 +49,18 @@ uint16 UBTT_BurrowerWarningStart::GetInstanceMemorySize() const
 	return sizeof(FBTBurrowerWaitTaskMemory);
 }
 
+EBTNodeResult::Type UBTT_BurrowerWarningStart::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+{
+	AAIController* Controller = OwnerComp.GetAIOwner();
+	if (ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Controller))
+	{
+		BurrowerController->StopWarningParticles();
+	}
+	return Super::AbortTask(OwnerComp, NodeMemory);
+}
+
 void UBTT_BurrowerWarningStart::DescribeRuntimeValues(const UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
-	EBTDescriptionVerbosity::Type Verbosity, TArray<FString>& Values) const
+                                                      EBTDescriptionVerbosity::Type Verbosity, TArray<FString>& Values) const
 {
 	Super::DescribeRuntimeValues(OwnerComp, NodeMemory, Verbosity, Values);
 

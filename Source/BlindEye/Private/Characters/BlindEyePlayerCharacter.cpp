@@ -102,6 +102,20 @@ void ABlindEyePlayerCharacter::BeginPlay()
 			AShrine* Shrine = Cast<AShrine>(ShrineActor);
 			Shrine->ShrineHealthChange.AddUFunction(this, TEXT("UpdateShrineHealthUI"));
 		}
+
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(world));
+		check(BlindEyeGS);
+
+		// Check if state is Tutorial
+		if (BlindEyeGS->IsBlindEyeMatchTutorial())
+		{
+			StartTutorial();
+		}
+		// Check if waiting for players, subscribe to tutorial starting event
+		else 
+		{
+			BlindEyeGS->TutorialStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::StartTutorial);
+		}
 	}
 
 	if (GetLocalRole() == ROLE_Authority)
@@ -111,6 +125,73 @@ void ABlindEyePlayerCharacter::BeginPlay()
 	}
 }
 
+void ABlindEyePlayerCharacter::CLI_TryFinishTutorial_Implementation(ETutorialChecklist CheckListItem)
+{
+	// Check if Player in tutorial 
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+		if (BlindEyeGS->IsBlindEyeMatchTutorial())
+		{
+			if ((!bTutorial1Finished && CheckListItem <= ETutorialChecklist::Ability2) ||
+				(bTutorial1Finished && CheckListItem > ETutorialChecklist::Ability2))
+			// Check if checklist item not yet done
+			if (!ChecklistFinishedTasks.Contains(CheckListItem))
+			{
+				// Send checklist item to BP
+				BP_TutorialCheckList(CheckListItem);
+				ChecklistFinishedTasks.Add(CheckListItem);
+				
+				// Swap to next tutorial if finished first
+				if (!bTutorial1Finished && ChecklistFinishedTasks.Num() >= 6)
+				{
+					bTutorial1Finished = !bTutorial1Finished;
+				}
+
+				// Check if tutorial finished
+				if (ChecklistFinishedTasks.Num() >= (uint8)ETutorialChecklist::Count)
+				{
+					SER_SetTutorialFinished();
+				}
+			}
+		}
+	}
+}
+
+void ABlindEyePlayerCharacter::SER_SetTutorialFinished_Implementation()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		ABlindEyeGameMode* BlindEyeGM = Cast<ABlindEyeGameMode>(UGameplayStatics::GetGameMode(World));
+		check(BlindEyeGM)
+		BlindEyeGM->TutorialFinished(this);
+	}
+}
+
+void ABlindEyePlayerCharacter::OnEnemyMarkDetonated()
+{
+	AbilityManager->RefreshAllCooldowns(CooldownRefreshAmount);
+	BP_CooldownRefreshed(CooldownRefreshAmount);
+}
+
+void ABlindEyePlayerCharacter::StartTutorial()
+{
+	BP_DisplayTutorialChecklist(true);
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+		check(BlindEyeGS)
+		BlindEyeGS->GameStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::StartGame);
+	}
+}
+
+void ABlindEyePlayerCharacter::StartGame()
+{
+	BP_DisplayTutorialChecklist(false);
+}
 
 ABlindEyePlayerState* ABlindEyePlayerCharacter::GetAllyPlayerState()
 {
@@ -216,6 +297,18 @@ void ABlindEyePlayerCharacter::MULT_ResetWalkMovementToNormal_Implementation()
 	GetCharacterMovement()->MaxAcceleration = CachedAcceleration;
 }
 
+void ABlindEyePlayerCharacter::TutorialFinished()
+{
+	// TODO: Add ready-up button hold before sending notify GM tutorial finished
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		ABlindEyeGameMode* BlindEyeGM = Cast<ABlindEyeGameMode>(UGameplayStatics::GetGameMode(World));
+		BlindEyeGM->TutorialFinished(this);
+	}
+	
+}
+
 void ABlindEyePlayerCharacter::RegenBirdMeter()
 {
 	if (ABlindEyePlayerState* BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState()))
@@ -290,6 +383,7 @@ void ABlindEyePlayerCharacter::SER_OnRevive_Implementation()
 
 void ABlindEyePlayerCharacter::BasicAttackPressed() 
 {
+	CLI_TryFinishTutorial(ETutorialChecklist::BasicAttack);
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Basic, EAbilityInputTypes::Pressed);
 }
@@ -308,6 +402,7 @@ void ABlindEyePlayerCharacter::ChargedAttackReleased()
 
 void ABlindEyePlayerCharacter::DashPressed()
 {
+	CLI_TryFinishTutorial(ETutorialChecklist::Dash);
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Dash, EAbilityInputTypes::Pressed);
 }
@@ -320,6 +415,7 @@ void ABlindEyePlayerCharacter::DashReleased()
 
 void ABlindEyePlayerCharacter::Unique1Pressed()
 {
+	CLI_TryFinishTutorial(ETutorialChecklist::Ability1);
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Pressed);
 }
@@ -332,6 +428,7 @@ void ABlindEyePlayerCharacter::Unique1Released()
 
 void ABlindEyePlayerCharacter::Unique2Pressed()
 {
+	CLI_TryFinishTutorial(ETutorialChecklist::Ability2);
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Pressed);
 }
@@ -340,6 +437,35 @@ void ABlindEyePlayerCharacter::Unique2Released()
 {
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Released);
+}
+
+void ABlindEyePlayerCharacter::TutorialSkipPressed()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		World->GetTimerManager().SetTimer(TutorialSkipTimerHandle, this, &ABlindEyePlayerCharacter::SER_UserInputSkipTutorial, ButtonHoldToSkipTutorial, false);
+	}
+}
+
+void ABlindEyePlayerCharacter::TutorialSkipReleased()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		World->GetTimerManager().ClearTimer(TutorialSkipTimerHandle);
+	}
+}
+
+void ABlindEyePlayerCharacter::SER_UserInputSkipTutorial_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Emerald, "Tutorial skipped");
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		ABlindEyeGameMode* BlindEyeGM = Cast<ABlindEyeGameMode>(UGameplayStatics::GetGameMode(World));
+		BlindEyeGM->TutorialFinished(this);
+	}
 }
 
 void ABlindEyePlayerCharacter::SER_DebugInvincibility_Implementation(bool IsInvincible)
@@ -714,6 +840,7 @@ float ABlindEyePlayerCharacter::GetShrineHealthPercent()
 
 void ABlindEyePlayerCharacter::TryJump()
 {
+	CLI_TryFinishTutorial(ETutorialChecklist::Jump);
 	if (!HealthComponent->GetIsHunterDebuff() && !GetIsDead())
 	{
 		Jump();
@@ -813,6 +940,9 @@ void ABlindEyePlayerCharacter::SetupPlayerInputComponent(class UInputComponent* 
 
 	PlayerInputComponent->BindAction("Debug1", IE_Released, this, &ABlindEyePlayerCharacter::SER_DamageSelf);
 	PlayerInputComponent->BindAction("Debug2", IE_Released, this, &ABlindEyePlayerCharacter::SER_DamageShrine);
+	
+	PlayerInputComponent->BindAction("SkipTutorial", IE_Pressed, this, &ABlindEyePlayerCharacter::TutorialSkipPressed);
+	PlayerInputComponent->BindAction("SkipTutorial", IE_Released, this, &ABlindEyePlayerCharacter::TutorialSkipReleased);
 }
 
 

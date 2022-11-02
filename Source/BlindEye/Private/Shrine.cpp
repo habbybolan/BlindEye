@@ -128,6 +128,7 @@ float AShrine::GetMaxHealth()
 
 void AShrine::MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser)
 {
+	BP_OnTakeDamage(Damage, HitLocation, DamageType, DamageCauser);
 }
 
 UMarkerComponent* AShrine::GetMarkerComponent()
