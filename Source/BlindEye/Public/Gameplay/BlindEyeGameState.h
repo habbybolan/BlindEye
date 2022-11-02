@@ -58,6 +58,11 @@ public:
 
 	UPROPERTY(Replicated)
 	EGameOverState GameOverState = EGameOverState::InProgress;
+
+	UPROPERTY(Replicated)
+	float CurrGameTime = 0;
+	UPROPERTY(Replicated)
+	float TimerUntilGameWon; 
 	
 	virtual void SetInProgressMatchState(FName NewInProgressState);
 
@@ -81,7 +86,7 @@ public:
 	UFUNCTION()
 	void RunMainGameLoopTimers();
 
-	void SetGameTime(float timerUntilGameWon); 
+	float GetGameDonePercent();
 
 protected:
 	TWeakObjectPtr<AShrine> Shrine;
@@ -91,10 +96,7 @@ protected:
 
 	UPROPERTY()
 	AIslandManager* IslandManager;
-
-	UPROPERTY(Replicated)
-	float CurrGameTime;
-	float TimerUntilGameWon;  
+	
 	FTimerHandle MainGameLoopTimer;
 	float MainGameLoopDelay = 0.1;
 

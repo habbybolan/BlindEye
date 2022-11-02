@@ -337,7 +337,7 @@ void ABlindEyeGameMode::InitGameState()
 	
 	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(GameState);
 	check(BlindEyeGS)
-	BlindEyeGS->SetGameTime(TimerUntilGameWon);
+	BlindEyeGS->TimerUntilGameWon = TimerUntilGameWon;
 }
 
 void ABlindEyeGameMode::UpdateGameStateValues()

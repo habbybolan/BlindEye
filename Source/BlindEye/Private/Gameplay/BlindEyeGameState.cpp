@@ -145,6 +145,7 @@ TArray<ABlindEyePlayerCharacter*> ABlindEyeGameState::GetPlayers()
 
 void ABlindEyeGameState::GameInProgressState()
 {
+	CurrGameTime = 0;
 	UWorld* World = GetWorld();
 	if (World)
 	{
@@ -176,10 +177,9 @@ void ABlindEyeGameState::RunMainGameLoopTimers()
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, MainGameLoopDelay, FColor::Emerald, "GS Timer: " + FString::SanitizeFloat(CurrGameTime));
 }
 
-void ABlindEyeGameState::SetGameTime(float timerUntilGameWon)
+float ABlindEyeGameState::GetGameDonePercent()
 {
-	TimerUntilGameWon = timerUntilGameWon;
-	CurrGameTime = 0;
+	return CurrGameTime / TimerUntilGameWon;
 }
 
 void ABlindEyeGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -190,4 +190,5 @@ void ABlindEyeGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(ABlindEyeGameState, GameOverState)
 	DOREPLIFETIME(ABlindEyeGameState, InProgressMatchState)
 	DOREPLIFETIME(ABlindEyeGameState, CurrGameTime)
+	DOREPLIFETIME(ABlindEyeGameState, TimerUntilGameWon)
 }
