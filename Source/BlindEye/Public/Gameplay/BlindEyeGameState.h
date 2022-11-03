@@ -30,6 +30,8 @@ public:
 	ABlindEyeGameState();
 
 	virtual void BeginPlay() override;
+ 
+	TArray<AActor*> GetAllEnemies();
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 

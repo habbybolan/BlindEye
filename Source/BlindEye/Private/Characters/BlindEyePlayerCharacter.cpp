@@ -123,6 +123,9 @@ void ABlindEyePlayerCharacter::BeginPlay()
 		world->GetTimerManager().SetTimer(BirdRegenTimerHandle, this, &ABlindEyePlayerCharacter::RegenBirdMeter, RegenBirdMeterCallDelay, true);
 		world->GetTimerManager().SetTimer(HealthRegenTimerHandle, this, &ABlindEyePlayerCharacter::RegenHealth, RegenHealthCallDelay, true);
 	}
+
+	world->GetTimerManager().SetTimer(RadarUpdateTimerHandle, this, &ABlindEyePlayerCharacter::UpdateRadar, RadarUpdateDelay, true);
+	
 }
 
 void ABlindEyePlayerCharacter::CLI_TryFinishTutorial_Implementation(ETutorialChecklist CheckListItem)
@@ -857,6 +860,11 @@ float ABlindEyePlayerCharacter::GetShrineHealthPercent()
 		return HealthInterface->GetHealthPercent();
 	}
 	return 0;
+}
+
+void ABlindEyePlayerCharacter::UpdateRadar()
+{
+	// TODO: Call User widget to Update Radar
 }
 
 void ABlindEyePlayerCharacter::TryJump()

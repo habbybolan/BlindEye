@@ -38,6 +38,18 @@ void ABlindEyeGameState::BeginPlay()
 	}
 }
 
+TArray<AActor*> ABlindEyeGameState::GetAllEnemies()
+{
+	TArray<AActor*> AllEnemies;
+	// TODO: Enemies should register when it spawned with GameState
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		UGameplayStatics::GetAllActorsOfClass(World, ABlindEyeEnemyBase::StaticClass(), AllEnemies);
+	}
+	return AllEnemies;
+}
+
 ABlindEyePlayerCharacter* ABlindEyeGameState::GetRandomPlayer()
 {
 	return Cast<ABlindEyePlayerCharacter>(PlayerArray[UKismetMathLibrary::RandomIntegerInRange(0, PlayerArray.Num() - 1)]->GetPawn());
