@@ -7,11 +7,18 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
+void UW_Radar::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	UpdateRadar();
+}
+
 void UW_Radar::UpdateRadar()
 {
-	
 	APlayerController* PlayerController = GetOwningPlayer();
 	TArray<uint8> NumOfEnemiesAtRadarIndices;
+	NumOfEnemiesAtRadarIndices.SetNum(12);
 	UWorld* World = GetWorld();
 	if (World)
 	{

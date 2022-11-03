@@ -16,6 +16,8 @@ class BLINDEYE_API UW_Radar : public UUserWidget
 
 public:
 
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
 	UPROPERTY(EditDefaultsOnly)
 	float MaxDistForFirstSection = 1000;
 
