@@ -14,6 +14,8 @@ void UANS_BaseHunterAttack::TryAttack(TArray<FHitResult> Hits)
 {
 	for (FHitResult Hit : Hits)
 	{
+		if (Hit.Actor == Hunter) continue;
+		
 		if (!HitActors.Contains(Hit.Actor.Get()))
 		{
 			HitActors.Add(Hit.Actor.Get());
