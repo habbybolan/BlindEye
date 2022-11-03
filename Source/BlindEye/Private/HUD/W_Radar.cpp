@@ -42,31 +42,77 @@ int8 UW_Radar::GetRadarIndex(AActor* Actor, APlayerController* PlayerController)
 
 	PlayerController->GetPlayerViewPoint(ViewportLocation, ViewportRotation);
 	FVector VecToEnemy = Actor->GetActorLocation() - ViewportLocation;
-	FRotator RotationToEnemy = UKismetMathLibrary::FindLookAtRotation(ViewportRotation.Vector(), VecToEnemy);
-	float YawRotation = RotationToEnemy.Yaw;
-	YawRotation -= (360 / NumPiecesInASection) / 2;
-
-	uint8 Index;
-	float Remainder;
+	float DistToEnemy = VecToEnemy.Size();
 	
-	if (YawRotation > 0)
+	FVector2D VecToEnemy2D = FVector2D(VecToEnemy.X, VecToEnemy.Y);
+	VecToEnemy2D.Normalize();
+	FVector2D ViewportLook2D = FVector2D(ViewportRotation.Vector().X, ViewportRotation.Vector().Y);
+	ViewportLook2D.Normalize();
+	
+	float YawRotation = UKismetMathLibrary::Acos(
+		UKismetMathLibrary::DotProduct2D(VecToEnemy2D, ViewportLook2D) /
+		(VecToEnemy2D.Size() * ViewportLook2D.Size())) * (180 / UKismetMathLibrary::GetPI());
+
+	FVector RightViewport = ViewportRotation.Vector().RotateAngleAxis(90, FVector(0, 0, 1));
+
+	float Dot = UKismetMathLibrary::Dot_VectorVector(RightViewport, VecToEnemy);
+	if (Dot < 0)
 	{
-		Index = UKismetMathLibrary::FMod(YawRotation, 360 / NumPiecesInASection, Remainder);
-	} else
-	{
-		YawRotation += 180;
-		Index = UKismetMathLibrary::FMod(YawRotation, 360 / NumPiecesInASection, Remainder);
+		YawRotation *= -1;
 	}
 
-	// If enemy in first section
-	if (VecToEnemy.Size() <= MaxDistForFirstSection)
+	float DegreesPerSection = 360 / NumPiecesInASection;
+	//YawRotation += DegreesPerSection / 2;
+	
+	
+	uint8 Index;
+
+	// Top Section
+	if (UKismetMathLibrary::Abs(YawRotation) < DegreesPerSection / 2)
+	{
+		Index = 0;
+	}
+	// Bottom section
+	else if (UKismetMathLibrary::Abs(YawRotation) > 180 -  DegreesPerSection / 2)
+	{
+		Index = 3;
+	}
+	else if (UKismetMathLibrary::Abs(YawRotation) > DegreesPerSection / 2 &&
+		UKismetMathLibrary::Abs(YawRotation) < (DegreesPerSection / 2 + DegreesPerSection))
+	{
+		if (YawRotation > 0) Index = 1;
+		else Index = 5;
+	}
+	else
+	{
+		if (YawRotation > 0) Index = 2;
+		else Index = 4;
+	}
+	
+	// if (YawRotation > 0)
+	// {
+	// 	if (YawRotation < DegreesPerSection)
+	// 	{
+	// 		Index = 0;
+	// 	} else
+	// 	{
+	// 		Index = UKismetMathLibrary::FMod(YawRotation, 360 / NumPiecesInASection, Remainder);
+	// 	}
+	// } else
+	// {
+	// 	YawRotation -= 180;
+	// 	Index = UKismetMathLibrary::FMod(YawRotation, 360 / NumPiecesInASection, Remainder);
+	// }
+
+	//If enemy in first section
+	if (DistToEnemy <= MaxDistForFirstSection)
 	{
 		return Index;
 	}
 	// If enemy in second section
-	else if (MaxDistForSecondSection == 0 || VecToEnemy.Size() <= MaxDistForFirstSection)
+	else if (MaxDistForSecondSection == 0 || DistToEnemy <= MaxDistForFirstSection)
 	{
-		return Index + NumSections;
+		return Index + NumPiecesInASection;
 	}
 	return -1;
 }
