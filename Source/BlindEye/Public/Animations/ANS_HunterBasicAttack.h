@@ -25,4 +25,6 @@ class BLINDEYE_API UANS_HunterBasicAttack : public UANS_BaseHunterAttack
 	virtual void NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime) override;
 
 	virtual void ApplyHit(FHitResult Hit, bool bApplyMark) override;
+
+	void PerformSwing(FName BoneNameHand, FName BoneNameForeArm, USkeletalMeshComponent* MeshComp);
 };
