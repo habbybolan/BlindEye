@@ -477,6 +477,13 @@ void ABlindEyePlayerCharacter::UserSkipTutorial()
 void ABlindEyePlayerCharacter::SER_UserInputSkipTutorial_Implementation()
 {
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Emerald, "Tutorial skipped");
+
+	// Check if player already finished tutorial
+	ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState());
+	check(BlindEyePS)
+	if (BlindEyePS->GetIsTutorialFinished()) return;
+
+	// Notify GameMode that player finished tutorial
 	UWorld* World = GetWorld();
 	if (World)
 	{
