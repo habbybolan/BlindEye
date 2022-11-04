@@ -251,7 +251,7 @@ void ABlindEyeGameMode::OnAllPlayersFinishedTutorial()
 	for (AActor* DummyActor : DummyActors)
 	{
 		ADummyEnemy* DummyEnemy = Cast<ADummyEnemy>(DummyActor);
-		DummyEnemy->OnDeath(BlindEyeGS->GetRandomPlayer());
+		DummyEnemy->HealthComponent->Kill();
 	}
 
 	// Start the game
