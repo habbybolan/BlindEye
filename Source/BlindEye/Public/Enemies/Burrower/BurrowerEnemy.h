@@ -147,6 +147,9 @@ protected:
 	bool bIsSurfacing = false;
 	bool bIsHiding = false;
 
+	bool bIsHidden = false;
+	bool bIsFollowing = false;
+
 	ECollisionChannel CachedCollisionObject;
 	
 	UFUNCTION()

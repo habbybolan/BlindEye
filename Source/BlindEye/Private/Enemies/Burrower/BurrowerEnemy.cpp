@@ -278,14 +278,23 @@ void ABurrowerEnemy::TimelineHideFinished()
  
 void ABurrowerEnemy::MULT_SetBurrowerState_Implementation(bool isHidden, bool bFollowing)
 {
-	GetMesh()->SetHiddenInGame(isHidden);
-	
-	if (bFollowing)
+	// Prevent changing hiding state to same
+	if (bIsHidden != isHidden)
 	{
-		BP_FollowingStart_CLI();
-	} else
+		GetMesh()->SetHiddenInGame(isHidden);
+		bIsHidden = !bIsHidden;
+	}
+
+	// prevent changing following state to same
+	if (bIsFollowing != bFollowing)
 	{
-		BP_FollowingEnd_CLI();
+		if (bFollowing)
+		{
+			BP_FollowingStart_CLI();
+		} else
+		{
+			BP_FollowingEnd_CLI();
+		}
 	}
 }
 
