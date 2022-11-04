@@ -23,7 +23,7 @@ void UW_Radar::UpdateRadar()
 	if (World)
 	{
 		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
-		for (AActor* Actor : BlindEyeGS->GetAllEnemies())
+		for (ABlindEyeEnemyBase* Actor : BlindEyeGS->GetAllEnemies())
 		{
 			int8 RadarIndex = GetRadarIndex(Actor, PlayerController);
 			if (RadarIndex >= 0)
@@ -37,6 +37,7 @@ void UW_Radar::UpdateRadar()
 
 int8 UW_Radar::GetRadarIndex(AActor* Actor, APlayerController* PlayerController)
 {
+	if (Actor == nullptr) return -1;
 	FVector ViewportLocation;
 	FRotator ViewportRotation;
 
