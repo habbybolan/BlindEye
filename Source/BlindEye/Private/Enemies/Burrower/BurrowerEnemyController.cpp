@@ -98,7 +98,7 @@ void ABurrowerEnemyController::StopWarningParticles()
 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
 	if (!CachedBurrower) return;
 
-	CachedBurrower->MULT_DespawnWarningParticle();
+	CachedBurrower->WarningEnded();
 }
 
 void ABurrowerEnemyController::NotifyPlayerEnteredIsland(ABlindEyePlayerCharacter* Player)
@@ -158,7 +158,7 @@ void ABurrowerEnemyController::StartWarningParticles()
 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
 	if (!CachedBurrower) return;
 
-	CachedBurrower->MULT_SpawnWarningParticle();
+	CachedBurrower->WarningStarted();
 }
 
 void ABurrowerEnemyController::AddNewActionState(EBurrowActionState NewAction)
