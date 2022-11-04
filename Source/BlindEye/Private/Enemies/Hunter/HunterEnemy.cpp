@@ -298,22 +298,16 @@ bool AHunterEnemy::GetIsChannelling()
 
 void AHunterEnemy::ApplyBasicAttackDamage(FHitResult Hit, bool IfShouldApplyHunterMark)
 {
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		// base DamageType and damage amount if Hunter Charged and if marking target
-		TSubclassOf<UBaseDamageType> DamageTypeToApply = IfShouldApplyHunterMark ? BasicAttackDamageTypeWithMark : BasicAttackDamageTypeNoMark;
-		ApplyAttackDamageHelper(BasicAttackDamage, IfShouldApplyHunterMark, DamageTypeToApply, Hit);
-	}
+	// base DamageType and damage amount if Hunter Charged and if marking target
+	TSubclassOf<UBaseDamageType> DamageTypeToApply = IfShouldApplyHunterMark ? BasicAttackDamageTypeWithMark : BasicAttackDamageTypeNoMark;
+	ApplyAttackDamageHelper(BasicAttackDamage, IfShouldApplyHunterMark, DamageTypeToApply, Hit);
 }
 
 void AHunterEnemy::ApplyChargedJumpDamage(FHitResult Hit, bool IfShouldApplyHunterMark)
 {
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		// base DamageType and damage amount if Hunter Charged and if marking target
-		TSubclassOf<UBaseDamageType> DamageTypeToApply = IfShouldApplyHunterMark ? ChargedJumpDamageTypeWithMark : ChargedJumpDamageTypeNoMark;
-		ApplyAttackDamageHelper(ChargedAttackDamage, IfShouldApplyHunterMark, DamageTypeToApply, Hit);
-	}
+	// base DamageType and damage amount if Hunter Charged and if marking target
+	TSubclassOf<UBaseDamageType> DamageTypeToApply = IfShouldApplyHunterMark ? ChargedJumpDamageTypeWithMark : ChargedJumpDamageTypeNoMark;
+	ApplyAttackDamageHelper(ChargedAttackDamage, IfShouldApplyHunterMark, DamageTypeToApply, Hit);
 }
 
 void AHunterEnemy::ApplyAttackDamageHelper(float Damage, bool IfShouldApplyHunterMark,
@@ -381,7 +375,7 @@ bool AHunterEnemy::GetIsFleeing()
 
 void AHunterEnemy::SetPlayerMarked(AActor* NewTarget)
 {
-	
+	if (GetLocalRole() < ROLE_Authority) return;
 	AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(GetController());
 	if (!ensure(HunterController)) return;
 	

@@ -12,23 +12,28 @@ void UANS_BaseHunterAttack::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimS
 
 void UANS_BaseHunterAttack::TryAttack(TArray<FHitResult> Hits)
 {
-	for (FHitResult Hit : Hits)
+	if (Hunter->GetLocalRole() == ROLE_Authority)
 	{
-		if (!HitActors.Contains(Hit.Actor.Get()))
+		for (FHitResult Hit : Hits)
 		{
-			HitActors.Add(Hit.Actor.Get());
-
-			// Check if mark should be applied (Hit player and hasn't hit player with attack yet)
-			bool bApplyMark = false;
-			if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Hit.Actor.Get()))
+			if (Hit.Actor == Hunter) continue;
+		
+			if (!HitActors.Contains(Hit.Actor.Get()))
 			{
-				if (!bPlayerHit)
+				HitActors.Add(Hit.Actor.Get());
+
+				// Check if mark should be applied, based on first player hit in swing
+				bool bApplyMark = false;
+				if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Hit.Actor.Get()))
 				{
-					bPlayerHit = true;
-					bApplyMark = true;
+					if (!bPlayerHit)
+					{
+						bPlayerHit = true;
+						bApplyMark = true;
+					}
 				}
+				ApplyHit(Hit, bApplyMark);
 			}
-			ApplyHit(Hit, bApplyMark);
 		}
 	}
 }

@@ -2,7 +2,7 @@
 <objects serializationModel="Studio.02.02.00">
 	<object class="Event" id="{348b77bc-b5bf-4ec5-ac91-1364c89eada5}">
 		<property name="name">
-			<value>SFX_Crow_Cocoon</value>
+			<value>SFX_Crow_Rush_Start</value>
 		</property>
 		<property name="outputFormat">
 			<value>0</value>
@@ -63,11 +63,18 @@
 	<object class="EventAutomatableProperties" id="{c7c45649-da27-4d25-ae75-aa66ed186463}" />
 	<object class="MarkerTrack" id="{dfd28431-f520-42fc-aec7-c0a4fbfc2d17}" />
 	<object class="GroupTrack" id="{7ab5c952-2bef-44f3-90a9-cb809a908024}">
+		<relationship name="modules">
+			<destination>{b0fa10e8-69b0-4e11-9b80-a1d3eeb14ee9}</destination>
+		</relationship>
 		<relationship name="mixerGroup">
 			<destination>{2d6e0e24-fa50-43b9-bb82-9fd02dcacc33}</destination>
 		</relationship>
 	</object>
-	<object class="Timeline" id="{e17ded83-f4de-4397-a60d-8a158c102b4c}" />
+	<object class="Timeline" id="{e17ded83-f4de-4397-a60d-8a158c102b4c}">
+		<relationship name="modules">
+			<destination>{b0fa10e8-69b0-4e11-9b80-a1d3eeb14ee9}</destination>
+		</relationship>
+	</object>
 	<object class="EventMixerMaster" id="{eeb22e77-d242-4eed-a725-8237c6780896}">
 		<relationship name="effectChain">
 			<destination>{e3811207-d9dc-43c1-8cff-d84567280d28}</destination>
@@ -85,6 +92,14 @@
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{2876ab0f-b306-4066-92d3-79cd5f6acc4d}" />
+	<object class="SingleSound" id="{b0fa10e8-69b0-4e11-9b80-a1d3eeb14ee9}">
+		<property name="length">
+			<value>0.48422916666666665</value>
+		</property>
+		<relationship name="audioFile">
+			<destination>{ab475457-0b51-49ef-83c5-4f287c680a4b}</destination>
+		</relationship>
+	</object>
 	<object class="EventMixerGroup" id="{2d6e0e24-fa50-43b9-bb82-9fd02dcacc33}">
 		<property name="name">
 			<value>Audio 1</value>
