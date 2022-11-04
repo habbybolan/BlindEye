@@ -64,6 +64,10 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDeathSignature, AActor*, EnemyKilled);
 	UPROPERTY()
 	FDeathSignature OnDeathDelegate;
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FDamageSignature, float, Damage, FVector, HitLocation, const UDamageType*, DamageType, AActor*, DamageCauser);
+	UPROPERTY()
+	FDamageSignature OnDamageDelegate;
 	
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
 	bool IsInvincible = false;
