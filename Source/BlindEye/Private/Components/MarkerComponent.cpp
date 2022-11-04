@@ -139,11 +139,11 @@ void UMarkerComponent::AddMark(EMarkerType MarkerType)
 	}
 }
 
-void UMarkerComponent::RefreshMark(EMarkerType MarkerType)
+void UMarkerComponent::RefreshMark(EMarkerType MarkerType, float RemainingDecay)
 {
 	if (AMarkerStaticMesh* ActiveMark = GetActiveMark())
 	{
-		ActiveMark->BP_RefreshMark(MarkerType);
+		ActiveMark->BP_RefreshMark(MarkerType, RemainingDecay);
 	}
 }
 

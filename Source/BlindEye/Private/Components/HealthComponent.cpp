@@ -224,7 +224,7 @@ void UHealthComponent::TryApplyMarker(EMarkerType MarkerType, AActor* DamageCaus
 		float RefreshedTime = UKismetMathLibrary::Min(TimeRemaining + RefreshMarkerAmount, MarkerDecay);
 		world->GetTimerManager().ClearTimer(MarkerDecayTimerHandle);
 		world->GetTimerManager().SetTimer(MarkerDecayTimerHandle, this, &UHealthComponent::RemoveMark, RefreshedTime, false);
-		RefreshMarkDelegate.Broadcast();
+		RefreshMarkDelegate.Broadcast(RefreshedTime);
 	} else
 	{
 		// Set the decay timer on marker

@@ -102,7 +102,7 @@ public:
 	UPROPERTY()
 	FDetonateSignature DetonateDelegate;
  
-	DECLARE_MULTICAST_DELEGATE(FRefreshSignature) 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRefreshSignature, float, RemainingTime); 
 	FRefreshSignature RefreshMarkDelegate;
 
 	DECLARE_MULTICAST_DELEGATE_TwoParams(FTauntStartSignature, float, AActor*) 

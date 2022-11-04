@@ -24,7 +24,7 @@ void ABlindEyeBaseCharacter::BeginPlay()
 	HealthComponent->MarkedAddedDelegate.AddUFunction(this, TEXT("OnMarkAdded"));
 	HealthComponent->MarkedRemovedDelegate.AddDynamic(this, &ABlindEyeBaseCharacter::OnMarkRemoved);
 	HealthComponent->DetonateDelegate.AddDynamic(this, &ABlindEyeBaseCharacter::OnMarkDetonated);
-	HealthComponent->RefreshMarkDelegate.AddUFunction(this, TEXT("OnMarkRefreshed"));
+	HealthComponent->RefreshMarkDelegate.AddDynamic(this, &ABlindEyeBaseCharacter::OnMarkRefreshed);
 }
 
 void ABlindEyeBaseCharacter::OnDeath(AActor* ActorThatKilled)
@@ -122,18 +122,18 @@ void ABlindEyeBaseCharacter::MULT_OnMarkDetonatedHelper_Implementation(EMarkerTy
 	MarkerComponent->DetonateMark(MarkerType);
 }
 
-void ABlindEyeBaseCharacter::OnMarkRefreshed()
+void ABlindEyeBaseCharacter::OnMarkRefreshed(float RemainingDecay)
 {
 	FMarkData marker = HealthComponent->GetCurrMark();
 	if (marker.bHasMark)
 	{
-		MULT_OnMarkRefreshedHelper(marker.MarkerType);
+		MULT_OnMarkRefreshedHelper(marker.MarkerType, RemainingDecay);
 	}
 }
 
-void ABlindEyeBaseCharacter::MULT_OnMarkRefreshedHelper_Implementation(EMarkerType MarkerType)
+void ABlindEyeBaseCharacter::MULT_OnMarkRefreshedHelper_Implementation(EMarkerType MarkerType, float RemainingDecay)
 {
-	MarkerComponent->RefreshMark(MarkerType);
+	MarkerComponent->RefreshMark(MarkerType, RemainingDecay);
 }
 
 float ABlindEyeBaseCharacter::GetHealth()
