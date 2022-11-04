@@ -30,8 +30,6 @@ public:
 	ABlindEyeGameState();
 
 	virtual void BeginPlay() override;
- 
-	TArray<AActor*> GetAllEnemies();
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
@@ -90,8 +88,16 @@ public:
 
 	float GetGameDonePercent();
 
+	TArray<ABlindEyeEnemyBase*> GetAllEnemies();
+
+	// Called whenever enemy is spawned to allow easy retrieval of all enemies alive in level
+	void SubscribeToEnemy(ABlindEyeEnemyBase* Enemy); 
+
 protected:
 	TWeakObjectPtr<AShrine> Shrine;
+
+	UPROPERTY(Replicated)
+	TArray<ABlindEyeEnemyBase*> AllEnemies;
 
 	UPROPERTY(ReplicatedUsing=OnRep_InProgressMatchState, BlueprintReadOnly, VisibleInstanceOnly, Category = GameState)
 	FName InProgressMatchState;
@@ -101,6 +107,9 @@ protected:
 	
 	FTimerHandle MainGameLoopTimer;
 	float MainGameLoopDelay = 0.1;
+
+	UFUNCTION()
+	void EnemyDied(AActor* Enemy);
 
 	void GameInProgressState();
 	UFUNCTION()

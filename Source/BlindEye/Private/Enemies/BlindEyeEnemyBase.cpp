@@ -4,6 +4,7 @@
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Components/HealthComponent.h"
 #include "Components/MarkerComponent.h"
+#include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
@@ -29,6 +30,16 @@ void ABlindEyeEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
 	CurrHealth = MaxHealth;
+
+	// initialize enemy reference on game state for easy access
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+		check(BlindEyeGS)
+
+		BlindEyeGS->SubscribeToEnemy(this);
+	}
 }
 
 void ABlindEyeEnemyBase::DestroyEnemy()
