@@ -4,6 +4,7 @@
 #include "Components/DamageFeedbackComponent.h"
 
 #include "BlindEyeBaseCharacter.h"
+#include "Animation/SkeletalMeshActor.h"
 
 UDamageFeedbackComponent::UDamageFeedbackComponent()
 {
@@ -14,11 +15,16 @@ void UDamageFeedbackComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ABlindEyeBaseCharacter* BaseCharacter = Cast<ABlindEyeBaseCharacter>(GetOwner());
-	if (ensure(BaseCharacter))
-	{
-		BaseCharacter->HealthComponent->OnDeathDelegate.AddDynamic(this, &UDamageFeedbackComponent::BP_OnDeath_SER);
-		BaseCharacter->HealthComponent->OnDamageDelegate.AddDynamic(this, &UDamageFeedbackComponent::BP_OnTakeDamage_SER);
-	}
+	ABlindEyeEnemyBase* BaseCharacter = Cast<ABlindEyeEnemyBase>(GetOwner());
+	check(BaseCharacter)
+	
+	Enemy = BaseCharacter;
+	BaseCharacter->HealthComponent->OnDeathDelegate.AddDynamic(this, &UDamageFeedbackComponent::BP_OnDeath_SER);
+	BaseCharacter->HealthComponent->OnDamageDelegate.AddDynamic(this, &UDamageFeedbackComponent::BP_OnTakeDamage_SER);
+}
+
+USkeletalMeshComponent* UDamageFeedbackComponent::GetMesh()
+{
+	return Enemy->GetMesh();
 }
 
