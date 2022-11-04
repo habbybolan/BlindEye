@@ -209,6 +209,8 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_HidingEnded_CLI();
 	UFUNCTION(BlueprintImplementableEvent)
+	void BP_HidingCancelled_CLI(); 
+	UFUNCTION(BlueprintImplementableEvent)
 	void BP_WarningStarted_CLI(); 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_WarningEnded_CLI();

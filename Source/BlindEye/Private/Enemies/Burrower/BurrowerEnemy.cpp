@@ -315,6 +315,7 @@ void ABurrowerEnemy::CancelHide()
 void ABurrowerEnemy::MULT_CancelHideHelper_Implementation()
 {
 	HideTimelineComponent->Stop();
+	BP_HidingCancelled_CLI();
 }
 
 bool ABurrowerEnemy::GetIsSurfaced()
