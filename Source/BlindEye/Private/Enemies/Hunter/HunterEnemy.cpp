@@ -339,6 +339,7 @@ void AHunterEnemy::MULT_StartChannelingHelper_Implementation()
 		bChannelling = true;
 		World->GetTimerManager().SetTimer(ChannellingTimerHandle, this, &AHunterEnemy::StopChanneling, ChannellingDuration, false);
 	}
+	BP_ChannelingStarted_CLI();
 }
 
 void AHunterEnemy::StopChanneling()
@@ -347,6 +348,7 @@ void AHunterEnemy::StopChanneling()
 	Shrine->ChannellingEnded(this);
 	GetMesh()->GetAnimInstance()->Montage_JumpToSection("End", ChannelingAnim);
 	// TODO: Set Channeling Anim to End section
+	BP_ChannelingEnded_CLI();
 }
 
 void AHunterEnemy::ChannelingAnimFinished()

@@ -175,7 +175,13 @@ protected:
 	void BP_ChargedStarted();
   
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_ChargedEnded();
+	void BP_ChargedEnded(); 
+ 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_ChannelingStarted_CLI();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_ChannelingEnded_CLI(); 
 
 	void SetPlayerMarked(AActor* NewTarget);
 
