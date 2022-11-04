@@ -37,9 +37,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float TimerUntilGameWon = 60;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float DelayBetweenLevelShifts = 60.f;
-
 	UPROPERTY(EditDefaultsOnly)
 	float PulseKillDelay = 1.0f;
 
@@ -85,10 +82,11 @@ protected:
 	AIslandManager* IslandManager;
 
 	float CurrIslandLevelTime = 0;
-
-	uint8 CurrPulseIndex = 0;
-	uint8 NumPulses = 3;
 	float TimeBetweenPulses;
+	
+	uint8 NumRounds = 3;
+
+	uint8 CurrRound = 0;
 
 	FTimerHandle PulseKillDelayTimerHandle;
 
@@ -111,6 +109,7 @@ protected:
 	void PerformPulse();
  
 	float GameTimer = 0;
+	float PulseTimer = 0; 
 	float TimerForUpdatingGameState = 0;
 	virtual void InitGameState() override;
 

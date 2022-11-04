@@ -39,7 +39,7 @@ void ABlindEyeGameMode::BeginPlay()
 	IslandManager = Cast<AIslandManager>(UGameplayStatics::GetActorOfClass(world, AIslandManager::StaticClass()));
 	check(IslandManager);
 	
-	TimeBetweenPulses = TimerUntilGameWon / NumPulses;
+	TimeBetweenPulses = TimerUntilGameWon / NumRounds;
 }
 
 FTransform ABlindEyeGameMode::GetSpawnPoint() const
@@ -292,19 +292,13 @@ void ABlindEyeGameMode::RunMainGameLoop()
 		GameTimer += MainGameLoopDelay;
 	}
 
-	CurrIslandLevelTime += MainGameLoopDelay;
-	// Level shift check
-	if (CurrIslandLevelTime > DelayBetweenLevelShifts)
-	{
-		BP_LevelShift();
-		CurrIslandLevelTime = 0;
-	}
-
 	// Check for pulse events
-	if (GameTimer >= TimeBetweenPulses * (CurrPulseIndex + 1))
+	if (PulseTimer >= TimeBetweenPulses)
 	{
-		CurrPulseIndex++;
-		BP_Pulse(CurrPulseIndex);
+		PulseTimer = 0;
+		CurrRound++;
+		BP_Pulse(CurrRound);
+		BP_LevelShift();
 
 		// Pulse kills all enemies after duration
 		UWorld* World = GetWorld();
