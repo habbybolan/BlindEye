@@ -91,9 +91,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnMarkDetonated(EMarkerType MarkType);
 	UFUNCTION()
-	virtual void OnMarkRefreshed();
+	virtual void OnMarkRefreshed(float RemainingDecay);
 	UFUNCTION(NetMulticast, Reliable) 
-	void MULT_OnMarkRefreshedHelper(EMarkerType MarkerType); 
+	void MULT_OnMarkRefreshedHelper(EMarkerType MarkerType, float RemainingDecay); 
 public:
 	virtual float GetHealth() override;
 	virtual float GetMaxHealth() override;
