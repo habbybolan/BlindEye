@@ -78,6 +78,7 @@ void ABurrowerEnemy::MULT_StartSurfacingHelper_Implementation()
 {
 	SetSurfacingHiding();
 	SurfacingTimelineComponent->PlayFromStart();
+	BP_SurfacingStarted_CLI();
 }
 
 void ABurrowerEnemy::PerformSurfacingDamage()
@@ -138,6 +139,7 @@ void ABurrowerEnemy::MULT_StartHidingHelper_Implementation(float StartTime)
 	{
 		HideTimelineComponent->PlayFromStart();
 	}
+	BP_HidingStarted_CLI();
 }
 
 void ABurrowerEnemy::SpawnSnappers()
@@ -184,7 +186,26 @@ FVector ABurrowerEnemy::GetHidePosition()
 void ABurrowerEnemy::Destroyed()
 {
 	Super::Destroyed();
-	MULT_DespawnWarningParticle();
+}
+
+FVector ABurrowerEnemy::GetWorldWarningParticleSpawnLocation()
+{
+	return GetCapsuleComponent()->GetComponentLocation() + FVector(0, 0, -GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+}
+
+FVector ABurrowerEnemy::GetRelativeFollowParticleSpawnLocation()
+{
+	return FVector(0, 0, -GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+}
+
+void ABurrowerEnemy::WarningStarted()
+{
+	BP_WarningStarted_CLI();
+} 
+
+void ABurrowerEnemy::WarningEnded()
+{
+	BP_WarningEnded_CLI();
 }
 
 void ABurrowerEnemy::OnSnapperDeath(AActor* SnapperActor)
@@ -234,6 +255,7 @@ void ABurrowerEnemy::TimelineSurfacingFinished()
 	bIsSurfacing = false;
 	SetAppeared();
 	SurfacingFinished.ExecuteIfBound();
+	BP_SurfacingEnded_CLI();
 }
 
 void ABurrowerEnemy::TimelineHideMovement(float Value)
@@ -251,18 +273,28 @@ void ABurrowerEnemy::TimelineHideFinished()
 	HidingFinished.ExecuteIfBound();
 	HealthComponent->RemoveMark();
 	GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
+	BP_HidingEnded_CLI();
 }
  
 void ABurrowerEnemy::MULT_SetBurrowerState_Implementation(bool isHidden, bool bFollowing)
 {
-	GetMesh()->SetHiddenInGame(isHidden);
-	
-	if (bFollowing)
+	// Prevent changing hiding state to same
+	if (bIsHidden != isHidden)
 	{
-		MULT_SpawnFollowParticle();
-	} else
+		GetMesh()->SetHiddenInGame(isHidden);
+		bIsHidden = !bIsHidden;
+	}
+
+	// prevent changing following state to same
+	if (bIsFollowing != bFollowing)
 	{
-		MULT_DespawnFollowParticle();
+		if (bFollowing)
+		{
+			BP_FollowingStart_CLI();
+		} else
+		{
+			BP_FollowingEnd_CLI();
+		}
 	}
 }
 
@@ -281,36 +313,6 @@ void ABurrowerEnemy::SetSurfacingHiding()
 	MULT_SetBurrowerState(false, false);
 }
 
-void ABurrowerEnemy::MULT_SpawnWarningParticle_Implementation()
-{
-	UWorld* world = GetWorld();
-	SpawnedWarningParticle = UNiagaraFunctionLibrary::SpawnSystemAtLocation(world, WarningParticle,
-		GetCapsuleComponent()->GetComponentLocation() + FVector(0, 0, -GetCapsuleComponent()->GetScaledCapsuleHalfHeight()),
-		FRotator::ZeroRotator, FVector::OneVector, true);
-}
-
-void ABurrowerEnemy::MULT_DespawnWarningParticle_Implementation()
-{
-	if (SpawnedWarningParticle != nullptr)
-	{
-		SpawnedWarningParticle->Deactivate();
-	}
-}
-
-void ABurrowerEnemy::MULT_SpawnFollowParticle_Implementation()
-{
-	SpawnedWarningParticle = UNiagaraFunctionLibrary::SpawnSystemAttached(FollowParticle, GetCapsuleComponent(), TEXT("FollowParticle"),
-		FVector(0, 0, -GetCapsuleComponent()->GetScaledCapsuleHalfHeight()), FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true);
-}
-
-void ABurrowerEnemy::MULT_DespawnFollowParticle_Implementation()
-{
-	if (SpawnedFollowParticle)
-	{
-		SpawnedFollowParticle->Deactivate();
-	}
-}
-
 void ABurrowerEnemy::CancelHide()
 {
 	if (bIsHiding)
@@ -322,6 +324,7 @@ void ABurrowerEnemy::CancelHide()
 void ABurrowerEnemy::MULT_CancelHideHelper_Implementation()
 {
 	HideTimelineComponent->Stop();
+	BP_HidingCancelled_CLI();
 }
 
 bool ABurrowerEnemy::GetIsSurfaced()

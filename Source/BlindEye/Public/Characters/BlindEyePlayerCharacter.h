@@ -7,6 +7,7 @@
 #include "Enemies/Snapper/SnapperEnemy.h"
 #include "Enemies/Burrower/BurrowerEnemy.h"
 #include "GameFramework/Character.h"
+#include "HUD/W_Radar.h"
 #include "Interfaces/AbilityUserInterface.h"
 #include "Interfaces/HealthInterface.h"
 #include "BlindEyePlayerCharacter.generated.h"
@@ -363,7 +364,11 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void SER_UserInputSkipTutorial();
 	FTimerHandle TutorialSkipTimerHandle;
-	
+
+	FTimerHandle RadarUpdateTimerHandle;
+	float RadarUpdateDelay = 0.15f;
+	UFUNCTION()
+	void UpdateRadar();
 
 protected:
 	// APawn interface

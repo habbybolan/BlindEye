@@ -77,12 +77,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float AttackTimeAppearingLength = 2.f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UNiagaraSystem* WarningParticle;
- 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UNiagaraSystem* FollowParticle;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=SurfacingDamage)
 	TSubclassOf<UBaseDamageType> SurfacingDamageType;
 
@@ -112,11 +106,6 @@ public:
 	void SpawnSnappers(); 
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SpawnWarningParticle();
-	UFUNCTION(NetMulticast, Reliable) 
-	void MULT_DespawnWarningParticle();
-
-	UFUNCTION(NetMulticast, Reliable)
 	void MULT_StartSurfacingHelper();
 
 	UFUNCTION(NetMulticast, Reliable)
@@ -142,6 +131,9 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_PlaySpawnSnapperAnimationHelper();
+
+	void WarningStarted();
+	void WarningEnded();
  
 protected:
 
@@ -155,6 +147,9 @@ protected:
 	bool bIsSurfacing = false;
 	bool bIsHiding = false;
 
+	bool bIsHidden = false;
+	bool bIsFollowing = false;
+
 	ECollisionChannel CachedCollisionObject;
 	
 	UFUNCTION()
@@ -164,11 +159,6 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_PlaySurfacingAnimation();
-
-	UPROPERTY()
-	UNiagaraComponent* SpawnedWarningParticle;
-	UPROPERTY()
-	UNiagaraComponent* SpawnedFollowParticle;
 
 	// UFUNCTION()
 	// void StartAttackAppearance();
@@ -208,15 +198,35 @@ protected:
 	void SetDisappeared();
 	void SetAppeared();
 	void SetFollowing();
-	
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SpawnFollowParticle();
-	UFUNCTION(NetMulticast, Reliable) 
-	void MULT_DespawnFollowParticle();
 
 	FVector GetHidePosition();
-	
+	 
 	virtual void Destroyed() override;
-	
-	
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_SurfacingStarted_CLI();
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_SurfacingEnded_CLI();
+	UFUNCTION(BlueprintImplementableEvent) 
+	void BP_HidingStarted_CLI();
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_HidingEnded_CLI();
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_HidingCancelled_CLI(); 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_WarningStarted_CLI(); 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_WarningEnded_CLI();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_FollowingStart_CLI();
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_FollowingEnd_CLI();
+
+	UFUNCTION(BlueprintCallable)
+	FVector GetWorldWarningParticleSpawnLocation();
+
+	UFUNCTION(BlueprintCallable) 
+	FVector GetRelativeFollowParticleSpawnLocation();
+	 
 };

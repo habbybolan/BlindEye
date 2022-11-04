@@ -31,10 +31,31 @@ void ABlindEyeGameState::BeginPlay()
 	{
 		IslandManager = Cast<AIslandManager>(IslandManageActor);
 	}
+}
 
-	if (GetLocalRole() == ROLE_Authority)
+TArray<ABlindEyeEnemyBase*> ABlindEyeGameState::GetAllEnemies()
+{
+	return AllEnemies;
+}
+
+void ABlindEyeGameState::SubscribeToEnemy(ABlindEyeEnemyBase* Enemy)
+{
+	AllEnemies.Add(Enemy);
+	Enemy->HealthComponent->OnDeathDelegate.AddDynamic(this, &ABlindEyeGameState::EnemyDied);
+}
+
+void ABlindEyeGameState::EnemyDied(AActor* EnemyActor)
+{
+	uint8 Index = 0;
+	// remove reference to the actor 
+	for (ABlindEyeEnemyBase* Enemy : AllEnemies)
 	{
-		
+		if (EnemyActor == Enemy)
+		{
+			AllEnemies.RemoveAt(Index);
+			return;
+		}
+		Index++;
 	}
 }
 
@@ -174,7 +195,7 @@ void ABlindEyeGameState::UpdateMainGameTimer(float GameTimer)
 void ABlindEyeGameState::RunMainGameLoopTimers()
 {
 	CurrGameTime += MainGameLoopDelay;
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, MainGameLoopDelay, FColor::Emerald, "GS Timer: " + FString::SanitizeFloat(CurrGameTime));
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, MainGameLoopDelay, FColor::Red, FString::SanitizeFloat(AllEnemies.Num()));
 }
 
 float ABlindEyeGameState::GetGameDonePercent()
@@ -191,4 +212,5 @@ void ABlindEyeGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(ABlindEyeGameState, InProgressMatchState)
 	DOREPLIFETIME(ABlindEyeGameState, CurrGameTime)
 	DOREPLIFETIME(ABlindEyeGameState, TimerUntilGameWon)
+	DOREPLIFETIME(ABlindEyeGameState, AllEnemies)
 }
