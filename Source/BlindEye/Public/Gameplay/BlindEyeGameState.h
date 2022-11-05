@@ -91,7 +91,17 @@ public:
 	TArray<ABlindEyeEnemyBase*> GetAllEnemies();
 
 	// Called whenever enemy is spawned to allow easy retrieval of all enemies alive in level
-	void SubscribeToEnemy(ABlindEyeEnemyBase* Enemy); 
+	void SubscribeToEnemy(ABlindEyeEnemyBase* Enemy);
+
+	void OnLevelShift();
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLevelShiftSignature);
+	FLevelShiftSignature LevelShiftDelegate;
+	  
+	void OnPulse(uint8 currRound, float roundLength);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FPulseSignature, uint8, CurrRound, float, RoundLength);
+	FPulseSignature PulseDelegate; 
+
+	uint8 GetCurrRound();
 
 protected:
 	TWeakObjectPtr<AShrine> Shrine;
@@ -107,6 +117,8 @@ protected:
 	
 	FTimerHandle MainGameLoopTimer;
 	float MainGameLoopDelay = 0.1;
+
+	uint8 CurrRound = 0;
 
 	UFUNCTION()
 	void EnemyDied(AActor* Enemy);

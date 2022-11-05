@@ -29,6 +29,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ActivateNextIsland();
 
+	AIsland* GetRandIsland();
+
 protected:
 
 	virtual void BeginPlay() override;

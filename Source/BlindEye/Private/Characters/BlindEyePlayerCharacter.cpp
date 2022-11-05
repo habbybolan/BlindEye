@@ -563,7 +563,7 @@ void ABlindEyePlayerCharacter::SER_DebugSpawnBurrower_Implementation()
 	if (AActor* BurrowerManager = UGameplayStatics::GetActorOfClass(World, ABurrowerSpawnManager::StaticClass()))
 	{
 		ABurrowerSpawnManager* HunterController = Cast<ABurrowerSpawnManager>(BurrowerManager);
-		HunterController->SpawnBurrower();
+		HunterController->SpawnBurrowerRandLocation();
 	}
 }
 

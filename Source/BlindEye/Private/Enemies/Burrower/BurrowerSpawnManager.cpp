@@ -12,7 +12,6 @@
 #include "Enemies/Burrower/BurrowerTriggerVolume.h"
 #include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 ABurrowerSpawnManager::ABurrowerSpawnManager()
@@ -48,9 +47,7 @@ void ABurrowerSpawnManager::Initialize()
 
 	UWorld* world = GetWorld();
 	if (!world) return;
-
-	world->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ABurrowerSpawnManager::SpawnBurrower, SpawnDelay, true, 0.1);
-
+	
 	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(world));
 	check(BlindEyeGS)
 	IslandManager = BlindEyeGS->GetIslandManager();
@@ -109,12 +106,21 @@ void ABurrowerSpawnManager::OnBurrowerDeath(AActor* BurrowerToDelete)
 	}
 }
 
-void ABurrowerSpawnManager::SpawnBurrower()
+void ABurrowerSpawnManager::SpawnBurrowerRandLocation()
+{
+	SpawnBurrowerHelper(FindRandomSpawnPoint());
+}
+
+void ABurrowerSpawnManager::SpawnBurrower(AIsland* Island)
+{
+	SpawnBurrowerHelper(Island->GetRandBurrowerSpawnPoint());
+}
+
+void ABurrowerSpawnManager::SpawnBurrowerHelper(UBurrowerSpawnPoint* SpawnPoint)
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
-	
-	UBurrowerSpawnPoint* SpawnPoint = FindRandomSpawnPoint();
+
 	FActorSpawnParameters params;
 	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn; 
 	ABurrowerEnemy* SpawnedBurrower = world->SpawnActor<ABurrowerEnemy>(BurrowerType, SpawnPoint->GetComponentLocation(), SpawnPoint->GetComponentRotation(), params);
@@ -125,7 +131,7 @@ void ABurrowerSpawnManager::SpawnBurrower()
 		if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(SpawnedBurrower))
 		{
 			HealthInterface->GetHealthComponent()->OnDeathDelegate.AddDynamic(this, &ABurrowerSpawnManager::OnBurrowerDeath);
-		} 
+		}
 	}
 }
 
@@ -140,17 +146,8 @@ TArray<ABlindEyePlayerCharacter*> ABurrowerSpawnManager::GetPlayersOnIsland(uint
 
 UBurrowerSpawnPoint* ABurrowerSpawnManager::FindRandomSpawnPoint()
 {
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		uint8 randIslandIndex = UKismetMathLibrary::RandomInteger(IslandManager->GetNumOfIslands());
-		AIsland* RandIsland = IslandManager->GetActiveIslands()[randIslandIndex];
-		uint8 randIndexSpawnPoint = UKismetMathLibrary::RandomInteger(RandIsland->GetBurrowerSpawnPoints().Num());
-		UBurrowerSpawnPoint* RandSpawnPoint = RandIsland->GetBurrowerSpawnPoints()[randIndexSpawnPoint];
-	
-		return RandSpawnPoint;
-	}
-	return nullptr;
+	AIsland* RandIsland = IslandManager->GetRandIsland();
+	return RandIsland->GetRandBurrowerSpawnPoint();
 }
 
 void ABurrowerSpawnManager::TriggerVolumeOverlapped(UPrimitiveComponent* OverlappedActor, AActor* OtherActor)

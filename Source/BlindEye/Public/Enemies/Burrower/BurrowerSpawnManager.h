@@ -3,14 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BurrowerEnemy.h"
-#include "BurrowerSpawnPoint.h"
-#include "BurrowerTriggerVolume.h"
-#include "Islands/Island.h"
-#include "Islands/IslandManager.h"
 #include "GameFramework/Actor.h"
 #include "Interfaces/BurrowerSpawnManagerListener.h"
 #include "BurrowerSpawnManager.generated.h"
+
+class AIslandManager;
+class AIsland;
+class UBurrowerTriggerVolume;
+class UBurrowerSpawnPoint;
+class ABurrowerEnemy;
 
 UCLASS()
 class BLINDEYE_API ABurrowerSpawnManager : public AActor, public IBurrowerSpawnManagerListener
@@ -22,12 +23,13 @@ public:
 	ABurrowerSpawnManager();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float SpawnDelay = 20.f;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<ABurrowerEnemy> BurrowerType;
  
-	void SpawnBurrower();
+	void SpawnBurrowerRandLocation(); 
+	void SpawnBurrower(AIsland* Island);
+
+	// Helper for performing spawning logic of burrower
+	void SpawnBurrowerHelper(UBurrowerSpawnPoint* SpawnPoint);
  
 	TArray<ABlindEyePlayerCharacter*> GetPlayersOnIsland(uint8 islandID) override;
 
@@ -41,8 +43,6 @@ protected:
 	// Called after level loaded
 	UFUNCTION()
 	void Initialize();
-
-	FTimerHandle SpawnTimerHandle;
 
 	TMap<uint8, TArray<ABurrowerEnemy*>> SpawnedBurrowers;
 

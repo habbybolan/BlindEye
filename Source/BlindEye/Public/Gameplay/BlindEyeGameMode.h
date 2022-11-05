@@ -75,6 +75,8 @@ public:
 	// Called for setting game in progress and starting the main loop
 	void StartGame();
 
+	float GetCurrRoundLength();
+
 protected:
 	virtual void BeginPlay() override;
 

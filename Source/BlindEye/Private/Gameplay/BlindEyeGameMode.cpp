@@ -282,6 +282,12 @@ void ABlindEyeGameMode::StartGame()
 	}
 }
 
+float ABlindEyeGameMode::GetCurrRoundLength()
+{
+	// TODO: Have array of round lengths if rounds lengths differ
+	return TimeBetweenPulses;
+}
+
 void ABlindEyeGameMode::RunMainGameLoop()
 {
 	ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState);
@@ -293,12 +299,14 @@ void ABlindEyeGameMode::RunMainGameLoop()
 	}
 
 	// Check for pulse events
-	if (PulseTimer >= TimeBetweenPulses)
+	if (PulseTimer >= GetCurrRoundLength())
 	{
 		PulseTimer = 0;
 		CurrRound++;
 		BP_Pulse(CurrRound);
+		BlindEyeGameState->OnPulse(CurrRound, GetCurrRoundLength());
 		BP_LevelShift();
+		BlindEyeGameState->OnLevelShift();
 
 		// Pulse kills all enemies after duration
 		UWorld* World = GetWorld();

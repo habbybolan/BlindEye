@@ -3,6 +3,10 @@
 
 #include "Islands/Island.h"
 
+#include "Enemies/Burrower/BurrowerSpawnPoint.h"
+#include "Enemies/Burrower/BurrowerTriggerVolume.h"
+#include "Kismet/KismetMathLibrary.h"
+
 // Sets default values
 AIsland::AIsland()
 {
@@ -61,6 +65,13 @@ void AIsland::MULT_SpawnIsland_Implementation(FVector startLocation)
 bool AIsland::GetIsActive()
 {
 	return bActive;
+}
+
+UBurrowerSpawnPoint* AIsland::GetRandBurrowerSpawnPoint()
+{
+	uint8 randIndexSpawnPoint = UKismetMathLibrary::RandomInteger(OwnedBurrowerSpawnPoints.Num());
+	UBurrowerSpawnPoint* RandSpawnPoint = GetBurrowerSpawnPoints()[randIndexSpawnPoint];
+	return RandSpawnPoint;
 }
 
 void AIsland::IslandFinishedSpawning()

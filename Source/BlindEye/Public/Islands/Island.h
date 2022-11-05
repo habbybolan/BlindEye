@@ -4,9 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "BaseIsland.h"
-#include "Enemies/Burrower/BurrowerSpawnPoint.h"
-#include "Enemies/Burrower/BurrowerTriggerVolume.h"
 #include "Island.generated.h"
+
+class UBurrowerSpawnPoint; 
+class ABurrowerSpawnManager;
 
 UCLASS()
 class BLINDEYE_API AIsland : public ABaseIsland
@@ -37,6 +38,8 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_SpawnIsland(FVector startLocation);
 	bool GetIsActive();
+
+	UBurrowerSpawnPoint* GetRandBurrowerSpawnPoint();
 
 	FORCEINLINE bool operator<(const AIsland &Other) const
 	{

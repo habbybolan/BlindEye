@@ -44,6 +44,22 @@ void ABlindEyeGameState::SubscribeToEnemy(ABlindEyeEnemyBase* Enemy)
 	Enemy->HealthComponent->OnDeathDelegate.AddDynamic(this, &ABlindEyeGameState::EnemyDied);
 }
 
+void ABlindEyeGameState::OnLevelShift()
+{
+	LevelShiftDelegate.Broadcast();
+}
+
+void ABlindEyeGameState::OnPulse(uint8 currRound, float roundLength)
+{
+	CurrRound = currRound;
+	PulseDelegate.Broadcast(CurrRound, roundLength);
+}
+
+uint8 ABlindEyeGameState::GetCurrRound()
+{
+	return CurrRound;
+}
+
 void ABlindEyeGameState::EnemyDied(AActor* EnemyActor)
 {
 	uint8 Index = 0;
