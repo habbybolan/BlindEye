@@ -24,6 +24,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<ABurrowerEnemy> BurrowerType;
+
+	UPROPERTY(EditDefaultsOnly)
+	uint8 MaxNumBurrowersPerIsland = 3;
  
 	void SpawnBurrowerRandLocation(); 
 	void SpawnBurrower(AIsland* Island);

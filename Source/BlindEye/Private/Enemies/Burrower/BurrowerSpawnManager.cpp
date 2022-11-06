@@ -108,11 +108,18 @@ void ABurrowerSpawnManager::OnBurrowerDeath(AActor* BurrowerToDelete)
 
 void ABurrowerSpawnManager::SpawnBurrowerRandLocation()
 {
-	AIsland* Island = IslandManager->GetRandIsland();
-	UBurrowerSpawnPoint* SpawnPoint = Island->GetRandUnusedBurrowerSpawnPoint();
-	if (SpawnPoint)
+	// Find an island without max number of burrowers
+	for (AIsland* Island : IslandManager->GetActiveIslands())
 	{
-		SpawnBurrowerHelper(SpawnPoint, Island);
+		if (SpawnedBurrowers[Island->IslandID].Num() < MaxNumBurrowersPerIsland)
+		{
+			UBurrowerSpawnPoint* SpawnPoint = Island->GetRandUnusedBurrowerSpawnPoint();
+			if (SpawnPoint)
+			{
+				SpawnBurrowerHelper(SpawnPoint, Island);
+				return;
+			}
+		}
 	}
 }
 
@@ -127,6 +134,9 @@ void ABurrowerSpawnManager::SpawnBurrower(AIsland* Island)
 
 void ABurrowerSpawnManager::SpawnBurrowerHelper(UBurrowerSpawnPoint* SpawnPoint, AIsland* Island)
 {
+	// prevent more spawning if max num burrowers already spawned
+	if (SpawnedBurrowers[Island->IslandID].Num() >= MaxNumBurrowersPerIsland) return;
+	
 	UWorld* world = GetWorld();
 	if (!world) return;
 
