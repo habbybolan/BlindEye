@@ -9,8 +9,9 @@
 #include "Enemies/BlindEyeEnemyBase.h"
 #include "BurrowerEnemy.generated.h"
 
-class IBurrowerSpawnManagerListener;
- 
+enum class EBurrowerVisibilityState : uint8;
+
+class IBurrowerSpawnManagerListener;  
 class ASnapperEnemy;
 class UHealthComponent;
 class ABlindEyePlayerCharacter;
@@ -100,7 +101,7 @@ public:
 	void StartHiding();
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SetBurrowerState(bool isHidden, bool bFollowing);
+	void MULT_SetVisibility(bool isHidden);
 
 	UFUNCTION()
 	void SpawnSnappers(); 
@@ -143,11 +144,13 @@ protected:
 	
 	TMap<uint32, ASnapperEnemy*> SpawnedSnappers;
 
-	bool bIsSurfaced = false;
-	bool bIsSurfacing = false;
-	bool bIsHiding = false;
+	// bool bIsSurfaced = false;
+	// bool bIsSurfacing = false;
+	// bool bIsHiding = false;
+	// bool bIsHidden = false;
 
-	bool bIsHidden = false;
+	EBurrowerVisibilityState VisibilityState;
+	
 	bool bIsFollowing = false;
 
 	ECollisionChannel CachedCollisionObject;
@@ -194,10 +197,10 @@ protected:
 	// Used in expiring the burrower from following player forever and delay on re-emerging from ground
 	FTimerHandle AttackTimerHandle;
 	
-	void SetSurfacingHiding();
-	void SetDisappeared();
-	void SetAppeared();
-	void SetFollowing();
+	// void SetSurfacingHiding();
+	// void SetDisappeared();
+	// void SetAppeared();
+	//void SetFollowing();
 
 	FVector GetHidePosition();
 	 

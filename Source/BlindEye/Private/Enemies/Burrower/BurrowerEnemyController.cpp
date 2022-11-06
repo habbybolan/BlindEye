@@ -135,9 +135,6 @@ void ABurrowerEnemyController::NotifyPlayerLeftIsland(ABlindEyePlayerCharacter* 
 	{
 		BBComp->ClearValue(TEXT("EnemyActor"));
 	}
-
-	
-	
 }
 
 void ABurrowerEnemyController::CancelHide()
@@ -186,13 +183,13 @@ void ABurrowerEnemyController::StartHiding()
 	CachedBurrower->StartHiding();
 }
  
-void ABurrowerEnemyController::SetBurrowerState(bool isHidden, bool bFollowing)
-{
-	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
-	if (!CachedBurrower) return;
-
-	CachedBurrower->MULT_SetBurrowerState(isHidden, bFollowing);
-}
+// void ABurrowerEnemyController::SetBurrowerState(bool isHidden, bool bFollowing)
+// {
+// 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
+// 	if (!CachedBurrower) return;
+//
+// 	CachedBurrower->MULT_SetBurrowerState(isHidden);
+// }
 
 void ABurrowerEnemyController::OnPossess(APawn* InPawn)
 {
