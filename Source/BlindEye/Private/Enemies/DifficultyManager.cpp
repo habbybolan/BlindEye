@@ -216,8 +216,10 @@ void ADifficultyManager::ResetHunterSpawnTimer(uint8 CurrRound)
 
 void ADifficultyManager::GameTimeSkipped(float TimeSkipped)
 {
-	float CurrRoundTime = BlindEyeGS->GetPercentOfRoundFinished();
-	CurrBurrowerSpawnMultTimeline->SetPlaybackPosition(CurrRoundTime, false);
+	float CurrRoundTimePercent = BlindEyeGS->GetPercentOfRoundFinished();
+	CurrBurrowerSpawnMultTimeline->SetPlaybackPosition(CurrRoundTimePercent, false);
+	float CurrGameTimePercent = BlindEyeGS->CurrGameTime / BlindEyeGS->TimerUntilGameWon;
+	HunterSpawnMultTimeline->SetPlaybackPosition(CurrGameTimePercent, false);
 
 	UWorld* World = GetWorld();
 	if (ensure(World))
