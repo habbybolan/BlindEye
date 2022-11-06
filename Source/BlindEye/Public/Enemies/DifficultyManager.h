@@ -33,35 +33,38 @@ class BLINDEYE_API ADifficultyManager : public AActor
 public:	
 	ADifficultyManager();
 
-	UPROPERTY(EditDefaultsOnly, EditFixedSize, meta=(ClampMin=0, ToolTip="Spawn rate for base Burrower spawning speed at each island that's multiplied by multiplier curve to update the spawn rate as the round progresses")) 
+	UPROPERTY(EditDefaultsOnly, EditFixedSize, Category=Burrower, meta=(ClampMin=0, ToolTip="Spawn rate for base Burrower spawning speed at each island that's multiplied by multiplier curve to update the spawn rate as the round progresses")) 
 	TArray<float> BurrowerBaseSpawnDelayPerRound;
 
-	UPROPERTY(EditDefaultsOnly, EditFixedSize, meta=(ClampMin=0, ToolTip="spawn delay for first burrower spawn at each island when a new round starts")) 
+	UPROPERTY(EditDefaultsOnly, EditFixedSize, Category=Burrower, meta=(ClampMin=0, ToolTip="spawn delay for first burrower spawn at each island when a new round starts")) 
 	TArray<float> BurrowerInitialSpawnDelayPerRound; 
  
-	UPROPERTY(EditDefaultsOnly, EditFixedSize, meta=(ToolTip="Multiplier of burrower base spawn rate for the round to incr/decr spawn rates as round progresses")) 
+	UPROPERTY(EditDefaultsOnly, EditFixedSize, Category=Burrower, meta=(ToolTip="Multiplier of burrower base spawn rate for the round to incr/decr spawn rates as round progresses")) 
 	TArray<UCurveFloat*> BurrowerSpawnMultiplierPerRoundCurve;
 
-	UPROPERTY(EditDefaultsOnly, meta=(ClampMin = 0, ToolTip="Seconds of variability to add to the burrower spawn timer so each island's spawn times are offset"))
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin = 0, Category=Burrower, ToolTip="Seconds of variability to add to the burrower spawn timer so each island's spawn times are offset"))
 	float BurrowerSpawnVariabilityLengthen = 5; 
 
-	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ToolTip="Seconds of variability to remove from the burrower spawn timer so each island's spawn times are offset"))
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, Category=Burrower, ToolTip="Seconds of variability to remove from the burrower spawn timer so each island's spawn times are offset"))
 	float BurrowerSpawnVariabilityShorten = 5;
 
-	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ToolTip="Spawn rate for base hunter spawning speed that's multiplied by multiplier curve to update the spawn rate as the game progresses")) 
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, Category=Hunter, ToolTip="Spawn rate for base hunter spawning speed that's multiplied by multiplier curve to update the spawn rate as the game progresses")) 
 	float HunterBaseSpawnRate = 25;
 
-	UPROPERTY(EditDefaultsOnly, EditFixedSize, meta=(ClampMin=0, ToolTip="spawn delay for first Hunter spawn when a new round starts"))  
+	UPROPERTY(EditDefaultsOnly, EditFixedSize, Category=Hunter, meta=(ClampMin=0, ToolTip="spawn delay for first Hunter spawn when a new round starts"))  
 	TArray<float> HunterInitialSpawnDelayPerRound;
 
-	UPROPERTY(EditDefaultsOnly, meta=(ClampMin = 0, ToolTip="Seconds of variability to add to the INITIAL hunter spawn timer"))
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin = 0, Category=Hunter, ToolTip="Seconds of variability to add to the INITIAL hunter spawn timer"))
 	float HunterInitialSpawnVariabilityLengthen = 5; 
  
-	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ToolTip="Seconds of variability to remove the INITIAL hunter spawn timer"))
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, Category=Hunter, ToolTip="Seconds of variability to remove the INITIAL hunter spawn timer"))
 	float HunterInitialSpawnVariabilityShorten = 5;
 
-	UPROPERTY(EditDefaultsOnly, meta=(ToolTip="Multiplier of Hunter base spawn rate for the entire game to incr/decr spawn rates as the game progresses")) 
+	UPROPERTY(EditDefaultsOnly, Category=Hunter, meta=(ToolTip="Multiplier of Hunter base spawn rate for the entire game to incr/decr spawn rates as the game progresses")) 
 	UCurveFloat* HunterSpawnMultiplierCurve;
+
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ToolTip="Time in seconds for remaining time of each round until the burst wave happens. If 10, then the last 10 seconds of the round will be a burst wave"))
+	TArray<float> BurstWaveDurationPerRound; 
 	
 protected:
 	
@@ -100,6 +103,12 @@ protected:
 
 	float CurrHunterSpawnTime = 0;
 	bool bIsFirstHunterSpawn = true;
+
+	bool bInBurstWave = false;
+
+	FTimerHandle BurstWaveTimerHandle;
+	void PerformBurstWave(); 
+	void StopBurstWave();  
 
 	UFUNCTION()
 	void OnGameStarted();

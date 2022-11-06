@@ -23,6 +23,9 @@ ADifficultyManager::ADifficultyManager()
 	
 	HunterInitialSpawnDelayPerRound.SetNum(3);
 	HunterInitialSpawnDelayPerRound = {10, 10, 10};
+
+	BurstWaveDurationPerRound.SetNum(3);
+	BurstWaveDurationPerRound = {10, 10, 10};
 }
 
 void ADifficultyManager::BeginPlay()
@@ -55,7 +58,7 @@ void ADifficultyManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
- 
+
 void ADifficultyManager::OnGameStarted()
 {
 	for (AIsland* Island : IslandManager->GetActiveIslands())
@@ -70,7 +73,8 @@ void ADifficultyManager::OnGameStarted()
 }
  
 void ADifficultyManager::OnNewRound(uint8 CurrRound, float roundLength)
-{ 
+{
+	StopBurstWave();
 	for (FBurrowerSpawningInfo& SpawnInfo : IslandSpawnInfo)
 	{
 		SpawnInfo.bFirstSpawn = true;
@@ -79,10 +83,18 @@ void ADifficultyManager::OnNewRound(uint8 CurrRound, float roundLength)
 		ResetHunterSpawnTimer(CurrRound);
 	}
 	PlayBurrowerSpawnTimelines(CurrRound, roundLength);
+
+	UWorld* World = GetWorld();
+	if (ensure(World))
+	{
+		World->GetTimerManager().SetTimer(BurstWaveTimerHandle, this, &ADifficultyManager::PerformBurstWave,
+			roundLength - BurstWaveDurationPerRound[CurrRound], false);
+	}
 }
 
 void ADifficultyManager::PlayBurrowerSpawnTimelines(uint8 CurrRound, float roundLength)
 {
+	// TODO: Destroy Timeline before resetting?
 	// Setup new Timeline
 	CurrBurrowerSpawnMultTimeline = NewObject<UTimelineComponent>(this, UTimelineComponent::StaticClass());
 	CurrBurrowerSpawnMultTimeline->RegisterComponent();
@@ -98,6 +110,9 @@ void ADifficultyManager::PlayBurrowerSpawnTimelines(uint8 CurrRound, float round
 
 void ADifficultyManager::BurrowerSpawnTimer(float Value)
 {
+	// prevent normal spawning if in burst wave
+	if (bInBurstWave) return;
+	
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0, FColor::Green, TEXT("Burrower Spawn Multiplier: ") + FString::SanitizeFloat(Value));
 	UWorld* World = GetWorld();
 	if (World)
@@ -117,6 +132,7 @@ void ADifficultyManager::BurrowerSpawnTimer(float Value)
 
 void ADifficultyManager::PlayHunterSpawnTimeline()
 {
+	// TODO: Destroy Timeline before resetting?
 	HunterSpawnMultTimeline = NewObject<UTimelineComponent>(this, UTimelineComponent::StaticClass());
 	HunterSpawnMultTimeline->RegisterComponent();
 	HunterSpawnMultTimeline->PrimaryComponentTick.bCanEverTick = true;
@@ -131,6 +147,9 @@ void ADifficultyManager::PlayHunterSpawnTimeline()
 
 void ADifficultyManager::HunterSpawnTimer(float Value)
 {
+	// prevent normal spawning if in burst wave
+	if (bInBurstWave) return;
+	
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0, FColor::Green,  TEXT("Hunter Spawn Multiplier: ") + FString::SanitizeFloat(Value));
 
 	UWorld* World = GetWorld();
@@ -199,5 +218,38 @@ void ADifficultyManager::GameTimeSkipped(float TimeSkipped)
 {
 	float CurrRoundTime = BlindEyeGS->GetPercentOfRoundFinished();
 	CurrBurrowerSpawnMultTimeline->SetPlaybackPosition(CurrRoundTime, false);
+
+	UWorld* World = GetWorld();
+	if (ensure(World))
+	{
+		// Update Burst wave timer handle
+		float NewBurstWaveTimerLength = BlindEyeGS->CurrRoundTimer - BurstWaveDurationPerRound[BlindEyeGS->GetCurrRound()];
+		// If skip went into burst wave, start burst wave
+		if (NewBurstWaveTimerLength <= 0)
+		{
+			PerformBurstWave();
+			World->GetTimerManager().ClearTimer(BurstWaveTimerHandle);
+		}
+		// otherwise, update time until burst wave
+		else
+		{
+			World->GetTimerManager().SetTimer(BurstWaveTimerHandle, this, &ADifficultyManager::PerformBurstWave,
+			NewBurstWaveTimerLength, false);
+		} 
+	}
+}
+
+void ADifficultyManager::PerformBurstWave()
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5, FColor::Green,  TEXT("Start Burst Wave"));
+	bInBurstWave = true;
+	// TODO: Start burst wave
+}
+
+void ADifficultyManager::StopBurstWave()
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5, FColor::Green,  TEXT("End Burst Wave"));
+	bInBurstWave = false;
+	// TODO: Stop burst wave
 }
 

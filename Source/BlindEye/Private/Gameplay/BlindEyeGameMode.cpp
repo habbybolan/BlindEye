@@ -262,7 +262,7 @@ void ABlindEyeGameMode::OnAllPlayersFinishedTutorial()
 	// Start the game
 	BlindEyeGS->TutorialFinished();
 	StartGame();
-}
+} 
 
 void ABlindEyeGameMode::StartGame()
 {
