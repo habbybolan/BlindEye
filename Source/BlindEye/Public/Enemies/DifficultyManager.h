@@ -21,6 +21,7 @@ struct FBurrowerSpawningInfo
 	float RemainingTime;
 	UPROPERTY()
 	AIsland* Island;
+	bool bFirstSpawn = true;
 };
 
 class UTimelineComponent;
@@ -32,10 +33,13 @@ class BLINDEYE_API ADifficultyManager : public AActor
 public:	
 	ADifficultyManager();
 
-	UPROPERTY(EditDefaultsOnly) 
+	UPROPERTY(EditDefaultsOnly, EditFixedSize) 
 	TArray<float> BurrowerBaseSpawnDelayPerRound;
+
+	UPROPERTY(EditDefaultsOnly, EditFixedSize) 
+	TArray<float> BurrowerInitialSpawnDelayPerRound; 
  
-	UPROPERTY(EditDefaultsOnly) 
+	UPROPERTY(EditDefaultsOnly, EditFixedSize) 
 	TArray<UCurveFloat*> BurrowerSpawnMultiplierPerRoundCurve;
 
 	UPROPERTY(meta=(ClampMin = 0, ToolTip="Seconds of variability to add to the burrower spawn timer so each island's spawn times are offset"))

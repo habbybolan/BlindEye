@@ -12,6 +12,14 @@
 ADifficultyManager::ADifficultyManager()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	BurrowerBaseSpawnDelayPerRound.SetNum(3);
+	BurrowerBaseSpawnDelayPerRound = {20, 15, 10};
+
+	BurrowerInitialSpawnDelayPerRound.SetNum(3);
+	BurrowerInitialSpawnDelayPerRound = {5, 5, 5};
+
+	BurrowerSpawnMultiplierPerRoundCurve.SetNum(3);
 }
 
 void ADifficultyManager::BeginPlay()
@@ -59,10 +67,10 @@ void ADifficultyManager::OnGameStarted()
 }
  
 void ADifficultyManager::OnNewRound(uint8 CurrRound, float roundLength)
-{
-	// TODO: Set at varying starting points so they dont spawn at same time
+{ 
 	for (FBurrowerSpawningInfo& SpawnInfo : IslandSpawnInfo)
 	{
+		SpawnInfo.bFirstSpawn = true;
 		ResetBurrowerSpawnTimer(SpawnInfo, CurrRound);
 	}
 	PlayBurrowerSpawnTimelines(CurrRound, roundLength);
@@ -159,7 +167,15 @@ void ADifficultyManager::ResetBurrowerSpawnTimer(FBurrowerSpawningInfo& SpawnInf
 { 
 	float RandOffsetLengthen = UKismetMathLibrary::RandomFloatInRange(0, BurrowerSpawnVariabilityLengthen);
 	float RandOffsetShorten = UKismetMathLibrary::RandomFloatInRange(0, BurrowerSpawnVariabilityShorten);
-	SpawnInfo.RemainingTime = BurrowerBaseSpawnDelayPerRound[CurrRound] + RandOffsetLengthen - RandOffsetShorten;
+
+	if (SpawnInfo.bFirstSpawn) 
+	{
+		SpawnInfo.bFirstSpawn = false;
+		SpawnInfo.RemainingTime = BurrowerInitialSpawnDelayPerRound[CurrRound] + RandOffsetLengthen - RandOffsetShorten;
+	}else
+	{
+		SpawnInfo.RemainingTime = BurrowerBaseSpawnDelayPerRound[CurrRound] + RandOffsetLengthen - RandOffsetShorten;
+	}
 }
 
 void ADifficultyManager::GameTimeSkipped(float TimeSkipped)
