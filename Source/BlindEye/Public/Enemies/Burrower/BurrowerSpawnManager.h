@@ -29,7 +29,7 @@ public:
 	void SpawnBurrower(AIsland* Island);
 
 	// Helper for performing spawning logic of burrower
-	void SpawnBurrowerHelper(UBurrowerSpawnPoint* SpawnPoint);
+	void SpawnBurrowerHelper(UBurrowerSpawnPoint* SpawnPoint, AIsland* Island);
  
 	TArray<ABlindEyePlayerCharacter*> GetPlayersOnIsland(uint8 islandID) override;
 
@@ -51,7 +51,7 @@ protected:
 	UFUNCTION()
 	void OnBurrowerDeath(AActor* BurrowerActor);
 	
-	UBurrowerSpawnPoint* FindRandomSpawnPoint();
+	UBurrowerSpawnPoint* FindRandomUnusedSpawnPoint();
 
 	UFUNCTION()
 	void TriggerVolumeOverlapped(UPrimitiveComponent* OverlappedActor, AActor* OtherActor);

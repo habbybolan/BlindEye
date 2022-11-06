@@ -65,7 +65,7 @@ public:
 	 
 	//void SetBurrowerState(bool isHidden, bool bFollowing);
 
-	FTransform FindRandSpawnPoint();
+	//FTransform FindRandUnusedSpawnPoint();
 
 	UFUNCTION()
 	void StartWarningParticles();

@@ -67,11 +67,39 @@ bool AIsland::GetIsActive()
 	return bActive;
 }
 
-UBurrowerSpawnPoint* AIsland::GetRandBurrowerSpawnPoint()
+UBurrowerSpawnPoint* AIsland::GetRandUnusedBurrowerSpawnPoint()
 {
 	uint8 randIndexSpawnPoint = UKismetMathLibrary::RandomInteger(OwnedBurrowerSpawnPoints.Num());
+	
 	UBurrowerSpawnPoint* RandSpawnPoint = GetBurrowerSpawnPoints()[randIndexSpawnPoint];
-	return RandSpawnPoint;
+	// if random spawn point not valid
+	if (RandSpawnPoint->bInUse)
+	{
+		uint8 CheckedCount = 1;
+		// Loop through all spawn points, starting from rand index to find valid spawn point
+		while (CheckedCount <= OwnedBurrowerSpawnPoints.Num())
+		{
+			randIndexSpawnPoint++;
+			// Loops back around if reached end of spawn point array
+			if (randIndexSpawnPoint >= OwnedBurrowerSpawnPoints.Num())
+			{
+				randIndexSpawnPoint = 0;
+			}
+			// Check if next spawn point is valid
+			UBurrowerSpawnPoint* SpawnPoint = OwnedBurrowerSpawnPoints[randIndexSpawnPoint];
+			if (!SpawnPoint->bInUse)
+			{
+				return SpawnPoint;
+			}
+			CheckedCount++;
+		}
+	} else
+	{
+		return RandSpawnPoint;
+	}
+
+	// There should always be enough spawn points on an island for the burrowers (Num spawn points >= max num burrowers)
+	return nullptr;
 }
 
 void AIsland::IslandFinishedSpawning()

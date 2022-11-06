@@ -39,7 +39,7 @@ public:
 	void MULT_SpawnIsland(FVector startLocation);
 	bool GetIsActive();
 
-	UBurrowerSpawnPoint* GetRandBurrowerSpawnPoint();
+	UBurrowerSpawnPoint* GetRandUnusedBurrowerSpawnPoint();
 
 	FORCEINLINE bool operator<(const AIsland &Other) const
 	{

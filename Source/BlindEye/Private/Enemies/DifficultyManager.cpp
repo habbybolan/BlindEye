@@ -69,7 +69,7 @@ void ADifficultyManager::OnGameStarted()
 	HunterTimerTimelineFloat.BindDynamic(this, &ADifficultyManager::HunterSpawnTimer);
 	
 	OnNewRound(0, BlindEyeGS->GetCurrRoundLength());
-	PlayHunterSpawnTimeline();
+	//PlayHunterSpawnTimeline();
 }
  
 void ADifficultyManager::OnNewRound(uint8 CurrRound, float roundLength)
@@ -247,6 +247,8 @@ void ADifficultyManager::PerformBurstWave()
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5, FColor::Green,  TEXT("Start Burst Wave"));
 	bInBurstWave = true;
 	// TODO: Start burst wave
+	// Spawn Max Number of burrowers for each island
+	// Set burrowers to state where they continue spawning indefinitely
 }
 
 void ADifficultyManager::StopBurstWave()

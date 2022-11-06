@@ -85,13 +85,13 @@ void ABurrowerEnemyController::CacheSpawnPoints()
 	UGameplayStatics::GetAllActorsOfClass(world, UBurrowerSpawnPoint::StaticClass(), SpawnLocation);
 }
 
-FTransform ABurrowerEnemyController::FindRandSpawnPoint()
-{
-	// TODO: remove and move to separate task
-	if (SpawnLocation.Num() == 0) return FTransform();
-	uint32 randIndex = UKismetMathLibrary::RandomInteger(SpawnLocation.Num());
-	return SpawnLocation[randIndex]->GetTransform();
-}
+// FTransform ABurrowerEnemyController::FindRandUnusedSpawnPoint()
+// {
+// 	// TODO: remove and move to separate task
+// 	if (SpawnLocation.Num() == 0) return FTransform();
+// 	uint32 randIndex = UKismetMathLibrary::RandomInteger(SpawnLocation.Num());
+// 	return SpawnLocation[randIndex]->GetTransform();
+// }
 
 void ABurrowerEnemyController::StopWarningParticles()
 {

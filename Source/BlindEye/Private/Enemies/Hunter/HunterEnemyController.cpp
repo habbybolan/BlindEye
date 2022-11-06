@@ -334,7 +334,7 @@ void AHunterEnemyController::SpawnHunter()
 	bIsHunterAlive = true;
 
 	AIsland* RandIsland = IslandManager->GetRandIsland();
-	UBurrowerSpawnPoint* RandSpawnPoint = RandIsland->GetRandBurrowerSpawnPoint();
+	UBurrowerSpawnPoint* RandSpawnPoint = RandIsland->GetRandUnusedBurrowerSpawnPoint();
 	
 	FVector SpawnLocation = RandSpawnPoint->GetComponentLocation();
 	FRotator Rotation = RandSpawnPoint->GetComponentRotation();

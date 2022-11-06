@@ -3,10 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BurrowerSpawnPoint.h"
 #include "NiagaraComponent.h"
 #include "Chaos/PhysicalMaterials.h"
 #include "Components/TimelineComponent.h"
 #include "Enemies/BlindEyeEnemyBase.h"
+#include "Islands/Island.h"
 #include "BurrowerEnemy.generated.h"
 
 enum class EBurrowerVisibilityState : uint8;
@@ -137,6 +139,12 @@ public:
 	void WarningEnded();
 
 	EBurrowerVisibilityState GetVisibilityState();
+
+	void SubscribeToSpawnLocation(UBurrowerSpawnPoint* SpawnPoint);
+	void UnsubscribeToSpawnLocation();
+
+	void SubscribeToIsland(AIsland* Island);
+	FTransform GetRandUnusedSpawnPoint();
  
 protected:
 
@@ -145,6 +153,12 @@ protected:
 	virtual void OnDeath(AActor* ActorThatKilled) override;
 	
 	TMap<uint32, ASnapperEnemy*> SpawnedSnappers;
+
+	UPROPERTY()
+	UBurrowerSpawnPoint* CurrUsedSpawnPoint = nullptr;
+
+	UPROPERTY()
+	AIsland* OwningIsland = nullptr;
 
 	// bool bIsSurfaced = false;
 	// bool bIsSurfacing = false;

@@ -108,15 +108,24 @@ void ABurrowerSpawnManager::OnBurrowerDeath(AActor* BurrowerToDelete)
 
 void ABurrowerSpawnManager::SpawnBurrowerRandLocation()
 {
-	SpawnBurrowerHelper(FindRandomSpawnPoint());
+	AIsland* Island = IslandManager->GetRandIsland();
+	UBurrowerSpawnPoint* SpawnPoint = Island->GetRandUnusedBurrowerSpawnPoint();
+	if (SpawnPoint)
+	{
+		SpawnBurrowerHelper(SpawnPoint, Island);
+	}
 }
 
 void ABurrowerSpawnManager::SpawnBurrower(AIsland* Island)
 {
-	SpawnBurrowerHelper(Island->GetRandBurrowerSpawnPoint());
+	UBurrowerSpawnPoint* SpawnPoint = Island->GetRandUnusedBurrowerSpawnPoint();
+	if (SpawnPoint)
+	{
+		SpawnBurrowerHelper(SpawnPoint, Island);
+	}
 }
 
-void ABurrowerSpawnManager::SpawnBurrowerHelper(UBurrowerSpawnPoint* SpawnPoint)
+void ABurrowerSpawnManager::SpawnBurrowerHelper(UBurrowerSpawnPoint* SpawnPoint, AIsland* Island)
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
@@ -127,6 +136,8 @@ void ABurrowerSpawnManager::SpawnBurrowerHelper(UBurrowerSpawnPoint* SpawnPoint)
 	if (SpawnedBurrower)
 	{
 		SpawnedBurrower->SpawnMangerSetup(SpawnPoint->IslandID, this);
+		SpawnedBurrower->SubscribeToSpawnLocation(SpawnPoint);
+		SpawnedBurrower->SubscribeToIsland(Island);
 		SpawnedBurrowers[SpawnPoint->IslandID].Add(SpawnedBurrower);
 		if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(SpawnedBurrower))
 		{
@@ -144,10 +155,10 @@ TArray<ABlindEyePlayerCharacter*> ABurrowerSpawnManager::GetPlayersOnIsland(uint
 	return PlayersInTrigger;
 }
 
-UBurrowerSpawnPoint* ABurrowerSpawnManager::FindRandomSpawnPoint()
+UBurrowerSpawnPoint* ABurrowerSpawnManager::FindRandomUnusedSpawnPoint()
 {
 	AIsland* RandIsland = IslandManager->GetRandIsland();
-	return RandIsland->GetRandBurrowerSpawnPoint();
+	return RandIsland->GetRandUnusedBurrowerSpawnPoint();
 }
 
 void ABurrowerSpawnManager::TriggerVolumeOverlapped(UPrimitiveComponent* OverlappedActor, AActor* OtherActor)

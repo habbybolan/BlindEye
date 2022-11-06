@@ -191,6 +191,38 @@ EBurrowerVisibilityState ABurrowerEnemy::GetVisibilityState()
 	return VisibilityState;
 }
 
+void ABurrowerEnemy::SubscribeToSpawnLocation(UBurrowerSpawnPoint* SpawnPoint)
+{
+	CurrUsedSpawnPoint = SpawnPoint;
+	CurrUsedSpawnPoint->bInUse = true;
+}
+
+void ABurrowerEnemy::UnsubscribeToSpawnLocation()
+{
+	check(CurrUsedSpawnPoint)
+	CurrUsedSpawnPoint->bInUse = false;
+	CurrUsedSpawnPoint = nullptr;
+}
+
+void ABurrowerEnemy::SubscribeToIsland(AIsland* Island)
+{
+	OwningIsland = Island;
+}
+
+FTransform ABurrowerEnemy::GetRandUnusedSpawnPoint()
+{
+	if (ensure(OwningIsland))
+	{
+		UBurrowerSpawnPoint* SpawnPoint = OwningIsland->GetRandUnusedBurrowerSpawnPoint();
+		if (ensure(SpawnPoint))
+		{
+			return SpawnPoint->GetComponentTransform();
+		}
+	}
+	check(true);
+	return FTransform::Identity;
+}
+
 void ABurrowerEnemy::OnSnapperDeath(AActor* SnapperActor)
 {
 	SpawnedSnappers.Remove(SnapperActor->GetUniqueID());
