@@ -301,6 +301,7 @@ void ABlindEyeGameMode::RunMainGameLoop()
 	if (!BlindEyeGameState->bWinConditionPaused)
 	{
 		GameTimer += MainGameLoopDelay;
+		PulseTimer += MainGameLoopDelay;
 	}
 
 	// Check for pulse events

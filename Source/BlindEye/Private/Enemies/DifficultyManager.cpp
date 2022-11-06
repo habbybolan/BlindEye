@@ -223,7 +223,8 @@ void ADifficultyManager::GameTimeSkipped(float TimeSkipped)
 	if (ensure(World))
 	{
 		// Update Burst wave timer handle
-		float NewBurstWaveTimerLength = BlindEyeGS->CurrRoundTimer - BurstWaveDurationPerRound[BlindEyeGS->GetCurrRound()];
+		float remainingTimeInRound = BlindEyeGS->GetCurrRoundLength() - BlindEyeGS->CurrRoundTimer;
+		float NewBurstWaveTimerLength = remainingTimeInRound - BurstWaveDurationPerRound[BlindEyeGS->GetCurrRound()];
 		// If skip went into burst wave, start burst wave
 		if (NewBurstWaveTimerLength <= 0)
 		{
