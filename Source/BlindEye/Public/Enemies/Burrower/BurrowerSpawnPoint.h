@@ -17,6 +17,9 @@ public:
 
 	UBurrowerSpawnPoint();
 
+	UPROPERTY(EditDefaultsOnly)
+	UArrowComponent* ArrowComponent;
+
 	UPROPERTY(EditAnywhere)
 	uint8 IslandID;
 

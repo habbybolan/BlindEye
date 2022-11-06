@@ -5,6 +5,6 @@
 
 UBurrowerSpawnPoint::UBurrowerSpawnPoint()
 {
-	//ArrowComponent = CreateDefaultSubobject<UArrowComponent>("Arrow Component");
-	//ArrowComponent->SetupAttachment(this);
+	ArrowComponent = CreateDefaultSubobject<UArrowComponent>("Arrow Component");
+	ArrowComponent->SetupAttachment(this);
 }
