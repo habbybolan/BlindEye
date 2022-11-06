@@ -31,11 +31,7 @@ EBTNodeResult::Type UBTT_BurrowerFindSpawningLocation::ExecuteTask(UBehaviorTree
 				BBComp->SetValueAsRotator(SpawningRotationKey.SelectedKeyName, SpawnLocationTransform.Rotator());
 				return EBTNodeResult::Succeeded;
 			}
-			
 		}
-		
-		
-		
 	}
 	return EBTNodeResult::Failed;
 }

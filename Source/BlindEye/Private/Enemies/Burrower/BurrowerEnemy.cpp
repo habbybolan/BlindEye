@@ -200,6 +200,7 @@ void ABurrowerEnemy::SubscribeToSpawnLocation(UBurrowerSpawnPoint* SpawnPoint)
 
 void ABurrowerEnemy::UnsubscribeToSpawnLocation()
 {
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Magenta, "UNSUBSCRIBE************************");
 	if (CurrUsedSpawnPoint)
 	{
 		CurrUsedSpawnPoint->bInUse = false;
@@ -214,6 +215,12 @@ void ABurrowerEnemy::SubscribeToIsland(AIsland* Island)
 
 UBurrowerSpawnPoint* ABurrowerEnemy::GetRandUnusedSpawnPoint()
 {
+	// Already at a spawn point, use this one
+	if (CurrUsedSpawnPoint != nullptr)
+	{
+		return CurrUsedSpawnPoint;
+	}
+	
 	if (ensure(OwningIsland))
 	{
 		UBurrowerSpawnPoint* SpawnPoint = OwningIsland->GetRandUnusedBurrowerSpawnPoint();
