@@ -163,6 +163,7 @@ FVector ABurrowerEnemy::GetHidePosition()
 
 void ABurrowerEnemy::Destroyed()
 {
+	UnsubscribeToSpawnLocation();
 	Super::Destroyed();
 }
 
@@ -199,9 +200,11 @@ void ABurrowerEnemy::SubscribeToSpawnLocation(UBurrowerSpawnPoint* SpawnPoint)
 
 void ABurrowerEnemy::UnsubscribeToSpawnLocation()
 {
-	check(CurrUsedSpawnPoint)
-	CurrUsedSpawnPoint->bInUse = false;
-	CurrUsedSpawnPoint = nullptr;
+	if (CurrUsedSpawnPoint)
+	{
+		CurrUsedSpawnPoint->bInUse = false;
+		CurrUsedSpawnPoint = nullptr;
+	}
 }
 
 void ABurrowerEnemy::SubscribeToIsland(AIsland* Island)
@@ -209,18 +212,17 @@ void ABurrowerEnemy::SubscribeToIsland(AIsland* Island)
 	OwningIsland = Island;
 }
 
-FTransform ABurrowerEnemy::GetRandUnusedSpawnPoint()
+UBurrowerSpawnPoint* ABurrowerEnemy::GetRandUnusedSpawnPoint()
 {
 	if (ensure(OwningIsland))
 	{
 		UBurrowerSpawnPoint* SpawnPoint = OwningIsland->GetRandUnusedBurrowerSpawnPoint();
 		if (ensure(SpawnPoint))
 		{
-			return SpawnPoint->GetComponentTransform();
+			return SpawnPoint;
 		}
 	}
-	check(true);
-	return FTransform::Identity;
+	return nullptr;
 }
 
 void ABurrowerEnemy::OnSnapperDeath(AActor* SnapperActor)
@@ -286,6 +288,7 @@ void ABurrowerEnemy::TimelineHideFinished()
 	GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
 	BP_HidingEnded_CLI();
 	MULT_SetVisibility(true);
+	UnsubscribeToSpawnLocation();
 }
  
 void ABurrowerEnemy::MULT_SetVisibility_Implementation(bool isHidden)

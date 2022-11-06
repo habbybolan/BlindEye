@@ -21,11 +21,17 @@ EBTNodeResult::Type UBTT_BurrowerFindSpawningLocation::ExecuteTask(UBehaviorTree
 		ABurrowerEnemy* Burrower = Cast<ABurrowerEnemy>(BurrowerController->GetPawn());
 		if (Burrower)
 		{
-			FTransform SpawnLocationTransform = Burrower->GetRandUnusedSpawnPoint();
-			UBlackboardComponent* BBComp = OwnerComp.GetBlackboardComponent();
-			BBComp->SetValueAsVector(SpawningLocationKey.SelectedKeyName, SpawnLocationTransform.GetLocation());
-			BBComp->SetValueAsRotator(SpawningRotationKey.SelectedKeyName, SpawnLocationTransform.Rotator());
-			return EBTNodeResult::Succeeded;
+			UBurrowerSpawnPoint* SpawnPoint = Burrower->GetRandUnusedSpawnPoint();
+			if (SpawnPoint != nullptr)
+			{
+				FTransform SpawnLocationTransform = SpawnPoint->GetComponentTransform();
+				Burrower->SubscribeToSpawnLocation(SpawnPoint);
+				UBlackboardComponent* BBComp = OwnerComp.GetBlackboardComponent();
+				BBComp->SetValueAsVector(SpawningLocationKey.SelectedKeyName, SpawnLocationTransform.GetLocation());
+				BBComp->SetValueAsRotator(SpawningRotationKey.SelectedKeyName, SpawnLocationTransform.Rotator());
+				return EBTNodeResult::Succeeded;
+			}
+			
 		}
 		
 		

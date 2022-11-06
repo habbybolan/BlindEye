@@ -144,7 +144,7 @@ public:
 	void UnsubscribeToSpawnLocation();
 
 	void SubscribeToIsland(AIsland* Island);
-	FTransform GetRandUnusedSpawnPoint();
+	UBurrowerSpawnPoint* GetRandUnusedSpawnPoint();
  
 protected:
 
