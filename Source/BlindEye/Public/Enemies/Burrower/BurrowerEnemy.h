@@ -135,6 +135,8 @@ public:
 
 	void WarningStarted();
 	void WarningEnded();
+
+	EBurrowerVisibilityState GetVisibilityState();
  
 protected:
 

@@ -186,6 +186,11 @@ void ABurrowerEnemy::WarningEnded()
 	BP_WarningEnded_CLI();
 }
 
+EBurrowerVisibilityState ABurrowerEnemy::GetVisibilityState()
+{
+	return VisibilityState;
+}
+
 void ABurrowerEnemy::OnSnapperDeath(AActor* SnapperActor)
 {
 	SpawnedSnappers.Remove(SnapperActor->GetUniqueID());

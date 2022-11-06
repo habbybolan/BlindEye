@@ -20,6 +20,9 @@ class BLINDEYE_API UBTS_BurrowerState : public UBTService
 	UPROPERTY(EditAnywhere, Category=BlackBoard) 
 	FBlackboardKeySelector EnemyActorKey;
 
+	UPROPERTY(EditAnywhere, Category=BlackBoard) 
+	FBlackboardKeySelector VisibilityStateKey; 
+
 	UPROPERTY(EditAnywhere)
 	float SpawnStateDelay = 15.f;
 
