@@ -82,9 +82,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	AIslandManager* IslandManager;
-
-	float CurrIslandLevelTime = 0;
-	float TimeBetweenPulses;
 	
 	uint8 NumRounds = 3;
 

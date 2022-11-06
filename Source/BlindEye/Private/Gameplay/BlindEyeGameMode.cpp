@@ -38,8 +38,6 @@ void ABlindEyeGameMode::BeginPlay()
 
 	IslandManager = Cast<AIslandManager>(UGameplayStatics::GetActorOfClass(world, AIslandManager::StaticClass()));
 	check(IslandManager);
-	
-	TimeBetweenPulses = TimerUntilGameWon / NumRounds;
 }
 
 FTransform ABlindEyeGameMode::GetSpawnPoint() const
@@ -203,8 +201,15 @@ void ABlindEyeGameMode::PauseWinCondition(bool IsPauseWinCond)
 
 void ABlindEyeGameMode::IncrementTimeByAMinute()
 {
-	GameTimer += 60;
-	CurrIslandLevelTime += 60;
+	// Only allow debug incr. time if game in progress
+	if (InProgressMatchState == InProgressStates::GameInProgress)
+	{
+		GameTimer += 60;
+		PulseTimer += 60;
+		ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState);
+		check(BlindEyeGameState)
+		BlindEyeGameState->SkipGameTime(60);
+	}
 }
 
 void ABlindEyeGameMode::TutorialFinished(ABlindEyePlayerCharacter* Player)
@@ -285,7 +290,7 @@ void ABlindEyeGameMode::StartGame()
 float ABlindEyeGameMode::GetCurrRoundLength()
 {
 	// TODO: Have array of round lengths if rounds lengths differ
-	return TimeBetweenPulses;
+	return TimerUntilGameWon / NumRounds;
 }
 
 void ABlindEyeGameMode::RunMainGameLoop()
@@ -340,6 +345,8 @@ void ABlindEyeGameMode::InitGameState()
 	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(GameState);
 	check(BlindEyeGS)
 	BlindEyeGS->TimerUntilGameWon = TimerUntilGameWon;
+	BlindEyeGS->CurrRoundLength = GetCurrRoundLength();
+	BlindEyeGS->NumRounds = NumRounds;
 }
 
 void ABlindEyeGameMode::UpdateGameStateValues()
@@ -347,5 +354,5 @@ void ABlindEyeGameMode::UpdateGameStateValues()
 	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(GameState);
 	check(BlindEyeGS)
 	// update calls here to keep clients in sync with GameMode values
-	BlindEyeGS->UpdateMainGameTimer(GameTimer);
+	BlindEyeGS->UpdateMainGameTimer(GameTimer, PulseTimer);
 }

@@ -75,7 +75,7 @@ protected:
 	UFUNCTION() 
 	void OnNewRound(uint8 CurrRound, float roundLength);
 
-	void SetupBurrowerSpawnTimelines(uint8 CurrRound, float roundLength);
+	void PlayBurrowerSpawnTimelines(uint8 CurrRound, float roundLength);
 	void SetupHunterSpawnTimeline();
 
 	// Add island to keep track of for spawning purposes
@@ -83,6 +83,9 @@ protected:
 	void IslandAdded(AIsland* Island);
 
 	void ResetSpawnTimer(FBurrowerSpawningInfo& SpawnInfo, uint8 CurrRound);
+
+	UFUNCTION()
+	void GameTimeSkipped(float TimeSkipped);
 	
 
 };

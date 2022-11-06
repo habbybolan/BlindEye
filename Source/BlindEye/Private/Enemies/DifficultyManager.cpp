@@ -11,7 +11,6 @@
 ADifficultyManager::ADifficultyManager()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	CurrBurrowerSpawnMultTimeline = CreateDefaultSubobject<UTimelineComponent>("BurrowerSpawnTimeline");
 }
 
 void ADifficultyManager::BeginPlay()
@@ -35,6 +34,8 @@ void ADifficultyManager::BeginPlay()
 
 		BurrowerSpawnManager = Cast<ABurrowerSpawnManager>(UGameplayStatics::GetActorOfClass(World, ABurrowerSpawnManager::StaticClass()));
 		check(BurrowerSpawnManager)
+
+		BlindEyeGS->FGameTimeSkippedDelegate.AddDynamic(this, &ADifficultyManager::GameTimeSkipped);
 	}
 }
 
@@ -49,14 +50,12 @@ void ADifficultyManager::OnGameStarted()
 	{
 		IslandAdded(Island);
 	}
+	BurrowerTimerTimelineFloat.BindDynamic(this, &ADifficultyManager::BurrowerSpawnTimer);
+
 	SetupHunterSpawnTimeline();
-
-	UWorld* World = GetWorld();
-	check(World)
-	ABlindEyeGameMode* BlindEyeGM = Cast<ABlindEyeGameMode>(UGameplayStatics::GetGameMode(World));
-	OnNewRound(0, BlindEyeGM->GetCurrRoundLength());
+	OnNewRound(0, BlindEyeGS->GetCurrRoundLength());
 }
-
+ 
 void ADifficultyManager::OnNewRound(uint8 CurrRound, float roundLength)
 {
 	// TODO: Set at varying starting points so they dont spawn at same time
@@ -64,14 +63,17 @@ void ADifficultyManager::OnNewRound(uint8 CurrRound, float roundLength)
 	{
 		ResetSpawnTimer(SpawnInfo, CurrRound);
 	}
-	SetupBurrowerSpawnTimelines(CurrRound, roundLength);
+	PlayBurrowerSpawnTimelines(CurrRound, roundLength);
 }
 
-void ADifficultyManager::SetupBurrowerSpawnTimelines(uint8 CurrRound, float roundLength)
+void ADifficultyManager::PlayBurrowerSpawnTimelines(uint8 CurrRound, float roundLength)
 {
-	// Timeline for scaling the spawn rates as the round progresses
-	BurrowerTimerTimelineFloat.BindDynamic(this, &ADifficultyManager::BurrowerSpawnTimer);
+	// Setup new Timeline
+	CurrBurrowerSpawnMultTimeline = NewObject<UTimelineComponent>(this, UTimelineComponent::StaticClass());
+	CurrBurrowerSpawnMultTimeline->RegisterComponent();
+	CurrBurrowerSpawnMultTimeline->PrimaryComponentTick.bCanEverTick = true;
 	CurrBurrowerSpawnMultTimeline->AddInterpFloat(BurrowerSpawnMultiplierPerRoundCurve[CurrRound], BurrowerTimerTimelineFloat);
+	
 	// Prevent going over 1 second for scaling reason
 	CurrBurrowerSpawnMultTimeline->SetTimelineLength(1);
 	// Scale spawner playback to match round length
@@ -116,5 +118,11 @@ void ADifficultyManager::IslandAdded(AIsland* Island)
 void ADifficultyManager::ResetSpawnTimer(FBurrowerSpawningInfo& SpawnInfo, uint8 CurrRound)
 {
 	SpawnInfo.RemainingTime = BurrowerBaseSpawnDelayPerRound[CurrRound];
+}
+
+void ADifficultyManager::GameTimeSkipped(float TimeSkipped)
+{
+	float CurrRoundTime = BlindEyeGS->GetPercentOfRoundFinished();
+	CurrBurrowerSpawnMultTimeline->SetPlaybackPosition(CurrRoundTime, false);
 }
 
