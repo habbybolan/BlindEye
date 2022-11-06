@@ -6,6 +6,7 @@
 #include "Burrower/BurrowerSpawnManager.h"
 #include "Components/TimelineComponent.h"
 #include "GameFramework/Actor.h"
+#include "Hunter/HunterEnemyController.h"
 #include "DifficultyManager.generated.h"
 
 class ABlindEyeGameState;
@@ -38,7 +39,7 @@ public:
 	TArray<UCurveFloat*> BurrowerSpawnMultiplierPerRoundCurve;
 
 	UPROPERTY(EditDefaultsOnly)
-	float HunterBaseSpawnRate;
+	float HunterBaseSpawnRate = 25;
 
 	UPROPERTY(EditDefaultsOnly) 
 	UCurveFloat* HunterSpawnMultiplierCurve;
@@ -56,18 +57,29 @@ protected:
 	AIslandManager* IslandManager;
 
 	UPROPERTY()
-	ABurrowerSpawnManager* BurrowerSpawnManager; 
+	ABurrowerSpawnManager* BurrowerSpawnManager;
+
+	UPROPERTY()
+	AHunterEnemyController* HunterController;
    
 	FOnTimelineFloat BurrowerTimerTimelineFloat;
+	FOnTimelineFloat HunterTimerTimelineFloat; 
 	UFUNCTION()
 	void BurrowerSpawnTimer(float Value);
+	UFUNCTION()
+	void HunterSpawnTimer(float Value); 
 	
 	UPROPERTY()
 	UTimelineComponent* CurrBurrowerSpawnMultTimeline;
 	UPROPERTY()
+	UTimelineComponent* HunterSpawnMultTimeline; 
+	
+	UPROPERTY()
 	TArray<FBurrowerSpawningInfo> IslandSpawnInfo;
 
 	float CurrBurrowerSpawnMultiplier;
+
+	float CurrHunterSpawnTime = 0;
 
 	UFUNCTION()
 	void OnGameStarted();
