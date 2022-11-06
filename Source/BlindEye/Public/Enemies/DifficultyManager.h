@@ -38,6 +38,12 @@ public:
 	UPROPERTY(EditDefaultsOnly) 
 	TArray<UCurveFloat*> BurrowerSpawnMultiplierPerRoundCurve;
 
+	UPROPERTY(meta=(ClampMin = 0, ToolTip="Seconds of variability to add to the burrower spawn timer so each island's spawn times are offset"))
+	float BurrowerSpawnVariabilityLengthen = 5; 
+
+	UPROPERTY(meta=(ClampMin=0, ToolTip="Seconds of variability to remove from the burrower spawn timer so each island's spawn times are offset"))
+	float BurrowerSpawnVariabilityShorten = 5;
+
 	UPROPERTY(EditDefaultsOnly)
 	float HunterBaseSpawnRate = 25;
 
@@ -94,7 +100,7 @@ protected:
 	UFUNCTION()
 	void IslandAdded(AIsland* Island);
 
-	void ResetSpawnTimer(FBurrowerSpawningInfo& SpawnInfo, uint8 CurrRound);
+	void ResetBurrowerSpawnTimer(FBurrowerSpawningInfo& SpawnInfo, uint8 CurrRound);
 
 	UFUNCTION()
 	void GameTimeSkipped(float TimeSkipped);

@@ -7,6 +7,7 @@
 #include "Gameplay/BlindEyeGameMode.h"
 #include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 ADifficultyManager::ADifficultyManager()
 {
@@ -62,7 +63,7 @@ void ADifficultyManager::OnNewRound(uint8 CurrRound, float roundLength)
 	// TODO: Set at varying starting points so they dont spawn at same time
 	for (FBurrowerSpawningInfo& SpawnInfo : IslandSpawnInfo)
 	{
-		ResetSpawnTimer(SpawnInfo, CurrRound);
+		ResetBurrowerSpawnTimer(SpawnInfo, CurrRound);
 	}
 	PlayBurrowerSpawnTimelines(CurrRound, roundLength);
 }
@@ -95,7 +96,7 @@ void ADifficultyManager::BurrowerSpawnTimer(float Value)
 			if (SpawnInfo.RemainingTime <= 0)
 			{
 				BurrowerSpawnManager->SpawnBurrower(SpawnInfo.Island);
-				ResetSpawnTimer(SpawnInfo, BlindEyeGS->GetCurrRound());
+				ResetBurrowerSpawnTimer(SpawnInfo, BlindEyeGS->GetCurrRound());
 			}
 		}
 	}
@@ -152,11 +153,13 @@ void ADifficultyManager::IslandAdded(AIsland* Island)
 	SpawnInfo.RemainingTime = BurrowerBaseSpawnDelayPerRound[CurrRound];
 	SpawnInfo.Island = Island;
 	IslandSpawnInfo.Add(SpawnInfo);
-}  
+}
 
-void ADifficultyManager::ResetSpawnTimer(FBurrowerSpawningInfo& SpawnInfo, uint8 CurrRound)
-{
-	SpawnInfo.RemainingTime = BurrowerBaseSpawnDelayPerRound[CurrRound];
+void ADifficultyManager::ResetBurrowerSpawnTimer(FBurrowerSpawningInfo& SpawnInfo, uint8 CurrRound)
+{ 
+	float RandOffsetLengthen = UKismetMathLibrary::RandomFloatInRange(0, BurrowerSpawnVariabilityLengthen);
+	float RandOffsetShorten = UKismetMathLibrary::RandomFloatInRange(0, BurrowerSpawnVariabilityShorten);
+	SpawnInfo.RemainingTime = BurrowerBaseSpawnDelayPerRound[CurrRound] + RandOffsetLengthen - RandOffsetShorten;
 }
 
 void ADifficultyManager::GameTimeSkipped(float TimeSkipped)
