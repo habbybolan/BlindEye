@@ -20,6 +20,9 @@ ADifficultyManager::ADifficultyManager()
 	BurrowerInitialSpawnDelayPerRound = {5, 5, 5};
 
 	BurrowerSpawnMultiplierPerRoundCurve.SetNum(3);
+	
+	HunterInitialSpawnDelayPerRound.SetNum(3);
+	HunterInitialSpawnDelayPerRound = {10, 10, 10};
 }
 
 void ADifficultyManager::BeginPlay()
@@ -61,9 +64,9 @@ void ADifficultyManager::OnGameStarted()
 	}
 	BurrowerTimerTimelineFloat.BindDynamic(this, &ADifficultyManager::BurrowerSpawnTimer);
 	HunterTimerTimelineFloat.BindDynamic(this, &ADifficultyManager::HunterSpawnTimer);
-
-	SetupHunterSpawnTimeline();
+	
 	OnNewRound(0, BlindEyeGS->GetCurrRoundLength());
+	PlayHunterSpawnTimeline();
 }
  
 void ADifficultyManager::OnNewRound(uint8 CurrRound, float roundLength)
@@ -72,6 +75,8 @@ void ADifficultyManager::OnNewRound(uint8 CurrRound, float roundLength)
 	{
 		SpawnInfo.bFirstSpawn = true;
 		ResetBurrowerSpawnTimer(SpawnInfo, CurrRound);
+		bIsFirstHunterSpawn = true;
+		ResetHunterSpawnTimer(CurrRound);
 	}
 	PlayBurrowerSpawnTimelines(CurrRound, roundLength);
 }
@@ -110,7 +115,7 @@ void ADifficultyManager::BurrowerSpawnTimer(float Value)
 	}
 }
 
-void ADifficultyManager::SetupHunterSpawnTimeline()
+void ADifficultyManager::PlayHunterSpawnTimeline()
 {
 	HunterSpawnMultTimeline = NewObject<UTimelineComponent>(this, UTimelineComponent::StaticClass());
 	HunterSpawnMultTimeline->RegisterComponent();
@@ -122,8 +127,6 @@ void ADifficultyManager::SetupHunterSpawnTimeline()
 	// Scale spawner playback to match round length
 	HunterSpawnMultTimeline->SetPlayRate(1 / BlindEyeGS->TimerUntilGameWon);
 	HunterSpawnMultTimeline->PlayFromStart();
-
-	CurrHunterSpawnTime = HunterBaseSpawnRate;
 }
 
 void ADifficultyManager::HunterSpawnTimer(float Value)
@@ -147,7 +150,7 @@ void ADifficultyManager::HunterSpawnTimer(float Value)
 		CurrHunterSpawnTime -= World->GetDeltaSeconds() * Value;
 		if (CurrHunterSpawnTime <= 0)
 		{
-			CurrHunterSpawnTime = HunterBaseSpawnRate;
+			ResetHunterSpawnTimer(BlindEyeGS->GetCurrRound());
 			HunterController->SpawnHunter();
 		}
 	}
@@ -175,6 +178,20 @@ void ADifficultyManager::ResetBurrowerSpawnTimer(FBurrowerSpawningInfo& SpawnInf
 	}else
 	{
 		SpawnInfo.RemainingTime = BurrowerBaseSpawnDelayPerRound[CurrRound] + RandOffsetLengthen - RandOffsetShorten;
+	}
+}
+
+void ADifficultyManager::ResetHunterSpawnTimer(uint8 CurrRound)
+{
+	if (bIsFirstHunterSpawn)
+	{
+		bIsFirstHunterSpawn = false;
+		float RandOffsetLengthen = UKismetMathLibrary::RandomFloatInRange(0, HunterInitialSpawnVariabilityLengthen);
+		float RandOffsetShorten = UKismetMathLibrary::RandomFloatInRange(0, HunterInitialSpawnVariabilityShorten);
+		CurrHunterSpawnTime = HunterInitialSpawnDelayPerRound[CurrRound] + RandOffsetLengthen - RandOffsetShorten;
+	} else
+	{
+		CurrHunterSpawnTime = HunterBaseSpawnRate;
 	}
 }
 
