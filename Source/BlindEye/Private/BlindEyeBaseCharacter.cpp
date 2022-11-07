@@ -16,6 +16,9 @@ ABlindEyeBaseCharacter::ABlindEyeBaseCharacter(const FObjectInitializer& ObjectI
 	MarkerComponent->SetupAttachment(GetMesh());
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+
+	IndicatorLocation = CreateDefaultSubobject<UArrowComponent>(TEXT("IndicatorLocation"));
+	//IndicatorLocation->SetupAttachment(RootComponent); // this crashes the editor???
 }
 
 void ABlindEyeBaseCharacter::BeginPlay()
@@ -83,6 +86,12 @@ ECharacterTypes ABlindEyeBaseCharacter::GetCharacterType(AActor* Character)
 float ABlindEyeBaseCharacter::GetMass()
 {
 	return Mass;
+}
+
+FVector ABlindEyeBaseCharacter::GetIndicatorPosition()
+{
+	//return IndicatorLocation->GetComponentLocation();
+	return GetMesh()->GetComponentLocation() + FVector::UpVector * 100.f;
 }
 
 void ABlindEyeBaseCharacter::OnMarkAdded(AActor* MarkedActor, EMarkerType MarkType)

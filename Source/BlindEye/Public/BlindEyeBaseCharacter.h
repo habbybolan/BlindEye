@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Interfaces/HealthInterface.h"
 #include "Components/HealthComponent.h"
+#include "Interfaces/IndicatorInterface.h"
 #include "BlindEyeBaseCharacter.generated.h"
 
 class UMarkerComponent;
@@ -24,7 +25,7 @@ enum class ECharacterTypes : uint8
 };	
  
 UCLASS(Abstract)
-class BLINDEYE_API ABlindEyeBaseCharacter : public ACharacter, public IHealthInterface
+class BLINDEYE_API ABlindEyeBaseCharacter : public ACharacter, public IHealthInterface, public IIndicatorInterface
 {
 	GENERATED_BODY()
 
@@ -37,6 +38,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UHealthComponent* HealthComponent;
+
+	UPROPERTY(EditDefaultsOnly) 
+	UArrowComponent* IndicatorLocation; 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TEAMS Team; 
@@ -58,6 +62,8 @@ public:
 	ECharacterTypes GetCharacterType(AActor* Character);
 
 	virtual float GetMass() override;
+
+	virtual FVector GetIndicatorPosition() override;
 
 protected:
 	// Called when the game starts or when spawned

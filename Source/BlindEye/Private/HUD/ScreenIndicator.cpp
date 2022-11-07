@@ -19,7 +19,7 @@ void UScreenIndicator::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 	// }
 }
 
-void UScreenIndicator::SetTarget(AActor* target)
+void UScreenIndicator::SetTarget(TScriptInterface<IIndicatorInterface> target)
 {
 	Target = target;
 	FAnchors Anchor;
@@ -28,7 +28,7 @@ void UScreenIndicator::SetTarget(AActor* target)
 	SetAnchorsInViewport(Anchor);
 }
 
-AActor* UScreenIndicator::GetTarget()
+TScriptInterface<IIndicatorInterface> UScreenIndicator::GetTarget()
 {
 	return Target;
 }
@@ -36,7 +36,7 @@ AActor* UScreenIndicator::GetTarget()
 void UScreenIndicator::FindScreenEdgeLocationForWorldLocation(FVector2D& OutScreenPosition,
                                                               float& OutRotationAngleDegrees, bool &bIsOnScreen)
 {
-	if (Target == nullptr) return;
+	//if (IsValid(Target.GetObjectRef())) return;
 	
 	bIsOnScreen = false;
 	OutRotationAngleDegrees = 0.f;
@@ -53,7 +53,7 @@ void UScreenIndicator::FindScreenEdgeLocationForWorldLocation(FVector2D& OutScre
 	PlayerController->GetPlayerViewPoint(ViewportLocation, ViewportRotation);
 	
 	FVector Forward = ViewportRotation.Vector();
-	FVector Offset = (Target->GetActorLocation() - ViewportLocation);
+	FVector Offset = (Target->GetIndicatorPosition() - ViewportLocation);
 	Offset.Normalize();
 	
 	float DotProduct = FVector::DotProduct(Forward, Offset);
@@ -66,7 +66,7 @@ void UScreenIndicator::FindScreenEdgeLocationForWorldLocation(FVector2D& OutScre
 		// as you turn around. Could stand some refinement, but results
 		// are decent enough for most purposes.
 		
-		FVector DiffVector = Target->GetActorLocation() - ViewportLocation;
+		FVector DiffVector = Target->GetIndicatorPosition() - ViewportLocation;
 		FVector Inverted = DiffVector * -1.f;
 		FVector NewInLocation = ViewportLocation * Inverted;
 		
@@ -77,7 +77,7 @@ void UScreenIndicator::FindScreenEdgeLocationForWorldLocation(FVector2D& OutScre
 		ScreenPosition.X = -ViewportCenter.X - ScreenPosition.X;
 	}
 	
-	PlayerController->ProjectWorldLocationToScreen(Target->GetActorLocation(), ScreenPosition);
+	PlayerController->ProjectWorldLocationToScreen(Target->GetIndicatorPosition(), ScreenPosition);
 	
 	// Check to see if it's on screen. If it is, ProjectWorldLocationToScreen is all we need, return it.
 	if (ScreenPosition.X >= 0.f && ScreenPosition.X <= ViewportSize.X

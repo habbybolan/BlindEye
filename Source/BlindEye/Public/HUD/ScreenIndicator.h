@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Interfaces/IndicatorInterface.h"
 #include "ScreenIndicator.generated.h"
 
 /**
@@ -19,18 +20,18 @@ public:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
-	void SetTarget(AActor* target);
+	void SetTarget(TScriptInterface<IIndicatorInterface> target);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	AActor* GetTarget(); 
+	TScriptInterface<IIndicatorInterface> GetTarget(); 
 
 	UPROPERTY(EditDefaultsOnly)
 	float EdgePercent = 0.9;
 	
 protected: 
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, BlueprintGetter=GetTarget)
-	AActor* Target;
+	UPROPERTY()
+	TScriptInterface<IIndicatorInterface> Target;
 
 	UFUNCTION(BlueprintCallable)
 	void FindScreenEdgeLocationForWorldLocation(FVector2D& OutScreenPosition,
