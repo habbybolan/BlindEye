@@ -49,6 +49,9 @@ class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityU
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
+	UPROPERTY(EditDefaultsOnly)
+	UStaticMeshComponent* HealthbarVisibilityBounds;
+
 	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
 	float HunterMarkMovementAlter = 0;
 
@@ -262,6 +265,12 @@ public:
  
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_DisplayTutorialChecklist(bool bShowChecklist);
+
+	UFUNCTION()
+	void HealthbarBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
+	void HealthbarEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 protected:
 

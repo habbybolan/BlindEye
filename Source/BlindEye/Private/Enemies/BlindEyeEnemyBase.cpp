@@ -63,6 +63,11 @@ void ABlindEyeEnemyBase::ApplyPulse(ABlindEyePlayerCharacter* PlayerEffectToAppl
 		PlayerEffectToApply, UBaseDamageType::StaticClass());
 }
 
+void ABlindEyeEnemyBase::SetHealthbarVisibility(bool IsVisible)
+{
+	HealthBar->SetVisibility(IsVisible);
+}
+
 void ABlindEyeEnemyBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 

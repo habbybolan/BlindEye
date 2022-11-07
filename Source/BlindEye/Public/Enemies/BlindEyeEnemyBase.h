@@ -33,13 +33,15 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	float DestroyDelay = 1;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UWidgetComponent* HealthBar;
 
 	UPROPERTY(EditDefaultsOnly)
 	bool bNeverShowHealthBar = false;
 
 	virtual void ApplyPulse(ABlindEyePlayerCharacter* PlayerEffectToApply);
+
+	void SetHealthbarVisibility(bool IsVisible);
 
 protected:
 	// Called when the game starts or when spawned
