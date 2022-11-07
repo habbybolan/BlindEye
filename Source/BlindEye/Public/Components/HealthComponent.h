@@ -5,12 +5,12 @@
 #include "CoreMinimal.h"
 #include "Abilities/HealingWell.h"
 #include "Components/ActorComponent.h"
-#include "DamageTypes/BaseDamageType.h"
 #include "DamageTypes/MarkData.h"
 #include "Interfaces/DamageInterface.h"
 #include "HealthComponent.generated.h"
 
 enum class EMarkerType : uint8;
+class ABlindEyeBaseCharacter;
 
 USTRUCT(BlueprintType)
 struct FAppliedStatusEffects 
@@ -89,12 +89,12 @@ public:
 	FBurnEndSignature BurnDelegateEnd; 
 
 	DECLARE_MULTICAST_DELEGATE(FStaggerSignature) 
-	FStaggerSignature StaggerDelegate;
+	FStaggerSignature StaggerDelegate; 
 
-	DECLARE_MULTICAST_DELEGATE_OneParam(FMarkedSignature, EMarkerType) 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMarkedSignature, AActor*, MarkedPawn, EMarkerType, MarkerType); 
 	FMarkedSignature MarkedAddedDelegate;
 	
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FUnMarkedSignature);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FUnMarkedSignature, AActor*, MarkedPawn, EMarkerType, MarkerType);
 	UPROPERTY()
 	FUnMarkedSignature MarkedRemovedDelegate; 
 

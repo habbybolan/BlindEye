@@ -21,7 +21,7 @@ ABlindEyeBaseCharacter::ABlindEyeBaseCharacter(const FObjectInitializer& ObjectI
 void ABlindEyeBaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	HealthComponent->MarkedAddedDelegate.AddUFunction(this, TEXT("OnMarkAdded"));
+	HealthComponent->MarkedAddedDelegate.AddDynamic(this, &ABlindEyeBaseCharacter::OnMarkAdded);
 	HealthComponent->MarkedRemovedDelegate.AddDynamic(this, &ABlindEyeBaseCharacter::OnMarkRemoved);
 	HealthComponent->DetonateDelegate.AddDynamic(this, &ABlindEyeBaseCharacter::OnMarkDetonated);
 	HealthComponent->RefreshMarkDelegate.AddDynamic(this, &ABlindEyeBaseCharacter::OnMarkRefreshed);
@@ -85,7 +85,7 @@ float ABlindEyeBaseCharacter::GetMass()
 	return Mass;
 }
 
-void ABlindEyeBaseCharacter::OnMarkAdded(EMarkerType MarkType)
+void ABlindEyeBaseCharacter::OnMarkAdded(AActor* MarkedActor, EMarkerType MarkType)
 {
 	BP_OnMarkAdded(MarkType);
 	MULT_OnMarkAddedHelper(MarkType);
@@ -96,7 +96,7 @@ void ABlindEyeBaseCharacter::MULT_OnMarkAddedHelper_Implementation(EMarkerType M
 	MarkerComponent->AddMark(MarkerType);
 }
 
-void ABlindEyeBaseCharacter::OnMarkRemoved()
+void ABlindEyeBaseCharacter::OnMarkRemoved(AActor* UnmarkedActor, EMarkerType MarkerType)
 {
 	BP_OnMarkRemoved();
 	MULT_OnMarkRemovedHelper();

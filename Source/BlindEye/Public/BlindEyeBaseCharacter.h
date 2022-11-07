@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/HealthInterface.h"
-#include "BlindEyeUtils.h"
 #include "Components/HealthComponent.h"
 #include "BlindEyeBaseCharacter.generated.h"
 
@@ -71,14 +70,14 @@ protected:
 
 	// mark added
 	UFUNCTION()
-	virtual void OnMarkAdded(EMarkerType MarkerType);
+	virtual void OnMarkAdded(AActor* MarkedActor, EMarkerType MarkerType);
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_OnMarkAddedHelper(EMarkerType MarkerType);
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnMarkAdded(EMarkerType MarkerType);
 	// mark removed
 	UFUNCTION()
-	virtual void OnMarkRemoved();
+	virtual void OnMarkRemoved(AActor* UnmarkedActor, EMarkerType MarkerType);
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_OnMarkRemovedHelper();
 	UFUNCTION(BlueprintImplementableEvent)

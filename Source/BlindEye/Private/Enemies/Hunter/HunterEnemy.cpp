@@ -4,13 +4,11 @@
 #include "Enemies/Hunter/HunterEnemy.h"
 
 #include "Characters/BlindEyePlayerCharacter.h"
-#include "Characters/BlindEyePlayerController.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Enemies/Hunter/HunterEnemyController.h"
 #include "Enemies/Hunter/HunterHealthComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/GameState.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -149,9 +147,9 @@ void AHunterEnemy::OnMarkDetonated()
 	}
 }
 
-void AHunterEnemy::OnMarkAdded(EMarkerType MarkerType)
+void AHunterEnemy::OnMarkAdded(AActor* MarkedActor, EMarkerType MarkerType)
 {
-	Super::OnMarkAdded(MarkerType);
+	Super::OnMarkAdded(MarkedActor, MarkerType);
 	if (bDebugStunOnMark)
 	{
 		if (GetIsCharged())
@@ -213,7 +211,7 @@ void AHunterEnemy::OnHunterMarkDetonated()
 	HealthComponent->Stun(5, Target);
 }
 
-void AHunterEnemy::OnHunterMarkRemoved()
+void AHunterEnemy::OnHunterMarkRemoved(AActor* UnmarkedActor, EMarkerType MarkerType)
 {
 	GetMesh()->GetAnimInstance()->StopAllMontages(0);
 	UnsubscribeToTargetMarks();

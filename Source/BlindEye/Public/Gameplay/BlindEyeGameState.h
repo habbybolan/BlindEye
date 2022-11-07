@@ -3,11 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BlindEyePlayerState.h"
-#include "Islands/IslandManager.h"
-#include "Shrine.h"
+#include "Characters/BlindEyePlayerController.h"
 #include "GameFramework/GameState.h"
 #include "BlindEyeGameState.generated.h"
+
+class AIslandManager;
+class ABlindEyePlayerState;
+class AShrine;
+class ABlindEyeEnemyBase;
+enum class EPlayerType : uint8;
+enum class EMarkerType : uint8;
 
 UENUM(BlueprintType)
 enum class EGameOverState : uint8
@@ -121,7 +126,7 @@ public:
 	UPROPERTY(Replicated)
 	uint8 NumRounds = 3; 
 
-	UFUNCTION()
+	UFUNCTION() 
 	void OnPlayerDied(ABlindEyePlayerState* PlayerThatDied);
 	UFUNCTION()
 	void OnPlayerRevived(ABlindEyePlayerState* PlayerRevived);
@@ -153,6 +158,11 @@ protected:
 	UFUNCTION()
 	virtual void OnRep_InProgressMatchState();
 
-	void TutorialState();
+	void TutorialState(); 
+ 
+	UFUNCTION()
+	void OnMarkAdded(AActor* MarkedActor, EMarkerType MarkerType);
+	UFUNCTION()
+	void OnMarkRemoved(AActor* UnmarkedActor, EMarkerType MarkerType);
 	
 };
