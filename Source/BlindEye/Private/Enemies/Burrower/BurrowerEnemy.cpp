@@ -205,7 +205,6 @@ void ABurrowerEnemy::SubscribeToSpawnLocation(UBurrowerSpawnPoint* SpawnPoint)
 
 void ABurrowerEnemy::UnsubscribeToSpawnLocation()
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Magenta, "UNSUBSCRIBE************************");
 	if (CurrUsedSpawnPoint)
 	{
 		CurrUsedSpawnPoint->bInUse = false;
