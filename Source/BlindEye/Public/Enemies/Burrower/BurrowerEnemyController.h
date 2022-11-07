@@ -77,6 +77,8 @@ public:
 	TArray<ABlindEyePlayerCharacter*> GetPlayersOnIsland();
 
 	void SetInBurstState();
+	
+	void NotifySpawningStopped();
 
 	
 protected:

@@ -35,11 +35,17 @@ public:
 	//
 	// void AttackAction(ABlindEyePlayerCharacter* target);
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Spawning)
 	uint8 MinSnappersSpawn = 2;
  
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Spawning)
 	uint8 MaxSnappersSpawn = 5;
+	
+	UPROPERTY(EditDefaultsOnly, Category=Spawning, meta=(ToolTip="Variability in time of snappers getting up froim ragdoll after burrower finished spawning group"))
+	float SnapperRagdollTimeVariabilityAfterGroupSpawned = 0.2f;
+     
+    UPROPERTY(EditDefaultsOnly, Category=Spawning, meta=(ToolTip="Base time for snappers to stay ragdolled after finished spawning group"))
+    float SnapperRagdollBaseTimeAfterGroupSpawned = 1.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float SpawnTimeAppearingLength = 5;
@@ -94,7 +100,7 @@ public:
 
 	// Stored here purely for passing to Controller
 	TScriptInterface<IBurrowerSpawnManagerListener> Listener;
-	uint8 IslandID; 
+	uint8 IslandID;
 
 	void SpawnMangerSetup(uint8 islandID, TScriptInterface<IBurrowerSpawnManagerListener> listener);
 	
@@ -145,14 +151,14 @@ public:
 
 	void SubscribeToIsland(AIsland* Island);
 	UBurrowerSpawnPoint* GetRandUnusedSpawnPoint();
+
+	void NotifySpawningStopped();
  
 protected:
 
 	virtual void BeginPlay() override;
 
 	virtual void OnDeath(AActor* ActorThatKilled) override;
-	
-	TMap<uint32, ASnapperEnemy*> SpawnedSnappers;
 
 	UPROPERTY()
 	UBurrowerSpawnPoint* CurrUsedSpawnPoint = nullptr;
@@ -175,6 +181,9 @@ protected:
 	void OnSnapperDeath(AActor* SnapperActor);
 	
 	TArray<FVector> GetSnapperSpawnPoints();
+
+	UPROPERTY()
+	TArray<ASnapperEnemy*> SnappersBeingSpawned;
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_PlaySurfacingAnimation();

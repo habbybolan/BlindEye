@@ -15,6 +15,7 @@
 #include "Enemies/Burrower/BurrowerHealthComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 ABurrowerEnemy::ABurrowerEnemy(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UBurrowerHealthComponent>(TEXT("HealthComponent")))
@@ -58,7 +59,8 @@ void ABurrowerEnemy::BeginPlay()
 
 void ABurrowerEnemy::OnDeath(AActor* ActorThatKilled)
 {
-	Super::OnDeath(ActorThatKilled); 
+	Super::OnDeath(ActorThatKilled);
+	NotifySpawningStopped();
 }
 
 void ABurrowerEnemy::SpawnMangerSetup(uint8 islandID, TScriptInterface<IBurrowerSpawnManagerListener> listener)
@@ -153,7 +155,8 @@ void ABurrowerEnemy::SpawnSnappers()
 	FVector location = GetMesh()->GetBoneLocation(TEXT("Mouth"));
 	FRotator rotation = GetMesh()->GetBoneQuaternion(TEXT("Mouth")).Rotator();
 	
-	World->SpawnActor<ASnapperEnemy>(SnapperType, location, rotation);
+	ASnapperEnemy* Snapper = World->SpawnActor<ASnapperEnemy>(SnapperType, location, rotation);
+	SnappersBeingSpawned.Add(Snapper);
 }
 
 FVector ABurrowerEnemy::GetHidePosition()
@@ -232,9 +235,20 @@ UBurrowerSpawnPoint* ABurrowerEnemy::GetRandUnusedSpawnPoint()
 	return nullptr;
 }
 
-void ABurrowerEnemy::OnSnapperDeath(AActor* SnapperActor)
+void ABurrowerEnemy::NotifySpawningStopped()
 {
-	SpawnedSnappers.Remove(SnapperActor->GetUniqueID());
+	// Set timer for stopping snapper ragdoll with some variability
+	for (ASnapperEnemy* Snapper : SnappersBeingSpawned)
+	{
+		float RandVariability = UKismetMathLibrary::RandomFloatInRange(0, SnapperRagdollTimeVariabilityAfterGroupSpawned);
+		Snapper->ManualStopRagdollTimer(SnapperRagdollBaseTimeAfterGroupSpawned + RandVariability);
+	}
+	SnappersBeingSpawned.Empty();
+}
+
+void ABurrowerEnemy::OnSnapperDeath(AActor* SnapperActor)
+{ 
+	// TODO: Remove?
 }
 
 TArray<FVector> ABurrowerEnemy::GetSnapperSpawnPoints()

@@ -74,6 +74,8 @@ public:
 
 	void ApplyKnockBack(FVector Force);
 
+	void ManualStopRagdollTimer(float Duration); 
+
 protected:
 
 	UPROPERTY(Replicated)

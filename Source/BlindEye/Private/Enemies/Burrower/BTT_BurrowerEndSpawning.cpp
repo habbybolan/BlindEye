@@ -41,6 +41,7 @@ EBTNodeResult::Type UBTT_BurrowerEndSpawning::ExecuteTask(UBehaviorTreeComponent
 		{
 			BBComp->SetValueAsEnum(StateKey.SelectedKeyName, (uint8)EBurrowActionState::Patrolling);
 		}
+		BurrowerController->NotifySpawningStopped();
 		return EBTNodeResult::Succeeded;
 	}
 

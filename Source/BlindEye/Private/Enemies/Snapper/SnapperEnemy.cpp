@@ -234,6 +234,11 @@ void ASnapperEnemy::BeginStopRagdollTimer()
 	GetWorldTimerManager().SetTimer(StopRagdollTimerHandle, this, &ASnapperEnemy::MULT_StopRagdoll, RagdollDuration, false);
 }
 
+void ASnapperEnemy::ManualStopRagdollTimer(float Duration)
+{
+	GetWorldTimerManager().SetTimer(StopRagdollTimerHandle, this, &ASnapperEnemy::MULT_StopRagdoll, Duration, false);
+}
+
 void ASnapperEnemy::TeleportColliderToMesh(float DeltaSeconds)
 {
 	FVector TargetLocation = GetMesh()->GetSocketLocation(TEXT("Hips")) + FVector::UpVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight();

@@ -147,6 +147,11 @@ void ABurrowerEnemyController::SetInBurstState()
 	Blackboard->SetValueAsEnum("ActionState", (uint8)EBurrowActionState::BurstWave);
 }
 
+void ABurrowerEnemyController::NotifySpawningStopped()
+{
+	CachedBurrower->NotifySpawningStopped();
+}
+
 void ABurrowerEnemyController::StartWarningParticles()
 {
 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
