@@ -165,6 +165,21 @@ TArray<ABlindEyePlayerCharacter*> ABurrowerSpawnManager::GetPlayersOnIsland(uint
 	return PlayersInTrigger;
 }
 
+void ABurrowerSpawnManager::SetInBurstState()
+{
+	for (TPair<uint8, TArray<ABurrowerEnemy*>> Pair : SpawnedBurrowers)
+	{
+		for (ABurrowerEnemy* Burrower : Pair.Value)
+		{
+			ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Burrower->GetController());
+			check(BurrowerController);
+
+			BurrowerController->SetInBurstState();
+		}
+		
+	}
+}
+
 UBurrowerSpawnPoint* ABurrowerSpawnManager::FindRandomUnusedSpawnPoint()
 {
 	AIsland* RandIsland = IslandManager->GetRandIsland();

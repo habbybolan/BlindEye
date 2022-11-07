@@ -36,6 +36,8 @@ public:
  
 	TArray<ABlindEyePlayerCharacter*> GetPlayersOnIsland(uint8 islandID) override;
 
+	void SetInBurstState();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

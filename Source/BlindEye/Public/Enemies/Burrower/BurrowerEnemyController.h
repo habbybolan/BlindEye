@@ -62,10 +62,6 @@ public:
 
 	void StartSurfacing();
 	void StartHiding();
-	 
-	//void SetBurrowerState(bool isHidden, bool bFollowing);
-
-	//FTransform FindRandUnusedSpawnPoint();
 
 	UFUNCTION()
 	void StartWarningParticles();
@@ -79,6 +75,9 @@ public:
 	void CancelHide();
 
 	TArray<ABlindEyePlayerCharacter*> GetPlayersOnIsland();
+
+	void SetInBurstState();
+
 	
 protected:
 	FTimerHandle SpawnTimerHandle;

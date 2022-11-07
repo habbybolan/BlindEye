@@ -9,7 +9,6 @@
 #include "Enemies/Burrower/BurrowerEnemy.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
 
 void ABurrowerEnemyController::BeginPlay()
 {
@@ -85,14 +84,6 @@ void ABurrowerEnemyController::CacheSpawnPoints()
 	UGameplayStatics::GetAllActorsOfClass(world, UBurrowerSpawnPoint::StaticClass(), SpawnLocation);
 }
 
-// FTransform ABurrowerEnemyController::FindRandUnusedSpawnPoint()
-// {
-// 	// TODO: remove and move to separate task
-// 	if (SpawnLocation.Num() == 0) return FTransform();
-// 	uint32 randIndex = UKismetMathLibrary::RandomInteger(SpawnLocation.Num());
-// 	return SpawnLocation[randIndex]->GetTransform();
-// }
-
 void ABurrowerEnemyController::StopWarningParticles()
 {
 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
@@ -148,6 +139,12 @@ void ABurrowerEnemyController::CancelHide()
 TArray<ABlindEyePlayerCharacter*> ABurrowerEnemyController::GetPlayersOnIsland()
 {
 	return CachedBurrower->Listener->GetPlayersOnIsland(CachedBurrower->IslandID);
+}
+
+void ABurrowerEnemyController::SetInBurstState()
+{
+	check(Blackboard)
+	Blackboard->SetValueAsEnum("ActionState", (uint8)EBurrowActionState::BurstWave);
 }
 
 void ABurrowerEnemyController::StartWarningParticles()

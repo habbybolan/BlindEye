@@ -246,9 +246,7 @@ void ADifficultyManager::PerformBurstWave()
 {
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5, FColor::Green,  TEXT("Start Burst Wave"));
 	bInBurstWave = true;
-	// TODO: Start burst wave
-	// Spawn Max Number of burrowers for each island
-	// Set burrowers to state where they continue spawning indefinitely
+	BurrowerSpawnManager->SetInBurstState();
 }
 
 void ADifficultyManager::StopBurstWave()
