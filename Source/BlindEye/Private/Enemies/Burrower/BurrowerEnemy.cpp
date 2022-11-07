@@ -59,8 +59,8 @@ void ABurrowerEnemy::BeginPlay()
 
 void ABurrowerEnemy::OnDeath(AActor* ActorThatKilled)
 {
-	Super::OnDeath(ActorThatKilled);
 	NotifySpawningStopped();
+	Super::OnDeath(ActorThatKilled);
 }
 
 void ABurrowerEnemy::SpawnMangerSetup(uint8 islandID, TScriptInterface<IBurrowerSpawnManagerListener> listener)
@@ -152,10 +152,12 @@ void ABurrowerEnemy::SpawnSnappers()
 	UWorld* World = GetWorld();
 	if (!World) return;
 
+	FActorSpawnParameters params;
+	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	FVector location = GetMesh()->GetBoneLocation(TEXT("Mouth"));
 	FRotator rotation = GetMesh()->GetBoneQuaternion(TEXT("Mouth")).Rotator();
 	
-	ASnapperEnemy* Snapper = World->SpawnActor<ASnapperEnemy>(SnapperType, location, rotation);
+	ASnapperEnemy* Snapper = World->SpawnActor<ASnapperEnemy>(SnapperType, location, rotation, params);
 	SnappersBeingSpawned.Add(Snapper);
 }
 
