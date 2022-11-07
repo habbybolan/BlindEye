@@ -36,4 +36,6 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void FindScreenEdgeLocationForWorldLocation(FVector2D& OutScreenPosition,
 		float& OutRotationAngleDegrees, bool &bIsOnScreen);
+
+	void NormalizeScreenCoordinates(FVector2D& OutScreenPosition, const FVector2D ViewportSiz);
 };

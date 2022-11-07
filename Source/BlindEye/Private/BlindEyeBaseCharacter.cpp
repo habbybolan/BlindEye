@@ -90,7 +90,7 @@ float ABlindEyeBaseCharacter::GetMass()
 
 FVector ABlindEyeBaseCharacter::GetIndicatorPosition()
 {
-	//return IndicatorLocation->GetComponentLocation();
+	//return IndicatorLocation->GetComponentLocation(); Indicator is broken
 	return GetMesh()->GetComponentLocation() + FVector::UpVector * 100.f;
 }
 
