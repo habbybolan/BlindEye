@@ -62,6 +62,9 @@ ABlindEyePlayerCharacter::ABlindEyePlayerCharacter(const FObjectInitializer& Obj
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+	HealthbarVisibilityBounds = CreateDefaultSubobject<UStaticMeshComponent>("Healthbar Visibility Bounds");
+	HealthbarVisibilityBounds->SetupAttachment(FollowCamera);
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 	AbilityManager = CreateDefaultSubobject<UAbilityManager>(TEXT("AbilityManager"));
@@ -125,7 +128,9 @@ void ABlindEyePlayerCharacter::BeginPlay()
 	}
 
 	world->GetTimerManager().SetTimer(RadarUpdateTimerHandle, this, &ABlindEyePlayerCharacter::UpdateRadar, RadarUpdateDelay, true);
-	
+
+	HealthbarVisibilityBounds->OnComponentBeginOverlap.AddDynamic(this, &ABlindEyePlayerCharacter::HealthbarBeginOverlap);
+	HealthbarVisibilityBounds->OnComponentEndOverlap.AddDynamic(this, &ABlindEyePlayerCharacter::HealthbarEndOverlap);
 }
 
 void ABlindEyePlayerCharacter::CLI_TryFinishTutorial_Implementation(ETutorialChecklist CheckListItem)
@@ -194,6 +199,24 @@ void ABlindEyePlayerCharacter::StartTutorial()
 void ABlindEyePlayerCharacter::StartGame()
 {
 	BP_DisplayTutorialChecklist(false);
+}
+
+void ABlindEyePlayerCharacter::HealthbarBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (ABlindEyeEnemyBase* Enemy = Cast<ABlindEyeEnemyBase>(OtherActor))
+	{
+		Enemy->SetHealthbarVisibility(true);
+	}
+}
+
+void ABlindEyePlayerCharacter::HealthbarEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (ABlindEyeEnemyBase* Enemy = Cast<ABlindEyeEnemyBase>(OtherActor))
+	{
+		Enemy->SetHealthbarVisibility(false);
+	}
 }
 
 ABlindEyePlayerState* ABlindEyePlayerCharacter::GetAllyPlayerState()

@@ -3,7 +3,6 @@
 #include "Enemies/BlindEyeEnemybase.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Components/HealthComponent.h"
-#include "Components/MarkerComponent.h"
 #include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
@@ -13,6 +12,15 @@ ABlindEyeEnemyBase::ABlindEyeEnemyBase(const FObjectInitializer& ObjectInitializ
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	Team = TEAMS::Enemy;
+
+	HealthBar = CreateDefaultSubobject<UWidgetComponent>("Health Bar");
+	HealthBar->SetWidgetSpace(EWidgetSpace::Screen);
+	HealthBar->SetDrawSize(FVector2D(200, 10));
+	HealthBar->SetIsReplicated(true);
+	HealthBar->SetRelativeRotation(FRotator(0, 90, 0));
+	HealthBar->SetRelativeScale3D(FVector(.2f, .2f, .2f));
+	HealthBar->SetRelativeLocation(FVector(0, 0, 100));
+	HealthBar->SetupAttachment(GetMesh());
 }
 
 const FAppliedStatusEffects& ABlindEyeEnemyBase::GetAppliedStatusEffects()
@@ -40,6 +48,8 @@ void ABlindEyeEnemyBase::BeginPlay()
 
 		BlindEyeGS->SubscribeToEnemy(this);
 	}
+
+	HealthBar->SetVisibility(false);
 }
 
 void ABlindEyeEnemyBase::DestroyEnemy()
@@ -51,6 +61,11 @@ void ABlindEyeEnemyBase::ApplyPulse(ABlindEyePlayerCharacter* PlayerEffectToAppl
 {
 	UGameplayStatics::ApplyPointDamage(this, 100000, FVector::ZeroVector, FHitResult(), PlayerEffectToApply->GetController(),
 		PlayerEffectToApply, UBaseDamageType::StaticClass());
+}
+
+void ABlindEyeEnemyBase::SetHealthbarVisibility(bool IsVisible)
+{
+	HealthBar->SetVisibility(IsVisible);
 }
 
 void ABlindEyeEnemyBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
