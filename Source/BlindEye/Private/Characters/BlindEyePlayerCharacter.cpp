@@ -219,6 +219,24 @@ void ABlindEyePlayerCharacter::HealthbarEndOverlap(UPrimitiveComponent* Overlapp
 	}
 }
 
+void ABlindEyePlayerCharacter::OnOtherPlayerDied(ABlindEyePlayerState* BlindEyePS)
+{
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(BlindEyePS->GetPawn());
+	check(Player)
+
+	// Create Screen indicator to dead player
+	BP_CreateRevivePlayerScreenIndicator(Player);
+}
+
+void ABlindEyePlayerCharacter::OnOtherPlayerRevived(ABlindEyePlayerState* BlindEyePS)
+{
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(BlindEyePS->GetPawn());
+	check(Player)
+
+	// Remove screen indicator for dead player
+	BP_RemoveRevivePlayerScreenIndicator(Player);
+}
+
 ABlindEyePlayerState* ABlindEyePlayerCharacter::GetAllyPlayerState()
 {
 	ABlindEyeGameState* GameState = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(GetWorld()));

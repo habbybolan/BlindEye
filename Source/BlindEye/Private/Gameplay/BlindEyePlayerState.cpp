@@ -79,6 +79,17 @@ void ABlindEyePlayerState::OnRep_HealthUpdated()
 	}
 }
 
+void ABlindEyePlayerState::OnRep_PlayerDeathStateUpdated()
+{
+	if (IsDead)
+	{
+		PlayerDeathDelegate.Broadcast(this);
+	} else
+	{
+		PlayerRevivedDelegate.Broadcast(this);
+	}
+}
+
 void ABlindEyePlayerState::OnRep_BirdMeterUpdated()
 {
 	ABlindEyePlayerCharacter* BlindEyeCharacter = Cast<ABlindEyePlayerCharacter>(GetPawn());

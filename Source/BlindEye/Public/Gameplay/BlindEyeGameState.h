@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BlindEyePlayerState.h"
 #include "Islands/IslandManager.h"
 #include "Shrine.h"
 #include "GameFramework/GameState.h"
@@ -118,7 +119,14 @@ public:
 	float CurrRoundLength = 1;
 
 	UPROPERTY(Replicated)
-	uint8 NumRounds = 3;
+	uint8 NumRounds = 3; 
+
+	UFUNCTION()
+	void OnPlayerDied(ABlindEyePlayerState* PlayerThatDied);
+	UFUNCTION()
+	void OnPlayerRevived(ABlindEyePlayerState* PlayerRevived);
+
+	virtual void AddPlayerState(APlayerState* PlayerState) override;
 
 protected:
 	TWeakObjectPtr<AShrine> Shrine;

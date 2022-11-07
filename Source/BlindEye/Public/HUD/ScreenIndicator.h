@@ -21,12 +21,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetTarget(AActor* target);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	AActor* GetTarget(); 
+
 	UPROPERTY(EditDefaultsOnly)
 	float EdgePercent = 0.9;
 	
-protected:
+protected: 
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, BlueprintGetter=GetTarget)
 	AActor* Target;
 
 	UFUNCTION(BlueprintCallable)

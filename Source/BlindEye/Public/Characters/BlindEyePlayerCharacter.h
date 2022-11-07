@@ -7,6 +7,7 @@
 #include "Enemies/Snapper/SnapperEnemy.h"
 #include "Enemies/Burrower/BurrowerEnemy.h"
 #include "GameFramework/Character.h"
+#include "HUD/ScreenIndicator.h"
 #include "HUD/W_Radar.h"
 #include "Interfaces/AbilityUserInterface.h"
 #include "Interfaces/HealthInterface.h"
@@ -272,6 +273,15 @@ public:
 	UFUNCTION()
 	void HealthbarEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	// Event for when another player died, called from GameState
+	void OnOtherPlayerDied(ABlindEyePlayerState* BlindEyePS);
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_CreateRevivePlayerScreenIndicator(ABlindEyePlayerCharacter* Player);
+	
+	// Event for when another player revived, called from GameState
+	void OnOtherPlayerRevived(ABlindEyePlayerState* BlindEyePS);
+	UFUNCTION(BlueprintImplementableEvent) 
+	void BP_RemoveRevivePlayerScreenIndicator(ABlindEyePlayerCharacter* Player); 
 protected:
 
 	TSet<ETutorialChecklist> ChecklistFinishedTasks;

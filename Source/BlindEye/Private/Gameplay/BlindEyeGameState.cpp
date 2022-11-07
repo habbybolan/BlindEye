@@ -6,6 +6,7 @@
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "GameFramework/PlayerState.h"
 #include "Gameplay/BlindEyeGameMode.h"
+#include "Gameplay/BlindEyePlayerState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -81,6 +82,40 @@ void ABlindEyeGameState::SkipGameTime(float AmountToSkip)
 	CurrRoundTimer += AmountToSkip;
 	CurrGameTime += AmountToSkip;
 	FGameTimeSkippedDelegate.Broadcast(AmountToSkip);
+}
+
+void ABlindEyeGameState::OnPlayerDied(ABlindEyePlayerState* PlayerThatDied)
+{
+	for (APlayerState* PlayerState : PlayerArray)
+	{
+		if (PlayerState != PlayerThatDied)
+		{
+			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerState->GetPawn());
+			Player->OnOtherPlayerDied(PlayerThatDied);
+		}
+	}
+}
+
+void ABlindEyeGameState::OnPlayerRevived(ABlindEyePlayerState* PlayerRevived)
+{
+	for (APlayerState* PlayerState : PlayerArray)
+	{
+		if (PlayerState != PlayerRevived)
+		{
+			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerState->GetPawn());
+			Player->OnOtherPlayerRevived(PlayerRevived);
+		}
+	}
+}
+
+void ABlindEyeGameState::AddPlayerState(APlayerState* PlayerState)
+{
+	Super::AddPlayerState(PlayerState);
+
+	ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(PlayerState);
+	check(BlindEyePS)
+	BlindEyePS->PlayerDeathDelegate.AddDynamic(this, &ABlindEyeGameState::OnPlayerDied);
+	BlindEyePS->PlayerRevivedDelegate.AddDynamic(this, &ABlindEyeGameState::OnPlayerRevived);
 }
 
 void ABlindEyeGameState::EnemyDied(AActor* EnemyActor)

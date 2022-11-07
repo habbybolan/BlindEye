@@ -28,9 +28,16 @@ void UScreenIndicator::SetTarget(AActor* target)
 	SetAnchorsInViewport(Anchor);
 }
 
-void UScreenIndicator::FindScreenEdgeLocationForWorldLocation(FVector2D& OutScreenPosition,
-	float& OutRotationAngleDegrees, bool &bIsOnScreen)
+AActor* UScreenIndicator::GetTarget()
 {
+	return Target;
+}
+
+void UScreenIndicator::FindScreenEdgeLocationForWorldLocation(FVector2D& OutScreenPosition,
+                                                              float& OutRotationAngleDegrees, bool &bIsOnScreen)
+{
+	if (Target == nullptr) return;
+	
 	bIsOnScreen = false;
 	OutRotationAngleDegrees = 0.f;
 	FVector2D ScreenPosition = FVector2D();
@@ -80,7 +87,8 @@ void UScreenIndicator::FindScreenEdgeLocationForWorldLocation(FVector2D& OutScre
 		bIsOnScreen = true;
 		return;
 	}
-	
+
+	// Normalize to viewport center being origin
 	ScreenPosition -= ViewportCenter;
 
 	float AngleRadians = FMath::Atan2(ScreenPosition.Y, ScreenPosition.X);
