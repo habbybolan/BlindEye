@@ -17,10 +17,12 @@ public:
 
 	UBurrowerSpawnPoint();
 
-	//UPROPERTY(EditDefaultsOnly)
-	//UArrowComponent* ArrowComponent;
+	UPROPERTY(EditDefaultsOnly)
+	UArrowComponent* ArrowComponent;
 
 	UPROPERTY(EditAnywhere)
-	uint8 IslandID; 
+	uint8 IslandID;
+
+	bool bInUse = false;
 
 };

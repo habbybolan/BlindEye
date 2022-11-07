@@ -9,6 +9,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "Enemies/Burrower/BurrowerTriggerVolume.h"
+#include "Enemies/Hunter/HunterSpawnPoint.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
@@ -50,7 +51,12 @@ void AHunterEnemyController::Initialize()
 	}
 	IslandManager->GetShrineIsland()->IslandTrigger->CustomOverlapStartDelegate.AddDynamic(this, &AHunterEnemyController::SetEnteredNewIsland);
 	
-	World->GetTimerManager().SetTimer(InitialSpawnDelayTimerHandle, this, &AHunterEnemyController::SpawnHunter, InitialSpawnDelay, false);
+	//World->GetTimerManager().SetTimer(InitialSpawnDelayTimerHandle, this, &AHunterEnemyController::SpawnHunter, InitialSpawnDelay, false);
+}
+
+bool AHunterEnemyController::IsHunterSpawned()
+{
+	return bIsHunterAlive;
 }
 
 void AHunterEnemyController::NewIslandAdded(AIsland* Island)
@@ -122,18 +128,6 @@ bool AHunterEnemyController::CanBasicAttack(AActor* Target)
 	return  IsInBasicAttackRange(Target) &&
 			IsOnSameIslandAsPlayer(Target) &&
 			!Hunter->GetIsAttacking();
-}
-
-void AHunterEnemyController::DebugSpawnHunter()
-{
-	UWorld* World = GetWorld();
-	if (World == nullptr) return;
-	
-	if (Hunter) return;
-
-	SpawnHunter();
-	World->GetTimerManager().ClearTimer(InitialSpawnDelayTimerHandle);
-	World->GetTimerManager().ClearTimer(ReturnDelayTimerHandle);
 }
 
 void AHunterEnemyController::TrySetVisibility(bool visibility)
@@ -287,8 +281,9 @@ UBurrowerTriggerVolume* AHunterEnemyController::CheckIslandSpawnedOn()
 
 void AHunterEnemyController::OnHunterDeath(AActor* HunterKilled)
 {
+	bIsHunterAlive = false;
 	CachedHealth = Hunter->GetMaxHealth();
-	DelayedReturn(AfterDeathReturnDelay);
+	//DelayedReturn(AfterDeathReturnDelay);
 	RemoveHunterHelper();
 	
 }
@@ -337,8 +332,10 @@ void AHunterEnemyController::SpawnHunter()
 	UWorld* World = GetWorld();
 	if (!World) return;
 
-	AIsland* RandIsland = IslandManager->GetActiveIslands()[UKismetMathLibrary::RandomIntegerInRange(0, IslandManager->GetActiveIslands().Num() - 1)];
-	UBurrowerSpawnPoint* RandSpawnPoint = RandIsland->GetBurrowerSpawnPoints()[UKismetMathLibrary::RandomIntegerInRange(0, RandIsland->GetBurrowerSpawnPoints().Num() - 1)];
+	bIsHunterAlive = true;
+
+	AIsland* RandIsland = IslandManager->GetRandIsland();
+	UHunterSpawnPoint* RandSpawnPoint = RandIsland->GetRandHunterSpawnPoint();
 	
 	FVector SpawnLocation = RandSpawnPoint->GetComponentLocation();
 	FRotator Rotation = RandSpawnPoint->GetComponentRotation();
@@ -363,6 +360,18 @@ void AHunterEnemyController::SpawnHunter()
 	}
 	
 	Possess(SpawnedHunter);
+}
+
+void AHunterEnemyController::DebugSpawnHunter()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	if (Hunter) return;
+
+	SpawnHunter();
+	//World->GetTimerManager().ClearTimer(InitialSpawnDelayTimerHandle);
+	World->GetTimerManager().ClearTimer(ReturnDelayTimerHandle);
 }
 
 void AHunterEnemyController::OnTakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,

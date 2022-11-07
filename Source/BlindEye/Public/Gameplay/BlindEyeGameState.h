@@ -40,7 +40,10 @@ public:
 	FTutorialEndedSignature TutorialEndedDelegate;
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGameStartedSignature);
-	FGameStartedSignature GameStartedDelegate; 
+	FGameStartedSignature GameStartedDelegate;
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FGameTimeSkippedSignature, float, TimeJumpedForwards);
+	FGameTimeSkippedSignature FGameTimeSkippedDelegate;   
 
 	ABlindEyePlayerCharacter* GetRandomPlayer();
 
@@ -62,6 +65,8 @@ public:
 	UPROPERTY(Replicated)
 	float CurrGameTime = 0;
 	UPROPERTY(Replicated)
+	float CurrRoundTimer = 0; 
+	UPROPERTY(Replicated)
 	float TimerUntilGameWon; 
 	
 	virtual void SetInProgressMatchState(FName NewInProgressState);
@@ -79,8 +84,8 @@ public:
 	TArray<ABlindEyePlayerCharacter*> GetPlayers();
 	ABlindEyePlayerCharacter* GetPlayer(EPlayerType PlayerType);
 
-	// Send from GameMode to update the game timers
-	void UpdateMainGameTimer(float GameTimer);
+	// Send from GameMode to update the game timers 
+	void UpdateMainGameTimer(float GameTimer, float RoundTimer);
 
 	// Keeps track of main loop timers, which are periodically synced from server. Doesn't run any game logic
 	UFUNCTION()
@@ -91,7 +96,29 @@ public:
 	TArray<ABlindEyeEnemyBase*> GetAllEnemies();
 
 	// Called whenever enemy is spawned to allow easy retrieval of all enemies alive in level
-	void SubscribeToEnemy(ABlindEyeEnemyBase* Enemy); 
+	void SubscribeToEnemy(ABlindEyeEnemyBase* Enemy);
+
+	void OnLevelShift();
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLevelShiftSignature);
+	FLevelShiftSignature LevelShiftDelegate;
+	  
+	void OnPulse(uint8 currRound, float roundLength);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FPulseSignature, uint8, CurrRound, float, RoundLength);
+	FPulseSignature PulseDelegate; 
+
+	uint8 GetCurrRound();
+
+	float GetCurrRoundLength();
+	float GetCurrRoundTime(); 
+	float GetPercentOfRoundFinished();
+ 
+	void SkipGameTime(float AmountToSkip);
+
+	UPROPERTY(Replicated)
+	float CurrRoundLength = 1;
+
+	UPROPERTY(Replicated)
+	uint8 NumRounds = 3;
 
 protected:
 	TWeakObjectPtr<AShrine> Shrine;
@@ -107,6 +134,9 @@ protected:
 	
 	FTimerHandle MainGameLoopTimer;
 	float MainGameLoopDelay = 0.1;
+
+	UPROPERTY(Replicated)
+	uint8 CurrRound = 0;
 
 	UFUNCTION()
 	void EnemyDied(AActor* Enemy);

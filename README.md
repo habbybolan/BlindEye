@@ -29,7 +29,7 @@ Blind Eye is a two player, 3D, third person, cooperative battle arena defense ga
 
 [Paint Over Proxy](<https://miro.com/app/board/uXjVOUxW1fA=/>)
 
-[Milestone Report](<https://docs.google.com/document/d/1K73V15MdtJuQGsLiJoxIn5og0Oes6zCeDTwmnhxSfb0/edit?usp=sharing>)
+[Milestone Report](<https://drive.google.com/drive/folders/1mTu6PSImfDcKb2nPDynDUwmrNeKOh2ed?usp=sharing>)
 
 [ClickUp](<https://sharing.clickup.com/36275028/l/h/7-36275028-1/c9451079576f585>)
 
@@ -37,7 +37,7 @@ Blind Eye is a two player, 3D, third person, cooperative battle arena defense ga
 
 [Task List](<https://docs.google.com/spreadsheets/d/1aE1CwJExc6e-ufWwJ5Wjcxcs_S_H9AzUSZRLkWGL6Ek/edit?usp=sharing>)
 
-[M1 Build](<https://drive.vfs.com/index.php/apps/files/?dir=/VFSSTORAGE10%20Dropbox%20GDPGSD/Builds/GD66PG22/BlindEye/M1&fileid=75792717>)
+[Milestone Build](<https://drive.vfs.com/index.php/apps/files/?dir=/VFSSTORAGE10%20Dropbox%20GDPGSD/Builds/GD66PG22/BlindEye/M1&fileid=75792717>)
 
 No Script or Dialogue required
 

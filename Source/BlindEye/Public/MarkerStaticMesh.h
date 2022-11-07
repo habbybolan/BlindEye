@@ -23,8 +23,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_DetonateMark(EMarkerType MarkerType); 
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_AddMark(EMarkerType MarkerType);
+	void BP_AddMark(EMarkerType MarkerType); 
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_RefreshMark(EMarkerType MarkerType);
+	void BP_RefreshMark(EMarkerType MarkerType, float RemainingDecay);
 	
 };

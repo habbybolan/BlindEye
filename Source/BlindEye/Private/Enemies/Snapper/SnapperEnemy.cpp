@@ -89,7 +89,7 @@ void ASnapperEnemy::MULT_OnSpawnCollisionHelper_Implementation()
 	GetCapsuleComponent()->OnComponentHit.Remove(this, TEXT("SpawnCollisionWithGround"));
 	
 	// set ragdolling
-	TryRagdoll(true);
+	TryRagdoll(true, true);
 	bIsSpawning = false;
 	
 	// Update values back to normal
@@ -208,9 +208,9 @@ void ASnapperEnemy::ApplyKnockBack(FVector Force)
 	{
 		TryRagdoll(true);
 	}
-}
+} 
 
-void ASnapperEnemy::TryRagdoll(bool SimulatePhysics)
+void ASnapperEnemy::TryRagdoll(bool SimulatePhysics, bool IsIndefiniteRagdoll)
 {
 	// Prevent calling ragdoll again, reset timer to get up
 	if (bRagdolling == SimulatePhysics)
@@ -219,10 +219,10 @@ void ASnapperEnemy::TryRagdoll(bool SimulatePhysics)
 	}
 
 	if (SimulatePhysics)
-	{
+	{ 
 		GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = true;
 		GetCharacterMovement()->bServerAcceptClientAuthoritativePosition = true;
-		MULT_StartRagdoll();
+		MULT_StartRagdoll(IsIndefiniteRagdoll);
 	} else
 	{
 		MULT_StopRagdoll();
@@ -232,6 +232,11 @@ void ASnapperEnemy::TryRagdoll(bool SimulatePhysics)
 void ASnapperEnemy::BeginStopRagdollTimer()
 {
 	GetWorldTimerManager().SetTimer(StopRagdollTimerHandle, this, &ASnapperEnemy::MULT_StopRagdoll, RagdollDuration, false);
+}
+
+void ASnapperEnemy::ManualStopRagdollTimer(float Duration)
+{
+	GetWorldTimerManager().SetTimer(StopRagdollTimerHandle, this, &ASnapperEnemy::MULT_StopRagdoll, Duration, false);
 }
 
 void ASnapperEnemy::TeleportColliderToMesh(float DeltaSeconds)
@@ -257,9 +262,9 @@ void ASnapperEnemy::UpdateHipLocation(float DeltaSecond)
 	if (Dist < 50) return;
 	FVector LerpedLocation = UKismetMathLibrary::VLerp(GetMesh()->GetComponentLocation(), GetCapsuleComponent()->GetComponentLocation(), DeltaSecond);
 	GetMesh()->SetWorldLocation(LerpedLocation, false, nullptr, ETeleportType::TeleportPhysics);
-}
+} 
 
-void ASnapperEnemy::MULT_StartRagdoll_Implementation()
+void ASnapperEnemy::MULT_StartRagdoll_Implementation(bool IsIndefiniteRagdoll)
 {
 	GetMovementComponent()->SetComponentTickEnabled(false);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -267,9 +272,12 @@ void ASnapperEnemy::MULT_StartRagdoll_Implementation()
 	if (GetLocalRole() == ROLE_Authority) 
 	{  
 		bRagdolling = true;
-		BeginStopRagdollTimer();
+		// if not indefinite, set timer to stop ragdolling
+		if(!IsIndefiniteRagdoll)
+		{
+			BeginStopRagdollTimer();
+		}
 	} 
-	
 	GetMesh()->SetPhysicsBlendWeight(1);
 }
 

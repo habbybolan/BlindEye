@@ -13,11 +13,11 @@ UBTT_BurrowerUpdateState::UBTT_BurrowerUpdateState()
 
 EBTNodeResult::Type UBTT_BurrowerUpdateState::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	AAIController* Controller = OwnerComp.GetAIOwner();
-	if (ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Controller))
-	{
-		BurrowerController->SetBurrowerState(bHidden, bFollowing);
-		return EBTNodeResult::Succeeded;
-	}
+	// AAIController* Controller = OwnerComp.GetAIOwner();
+	// if (ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Controller))
+	// {
+	// 	BurrowerController->SetBurrowerState(bHidden, bFollowing);
+	// 	return EBTNodeResult::Succeeded;
+	// }
 	return EBTNodeResult::Failed;
 }

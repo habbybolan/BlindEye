@@ -15,7 +15,17 @@ enum class EBurrowActionState : uint8
 	Spawning,
 	Attacking,
 	Patrolling,
-	Cancelled 
+	Cancelled,
+	BurstWave
+};
+ 
+UENUM(BlueprintType) 
+enum class EBurrowerVisibilityState : uint8
+{
+	Hidden,
+	Hiding,
+	Surfacing,
+	Surfaced
 };
 
 /**
@@ -52,10 +62,6 @@ public:
 
 	void StartSurfacing();
 	void StartHiding();
-	 
-	void SetBurrowerState(bool isHidden, bool bFollowing);
-
-	FTransform FindRandSpawnPoint();
 
 	UFUNCTION()
 	void StartWarningParticles();
@@ -69,6 +75,11 @@ public:
 	void CancelHide();
 
 	TArray<ABlindEyePlayerCharacter*> GetPlayersOnIsland();
+
+	void SetInBurstState();
+	
+	void NotifySpawningStopped();
+
 	
 protected:
 	FTimerHandle SpawnTimerHandle;

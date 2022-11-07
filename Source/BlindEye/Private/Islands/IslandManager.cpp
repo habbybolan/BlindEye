@@ -120,6 +120,13 @@ void AIslandManager::ActivateNextIsland()
 	}
 }
 
+AIsland* AIslandManager::GetRandIsland()
+{
+	uint8 randIslandIndex = UKismetMathLibrary::RandomInteger(ActiveIslands.Num());
+	AIsland* RandIsland = ActiveIslands[randIslandIndex];
+	return RandIsland;
+}
+
 void AIslandManager::IslandSpawningFinished(AIsland* Island)
 {
 	Island->SpawnFinishedDelegate.Remove(this, TEXT("IslandSpawningFinished"));
