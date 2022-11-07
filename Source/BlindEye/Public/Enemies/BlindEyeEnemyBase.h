@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "BlindEyeBaseCharacter.h"
 #include "Components/HealthComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/HealthInterface.h"
 #include "BlindEyeEnemyBase.generated.h"
@@ -31,6 +32,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	float DestroyDelay = 1;
+
+	UPROPERTY(EditDefaultsOnly)
+	UWidgetComponent* HealthBar;
+
+	UPROPERTY(EditDefaultsOnly)
+	bool bNeverShowHealthBar = false;
 
 	virtual void ApplyPulse(ABlindEyePlayerCharacter* PlayerEffectToApply);
 
