@@ -44,6 +44,45 @@ void ABlindEyeGameState::SubscribeToEnemy(ABlindEyeEnemyBase* Enemy)
 	Enemy->HealthComponent->OnDeathDelegate.AddDynamic(this, &ABlindEyeGameState::EnemyDied);
 }
 
+void ABlindEyeGameState::OnLevelShift()
+{
+	LevelShiftDelegate.Broadcast();
+}
+
+void ABlindEyeGameState::OnPulse(uint8 currRound, float roundLength)
+{
+	CurrRound = currRound;
+	CurrRoundLength = roundLength;
+	PulseDelegate.Broadcast(CurrRound, roundLength);
+}
+
+uint8 ABlindEyeGameState::GetCurrRound()
+{
+	return CurrRound;
+}
+
+float ABlindEyeGameState::GetCurrRoundLength()
+{
+	return CurrRoundLength;
+}
+
+float ABlindEyeGameState::GetCurrRoundTime()
+{
+	return CurrRoundTimer;
+}
+
+float ABlindEyeGameState::GetPercentOfRoundFinished()
+{
+	return CurrRoundTimer / CurrRoundLength;
+}
+
+void ABlindEyeGameState::SkipGameTime(float AmountToSkip)
+{
+	CurrRoundTimer += AmountToSkip;
+	CurrGameTime += AmountToSkip;
+	FGameTimeSkippedDelegate.Broadcast(AmountToSkip);
+}
+
 void ABlindEyeGameState::EnemyDied(AActor* EnemyActor)
 {
 	uint8 Index = 0;
@@ -184,18 +223,18 @@ ABlindEyePlayerCharacter* ABlindEyeGameState::GetPlayer(EPlayerType PlayerType)
 	}
 	// PlayerType player not connected
 	return nullptr;
-
 }
 
-void ABlindEyeGameState::UpdateMainGameTimer(float GameTimer)
+void ABlindEyeGameState::UpdateMainGameTimer(float GameTimer, float RoundTimer)
 {
 	CurrGameTime = GameTimer;
+	CurrRoundTimer = RoundTimer;
 }
 
 void ABlindEyeGameState::RunMainGameLoopTimers()
 {
 	CurrGameTime += MainGameLoopDelay;
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, MainGameLoopDelay, FColor::Red, FString::SanitizeFloat(AllEnemies.Num()));
+	CurrRoundTimer += MainGameLoopDelay;
 }
 
 float ABlindEyeGameState::GetGameDonePercent()
@@ -213,4 +252,8 @@ void ABlindEyeGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(ABlindEyeGameState, CurrGameTime)
 	DOREPLIFETIME(ABlindEyeGameState, TimerUntilGameWon)
 	DOREPLIFETIME(ABlindEyeGameState, AllEnemies)
+	DOREPLIFETIME(ABlindEyeGameState, CurrRound)
+	DOREPLIFETIME(ABlindEyeGameState, CurrRoundLength)
+	DOREPLIFETIME(ABlindEyeGameState, CurrRoundTimer)
+	DOREPLIFETIME(ABlindEyeGameState, NumRounds)
 }

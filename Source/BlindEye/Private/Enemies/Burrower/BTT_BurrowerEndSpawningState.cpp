@@ -1,12 +1,12 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
-#include "Enemies/Burrower/BTT_BurrowerEndSpawning.h"
+#include "Enemies/Burrower/BTT_BurrowerEndSpawningState.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/Burrower/BurrowerEnemyController.h"
 
-EBTNodeResult::Type UBTT_BurrowerEndSpawning::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+EBTNodeResult::Type UBTT_BurrowerEndSpawningState::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	UBlackboardComponent* BBComp = OwnerComp.GetBlackboardComponent();
 

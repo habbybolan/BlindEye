@@ -4,9 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "BaseIsland.h"
-#include "Enemies/Burrower/BurrowerSpawnPoint.h"
-#include "Enemies/Burrower/BurrowerTriggerVolume.h"
 #include "Island.generated.h"
+
+class UBurrowerSpawnPoint; 
+class ABurrowerSpawnManager;
+class UHunterSpawnPoint;
 
 UCLASS()
 class BLINDEYE_API AIsland : public ABaseIsland
@@ -27,6 +29,10 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	UBurrowerSpawnPoint* BurrowerSpawnPoint;
 
+	// Guarantee at least one hunter spawn point
+	UPROPERTY(EditDefaultsOnly)
+	UHunterSpawnPoint* HunterSpawnPoint;
+
 	virtual void Initialize(uint8 islandID) override;
 	TArray<UBurrowerSpawnPoint*> GetBurrowerSpawnPoints();
 
@@ -37,6 +43,10 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_SpawnIsland(FVector startLocation);
 	bool GetIsActive();
+
+	UBurrowerSpawnPoint* GetRandUnusedBurrowerSpawnPoint();
+
+	UHunterSpawnPoint* GetRandHunterSpawnPoint();
 
 	FORCEINLINE bool operator<(const AIsland &Other) const
 	{
@@ -55,6 +65,9 @@ protected:
 
 	UPROPERTY()
 	TArray<UBurrowerSpawnPoint*> OwnedBurrowerSpawnPoints;
+ 
+	UPROPERTY()
+	TArray<UHunterSpawnPoint*> OwnedHunterSpawnPoints;
 
 	UFUNCTION(BlueprintCallable)
 	void IslandFinishedSpawning();

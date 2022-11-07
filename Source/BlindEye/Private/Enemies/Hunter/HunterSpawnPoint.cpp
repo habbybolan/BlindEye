@@ -1,13 +1,17 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
-#include "Enemies/Burrower/BurrowerSpawnPoint.h"
+#include "Enemies/Hunter/HunterSpawnPoint.h"
 
-UBurrowerSpawnPoint::UBurrowerSpawnPoint()
+#include "Components/ArrowComponent.h"
+
+UHunterSpawnPoint::UHunterSpawnPoint()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	
+
 	ArrowComponent = CreateDefaultSubobject<UArrowComponent>("Arrow Component");
-	ArrowComponent->ArrowColor = FColor::Blue;
+	ArrowComponent->ArrowColor = FColor::Red;
 	ArrowComponent->SetupAttachment(this);
 }
+
+

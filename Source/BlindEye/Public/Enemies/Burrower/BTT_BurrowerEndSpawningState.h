@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "BTT_BurrowerEndSpawning.generated.h"
+#include "BTT_BurrowerEndSpawningState.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class BLINDEYE_API UBTT_BurrowerEndSpawning : public UBTTaskNode
+class BLINDEYE_API UBTT_BurrowerEndSpawningState : public UBTTaskNode
 {
 	GENERATED_BODY()
 	

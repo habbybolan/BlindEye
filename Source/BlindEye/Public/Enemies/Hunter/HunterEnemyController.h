@@ -34,8 +34,8 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	float AfterStunReturnDelay = 10;
 
-	UPROPERTY(EditDefaultsOnly)
-	float AfterDeathReturnDelay = 30;
+	// UPROPERTY(EditDefaultsOnly)
+	// float AfterDeathReturnDelay = 30;
  
 	UPROPERTY(EditDefaultsOnly)
 	float AfterKillingPlayerDelay = 10;
@@ -68,12 +68,17 @@ public:
 
 	UFUNCTION()
 	void Initialize();
+
+	bool IsHunterSpawned();
+
+	UFUNCTION()
+	void SpawnHunter();
 	
 protected:
 
 	float CachedHealth = 0;
 
-	FTimerHandle InitialSpawnDelayTimerHandle;
+	//FTimerHandle InitialSpawnDelayTimerHandle;
 	
 	UPROPERTY()
 	UBurrowerTriggerVolume* CurrIsland;
@@ -84,6 +89,9 @@ protected:
 	AIslandManager* IslandManager;
 	
 	FTimerHandle InvisDelayTimerHandle;
+
+	bool bIsHunterAlive = false;
+	
 	void StunInvisDelayFinished();
 	void TargetKilledInvisDelayFinished();
 
@@ -116,9 +124,6 @@ protected:
 	virtual void OnPossess(APawn* InPawn) override;
 
 	UBurrowerTriggerVolume* CheckIslandSpawnedOn();
-	
-	UFUNCTION()
-	void SpawnHunter();
 
 	UFUNCTION()
 	void OnTakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);

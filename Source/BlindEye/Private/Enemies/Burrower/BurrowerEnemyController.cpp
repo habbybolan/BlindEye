@@ -9,7 +9,6 @@
 #include "Enemies/Burrower/BurrowerEnemy.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
 
 void ABurrowerEnemyController::BeginPlay()
 {
@@ -85,14 +84,6 @@ void ABurrowerEnemyController::CacheSpawnPoints()
 	UGameplayStatics::GetAllActorsOfClass(world, UBurrowerSpawnPoint::StaticClass(), SpawnLocation);
 }
 
-FTransform ABurrowerEnemyController::FindRandSpawnPoint()
-{
-	// TODO: remove and move to separate task
-	if (SpawnLocation.Num() == 0) return FTransform();
-	uint32 randIndex = UKismetMathLibrary::RandomInteger(SpawnLocation.Num());
-	return SpawnLocation[randIndex]->GetTransform();
-}
-
 void ABurrowerEnemyController::StopWarningParticles()
 {
 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
@@ -135,9 +126,6 @@ void ABurrowerEnemyController::NotifyPlayerLeftIsland(ABlindEyePlayerCharacter* 
 	{
 		BBComp->ClearValue(TEXT("EnemyActor"));
 	}
-
-	
-	
 }
 
 void ABurrowerEnemyController::CancelHide()
@@ -151,6 +139,17 @@ void ABurrowerEnemyController::CancelHide()
 TArray<ABlindEyePlayerCharacter*> ABurrowerEnemyController::GetPlayersOnIsland()
 {
 	return CachedBurrower->Listener->GetPlayersOnIsland(CachedBurrower->IslandID);
+}
+
+void ABurrowerEnemyController::SetInBurstState()
+{
+	check(Blackboard)
+	Blackboard->SetValueAsEnum("ActionState", (uint8)EBurrowActionState::BurstWave);
+}
+
+void ABurrowerEnemyController::NotifySpawningStopped()
+{
+	CachedBurrower->NotifySpawningStopped();
 }
 
 void ABurrowerEnemyController::StartWarningParticles()
@@ -186,13 +185,13 @@ void ABurrowerEnemyController::StartHiding()
 	CachedBurrower->StartHiding();
 }
  
-void ABurrowerEnemyController::SetBurrowerState(bool isHidden, bool bFollowing)
-{
-	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
-	if (!CachedBurrower) return;
-
-	CachedBurrower->MULT_SetBurrowerState(isHidden, bFollowing);
-}
+// void ABurrowerEnemyController::SetBurrowerState(bool isHidden, bool bFollowing)
+// {
+// 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
+// 	if (!CachedBurrower) return;
+//
+// 	CachedBurrower->MULT_SetBurrowerState(isHidden);
+// }
 
 void ABurrowerEnemyController::OnPossess(APawn* InPawn)
 {
