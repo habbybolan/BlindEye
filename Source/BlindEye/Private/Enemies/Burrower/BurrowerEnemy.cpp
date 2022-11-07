@@ -143,7 +143,7 @@ void ABurrowerEnemy::MULT_StartHidingHelper_Implementation(float StartTime)
 	BP_HidingStarted_CLI();
 }
 
-void ABurrowerEnemy::SpawnSnappers()
+void ABurrowerEnemy::SpawnSnappers() 
 {
 	if (GetLocalRole() < ROLE_Authority) return;
 	

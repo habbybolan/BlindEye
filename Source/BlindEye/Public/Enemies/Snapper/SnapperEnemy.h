@@ -60,8 +60,8 @@ public:
 	void PerformJumpAttack();
 	void PerformBasicAttack(); 
 
-	UFUNCTION(BlueprintCallable)
-	void TryRagdoll(bool SimulatePhysics);
+	UFUNCTION(BlueprintCallable) 
+	void TryRagdoll(bool SimulatePhysics, bool IsIndefiniteRagdoll = false);
 
 	void TempLaunch();
 	void LaunchSwing();
@@ -107,8 +107,8 @@ protected:
 	// Only called from client to replicate the hip location while ragdolling
 	void UpdateHipLocation(float DeltaSeconds); 
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_StartRagdoll();
+	UFUNCTION(NetMulticast, Reliable) 
+	void MULT_StartRagdoll(bool IsIndefiniteRagdoll);
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_StopRagdoll();
 	void FinishGettingUp();
