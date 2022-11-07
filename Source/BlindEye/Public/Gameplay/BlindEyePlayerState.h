@@ -35,7 +35,7 @@ public:
 	FPlayerDeathSignature PlayerDeathDelegate;
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPlayerRevivedSignature, ABlindEyePlayerState*, PlayerState);
-	FPlayerRevivedSignature PlayerRevivedDelegate; 
+	FPlayerRevivedSignature PlayerRevivedDelegate;
 
 protected:
 	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;

@@ -3,6 +3,7 @@
 
 #include "Gameplay/BlindEyeGameState.h"
 
+#include "Shrine.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "GameFramework/PlayerState.h"
 #include "Gameplay/BlindEyeGameMode.h"
@@ -86,24 +87,35 @@ void ABlindEyeGameState::SkipGameTime(float AmountToSkip)
 
 void ABlindEyeGameState::OnPlayerDied(ABlindEyePlayerState* PlayerThatDied)
 {
-	for (APlayerState* PlayerState : PlayerArray)
+	// Notify owning player that player died
+	UWorld* World = GetWorld();
+	if (APlayerController* Controller = UGameplayStatics::GetPlayerController(World, 0))
 	{
-		if (PlayerState != PlayerThatDied)
+		if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Controller->GetPawn()))
 		{
-			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerState->GetPawn());
-			Player->OnOtherPlayerDied(PlayerThatDied);
+			// Only notify if is other player
+			if (Player != PlayerThatDied->GetPawn())
+			{
+				Player->OnOtherPlayerDied(PlayerThatDied);
+			}
 		}
 	}
 }
 
 void ABlindEyeGameState::OnPlayerRevived(ABlindEyePlayerState* PlayerRevived)
 {
-	for (APlayerState* PlayerState : PlayerArray)
+	// Notify owning player that player revived
+	UWorld* World = GetWorld();
+	if (APlayerController* Controller = UGameplayStatics::GetPlayerController(World, 0))
 	{
-		if (PlayerState != PlayerRevived)
+		// Only notify if is other player
+		if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Controller->GetPawn()))
 		{
-			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerState->GetPawn());
-			Player->OnOtherPlayerRevived(PlayerRevived);
+			// Only notify if is other player
+			if (Player != PlayerRevived->GetPawn())
+			{
+				Player->OnOtherPlayerRevived(PlayerRevived);
+			}
 		}
 	}
 }
@@ -111,11 +123,6 @@ void ABlindEyeGameState::OnPlayerRevived(ABlindEyePlayerState* PlayerRevived)
 void ABlindEyeGameState::AddPlayerState(APlayerState* PlayerState)
 {
 	Super::AddPlayerState(PlayerState);
-
-	ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(PlayerState);
-	check(BlindEyePS)
-	BlindEyePS->PlayerDeathDelegate.AddDynamic(this, &ABlindEyeGameState::OnPlayerDied);
-	BlindEyePS->PlayerRevivedDelegate.AddDynamic(this, &ABlindEyeGameState::OnPlayerRevived);
 }
 
 void ABlindEyeGameState::EnemyDied(AActor* EnemyActor)
@@ -224,6 +231,18 @@ void ABlindEyeGameState::OnRep_InProgressMatchState()
 void ABlindEyeGameState::TutorialState()
 {
 	TutorialStartedDelegate.Broadcast();
+} 
+
+void ABlindEyeGameState::OnMarkAdded(AActor* MarkedActor, EMarkerType MarkerType)
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Blue, "Player Marked");
+	// TODO:
+}
+
+void ABlindEyeGameState::OnMarkRemoved(AActor* UnmarkedActor, EMarkerType MarkerType)
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Blue, "Player Unmarked");
+	// TODO:
 }
 
 TArray<ABlindEyePlayerCharacter*> ABlindEyeGameState::GetPlayers()
