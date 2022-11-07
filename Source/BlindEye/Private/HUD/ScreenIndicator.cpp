@@ -44,10 +44,6 @@ void UScreenIndicator::FindScreenEdgeLocationForWorldLocation(FVector2D& OutScre
 	FVector ViewportLocation;
 	FRotator ViewportRotation;
 	PlayerController->GetPlayerViewPoint(ViewportLocation, ViewportRotation);
-
-	PlayerController->ProjectWorldLocationToScreen(Target->GetActorLocation(), ScreenPosition);
-	OutScreenPosition = ScreenPosition;
-	return; 
 	
 	FVector Forward = ViewportRotation.Vector();
 	FVector Offset = (Target->GetActorLocation() - ViewportLocation);
