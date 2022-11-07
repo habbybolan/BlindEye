@@ -9,6 +9,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "Enemies/Burrower/BurrowerTriggerVolume.h"
+#include "Enemies/Hunter/HunterSpawnPoint.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
@@ -334,7 +335,7 @@ void AHunterEnemyController::SpawnHunter()
 	bIsHunterAlive = true;
 
 	AIsland* RandIsland = IslandManager->GetRandIsland();
-	UBurrowerSpawnPoint* RandSpawnPoint = RandIsland->GetRandUnusedBurrowerSpawnPoint();
+	UHunterSpawnPoint* RandSpawnPoint = RandIsland->GetRandHunterSpawnPoint();
 	
 	FVector SpawnLocation = RandSpawnPoint->GetComponentLocation();
 	FRotator Rotation = RandSpawnPoint->GetComponentRotation();

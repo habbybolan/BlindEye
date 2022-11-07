@@ -69,7 +69,7 @@ void ADifficultyManager::OnGameStarted()
 	HunterTimerTimelineFloat.BindDynamic(this, &ADifficultyManager::HunterSpawnTimer);
 	
 	OnNewRound(0, BlindEyeGS->GetCurrRoundLength());
-	//PlayHunterSpawnTimeline();
+	PlayHunterSpawnTimeline();
 }
  
 void ADifficultyManager::OnNewRound(uint8 CurrRound, float roundLength)
