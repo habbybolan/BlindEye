@@ -3,6 +3,8 @@
 
 #include "HUD/ScreenIndicator.h"
 
+#include "Blueprint/WidgetLayoutLibrary.h"
+
 void UScreenIndicator::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
@@ -77,8 +79,9 @@ void UScreenIndicator::FindScreenEdgeLocationForWorldLocation(FVector2D& OutScre
 		ScreenPosition.Y = (EdgePercent * ViewportCenter.X) * 2.f;
 		ScreenPosition.X = -ViewportCenter.X - ScreenPosition.X;
 	}
-	
-	PlayerController->ProjectWorldLocationToScreen(Target->GetIndicatorPosition(), ScreenPosition);
+
+	UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PlayerController, Target->GetIndicatorPosition(), ScreenPosition, false);
+	//PlayerController->ProjectWorldLocationToScreen(Target->GetIndicatorPosition(), ScreenPosition);
 	
 	// Check to see if it's on screen. If it is, ProjectWorldLocationToScreen is all we need, return it.
 	if (ScreenPosition.X >= 0.f && ScreenPosition.X <= ViewportSize.X
@@ -132,6 +135,6 @@ void UScreenIndicator::FindScreenEdgeLocationForWorldLocation(FVector2D& OutScre
 
 void UScreenIndicator::NormalizeScreenCoordinates(FVector2D& OutScreenPosition, const FVector2D ViewportSize)
 {
-	OutScreenPosition.X = (1920 / ViewportSize.X * OutScreenPosition.X);/* / 1920*/;
+	OutScreenPosition.X = (1920 / ViewportSize.X * OutScreenPosition.X)/* / 1920*/;
 	OutScreenPosition.Y = (1080 / ViewportSize.Y * OutScreenPosition.Y);/* / 1080*/;
 }
