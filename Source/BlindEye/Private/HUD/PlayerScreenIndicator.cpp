@@ -65,27 +65,6 @@ void UPlayerScreenIndicator::NativeTick(const FGeometry& MyGeometry, float InDel
 		{
 			CurrIndicator->SetRenderTransformAngle(Degrees);
 		}
-			
-		
-		// FWidgetTransform transform;
-		// //transform.Translation = ScreenPosition;
-		// //CurrIndicator->SetPositionInViewport(ScreenPosition);
-		//
-		// // Rotate only if off screen
-		// if (!IsOnScreen)
-		// {
-		// 	transform.Angle = Degrees;
-		// }
-		// CurrIndicator->SetRenderTransform(transform);
-		
-		// UCanvasPanelSlot* CanvasSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(CurrIndicator);
-		// if (CanvasSlot)
-		// {
-		// 	FAnchors Anchors;
-		// 	Anchors.Minimum = FVector2D(ScreenPosition.X, ScreenPosition.Y);
-		// 	Anchors.Maximum = FVector2D(ScreenPosition.X, ScreenPosition.Y);
-		// 	CanvasSlot->SetAnchors(Anchors);
-		// }
 	}
 }
 
