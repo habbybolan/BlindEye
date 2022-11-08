@@ -51,7 +51,7 @@ void UPlayerScreenIndicator::NativeTick(const FGeometry& MyGeometry, float InDel
 			}
 		} else
 		{
-			CurrIndicator = PlayerDownedOffScreenWidget;
+			CurrIndicator = PlayerMarkedOffScreenWidget;
 		}	
 	}
 	else

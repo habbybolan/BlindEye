@@ -155,6 +155,9 @@ void ABlindEyePlayerCharacter::BeginPlay()
 
 	HealthbarVisibilityBounds->OnComponentBeginOverlap.AddDynamic(this, &ABlindEyePlayerCharacter::HealthbarBeginOverlap);
 	HealthbarVisibilityBounds->OnComponentEndOverlap.AddDynamic(this, &ABlindEyePlayerCharacter::HealthbarEndOverlap);
+
+	HealthComponent->MarkedAddedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::MULT_OnMarked);
+	HealthComponent->MarkedRemovedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::MULT_OnUnMarked);
 }
 
 void ABlindEyePlayerCharacter::CLI_TryFinishTutorial_Implementation(ETutorialChecklist CheckListItem)
@@ -263,6 +266,68 @@ void ABlindEyePlayerCharacter::OnOtherPlayerRevived(ABlindEyePlayerCharacter* Ot
 		{
 			PlayerIndicator->bisPlayerDowned = false;
 		}
+	}
+}
+
+void ABlindEyePlayerCharacter::MULT_OnMarked_Implementation(AActor* MarkedPlayer, EMarkerType MarkType)
+{
+	if (MarkType == EMarkerType::Hunter)
+	{
+		if (!IsLocallyControlled())
+		{
+			// get owning player to notify hunter marked
+			UWorld* World = GetWorld();
+			if (World)
+			{
+				APlayerController* PlayerController = UGameplayStatics::GetPlayerController(World, 0);
+				if (APawn* Pawn = PlayerController->GetPawn())
+				{
+					if (ABlindEyePlayerCharacter* OtherPlayer = Cast<ABlindEyePlayerCharacter>(Pawn))
+					{
+						OtherPlayer->NotifyOtherPlayerHunterMarked();
+					}
+				}
+			}
+		} 
+	}
+}
+ 
+void ABlindEyePlayerCharacter::MULT_OnUnMarked_Implementation(AActor* UnMarkedPlayer, EMarkerType MarkType)
+{
+	if (MarkType == EMarkerType::Hunter)
+	{
+		if (!IsLocallyControlled())
+		{
+			// Get Owning player to notify hunter unmarked
+			UWorld* World = GetWorld();
+			if (World)
+			{
+				APlayerController* PlayerController = UGameplayStatics::GetPlayerController(World, 0);
+				if (APawn* Pawn = PlayerController->GetPawn())
+				{
+					if (ABlindEyePlayerCharacter* OtherPlayer = Cast<ABlindEyePlayerCharacter>(Pawn))
+					{
+						OtherPlayer->NotifyOtherPlayerHunterUnMarked();
+					}
+				}
+			}
+		} 
+	}
+}
+
+void ABlindEyePlayerCharacter::NotifyOtherPlayerHunterMarked()
+{
+	if (PlayerIndicator)
+	{
+		PlayerIndicator->bIsPlayerMarked = true;
+	}
+}
+
+void ABlindEyePlayerCharacter::NotifyOtherPlayerHunterUnMarked()
+{
+	if (PlayerIndicator)
+	{
+		PlayerIndicator->bIsPlayerMarked = false;
 	}
 }
 

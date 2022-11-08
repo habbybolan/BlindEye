@@ -283,6 +283,15 @@ public:
 	// Event for when another player revived, called from GameState
 	void OnOtherPlayerRevived(ABlindEyePlayerCharacter* OtherPlayer);
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_OnMarked(AActor* MarkedPlayer, EMarkerType MarkType); 
+	UFUNCTION(NetMulticast, Reliable) 
+	void MULT_OnUnMarked(AActor* UnMarkedPlayer, EMarkerType MarkType);
+
+	// Notify the owning client that another player was hunter marked/unmarked
+	void NotifyOtherPlayerHunterMarked();
+	void NotifyOtherPlayerHunterUnMarked();
+
 	void NotifyOfOtherPlayerExistance(ABlindEyePlayerCharacter* NewPlayer);
 
 	UFUNCTION(BlueprintImplementableEvent)
