@@ -36,6 +36,7 @@ TScriptInterface<IIndicatorInterface> UScreenIndicator::GetTarget()
 void UScreenIndicator::FindScreenEdgeLocationForWorldLocation(FVector2D& OutScreenPosition,
                                                               float& OutRotationAngleDegrees, bool &bIsOnScreen)
 {
+	// TODO: Need validity check
 	//if (IsValid(Target.GetObjectRef())) return;
 	
 	bIsOnScreen = false;
@@ -84,7 +85,7 @@ void UScreenIndicator::FindScreenEdgeLocationForWorldLocation(FVector2D& OutScre
 		&& ScreenPosition.Y >= 0.f && ScreenPosition.Y <= ViewportSize.Y)
 	{
 		OutScreenPosition = ScreenPosition;
-		//NormalizeScreenCoordinates(OutScreenPosition, ViewportSize);
+		NormalizeScreenCoordinates(OutScreenPosition, ViewportSize);
 		bIsOnScreen = true;
 		return;
 	}
@@ -126,7 +127,7 @@ void UScreenIndicator::FindScreenEdgeLocationForWorldLocation(FVector2D& OutScre
 	
 	ScreenPosition += ViewportCenter;
 	OutScreenPosition = ScreenPosition;
-	//NormalizeScreenCoordinates(OutScreenPosition, ViewportSize);
+	NormalizeScreenCoordinates(OutScreenPosition, ViewportSize);
 }
 
 void UScreenIndicator::NormalizeScreenCoordinates(FVector2D& OutScreenPosition, const FVector2D ViewportSize)
