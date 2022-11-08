@@ -122,6 +122,8 @@ void ABlindEyePlayerCharacter::BeginPlay()
 
 		PlayerIndicator = Cast<UPlayerScreenIndicator>(CreateWidget(world, PlayerIndicatorType, FName("PlayerIndicator")));
 		PlayerIndicator->AddToViewport();
+
+		BP_DisplayDefendShrineIndicator_CLI(true);
 	} else
 	{
 		BlindEyeGS->NotifyOtherPlayerOfPlayerExisting(this);
@@ -192,7 +194,7 @@ void ABlindEyePlayerCharacter::OnEnemyMarkDetonated()
 
 void ABlindEyePlayerCharacter::StartTutorial()
 {
-	BP_DisplayTutorialChecklist(true);
+	BP_DisplayTutorialChecklist_CLI(true);
 	UWorld* World = GetWorld();
 	if (World)
 	{
@@ -204,7 +206,8 @@ void ABlindEyePlayerCharacter::StartTutorial()
 
 void ABlindEyePlayerCharacter::StartGame()
 {
-	BP_DisplayTutorialChecklist(false);
+	BP_DisplayTutorialChecklist_CLI(false);
+	BP_DisplayDefendShrineIndicator_CLI(false);
 }
 
 void ABlindEyePlayerCharacter::HealthbarBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -533,7 +536,7 @@ void ABlindEyePlayerCharacter::TutorialSkipReleased()
 
 void ABlindEyePlayerCharacter::UserSkipTutorial()
 {
-	BP_DisplayTutorialChecklist(false);
+	BP_DisplayTutorialChecklist_CLI(false);
 	SER_UserInputSkipTutorial();
 }
 

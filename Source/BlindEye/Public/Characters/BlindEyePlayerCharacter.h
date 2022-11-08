@@ -269,7 +269,7 @@ public:
 	void StartGame(); 
  
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_DisplayTutorialChecklist(bool bShowChecklist);
+	void BP_DisplayTutorialChecklist_CLI(bool bShowChecklist);
 
 	UFUNCTION()
 	void HealthbarBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -284,6 +284,10 @@ public:
 	void OnOtherPlayerRevived(ABlindEyePlayerState* BlindEyePS);
 
 	void NotifyNewPlayerStarted(ABlindEyePlayerCharacter* NewPlayer);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_DisplayDefendShrineIndicator_CLI(bool bShowIndicator);
+	
 protected:
 
 	TSet<ETutorialChecklist> ChecklistFinishedTasks;

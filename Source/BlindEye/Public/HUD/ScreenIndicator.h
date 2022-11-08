@@ -31,7 +31,7 @@ public:
 protected: 
 
 	UPROPERTY()
-	TScriptInterface<IIndicatorInterface> Target;
+	TScriptInterface<IIndicatorInterface> Target = nullptr;
 
 	UFUNCTION(BlueprintCallable)
 	void FindScreenEdgeLocationForWorldLocation(FVector2D& OutScreenPosition,
