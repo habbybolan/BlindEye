@@ -22,11 +22,7 @@ void ABlindEyeGameState::BeginPlay()
 	UWorld* world = GetWorld();
 	if (world == nullptr) return;
 
-	AActor* ShrineActor = UGameplayStatics::GetActorOfClass(world, AShrine::StaticClass());
-	if (ShrineActor)
-	{
-		Shrine = MakeWeakObjectPtr(Cast<AShrine>(ShrineActor));
-	}
+	GetShrineReference();
  
 	AActor* IslandManageActor = UGameplayStatics::GetActorOfClass(world, AIslandManager::StaticClass());
 	if (IslandManageActor)
@@ -177,8 +173,17 @@ ABlindEyePlayerCharacter* ABlindEyeGameState::GetRandomPlayer()
 
 AShrine* ABlindEyeGameState::GetShrine()
 {
+	// If shrine not found yet, search level for it (for client if value not replicated fast enough)
+	if (!Shrine.IsValid())
+	{
+		GetShrineReference();
+	}
+
+	// Get shrine if it exists
 	if (Shrine.IsValid())
+	{
 		return Shrine.Get();
+	}
 	return nullptr;
 }
 
@@ -261,7 +266,17 @@ void ABlindEyeGameState::OnRep_InProgressMatchState()
 void ABlindEyeGameState::TutorialState()
 {
 	TutorialStartedDelegate.Broadcast();
-} 
+}
+
+void ABlindEyeGameState::GetShrineReference()
+{
+	UWorld* World = GetWorld();
+	AActor* ShrineActor = UGameplayStatics::GetActorOfClass(World, AShrine::StaticClass());
+	if (ShrineActor)
+	{
+		Shrine = MakeWeakObjectPtr(Cast<AShrine>(ShrineActor));
+	}
+}
 
 void ABlindEyeGameState::OnMarkAdded(AActor* MarkedActor, EMarkerType MarkerType)
 {
@@ -340,4 +355,5 @@ void ABlindEyeGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(ABlindEyeGameState, CurrRoundLength)
 	DOREPLIFETIME(ABlindEyeGameState, CurrRoundTimer)
 	DOREPLIFETIME(ABlindEyeGameState, NumRounds)
+	DOREPLIFETIME(ABlindEyeGameState, Shrine)
 }

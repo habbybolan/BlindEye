@@ -138,6 +138,8 @@ public:
 	APlayerState* GetOtherPlayer(ABlindEyePlayerCharacter* Player);
 
 protected:
+
+	UPROPERTY(Replicated)
 	TWeakObjectPtr<AShrine> Shrine;
 
 	UPROPERTY(Replicated)
@@ -162,7 +164,9 @@ protected:
 	UFUNCTION()
 	virtual void OnRep_InProgressMatchState();
 
-	void TutorialState(); 
+	void TutorialState();
+
+	void GetShrineReference();
  
 	UFUNCTION()
 	void OnMarkAdded(AActor* MarkedActor, EMarkerType MarkerType);
