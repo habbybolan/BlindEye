@@ -278,10 +278,10 @@ public:
 	void HealthbarEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	// Event for when another player died, called from GameState
-	void OnOtherPlayerDied(ABlindEyePlayerState* BlindEyePS);
+	void OnOtherPlayerDied(ABlindEyePlayerCharacter* OtherPlayer); 
 	
 	// Event for when another player revived, called from GameState
-	void OnOtherPlayerRevived(ABlindEyePlayerState* BlindEyePS);
+	void OnOtherPlayerRevived(ABlindEyePlayerCharacter* OtherPlayer);
 
 	void NotifyOfOtherPlayerExistance(ABlindEyePlayerCharacter* NewPlayer);
 

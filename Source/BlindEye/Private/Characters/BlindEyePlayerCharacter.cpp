@@ -135,7 +135,14 @@ void ABlindEyePlayerCharacter::BeginPlay()
 		}
 	} else
 	{
-		BlindEyeGS->NotifyOtherPlayerOfPlayerExisting(this);
+		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(world, 0);
+		if (PlayerController != GetController())
+		{
+			if (ABlindEyePlayerCharacter* OtherPlayer = Cast<ABlindEyePlayerCharacter>(PlayerController->GetPawn()))
+			{
+				OtherPlayer->NotifyOfOtherPlayerExistance(this);
+			}
+		}
 	}
 
 	if (GetLocalRole() == ROLE_Authority)
@@ -237,25 +244,25 @@ void ABlindEyePlayerCharacter::HealthbarEndOverlap(UPrimitiveComponent* Overlapp
 	}
 }
 
-void ABlindEyePlayerCharacter::OnOtherPlayerDied(ABlindEyePlayerState* BlindEyePS)
+void ABlindEyePlayerCharacter::OnOtherPlayerDied(ABlindEyePlayerCharacter* OtherPlayer)
 {
-	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(BlindEyePS->GetPawn());
-	check(Player)
-
-	if (PlayerIndicator)
+	if (OtherPlayer)
 	{
-		PlayerIndicator->bisPlayerDowned = true;
+		if (PlayerIndicator)
+		{
+			PlayerIndicator->bisPlayerDowned = true;
+		}
 	}
 }
 
-void ABlindEyePlayerCharacter::OnOtherPlayerRevived(ABlindEyePlayerState* BlindEyePS)
+void ABlindEyePlayerCharacter::OnOtherPlayerRevived(ABlindEyePlayerCharacter* OtherPlayer)
 {
-	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(BlindEyePS->GetPawn());
-	check(Player)
-	
-	if (PlayerIndicator)
+	if (OtherPlayer)
 	{
-		PlayerIndicator->bisPlayerDowned = false;
+		if (PlayerIndicator)
+		{
+			PlayerIndicator->bisPlayerDowned = false;
+		}
 	}
 }
 
@@ -718,6 +725,22 @@ void ABlindEyePlayerCharacter::OnDeath(AActor* ActorThatKilled)
 
 void ABlindEyePlayerCharacter::MULT_OnDeath_Implementation(AActor* ActorThatKilled)
 {
+	if (!IsLocallyControlled())
+	{
+		UWorld* World = GetWorld();
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+		// if another player exists, they are the real client
+		if (APlayerState* OtherPlayerState = BlindEyeGS->GetOtherPlayer(this))
+		{
+			if (OtherPlayerState->GetPawn())
+			{
+				if (ABlindEyePlayerCharacter* OtherPlayer = Cast<ABlindEyePlayerCharacter>(OtherPlayerState->GetPawn()))
+				{
+					OtherPlayer->OnOtherPlayerDied(this);
+				}
+			}
+		}
+	}
 	GetWorldTimerManager().SetTimer(AllyHealingCheckTimerHandle, this, &ABlindEyePlayerCharacter::OnCheckAllyHealing, AllyHealCheckDelay, true);
 }
 

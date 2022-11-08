@@ -5,6 +5,7 @@
 
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/CanvasPanelSlot.h"
+#include "Engine/Engine.h"
 
 void UPlayerScreenIndicator::SetTarget(TScriptInterface<IIndicatorInterface> target)
 {
@@ -17,7 +18,10 @@ void UPlayerScreenIndicator::NativeTick(const FGeometry& MyGeometry, float InDel
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
 	// prevent calculations if not initialized with player target
-	if (!bInitialized) return;
+	if (!bInitialized)
+	{
+		return;
+	}
 	
 	FVector2D ScreenPosition;
 	float Degrees;
@@ -41,10 +45,13 @@ void UPlayerScreenIndicator::NativeTick(const FGeometry& MyGeometry, float InDel
 	{
 		if (IsOnScreen)
 		{
-			//CurrIndicator = PlayerDownedOnScreenWidget;
+			if (PlayerMarkedOnScreenWidget != nullptr)
+			{
+				CurrIndicator = PlayerDownedOnScreenWidget;
+			}
 		} else
 		{
-			//CurrIndicator = PlayerDownedOffScreenWidget;
+			CurrIndicator = PlayerDownedOffScreenWidget;
 		}	
 	}
 	else
@@ -72,10 +79,14 @@ void UPlayerScreenIndicator::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	// PlayerMarkedOnScreenWidget = CreateWidgetInstance(*this, PlayerMarkedOnScreenWidgetType, FName("MarkedOnScreen"));
-	// PlayerMarkedOnScreenWidget->AddToViewport();
-	// PlayerMarkedOffScreenWidget = CreateWidgetInstance(*this, PlayerMarkedOffScreenWidgetType, FName("MarkedOffScreen"));
-	// PlayerMarkedOffScreenWidget->AddToViewport();
+	if (IsValid(PlayerMarkedOnScreenWidgetType))
+	{
+		PlayerMarkedOnScreenWidget = CreateWidgetInstance(*this, PlayerMarkedOnScreenWidgetType, FName("MarkedOnScreen"));
+		PlayerMarkedOnScreenWidget->AddToViewport();
+	} else PlayerMarkedOnScreenWidget = nullptr;
+	
+	PlayerMarkedOffScreenWidget = CreateWidgetInstance(*this, PlayerMarkedOffScreenWidgetType, FName("MarkedOffScreen"));
+	PlayerMarkedOffScreenWidget->AddToViewport();
 	PlayerDownedOnScreenWidget = CreateWidgetInstance(*this, PlayerDownedOnScreenWidgetType, FName("DownedOnScreen"));
 	PlayerDownedOnScreenWidget->AddToViewport();
 	PlayerDownedOffScreenWidget = CreateWidgetInstance(*this, PlayerDownedOffScreenWidgetType, FName("DownedOffScreen"));
@@ -88,8 +99,11 @@ void UPlayerScreenIndicator::NativeConstruct()
 
 void UPlayerScreenIndicator::HideAllWidgets()
 {
-	// PlayerMarkedOnScreenWidget->SetVisibility(ESlateVisibility::Hidden);
-	// PlayerMarkedOffScreenWidget->SetVisibility(ESlateVisibility::Hidden);
+	if (PlayerMarkedOnScreenWidget != nullptr)
+	{
+		PlayerMarkedOnScreenWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+	PlayerMarkedOffScreenWidget->SetVisibility(ESlateVisibility::Hidden);
 	PlayerDownedOnScreenWidget->SetVisibility(ESlateVisibility::Hidden);
 	PlayerDownedOffScreenWidget->SetVisibility(ESlateVisibility::Hidden);
 	PlayerNormalOffScreenWidget->SetVisibility(ESlateVisibility::Hidden);
