@@ -124,6 +124,15 @@ void ABlindEyePlayerCharacter::BeginPlay()
 		PlayerIndicator->AddToViewport();
 
 		BP_DisplayDefendShrineIndicator_CLI(true);
+
+		// If another player exists
+		if (APlayerState* OtherPlayerState = BlindEyeGS->GetOtherPlayer(this))
+		{
+			if (ABlindEyePlayerCharacter* OtherPlayer = Cast<ABlindEyePlayerCharacter>(OtherPlayerState->GetPawn()))
+			{
+				NotifyOfOtherPlayerExistance(OtherPlayer);
+			}
+		}
 	} else
 	{
 		BlindEyeGS->NotifyOtherPlayerOfPlayerExisting(this);
@@ -250,7 +259,7 @@ void ABlindEyePlayerCharacter::OnOtherPlayerRevived(ABlindEyePlayerState* BlindE
 	}
 }
 
-void ABlindEyePlayerCharacter::NotifyNewPlayerStarted(ABlindEyePlayerCharacter* NewPlayer)
+void ABlindEyePlayerCharacter::NotifyOfOtherPlayerExistance(ABlindEyePlayerCharacter* NewPlayer)
 {
 	if (PlayerIndicator)
 	{

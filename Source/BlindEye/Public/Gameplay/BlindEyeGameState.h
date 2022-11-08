@@ -135,6 +135,8 @@ public:
 
 	void NotifyOtherPlayerOfPlayerExisting(ABlindEyePlayerCharacter* NewPlayer);
 
+	APlayerState* GetOtherPlayer(ABlindEyePlayerCharacter* Player);
+
 protected:
 	TWeakObjectPtr<AShrine> Shrine;
 

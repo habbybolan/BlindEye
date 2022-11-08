@@ -283,7 +283,7 @@ public:
 	// Event for when another player revived, called from GameState
 	void OnOtherPlayerRevived(ABlindEyePlayerState* BlindEyePS);
 
-	void NotifyNewPlayerStarted(ABlindEyePlayerCharacter* NewPlayer);
+	void NotifyOfOtherPlayerExistance(ABlindEyePlayerCharacter* NewPlayer);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_DisplayDefendShrineIndicator_CLI(bool bShowIndicator);

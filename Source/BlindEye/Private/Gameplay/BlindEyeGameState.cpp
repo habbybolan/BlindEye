@@ -87,38 +87,39 @@ void ABlindEyeGameState::SkipGameTime(float AmountToSkip)
 
 void ABlindEyeGameState::OnPlayerDied(ABlindEyePlayerState* PlayerThatDied)
 {
-	// TODO: USE LOGIC FOR ENDING THE GAME, CHECKING IF ALL PLAYERS DIED???
+	// TODO: USE LOGIC FOR LOSE CONDITION OF ALL PLAYERS DYING
 	// Notify owning player that player died
-	UWorld* World = GetWorld();
-	if (APlayerController* Controller = UGameplayStatics::GetPlayerController(World, 0))
-	{
-		if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Controller->GetPawn()))
-		{
-			// Only notify if is other player
-			if (Player != PlayerThatDied->GetPawn())
-			{
-				Player->OnOtherPlayerDied(PlayerThatDied);
-			}
-		}
-	}
+	// UWorld* World = GetWorld();
+	// if (APlayerController* Controller = UGameplayStatics::GetPlayerController(World, 0))
+	// {
+	// 	if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Controller->GetPawn()))
+	// 	{
+	// 		// Only notify if is other player
+	// 		if (Player != PlayerThatDied->GetPawn())
+	// 		{
+	// 			Player->OnOtherPlayerDied(PlayerThatDied);
+	// 		}
+	// 	}
+	// }
 }
 
 void ABlindEyeGameState::OnPlayerRevived(ABlindEyePlayerState* PlayerRevived)
 {
+	// TODO: USE LOGIC FOR LOSE CONDITION OF ALL PLAYERS DYING
 	// Notify owning player that player revived
-	UWorld* World = GetWorld();
-	if (APlayerController* Controller = UGameplayStatics::GetPlayerController(World, 0))
-	{
-		// Only notify if is other player
-		if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Controller->GetPawn()))
-		{
-			// Only notify if is other player
-			if (Player != PlayerRevived->GetPawn())
-			{
-				Player->OnOtherPlayerRevived(PlayerRevived);
-			}
-		}
-	}
+	// UWorld* World = GetWorld();
+	// if (APlayerController* Controller = UGameplayStatics::GetPlayerController(World, 0))
+	// {
+	// 	// Only notify if is other player
+	// 	if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Controller->GetPawn()))
+	// 	{
+	// 		// Only notify if is other player
+	// 		if (Player != PlayerRevived->GetPawn())
+	// 		{
+	// 			Player->OnOtherPlayerRevived(PlayerRevived);
+	// 		}
+	// 	}
+	// }
 }
 
 void ABlindEyeGameState::AddPlayerState(APlayerState* PlayerState)
@@ -136,10 +137,22 @@ void ABlindEyeGameState::NotifyOtherPlayerOfPlayerExisting(ABlindEyePlayerCharac
 			ABlindEyePlayerCharacter* OtherPlayer = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
 			if (OtherPlayer)
 			{
-				OtherPlayer->NotifyNewPlayerStarted(NewPlayer);
+				OtherPlayer->NotifyOfOtherPlayerExistance(NewPlayer);
 			}
 		}
 	}
+}
+
+APlayerState* ABlindEyeGameState::GetOtherPlayer(ABlindEyePlayerCharacter* Player)
+{
+	for (APlayerState* PlayerState : PlayerArray)
+	{
+		if (PlayerState != Player->GetPlayerState())
+		{
+			return PlayerState;
+		}
+	}
+	return nullptr;
 }
 
 void ABlindEyeGameState::EnemyDied(AActor* EnemyActor)
