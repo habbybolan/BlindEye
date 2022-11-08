@@ -20,7 +20,7 @@ public:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
-	void SetTarget(TScriptInterface<IIndicatorInterface> target);
+	virtual void SetTarget(TScriptInterface<IIndicatorInterface> target);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	TScriptInterface<IIndicatorInterface> GetTarget(); 

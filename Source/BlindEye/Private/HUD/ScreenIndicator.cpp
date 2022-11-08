@@ -84,7 +84,7 @@ void UScreenIndicator::FindScreenEdgeLocationForWorldLocation(FVector2D& OutScre
 		&& ScreenPosition.Y >= 0.f && ScreenPosition.Y <= ViewportSize.Y)
 	{
 		OutScreenPosition = ScreenPosition;
-		NormalizeScreenCoordinates(OutScreenPosition, ViewportSize);
+		//NormalizeScreenCoordinates(OutScreenPosition, ViewportSize);
 		bIsOnScreen = true;
 		return;
 	}
@@ -126,11 +126,11 @@ void UScreenIndicator::FindScreenEdgeLocationForWorldLocation(FVector2D& OutScre
 	
 	ScreenPosition += ViewportCenter;
 	OutScreenPosition = ScreenPosition;
-	NormalizeScreenCoordinates(OutScreenPosition, ViewportSize);
+	//NormalizeScreenCoordinates(OutScreenPosition, ViewportSize);
 }
 
 void UScreenIndicator::NormalizeScreenCoordinates(FVector2D& OutScreenPosition, const FVector2D ViewportSize)
 {
-	OutScreenPosition.X = (1920 / ViewportSize.X * OutScreenPosition.X) / 1920;
-	OutScreenPosition.Y = (1080 / ViewportSize.Y * OutScreenPosition.Y) / 1080;
+	OutScreenPosition.X = (1920 / ViewportSize.X * OutScreenPosition.X);/* / 1920*/;
+	OutScreenPosition.Y = (1080 / ViewportSize.Y * OutScreenPosition.Y);/* / 1080*/;
 }

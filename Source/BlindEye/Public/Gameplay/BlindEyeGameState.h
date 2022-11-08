@@ -133,6 +133,8 @@ public:
 
 	virtual void AddPlayerState(APlayerState* PlayerState) override;
 
+	void NotifyOtherPlayerOfPlayerExisting(ABlindEyePlayerCharacter* NewPlayer);
+
 protected:
 	TWeakObjectPtr<AShrine> Shrine;
 

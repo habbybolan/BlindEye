@@ -7,6 +7,7 @@
 #include "Enemies/Snapper/SnapperEnemy.h"
 #include "Enemies/Burrower/BurrowerEnemy.h"
 #include "GameFramework/Character.h"
+#include "HUD/PlayerScreenIndicator.h"
 #include "HUD/ScreenIndicator.h"
 #include "HUD/W_Radar.h"
 #include "Interfaces/AbilityUserInterface.h"
@@ -61,6 +62,9 @@ class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityU
 
 	UPROPERTY(EditDefaultsOnly)
 	float ButtonHoldToSkipTutorial = 3.f;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UPlayerScreenIndicator> PlayerIndicatorType;
 	
 public:
 	ABlindEyePlayerCharacter(const FObjectInitializer& ObjectInitializer);
@@ -275,13 +279,11 @@ public:
 
 	// Event for when another player died, called from GameState
 	void OnOtherPlayerDied(ABlindEyePlayerState* BlindEyePS);
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_CreateRevivePlayerScreenIndicator(ABlindEyePlayerCharacter* Player);
 	
 	// Event for when another player revived, called from GameState
 	void OnOtherPlayerRevived(ABlindEyePlayerState* BlindEyePS);
-	UFUNCTION(BlueprintImplementableEvent) 
-	void BP_RemoveRevivePlayerScreenIndicator(ABlindEyePlayerCharacter* Player); 
+
+	void NotifyNewPlayerStarted(ABlindEyePlayerCharacter* NewPlayer);
 protected:
 
 	TSet<ETutorialChecklist> ChecklistFinishedTasks;
@@ -306,6 +308,9 @@ protected:
 
 	float CachedMovementSpeed;
 	float CachedAcceleration;
+
+	UPROPERTY(EditAnywhere) 
+	UPlayerScreenIndicator* PlayerIndicator;
 
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);

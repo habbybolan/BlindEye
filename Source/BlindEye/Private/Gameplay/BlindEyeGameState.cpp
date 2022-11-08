@@ -125,6 +125,22 @@ void ABlindEyeGameState::AddPlayerState(APlayerState* PlayerState)
 	Super::AddPlayerState(PlayerState);
 }
 
+void ABlindEyeGameState::NotifyOtherPlayerOfPlayerExisting(ABlindEyePlayerCharacter* NewPlayer)
+{
+	for (APlayerState* PS : PlayerArray)
+	{
+		APlayerState* ANewPS = NewPlayer->GetPlayerState();
+		if (PS != ANewPS)
+		{
+			ABlindEyePlayerCharacter* OtherPlayer = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
+			if (OtherPlayer)
+			{
+				OtherPlayer->NotifyNewPlayerStarted(NewPlayer);
+			}
+		}
+	}
+}
+
 void ABlindEyeGameState::EnemyDied(AActor* EnemyActor)
 {
 	uint8 Index = 0;

@@ -97,6 +97,9 @@ void ABlindEyePlayerCharacter::BeginPlay()
 	
 	if (world == nullptr) return;
 
+	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(world));
+	check(BlindEyeGS);
+	
 	if (IsLocallyControlled())
 	{
 		AActor* ShrineActor = UGameplayStatics::GetActorOfClass(world, AShrine::StaticClass());
@@ -105,10 +108,7 @@ void ABlindEyePlayerCharacter::BeginPlay()
 			AShrine* Shrine = Cast<AShrine>(ShrineActor);
 			Shrine->ShrineHealthChange.AddUFunction(this, TEXT("UpdateShrineHealthUI"));
 		}
-
-		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(world));
-		check(BlindEyeGS);
-
+		
 		// Check if state is Tutorial
 		if (BlindEyeGS->IsBlindEyeMatchTutorial())
 		{
@@ -119,6 +119,12 @@ void ABlindEyePlayerCharacter::BeginPlay()
 		{
 			BlindEyeGS->TutorialStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::StartTutorial);
 		}
+
+		PlayerIndicator = Cast<UPlayerScreenIndicator>(CreateWidget(world, PlayerIndicatorType, FName("PlayerIndicator")));
+		PlayerIndicator->AddToViewport();
+	} else
+	{
+		BlindEyeGS->NotifyOtherPlayerOfPlayerExisting(this);
 	}
 
 	if (GetLocalRole() == ROLE_Authority)
@@ -224,17 +230,29 @@ void ABlindEyePlayerCharacter::OnOtherPlayerDied(ABlindEyePlayerState* BlindEyeP
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(BlindEyePS->GetPawn());
 	check(Player)
 
-	// Create Screen indicator to dead player
-	BP_CreateRevivePlayerScreenIndicator(Player);
+	if (PlayerIndicator)
+	{
+		PlayerIndicator->bisPlayerDowned = true;
+	}
 }
 
 void ABlindEyePlayerCharacter::OnOtherPlayerRevived(ABlindEyePlayerState* BlindEyePS)
 {
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(BlindEyePS->GetPawn());
 	check(Player)
+	
+	if (PlayerIndicator)
+	{
+		PlayerIndicator->bisPlayerDowned = false;
+	}
+}
 
-	// Remove screen indicator for dead player
-	BP_RemoveRevivePlayerScreenIndicator(Player);
+void ABlindEyePlayerCharacter::NotifyNewPlayerStarted(ABlindEyePlayerCharacter* NewPlayer)
+{
+	if (PlayerIndicator)
+	{
+		PlayerIndicator->SetTarget(NewPlayer);
+	}
 }
 
 ABlindEyePlayerState* ABlindEyePlayerCharacter::GetAllyPlayerState()
@@ -261,6 +279,7 @@ ABlindEyePlayerState* ABlindEyePlayerCharacter::GetAllyPlayerState()
 void ABlindEyePlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
+	
 	if (IsLocallyControlled())
 	{
 		UpdateAllClientUI();
