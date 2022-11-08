@@ -59,7 +59,17 @@ void UPlayerScreenIndicator::NativeTick(const FGeometry& MyGeometry, float InDel
 	if (CurrIndicator != nullptr)
 	{
 		CurrIndicator->SetVisibility(ESlateVisibility::Visible);
+
+		FWidgetTransform transform;
+		transform.Translation = ScreenPosition;
 		CurrIndicator->SetPositionInViewport(ScreenPosition);
+
+		// Rotate only if off screen
+		if (!IsOnScreen)
+		{
+			transform.Angle = Degrees;
+		}
+		CurrIndicator->RenderTransform = transform;
 		
 		// UCanvasPanelSlot* CanvasSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(CurrIndicator);
 		// if (CanvasSlot)
