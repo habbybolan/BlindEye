@@ -19,8 +19,11 @@ AShrine::AShrine()
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
 	Mesh->SetupAttachment(CapsuleComponent);
 
+	IndicatorPosition = CreateDefaultSubobject<USceneComponent>("IndicatorPosition");
+	IndicatorPosition->SetupAttachment(Mesh);
+
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
-	CurrShrineHealth = MaxShrineHealth;
+	CurrShrineHealth = MaxShrineHealth; 
 }
 
 
@@ -133,7 +136,7 @@ void AShrine::ChannellingEnded(AActor* EnemyChannelling)
 
 FVector AShrine::GetIndicatorPosition()
 {
-	return Mesh->GetComponentLocation() + FVector::UpVector * 200.f;
+	return IndicatorPosition->GetComponentLocation();
 }
 
 void AShrine::OnRep_HealthUpdated()

@@ -28,6 +28,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UHealthComponent* HealthComponent;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USceneComponent* IndicatorPosition;
+
 	UPROPERTY(EditDefaultsOnly)
 	float MaxShrineHealth = 100.f;
 
