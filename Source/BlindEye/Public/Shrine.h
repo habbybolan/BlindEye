@@ -12,12 +12,11 @@
 class UHealthComponent;
 
 UCLASS()
-class BLINDEYE_API AShrine : public AActor, public IHealthInterface
+class BLINDEYE_API AShrine : public AActor, public IHealthInterface, public IIndicatorInterface
 {
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	AShrine();
 
 	UPROPERTY(EditDefaultsOnly)
@@ -28,6 +27,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UHealthComponent* HealthComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USceneComponent* IndicatorPosition;
 
 	UPROPERTY(EditDefaultsOnly)
 	float MaxShrineHealth = 100.f;
@@ -49,7 +51,9 @@ public:
 	UFUNCTION()
 	void ChannelingStarted(ABlindEyeEnemyBase* EnemyChannelling);
 	UFUNCTION()
-	void ChannellingEnded(AActor* EnemyChannelling); 
+	void ChannellingEnded(AActor* EnemyChannelling);
+
+	virtual FVector GetIndicatorPosition() override;
  
 protected:
 	

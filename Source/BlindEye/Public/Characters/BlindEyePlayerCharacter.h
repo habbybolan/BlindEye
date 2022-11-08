@@ -7,6 +7,8 @@
 #include "Enemies/Snapper/SnapperEnemy.h"
 #include "Enemies/Burrower/BurrowerEnemy.h"
 #include "GameFramework/Character.h"
+#include "HUD/PlayerScreenIndicator.h"
+#include "HUD/ScreenIndicator.h"
 #include "HUD/W_Radar.h"
 #include "Interfaces/AbilityUserInterface.h"
 #include "Interfaces/HealthInterface.h"
@@ -60,6 +62,9 @@ class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityU
 
 	UPROPERTY(EditDefaultsOnly)
 	float ButtonHoldToSkipTutorial = 3.f;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UPlayerScreenIndicator> PlayerIndicatorType;
 	
 public:
 	ABlindEyePlayerCharacter(const FObjectInitializer& ObjectInitializer);
@@ -264,7 +269,7 @@ public:
 	void StartGame(); 
  
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_DisplayTutorialChecklist(bool bShowChecklist);
+	void BP_DisplayTutorialChecklist_CLI(bool bShowChecklist);
 
 	UFUNCTION()
 	void HealthbarBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -272,6 +277,26 @@ public:
 	UFUNCTION()
 	void HealthbarEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	// Event for when another player died, called from GameState
+	void OnOtherPlayerDied(ABlindEyePlayerCharacter* OtherPlayer); 
+	
+	// Event for when another player revived, called from GameState
+	void OnOtherPlayerRevived(ABlindEyePlayerCharacter* OtherPlayer);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_OnMarked(AActor* MarkedPlayer, EMarkerType MarkType); 
+	UFUNCTION(NetMulticast, Reliable) 
+	void MULT_OnUnMarked(AActor* UnMarkedPlayer, EMarkerType MarkType);
+
+	// Notify the owning client that another player was hunter marked/unmarked
+	void NotifyOtherPlayerHunterMarked();
+	void NotifyOtherPlayerHunterUnMarked();
+
+	void NotifyOfOtherPlayerExistance(ABlindEyePlayerCharacter* NewPlayer);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_DisplayDefendShrineIndicator_CLI(bool bShowIndicator);
+	
 protected:
 
 	TSet<ETutorialChecklist> ChecklistFinishedTasks;
@@ -296,6 +321,9 @@ protected:
 
 	float CachedMovementSpeed;
 	float CachedAcceleration;
+
+	UPROPERTY(EditAnywhere) 
+	UPlayerScreenIndicator* PlayerIndicator;
 
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);

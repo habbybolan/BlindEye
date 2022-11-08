@@ -30,7 +30,7 @@ UHealthComponent::UHealthComponent(const FObjectInitializer& ObjectInitializer) 
 void UHealthComponent::AddMarkerHelper(EMarkerType MarkerType)
 {
 	CurrMark.SetMark(MarkerType);
-	MarkedAddedDelegate.Broadcast(MarkerType);
+	MarkedAddedDelegate.Broadcast(GetOwner(), MarkerType);
 }
 
 const FAppliedStatusEffects& UHealthComponent::GetAppliedStatusEffect()
@@ -202,7 +202,7 @@ void UHealthComponent::TryApplyMarker(EMarkerType MarkerType, AActor* DamageCaus
 		// If Current marker exists and is not hunter, replcae it
 		if (CurrMark.bHasMark && CurrMark.MarkerType != EMarkerType::Hunter)
 		{
-			MarkedRemovedDelegate.Broadcast();
+			MarkedRemovedDelegate.Broadcast(GetOwner(), CurrMark.MarkerType);
 			AddMarkerHelper(MarkerType);
 		}
 		else
@@ -339,8 +339,8 @@ void UHealthComponent::RemoveMark()
 	if (World == nullptr)  return;
 
 	World->GetTimerManager().ClearTimer(MarkerDecayTimerHandle);
+	MarkedRemovedDelegate.Broadcast(GetOwner(), CurrMark.MarkerType);
 	CurrMark.RemoveMark();
-	MarkedRemovedDelegate.Broadcast();
 }
 
 FMarkData& UHealthComponent::GetCurrMark()

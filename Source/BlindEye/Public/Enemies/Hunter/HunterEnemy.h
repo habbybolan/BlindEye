@@ -192,7 +192,7 @@ protected:
 	void OnHunterMarkDetonated();
 
 	UFUNCTION() 
-	void OnHunterMarkRemoved();
+	void OnHunterMarkRemoved(AActor* UnmarkedActor, EMarkerType MarkerType);
 
 	UFUNCTION()
 	void OnMarkedPlayerDied(AActor* PlayerDied);
@@ -221,7 +221,7 @@ protected:
 
 	void ApplyAttackDamageHelper(float Damage, bool IfShouldApplyHunterMark, TSubclassOf<UBaseDamageType> DamageType, FHitResult Hit);
 	virtual void OnMarkDetonated() override;
-	virtual void OnMarkAdded(EMarkerType MarkerType) override;
+	virtual void OnMarkAdded(AActor* MarkedActor, EMarkerType MarkerType) override;
 
 	void RemoveHunterMarkOnPlayer();
 };

@@ -3,10 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Islands/IslandManager.h"
-#include "Shrine.h"
+#include "Characters/BlindEyePlayerController.h"
 #include "GameFramework/GameState.h"
 #include "BlindEyeGameState.generated.h"
+
+class AIslandManager;
+class ABlindEyePlayerState;
+class AShrine;
+class ABlindEyeEnemyBase;
+enum class EPlayerType : uint8;
+enum class EMarkerType : uint8;
 
 UENUM(BlueprintType)
 enum class EGameOverState : uint8
@@ -118,9 +124,22 @@ public:
 	float CurrRoundLength = 1;
 
 	UPROPERTY(Replicated)
-	uint8 NumRounds = 3;
+	uint8 NumRounds = 3; 
+
+	UFUNCTION() 
+	void OnPlayerDied(ABlindEyePlayerState* PlayerThatDied);
+	UFUNCTION()
+	void OnPlayerRevived(ABlindEyePlayerState* PlayerRevived);
+
+	virtual void AddPlayerState(APlayerState* PlayerState) override;
+
+	void NotifyOtherPlayerOfPlayerExisting(ABlindEyePlayerCharacter* NewPlayer);
+
+	APlayerState* GetOtherPlayer(ABlindEyePlayerCharacter* Player);
 
 protected:
+
+	UPROPERTY(Replicated)
 	TWeakObjectPtr<AShrine> Shrine;
 
 	UPROPERTY(Replicated)
@@ -146,5 +165,12 @@ protected:
 	virtual void OnRep_InProgressMatchState();
 
 	void TutorialState();
+
+	void GetShrineReference();
+ 
+	UFUNCTION()
+	void OnMarkAdded(AActor* MarkedActor, EMarkerType MarkerType);
+	UFUNCTION()
+	void OnMarkRemoved(AActor* UnmarkedActor, EMarkerType MarkerType);
 	
 };

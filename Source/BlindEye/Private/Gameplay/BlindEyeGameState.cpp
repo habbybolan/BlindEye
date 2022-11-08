@@ -3,9 +3,11 @@
 
 #include "Gameplay/BlindEyeGameState.h"
 
+#include "Shrine.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "GameFramework/PlayerState.h"
 #include "Gameplay/BlindEyeGameMode.h"
+#include "Gameplay/BlindEyePlayerState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -20,11 +22,7 @@ void ABlindEyeGameState::BeginPlay()
 	UWorld* world = GetWorld();
 	if (world == nullptr) return;
 
-	AActor* ShrineActor = UGameplayStatics::GetActorOfClass(world, AShrine::StaticClass());
-	if (ShrineActor)
-	{
-		Shrine = MakeWeakObjectPtr(Cast<AShrine>(ShrineActor));
-	}
+	GetShrineReference();
  
 	AActor* IslandManageActor = UGameplayStatics::GetActorOfClass(world, AIslandManager::StaticClass());
 	if (IslandManageActor)
@@ -83,6 +81,76 @@ void ABlindEyeGameState::SkipGameTime(float AmountToSkip)
 	FGameTimeSkippedDelegate.Broadcast(AmountToSkip);
 }
 
+void ABlindEyeGameState::OnPlayerDied(ABlindEyePlayerState* PlayerThatDied)
+{
+	// TODO: USE LOGIC FOR LOSE CONDITION OF ALL PLAYERS DYING
+	// Notify owning player that player died
+	// UWorld* World = GetWorld();
+	// if (APlayerController* Controller = UGameplayStatics::GetPlayerController(World, 0))
+	// {
+	// 	if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Controller->GetPawn()))
+	// 	{
+	// 		// Only notify if is other player
+	// 		if (Player != PlayerThatDied->GetPawn())
+	// 		{
+	// 			Player->OnOtherPlayerDied(PlayerThatDied);
+	// 		}
+	// 	}
+	// }
+}
+
+void ABlindEyeGameState::OnPlayerRevived(ABlindEyePlayerState* PlayerRevived)
+{
+	// TODO: USE LOGIC FOR LOSE CONDITION OF ALL PLAYERS DYING
+	// Notify owning player that player revived
+	// UWorld* World = GetWorld();
+	// if (APlayerController* Controller = UGameplayStatics::GetPlayerController(World, 0))
+	// {
+	// 	// Only notify if is other player
+	// 	if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Controller->GetPawn()))
+	// 	{
+	// 		// Only notify if is other player
+	// 		if (Player != PlayerRevived->GetPawn())
+	// 		{
+	// 			Player->OnOtherPlayerRevived(PlayerRevived);
+	// 		}
+	// 	}
+	// }
+}
+
+void ABlindEyeGameState::AddPlayerState(APlayerState* PlayerState)
+{
+	Super::AddPlayerState(PlayerState);
+}
+
+void ABlindEyeGameState::NotifyOtherPlayerOfPlayerExisting(ABlindEyePlayerCharacter* NewPlayer)
+{
+	for (APlayerState* PS : PlayerArray)
+	{
+		APlayerState* ANewPS = NewPlayer->GetPlayerState();
+		if (PS != ANewPS)
+		{
+			ABlindEyePlayerCharacter* OtherPlayer = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
+			if (OtherPlayer)
+			{
+				OtherPlayer->NotifyOfOtherPlayerExistance(NewPlayer);
+			}
+		}
+	}
+}
+
+APlayerState* ABlindEyeGameState::GetOtherPlayer(ABlindEyePlayerCharacter* Player)
+{
+	for (APlayerState* PlayerState : PlayerArray)
+	{
+		if (PlayerState != Player->GetPlayerState())
+		{
+			return PlayerState;
+		}
+	}
+	return nullptr;
+}
+
 void ABlindEyeGameState::EnemyDied(AActor* EnemyActor)
 {
 	uint8 Index = 0;
@@ -105,8 +173,17 @@ ABlindEyePlayerCharacter* ABlindEyeGameState::GetRandomPlayer()
 
 AShrine* ABlindEyeGameState::GetShrine()
 {
+	// If shrine not found yet, search level for it (for client if value not replicated fast enough)
+	if (!Shrine.IsValid())
+	{
+		GetShrineReference();
+	}
+
+	// Get shrine if it exists
 	if (Shrine.IsValid())
+	{
 		return Shrine.Get();
+	}
 	return nullptr;
 }
 
@@ -191,6 +268,28 @@ void ABlindEyeGameState::TutorialState()
 	TutorialStartedDelegate.Broadcast();
 }
 
+void ABlindEyeGameState::GetShrineReference()
+{
+	UWorld* World = GetWorld();
+	AActor* ShrineActor = UGameplayStatics::GetActorOfClass(World, AShrine::StaticClass());
+	if (ShrineActor)
+	{
+		Shrine = MakeWeakObjectPtr(Cast<AShrine>(ShrineActor));
+	}
+}
+
+void ABlindEyeGameState::OnMarkAdded(AActor* MarkedActor, EMarkerType MarkerType)
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Blue, "Player Marked");
+	// TODO:
+}
+
+void ABlindEyeGameState::OnMarkRemoved(AActor* UnmarkedActor, EMarkerType MarkerType)
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Blue, "Player Unmarked");
+	// TODO:
+}
+
 TArray<ABlindEyePlayerCharacter*> ABlindEyeGameState::GetPlayers()
 {
 	TArray<ABlindEyePlayerCharacter*> Players;
@@ -256,4 +355,5 @@ void ABlindEyeGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(ABlindEyeGameState, CurrRoundLength)
 	DOREPLIFETIME(ABlindEyeGameState, CurrRoundTimer)
 	DOREPLIFETIME(ABlindEyeGameState, NumRounds)
+	DOREPLIFETIME(ABlindEyeGameState, Shrine)
 }

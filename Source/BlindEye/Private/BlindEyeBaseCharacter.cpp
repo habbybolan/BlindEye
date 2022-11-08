@@ -16,12 +16,15 @@ ABlindEyeBaseCharacter::ABlindEyeBaseCharacter(const FObjectInitializer& ObjectI
 	MarkerComponent->SetupAttachment(GetMesh());
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+
+	IndicatorLocation = CreateDefaultSubobject<UArrowComponent>(TEXT("IndicatorLocation"));
+	//IndicatorLocation->SetupAttachment(RootComponent); // this crashes the editor???
 }
 
 void ABlindEyeBaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	HealthComponent->MarkedAddedDelegate.AddUFunction(this, TEXT("OnMarkAdded"));
+	HealthComponent->MarkedAddedDelegate.AddDynamic(this, &ABlindEyeBaseCharacter::OnMarkAdded);
 	HealthComponent->MarkedRemovedDelegate.AddDynamic(this, &ABlindEyeBaseCharacter::OnMarkRemoved);
 	HealthComponent->DetonateDelegate.AddDynamic(this, &ABlindEyeBaseCharacter::OnMarkDetonated);
 	HealthComponent->RefreshMarkDelegate.AddDynamic(this, &ABlindEyeBaseCharacter::OnMarkRefreshed);
@@ -85,7 +88,13 @@ float ABlindEyeBaseCharacter::GetMass()
 	return Mass;
 }
 
-void ABlindEyeBaseCharacter::OnMarkAdded(EMarkerType MarkType)
+FVector ABlindEyeBaseCharacter::GetIndicatorPosition()
+{
+	//return IndicatorLocation->GetComponentLocation(); Indicator is broken
+	return GetMesh()->GetComponentLocation() + FVector::UpVector * 100.f;
+}
+
+void ABlindEyeBaseCharacter::OnMarkAdded(AActor* MarkedActor, EMarkerType MarkType)
 {
 	BP_OnMarkAdded(MarkType);
 	MULT_OnMarkAddedHelper(MarkType);
@@ -96,7 +105,7 @@ void ABlindEyeBaseCharacter::MULT_OnMarkAddedHelper_Implementation(EMarkerType M
 	MarkerComponent->AddMark(MarkerType);
 }
 
-void ABlindEyeBaseCharacter::OnMarkRemoved()
+void ABlindEyeBaseCharacter::OnMarkRemoved(AActor* UnmarkedActor, EMarkerType MarkerType)
 {
 	BP_OnMarkRemoved();
 	MULT_OnMarkRemovedHelper();

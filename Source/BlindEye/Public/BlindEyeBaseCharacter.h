@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/HealthInterface.h"
-#include "BlindEyeUtils.h"
 #include "Components/HealthComponent.h"
+#include "Interfaces/IndicatorInterface.h"
 #include "BlindEyeBaseCharacter.generated.h"
 
 class UMarkerComponent;
@@ -25,7 +25,7 @@ enum class ECharacterTypes : uint8
 };	
  
 UCLASS(Abstract)
-class BLINDEYE_API ABlindEyeBaseCharacter : public ACharacter, public IHealthInterface
+class BLINDEYE_API ABlindEyeBaseCharacter : public ACharacter, public IHealthInterface, public IIndicatorInterface
 {
 	GENERATED_BODY()
 
@@ -38,6 +38,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UHealthComponent* HealthComponent;
+
+	UPROPERTY(EditDefaultsOnly) 
+	UArrowComponent* IndicatorLocation; 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TEAMS Team; 
@@ -60,6 +63,8 @@ public:
 
 	virtual float GetMass() override;
 
+	virtual FVector GetIndicatorPosition() override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -71,14 +76,14 @@ protected:
 
 	// mark added
 	UFUNCTION()
-	virtual void OnMarkAdded(EMarkerType MarkerType);
+	virtual void OnMarkAdded(AActor* MarkedActor, EMarkerType MarkerType);
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_OnMarkAddedHelper(EMarkerType MarkerType);
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnMarkAdded(EMarkerType MarkerType);
 	// mark removed
 	UFUNCTION()
-	virtual void OnMarkRemoved();
+	virtual void OnMarkRemoved(AActor* UnmarkedActor, EMarkerType MarkerType);
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_OnMarkRemovedHelper();
 	UFUNCTION(BlueprintImplementableEvent)

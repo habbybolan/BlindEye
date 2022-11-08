@@ -3,16 +3,13 @@
 #include "Shrine.h"
 
 #include "Components/HealthComponent.h"
-#include "GameFramework/GameModeBase.h"
 #include "Gameplay/BlindEyeGameMode.h"
 #include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
-// Sets default values
 AShrine::AShrine()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 
@@ -22,8 +19,11 @@ AShrine::AShrine()
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
 	Mesh->SetupAttachment(CapsuleComponent);
 
+	IndicatorPosition = CreateDefaultSubobject<USceneComponent>("IndicatorPosition");
+	IndicatorPosition->SetupAttachment(Mesh);
+
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
-	CurrShrineHealth = MaxShrineHealth;
+	CurrShrineHealth = MaxShrineHealth; 
 }
 
 
@@ -132,6 +132,11 @@ void AShrine::ChannellingEnded(AActor* EnemyChannelling)
 			EnemiesCurrentlyChanneling.Remove(Enemy);
 		}
 	}
+}
+
+FVector AShrine::GetIndicatorPosition()
+{
+	return IndicatorPosition->GetComponentLocation();
 }
 
 void AShrine::OnRep_HealthUpdated()

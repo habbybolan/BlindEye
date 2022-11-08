@@ -97,6 +97,9 @@ void ABlindEyePlayerCharacter::BeginPlay()
 	
 	if (world == nullptr) return;
 
+	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(world));
+	check(BlindEyeGS);
+	
 	if (IsLocallyControlled())
 	{
 		AActor* ShrineActor = UGameplayStatics::GetActorOfClass(world, AShrine::StaticClass());
@@ -105,10 +108,7 @@ void ABlindEyePlayerCharacter::BeginPlay()
 			AShrine* Shrine = Cast<AShrine>(ShrineActor);
 			Shrine->ShrineHealthChange.AddUFunction(this, TEXT("UpdateShrineHealthUI"));
 		}
-
-		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(world));
-		check(BlindEyeGS);
-
+		
 		// Check if state is Tutorial
 		if (BlindEyeGS->IsBlindEyeMatchTutorial())
 		{
@@ -118,6 +118,30 @@ void ABlindEyePlayerCharacter::BeginPlay()
 		else 
 		{
 			BlindEyeGS->TutorialStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::StartTutorial);
+		}
+
+		PlayerIndicator = Cast<UPlayerScreenIndicator>(CreateWidget(world, PlayerIndicatorType, FName("PlayerIndicator")));
+		PlayerIndicator->AddToViewport();
+
+		BP_DisplayDefendShrineIndicator_CLI(true);
+
+		// If another player exists
+		if (APlayerState* OtherPlayerState = BlindEyeGS->GetOtherPlayer(this))
+		{
+			if (ABlindEyePlayerCharacter* OtherPlayer = Cast<ABlindEyePlayerCharacter>(OtherPlayerState->GetPawn()))
+			{
+				NotifyOfOtherPlayerExistance(OtherPlayer);
+			}
+		}
+	} else
+	{
+		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(world, 0);
+		if (PlayerController != GetController())
+		{
+			if (ABlindEyePlayerCharacter* OtherPlayer = Cast<ABlindEyePlayerCharacter>(PlayerController->GetPawn()))
+			{
+				OtherPlayer->NotifyOfOtherPlayerExistance(this);
+			}
 		}
 	}
 
@@ -131,6 +155,9 @@ void ABlindEyePlayerCharacter::BeginPlay()
 
 	HealthbarVisibilityBounds->OnComponentBeginOverlap.AddDynamic(this, &ABlindEyePlayerCharacter::HealthbarBeginOverlap);
 	HealthbarVisibilityBounds->OnComponentEndOverlap.AddDynamic(this, &ABlindEyePlayerCharacter::HealthbarEndOverlap);
+
+	HealthComponent->MarkedAddedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::MULT_OnMarked);
+	HealthComponent->MarkedRemovedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::MULT_OnUnMarked);
 }
 
 void ABlindEyePlayerCharacter::CLI_TryFinishTutorial_Implementation(ETutorialChecklist CheckListItem)
@@ -186,7 +213,7 @@ void ABlindEyePlayerCharacter::OnEnemyMarkDetonated()
 
 void ABlindEyePlayerCharacter::StartTutorial()
 {
-	BP_DisplayTutorialChecklist(true);
+	BP_DisplayTutorialChecklist_CLI(true);
 	UWorld* World = GetWorld();
 	if (World)
 	{
@@ -198,7 +225,8 @@ void ABlindEyePlayerCharacter::StartTutorial()
 
 void ABlindEyePlayerCharacter::StartGame()
 {
-	BP_DisplayTutorialChecklist(false);
+	BP_DisplayTutorialChecklist_CLI(false);
+	BP_DisplayDefendShrineIndicator_CLI(false);
 }
 
 void ABlindEyePlayerCharacter::HealthbarBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -216,6 +244,98 @@ void ABlindEyePlayerCharacter::HealthbarEndOverlap(UPrimitiveComponent* Overlapp
 	if (ABlindEyeEnemyBase* Enemy = Cast<ABlindEyeEnemyBase>(OtherActor))
 	{
 		Enemy->SetHealthbarVisibility(false);
+	}
+}
+
+void ABlindEyePlayerCharacter::OnOtherPlayerDied(ABlindEyePlayerCharacter* OtherPlayer)
+{
+	if (OtherPlayer)
+	{
+		if (PlayerIndicator)
+		{
+			PlayerIndicator->bisPlayerDowned = true;
+		}
+	}
+}
+
+void ABlindEyePlayerCharacter::OnOtherPlayerRevived(ABlindEyePlayerCharacter* OtherPlayer)
+{
+	if (OtherPlayer)
+	{
+		if (PlayerIndicator)
+		{
+			PlayerIndicator->bisPlayerDowned = false;
+		}
+	}
+}
+
+void ABlindEyePlayerCharacter::MULT_OnMarked_Implementation(AActor* MarkedPlayer, EMarkerType MarkType)
+{
+	if (MarkType == EMarkerType::Hunter)
+	{
+		if (!IsLocallyControlled())
+		{
+			// get owning player to notify hunter marked
+			UWorld* World = GetWorld();
+			if (World)
+			{
+				APlayerController* PlayerController = UGameplayStatics::GetPlayerController(World, 0);
+				if (APawn* Pawn = PlayerController->GetPawn())
+				{
+					if (ABlindEyePlayerCharacter* OtherPlayer = Cast<ABlindEyePlayerCharacter>(Pawn))
+					{
+						OtherPlayer->NotifyOtherPlayerHunterMarked();
+					}
+				}
+			}
+		} 
+	}
+}
+ 
+void ABlindEyePlayerCharacter::MULT_OnUnMarked_Implementation(AActor* UnMarkedPlayer, EMarkerType MarkType)
+{
+	if (MarkType == EMarkerType::Hunter)
+	{
+		if (!IsLocallyControlled())
+		{
+			// Get Owning player to notify hunter unmarked
+			UWorld* World = GetWorld();
+			if (World)
+			{
+				APlayerController* PlayerController = UGameplayStatics::GetPlayerController(World, 0);
+				if (APawn* Pawn = PlayerController->GetPawn())
+				{
+					if (ABlindEyePlayerCharacter* OtherPlayer = Cast<ABlindEyePlayerCharacter>(Pawn))
+					{
+						OtherPlayer->NotifyOtherPlayerHunterUnMarked();
+					}
+				}
+			}
+		} 
+	}
+}
+
+void ABlindEyePlayerCharacter::NotifyOtherPlayerHunterMarked()
+{
+	if (PlayerIndicator)
+	{
+		PlayerIndicator->bIsPlayerMarked = true;
+	}
+}
+
+void ABlindEyePlayerCharacter::NotifyOtherPlayerHunterUnMarked()
+{
+	if (PlayerIndicator)
+	{
+		PlayerIndicator->bIsPlayerMarked = false;
+	}
+}
+
+void ABlindEyePlayerCharacter::NotifyOfOtherPlayerExistance(ABlindEyePlayerCharacter* NewPlayer)
+{
+	if (PlayerIndicator)
+	{
+		PlayerIndicator->SetTarget(NewPlayer);
 	}
 }
 
@@ -243,6 +363,7 @@ ABlindEyePlayerState* ABlindEyePlayerCharacter::GetAllyPlayerState()
 void ABlindEyePlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
+	
 	if (IsLocallyControlled())
 	{
 		UpdateAllClientUI();
@@ -496,7 +617,7 @@ void ABlindEyePlayerCharacter::TutorialSkipReleased()
 
 void ABlindEyePlayerCharacter::UserSkipTutorial()
 {
-	BP_DisplayTutorialChecklist(false);
+	BP_DisplayTutorialChecklist_CLI(false);
 	SER_UserInputSkipTutorial();
 }
 
@@ -669,6 +790,22 @@ void ABlindEyePlayerCharacter::OnDeath(AActor* ActorThatKilled)
 
 void ABlindEyePlayerCharacter::MULT_OnDeath_Implementation(AActor* ActorThatKilled)
 {
+	if (!IsLocallyControlled())
+	{
+		UWorld* World = GetWorld();
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+		// if another player exists, they are the real client
+		if (APlayerState* OtherPlayerState = BlindEyeGS->GetOtherPlayer(this))
+		{
+			if (OtherPlayerState->GetPawn())
+			{
+				if (ABlindEyePlayerCharacter* OtherPlayer = Cast<ABlindEyePlayerCharacter>(OtherPlayerState->GetPawn()))
+				{
+					OtherPlayer->OnOtherPlayerDied(this);
+				}
+			}
+		}
+	}
 	GetWorldTimerManager().SetTimer(AllyHealingCheckTimerHandle, this, &ABlindEyePlayerCharacter::OnCheckAllyHealing, AllyHealCheckDelay, true);
 }
 
