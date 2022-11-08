@@ -87,6 +87,7 @@ void ABlindEyeGameState::SkipGameTime(float AmountToSkip)
 
 void ABlindEyeGameState::OnPlayerDied(ABlindEyePlayerState* PlayerThatDied)
 {
+	// TODO: USE LOGIC FOR ENDING THE GAME, CHECKING IF ALL PLAYERS DIED???
 	// Notify owning player that player died
 	UWorld* World = GetWorld();
 	if (APlayerController* Controller = UGameplayStatics::GetPlayerController(World, 0))
