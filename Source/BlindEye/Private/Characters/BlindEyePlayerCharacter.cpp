@@ -339,6 +339,11 @@ void ABlindEyePlayerCharacter::NotifyOfOtherPlayerExistance(ABlindEyePlayerChara
 	}
 }
 
+FVector ABlindEyePlayerCharacter::GetIndicatorPosition()
+{
+	return GetMesh()->GetComponentLocation() + FVector::UpVector * 250;
+}
+
 ABlindEyePlayerState* ABlindEyePlayerCharacter::GetAllyPlayerState()
 {
 	ABlindEyeGameState* GameState = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(GetWorld()));
@@ -536,6 +541,23 @@ void ABlindEyePlayerCharacter::OnRevive()
 		BlindEyePS->SetIsDead(false);
 		GetWorldTimerManager().ClearTimer(AllyHealingCheckTimerHandle);
 		CurrRevivePercent = 0;
+	}
+
+	if (!IsLocallyControlled())
+	{
+		// Get Owning player to notify player revived
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			APlayerController* PlayerController = UGameplayStatics::GetPlayerController(World, 0);
+			if (APawn* Pawn = PlayerController->GetPawn())
+			{
+				if (ABlindEyePlayerCharacter* OtherPlayer = Cast<ABlindEyePlayerCharacter>(Pawn))
+				{
+					OtherPlayer->OnOtherPlayerRevived(this);
+				}
+			}
+		}
 	}
 }
 

@@ -88,12 +88,6 @@ float ABlindEyeBaseCharacter::GetMass()
 	return Mass;
 }
 
-FVector ABlindEyeBaseCharacter::GetIndicatorPosition()
-{
-	//return IndicatorLocation->GetComponentLocation(); Indicator is broken
-	return GetMesh()->GetComponentLocation() + FVector::UpVector * 100.f;
-}
-
 void ABlindEyeBaseCharacter::OnMarkAdded(AActor* MarkedActor, EMarkerType MarkType)
 {
 	BP_OnMarkAdded(MarkType);

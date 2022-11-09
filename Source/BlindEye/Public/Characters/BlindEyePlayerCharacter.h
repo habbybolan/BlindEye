@@ -39,7 +39,7 @@ enum class ETutorialChecklist : uint8
 ENUM_RANGE_BY_COUNT(ETutorialChecklist, ETutorialChecklist::Count);
 
 UCLASS(config=Game)
-class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityUserInterface
+class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityUserInterface, public IIndicatorInterface
 {
 	GENERATED_BODY()
 
@@ -296,6 +296,8 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_DisplayDefendShrineIndicator_CLI(bool bShowIndicator);
+
+	virtual FVector GetIndicatorPosition() override;
 	
 protected:
 

@@ -75,13 +75,12 @@ void UScreenIndicator::FindScreenEdgeLocationForWorldLocation(FVector2D& OutScre
 		
 		NewInLocation.Z -= 5000;
 		
-		PlayerController->ProjectWorldLocationToScreen(NewInLocation, ScreenPosition);
+		UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PlayerController, NewInLocation, ScreenPosition, false);
 		ScreenPosition.Y = (EdgePercent * ViewportCenter.X) * 2.f;
 		ScreenPosition.X = -ViewportCenter.X - ScreenPosition.X;
 	}
 
 	UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PlayerController, Target->GetIndicatorPosition(), ScreenPosition, false);
-	//PlayerController->ProjectWorldLocationToScreen(Target->GetIndicatorPosition(), ScreenPosition);
 	
 	// Check to see if it's on screen. If it is, ProjectWorldLocationToScreen is all we need, return it.
 	if (ScreenPosition.X >= 0.f && ScreenPosition.X <= ViewportSize.X

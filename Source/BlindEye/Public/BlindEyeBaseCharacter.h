@@ -25,7 +25,7 @@ enum class ECharacterTypes : uint8
 };	
  
 UCLASS(Abstract)
-class BLINDEYE_API ABlindEyeBaseCharacter : public ACharacter, public IHealthInterface, public IIndicatorInterface
+class BLINDEYE_API ABlindEyeBaseCharacter : public ACharacter, public IHealthInterface
 {
 	GENERATED_BODY()
 
@@ -63,7 +63,6 @@ public:
 
 	virtual float GetMass() override;
 
-	virtual FVector GetIndicatorPosition() override;
 
 protected:
 	// Called when the game starts or when spawned
