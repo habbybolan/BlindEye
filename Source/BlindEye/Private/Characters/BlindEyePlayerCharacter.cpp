@@ -341,7 +341,7 @@ void ABlindEyePlayerCharacter::NotifyOfOtherPlayerExistance(ABlindEyePlayerChara
 
 FVector ABlindEyePlayerCharacter::GetIndicatorPosition()
 {
-	return GetMesh()->GetComponentLocation() + FVector::UpVector * 250;
+	return GetActorLocation() + FVector::UpVector * 250;
 }
 
 ABlindEyePlayerState* ABlindEyePlayerCharacter::GetAllyPlayerState()

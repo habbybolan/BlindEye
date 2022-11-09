@@ -260,7 +260,7 @@ void ABlindEyeGameMode::OnAllPlayersFinishedTutorial()
 	check(BlindEyeGS)
 
 	// If enemy tutorial
-	if (BlindEyeGS->bInEnemyTutorial)
+	if (BlindEyeGS->bInEnemyTutorial && BlindEyeGS->bInEnemyTutorialSkippableSection)
 	{
 		// If beginning enemy tutorial (Burrower & Snapper), then start game when it's finished
 		if (InProgressMatchState == InProgressStates::Tutorial)

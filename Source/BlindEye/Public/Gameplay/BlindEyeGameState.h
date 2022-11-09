@@ -85,6 +85,8 @@ public:
 
 	UPROPERTY(Replicated)
 	bool bInEnemyTutorial = false;
+	UPROPERTY(Replicated)   
+	bool bInEnemyTutorialSkippableSection = false;
 	UPROPERTY(Replicated)
 	bool bInBeginningTutorial = false;
 	
@@ -153,10 +155,13 @@ public:
 
 	APlayerState* GetOtherPlayer(ABlindEyePlayerCharacter* Player);
  
-	void PauseGameLogicAndDisplayText(EEnemyTutorialType);
+	void PauseGameLogicAndDisplayText(EEnemyTutorialType TutorialType);
 
+	// Notify BP to display text info of enemies
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_TutorialBurrowerSpawned(ABurrowerEnemy* TutorialBurrower);
+	void BP_TutorialBurrowerSpawned_SER(ABurrowerEnemy* TutorialBurrower);
+
+	void EnemyTutorialTrigger(EEnemyTutorialType TutorialType);
 
 protected:
 

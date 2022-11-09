@@ -154,9 +154,15 @@ APlayerState* ABlindEyeGameState::GetOtherPlayer(ABlindEyePlayerCharacter* Playe
  
 void ABlindEyeGameState::PauseGameLogicAndDisplayText(EEnemyTutorialType TutorialType)
 {
+	bInEnemyTutorialSkippableSection = true;
 	// TODO: Pause game logic
 	// TODO: let BP Find all actors in the level and display text snippets for them
 	BP_ShowEnemyTextSnippet(TutorialType);
+}
+
+void ABlindEyeGameState::EnemyTutorialTrigger(EEnemyTutorialType TutorialType)
+{
+	PauseGameLogicAndDisplayText(TutorialType);
 }
 
 void ABlindEyeGameState::EnemyDied(AActor* EnemyActor)
@@ -250,13 +256,13 @@ void ABlindEyeGameState::TutorialFinished()
 
 	ABurrowerEnemy* SpawnedBurrower = SpawnManager->TutorialBurrowerSpawn();
 	check(SpawnedBurrower)
-	BP_TutorialBurrowerSpawned(SpawnedBurrower);
+	BP_TutorialBurrowerSpawned_SER(SpawnedBurrower);
 }
 
 void ABlindEyeGameState::EnemyTutorialFinished()
 { 
 	bInEnemyTutorial = false;
-	
+	bInEnemyTutorialSkippableSection = false;
 	// TODO: Notify BP to send camera back to players
 	// TODO: Resume game again, give player control
 }
@@ -386,4 +392,5 @@ void ABlindEyeGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(ABlindEyeGameState, Shrine)
 	DOREPLIFETIME(ABlindEyeGameState, bInEnemyTutorial)
 	DOREPLIFETIME(ABlindEyeGameState, bInBeginningTutorial)
+	DOREPLIFETIME(ABlindEyeGameState, bInEnemyTutorialSkippableSection)
 }
