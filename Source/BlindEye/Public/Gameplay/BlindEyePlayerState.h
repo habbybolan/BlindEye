@@ -62,6 +62,9 @@ protected:
 	UPROPERTY(Replicated)
 	bool bFinishedTutorial = false;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_PlayerFinishedTutorial_SER();
+
 	UFUNCTION()
 	void OnRep_BirdMeterUpdated();
 	

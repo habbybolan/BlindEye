@@ -73,7 +73,13 @@ bool ABlindEyePlayerState::GetIsTutorialFinished()
  
 void ABlindEyePlayerState::SetTutorialFinished(bool IsTutorialFinished)
 {
+	if (bFinishedTutorial == IsTutorialFinished) return;
 	bFinishedTutorial = IsTutorialFinished;
+	
+	if (bFinishedTutorial)
+	{
+		BP_PlayerFinishedTutorial_SER();
+	}
 }
 
 void ABlindEyePlayerState::OnRep_HealthUpdated()
