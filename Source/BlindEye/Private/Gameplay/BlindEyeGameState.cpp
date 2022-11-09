@@ -151,19 +151,50 @@ APlayerState* ABlindEyeGameState::GetOtherPlayer(ABlindEyePlayerCharacter* Playe
 	}
 	return nullptr;
 }
- 
-void ABlindEyeGameState::PauseGameLogicAndDisplayText(EEnemyTutorialType TutorialType)
+  
+void ABlindEyeGameState::MULT_DisplayTextSnippet_Implementation(EEnemyTutorialType TutorialType)
 {
 	bInEnemyTutorialSkippableSection = true;
 	// TODO: Pause game logic
 	// TODO: let BP Find all actors in the level and display text snippets for them
-	BP_ShowEnemyTextSnippet(TutorialType);
+	BP_EnemyTutorialTrigger_CLI(TutorialType);
 }
 
 void ABlindEyeGameState::EnemyTutorialTrigger(EEnemyTutorialType TutorialType)
 {
-	if (bInEnemyTutorialSkippableSection) return;
-	PauseGameLogicAndDisplayText(TutorialType);
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		if (bInEnemyTutorialSkippableSection) return;
+		MULT_DisplayTextSnippet(TutorialType);
+	}
+}
+
+void ABlindEyeGameState::TutorialFinished()
+{
+	bInBeginningTutorial = false;
+	CurrEnemyTutorial = EEnemyTutorialType::BurrowerSnapper;
+	TutorialEndedDelegate.Broadcast();
+
+	// Spawn single burrower from custom tutorial method in SpawnManager
+	UWorld* World = GetWorld(); 
+	AActor* SpawnManagerActor = UGameplayStatics::GetActorOfClass(World, ABurrowerSpawnManager::StaticClass());
+	ABurrowerSpawnManager* SpawnManager = Cast<ABurrowerSpawnManager>(SpawnManagerActor);
+
+	ABurrowerEnemy* SpawnedBurrower = SpawnManager->TutorialBurrowerSpawn();
+	check(SpawnedBurrower)
+	BP_TutorialBurrowerSpawned_SER(SpawnedBurrower);
+}
+
+void ABlindEyeGameState::EnemyTutorialFinished()
+{
+	MULT_EnemyTutorialFinished();
+}
+
+void ABlindEyeGameState::MULT_EnemyTutorialFinished_Implementation()
+{
+	BP_EnemyTutorialFinished_CLI(CurrEnemyTutorial);
+	CurrEnemyTutorial = EEnemyTutorialType::None;
+	bInEnemyTutorialSkippableSection = false;
 }
 
 void ABlindEyeGameState::EnemyDied(AActor* EnemyActor)
@@ -242,30 +273,6 @@ bool ABlindEyeGameState::IsBlindEyeMatchInProgress()
 bool ABlindEyeGameState::IsBlindEyeMatchEnding()
 {
 	return InProgressMatchState == InProgressStates::GameEnding;
-}
-
-void ABlindEyeGameState::TutorialFinished()
-{
-	bInBeginningTutorial = false;
-	CurrEnemyTutorial = EEnemyTutorialType::BurrowerSnapper;
-	TutorialEndedDelegate.Broadcast();
-
-	// Spawn single burrower from custom tutorial method in SpawnManager
-	UWorld* World = GetWorld(); 
-	AActor* SpawnManagerActor = UGameplayStatics::GetActorOfClass(World, ABurrowerSpawnManager::StaticClass());
-	ABurrowerSpawnManager* SpawnManager = Cast<ABurrowerSpawnManager>(SpawnManagerActor);
-
-	ABurrowerEnemy* SpawnedBurrower = SpawnManager->TutorialBurrowerSpawn();
-	check(SpawnedBurrower)
-	BP_TutorialBurrowerSpawned_SER(SpawnedBurrower);
-}
-
-void ABlindEyeGameState::EnemyTutorialFinished()
-{ 
-	CurrEnemyTutorial = EEnemyTutorialType::None;
-	bInEnemyTutorialSkippableSection = false;
-	// TODO: Notify BP to send camera back to players
-	// TODO: Resume game again, give player control
 }
 
 void ABlindEyeGameState::StartGame()

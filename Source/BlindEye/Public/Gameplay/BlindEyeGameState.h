@@ -155,8 +155,9 @@ public:
 	void NotifyOtherPlayerOfPlayerExisting(ABlindEyePlayerCharacter* NewPlayer);
 
 	APlayerState* GetOtherPlayer(ABlindEyePlayerCharacter* Player);
- 
-	void PauseGameLogicAndDisplayText(EEnemyTutorialType TutorialType);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_DisplayTextSnippet(EEnemyTutorialType TutorialType);
 
 	// Notify BP to display text info of enemies
 	UFUNCTION(BlueprintImplementableEvent)
@@ -200,7 +201,13 @@ protected:
 	UFUNCTION()
 	void OnMarkRemoved(AActor* UnmarkedActor, EMarkerType MarkerType);
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_EnemyTutorialFinished();
+
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_ShowEnemyTextSnippet(EEnemyTutorialType TutorialType);
+	void BP_EnemyTutorialTrigger_CLI(EEnemyTutorialType TutorialType);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_EnemyTutorialFinished_CLI(EEnemyTutorialType TutorialType);
 	
 };

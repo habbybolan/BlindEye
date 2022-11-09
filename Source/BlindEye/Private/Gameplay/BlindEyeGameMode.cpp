@@ -262,14 +262,14 @@ void ABlindEyeGameMode::OnAllPlayersFinishedTutorial()
 	// If enemy tutorial
 	if (BlindEyeGS->CurrEnemyTutorial > EEnemyTutorialType::None && BlindEyeGS->bInEnemyTutorialSkippableSection)
 	{
-		// If beginning enemy tutorial (Burrower & Snapper), then start game when it's finished
-		if (InProgressMatchState == InProgressStates::Tutorial)
+		// End Burrower/Snapper enemy tutorial
+		if (BlindEyeGS->CurrEnemyTutorial == EEnemyTutorialType::BurrowerSnapper)
 		{
 			BlindEyeGS->EnemyTutorialFinished();
 			StartGame();
 		}
-		// Otherwise, it's hunter tutorial so game already started
-		else
+		// End Hunter Enemy tutorial
+		else if (BlindEyeGS->CurrEnemyTutorial == EEnemyTutorialType::Hunter)
 		{
 			BlindEyeGS->EnemyTutorialFinished();
 		}
