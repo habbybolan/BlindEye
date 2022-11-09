@@ -246,7 +246,7 @@ bool ABlindEyeGameState::IsBlindEyeMatchEnding()
 void ABlindEyeGameState::TutorialFinished()
 {
 	bInBeginningTutorial = false;
-	bInEnemyTutorial = true;
+	CurrEnemyTutorial = EEnemyTutorialType::BurrowerSnapper;
 	TutorialEndedDelegate.Broadcast();
 
 	// Spawn single burrower from custom tutorial method in SpawnManager
@@ -261,7 +261,7 @@ void ABlindEyeGameState::TutorialFinished()
 
 void ABlindEyeGameState::EnemyTutorialFinished()
 { 
-	bInEnemyTutorial = false;
+	CurrEnemyTutorial = EEnemyTutorialType::None;
 	bInEnemyTutorialSkippableSection = false;
 	// TODO: Notify BP to send camera back to players
 	// TODO: Resume game again, give player control
@@ -390,7 +390,7 @@ void ABlindEyeGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(ABlindEyeGameState, CurrRoundTimer)
 	DOREPLIFETIME(ABlindEyeGameState, NumRounds)
 	DOREPLIFETIME(ABlindEyeGameState, Shrine)
-	DOREPLIFETIME(ABlindEyeGameState, bInEnemyTutorial)
+	DOREPLIFETIME(ABlindEyeGameState, CurrEnemyTutorial)
 	DOREPLIFETIME(ABlindEyeGameState, bInBeginningTutorial)
 	DOREPLIFETIME(ABlindEyeGameState, bInEnemyTutorialSkippableSection)
 }

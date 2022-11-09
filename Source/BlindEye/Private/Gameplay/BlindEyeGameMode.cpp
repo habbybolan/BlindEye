@@ -218,7 +218,7 @@ void ABlindEyeGameMode::TutorialFinished(ABlindEyePlayerCharacter* Player)
 	check(BlindEyeGS)
 
 	// trying to skip tutorial while not in tutorial
-	if (!BlindEyeGS->bInEnemyTutorial && !BlindEyeGS->bInBeginningTutorial)
+	if (BlindEyeGS->CurrEnemyTutorial == EEnemyTutorialType::None && !BlindEyeGS->bInBeginningTutorial)
 	{
 		return;
 	}
@@ -260,7 +260,7 @@ void ABlindEyeGameMode::OnAllPlayersFinishedTutorial()
 	check(BlindEyeGS)
 
 	// If enemy tutorial
-	if (BlindEyeGS->bInEnemyTutorial && BlindEyeGS->bInEnemyTutorialSkippableSection)
+	if (BlindEyeGS->CurrEnemyTutorial > EEnemyTutorialType::None && BlindEyeGS->bInEnemyTutorialSkippableSection)
 	{
 		// If beginning enemy tutorial (Burrower & Snapper), then start game when it's finished
 		if (InProgressMatchState == InProgressStates::Tutorial)

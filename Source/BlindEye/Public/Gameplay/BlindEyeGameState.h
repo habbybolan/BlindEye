@@ -26,6 +26,7 @@ enum class EGameOverState : uint8
 UENUM(BlueprintType)
 enum class EEnemyTutorialType : uint8
 {
+	None,
 	BurrowerSnapper,
 	Hunter
 };
@@ -84,7 +85,7 @@ public:
 	float TimerUntilGameWon; 
 
 	UPROPERTY(Replicated)
-	bool bInEnemyTutorial = false;
+	EEnemyTutorialType CurrEnemyTutorial = EEnemyTutorialType::None;
 	UPROPERTY(Replicated)   
 	bool bInEnemyTutorialSkippableSection = false;
 	UPROPERTY(Replicated)

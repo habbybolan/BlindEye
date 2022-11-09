@@ -16,7 +16,7 @@ void UAN_SnapperTutorialTrigger::Notify(USkeletalMeshComponent* MeshComp, UAnimS
 		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
 		if (BlindEyeGS)
 		{
-			if (BlindEyeGS->bInEnemyTutorial)
+			if (BlindEyeGS->CurrEnemyTutorial == EEnemyTutorialType::BurrowerSnapper)
 			{
 				BlindEyeGS->EnemyTutorialTrigger(EEnemyTutorialType::BurrowerSnapper);
 			}
