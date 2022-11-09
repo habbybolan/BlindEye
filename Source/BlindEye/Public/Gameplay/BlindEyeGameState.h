@@ -100,6 +100,9 @@ public:
 	bool IsBlindEyeMatchInProgress();
 	bool IsBlindEyeMatchEnding();
 
+	// Called once beginning tutorial finished/skipped to wait for players to goto shrine
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_WaitingToInteractWithShrine();
 	void TutorialFinished();
 
 	void EnemyTutorialFinished();
@@ -209,5 +212,7 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_EnemyTutorialFinished_CLI(EEnemyTutorialType TutorialType);
-	
+ 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_WaitingToInteractWithShrine_CLI();
 };

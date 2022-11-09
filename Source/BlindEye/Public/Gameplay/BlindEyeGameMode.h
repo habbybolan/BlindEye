@@ -77,6 +77,9 @@ public:
 
 	float GetCurrRoundLength();
 
+	// Called by shrine once players are close enough to shrine and finished beginning tutorial
+	void FinishBeginningTutorial();
+
 protected:
 	virtual void BeginPlay() override;
 

@@ -55,6 +55,8 @@ public:
 
 	virtual FVector GetIndicatorPosition() override;
  
+	void StartWaitingForPlayersToInteract();
+ 
 protected:
 	
 	virtual void BeginPlay() override;
@@ -70,6 +72,11 @@ protected:
 
 	FTimerHandle ChargeUpdatingTimerHandle;
 	float ChargeUpdatingDelay = 0.1f;
+	
+	UPROPERTY(EditDefaultsOnly)
+
+	float CheckTutorialPlayersRadius = 500;
+	
 	UFUNCTION()
 	void UpdateChargeUI();
 
@@ -86,6 +93,10 @@ protected:
 	void BP_UpdateShrineCharge(float ChargePercent);
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UFUNCTION()
+	void CheckPlayersNearbyHelper(); 
+	FTimerHandle CheckPlayersNearTimerHandle;
 	
 public:
 	
