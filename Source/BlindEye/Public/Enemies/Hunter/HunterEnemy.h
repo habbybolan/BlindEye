@@ -29,6 +29,7 @@ public:
 	AHunterEnemy(const FObjectInitializer& ObjectInitializer);
 
 	virtual void BeginPlay() override;
+	void Despawn();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Movement)
 	float AttackMaxWalkSpeed = 450;
@@ -181,7 +182,10 @@ protected:
 	void BP_ChannelingStarted_CLI();
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_ChannelingEnded_CLI(); 
+	void BP_ChannelingEnded_CLI();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_HunterDespawned_SER();
 
 	void SetPlayerMarked(AActor* NewTarget);
 

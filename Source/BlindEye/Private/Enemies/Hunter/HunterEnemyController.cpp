@@ -188,6 +188,7 @@ void AHunterEnemyController::OnStunEnd()
 
 void AHunterEnemyController::DespawnHunter()
 {
+	Hunter->Despawn(); 
 	CachedHealth = Hunter->GetHealth();
 	UnPossess();
 	Hunter->Destroy();

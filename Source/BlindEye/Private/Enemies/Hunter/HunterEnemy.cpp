@@ -36,6 +36,11 @@ void AHunterEnemy::BeginPlay()
 	}
 }
 
+void AHunterEnemy::Despawn()
+{
+	BP_HunterDespawned_SER();
+}
+
 void AHunterEnemy::PerformChargedJump()
 {
 	if (ABlindEyeEnemyController* BlindEyeController = Cast<ABlindEyeEnemyController>(GetController()))
