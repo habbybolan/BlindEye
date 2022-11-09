@@ -5,6 +5,7 @@
 
 #include "Shrine.h"
 #include "Characters/BlindEyePlayerCharacter.h"
+#include "Enemies/Burrower/BurrowerSpawnManager.h"
 #include "GameFramework/PlayerState.h"
 #include "Gameplay/BlindEyeGameMode.h"
 #include "Gameplay/BlindEyePlayerState.h"
@@ -239,16 +240,23 @@ bool ABlindEyeGameState::IsBlindEyeMatchEnding()
 void ABlindEyeGameState::TutorialFinished()
 {
 	bInBeginningTutorial = false;
+	bInEnemyTutorial = true;
 	TutorialEndedDelegate.Broadcast();
-	// TODO: Pause all player input
-	// TODO: Spawn Single burrower at specified location
-	// TODO: Tell BurrowerSpawnManager to spawn single burrower and return it
-	// TODO: Tell BP of burrower that spawned and to start cutscene
+
+	// Spawn single burrower from custom tutorial method in SpawnManager
+	UWorld* World = GetWorld(); 
+	AActor* SpawnManagerActor = UGameplayStatics::GetActorOfClass(World, ABurrowerSpawnManager::StaticClass());
+	ABurrowerSpawnManager* SpawnManager = Cast<ABurrowerSpawnManager>(SpawnManagerActor);
+
+	ABurrowerEnemy* SpawnedBurrower = SpawnManager->TutorialBurrowerSpawn();
+	check(SpawnedBurrower)
+	BP_TutorialBurrowerSpawned(SpawnedBurrower);
 }
 
 void ABlindEyeGameState::EnemyTutorialFinished()
 { 
 	bInEnemyTutorial = false;
+	
 	// TODO: Notify BP to send camera back to players
 	// TODO: Resume game again, give player control
 }

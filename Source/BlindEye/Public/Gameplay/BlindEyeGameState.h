@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Characters/BlindEyePlayerController.h"
+#include "Enemies/Burrower/BurrowerEnemy.h"
 #include "GameFramework/GameState.h"
 #include "BlindEyeGameState.generated.h"
 
@@ -153,6 +154,9 @@ public:
 	APlayerState* GetOtherPlayer(ABlindEyePlayerCharacter* Player);
  
 	void PauseGameLogicAndDisplayText(EEnemyTutorialType);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_TutorialBurrowerSpawned(ABurrowerEnemy* TutorialBurrower);
 
 protected:
 

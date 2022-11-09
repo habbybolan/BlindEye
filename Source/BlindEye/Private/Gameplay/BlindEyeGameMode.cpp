@@ -286,7 +286,7 @@ void ABlindEyeGameMode::OnAllPlayersFinishedTutorial()
 			DummyEnemy->HealthComponent->Kill();
 		}
 
-		// Start the game
+		// notify tutorial finished, going to first enemy tutorial
 		BlindEyeGS->TutorialFinished();
 	}
 } 
