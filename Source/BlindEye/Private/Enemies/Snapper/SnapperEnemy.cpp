@@ -72,6 +72,8 @@ void ASnapperEnemy::BeginPlay()
 	{
 		GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &ASnapperEnemy::SpawnCollisionWithGround);
 	}
+
+	GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &ASnapperEnemy::OnAnimMontageEnded);
 }
 
 void ASnapperEnemy::SpawnCollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
@@ -311,10 +313,17 @@ void ASnapperEnemy::MULT_StopRagdoll_Implementation()
 
 void ASnapperEnemy::FinishGettingUp()
 {
-	bGettingUp = false;
-	bRagdolling = false;
+	PlayAnimMontage(GetupRoarAnim);
+}
 
-	// TODO: Play roar animation
+void ASnapperEnemy::OnAnimMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	// Getup Roar animation
+	if (Montage == GetupRoarAnim)
+	{
+		bGettingUp = false;
+		bRagdolling = false;
+	}
 }
 
 void ASnapperEnemy::SetPhysicsBlendWeight()

@@ -10,7 +10,7 @@ void UAN_SnapperTutorialTrigger::Notify(USkeletalMeshComponent* MeshComp, UAnimS
 {
 	Super::Notify(MeshComp, Animation);
 
-	UWorld* World = GetWorld();
+	UWorld* World = MeshComp->GetWorld();
 	if (World)
 	{
 		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));

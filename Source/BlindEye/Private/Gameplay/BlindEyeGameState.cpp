@@ -162,6 +162,7 @@ void ABlindEyeGameState::PauseGameLogicAndDisplayText(EEnemyTutorialType Tutoria
 
 void ABlindEyeGameState::EnemyTutorialTrigger(EEnemyTutorialType TutorialType)
 {
+	if (bInEnemyTutorialSkippableSection) return;
 	PauseGameLogicAndDisplayText(TutorialType);
 }
 
