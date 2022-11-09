@@ -313,6 +313,8 @@ void ASnapperEnemy::FinishGettingUp()
 {
 	bGettingUp = false;
 	bRagdolling = false;
+
+	// TODO: Play roar animation
 }
 
 void ASnapperEnemy::SetPhysicsBlendWeight()

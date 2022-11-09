@@ -70,10 +70,10 @@ bool ABlindEyePlayerState::GetIsTutorialFinished()
 {
 	return bFinishedTutorial;
 }
-
-void ABlindEyePlayerState::SetTutorialFinished()
+ 
+void ABlindEyePlayerState::SetTutorialFinished(bool IsTutorialFinished)
 {
-	bFinishedTutorial = true;
+	bFinishedTutorial = IsTutorialFinished;
 }
 
 void ABlindEyePlayerState::OnRep_HealthUpdated()

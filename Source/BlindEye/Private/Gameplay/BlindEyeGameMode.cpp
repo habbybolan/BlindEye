@@ -214,11 +214,14 @@ void ABlindEyeGameMode::IncrementTimeByAMinute()
 
 void ABlindEyeGameMode::TutorialFinished(ABlindEyePlayerCharacter* Player)
 {
-	// TODO: Keep track of players that have readied up to see if game should start
-	// TODO: De-spawn dummies, send delegate that tutorial ended
-	// TODO: Send delegate that game has started
 	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(GameState);
 	check(BlindEyeGS)
+
+	// trying to skip tutorial while not in tutorial
+	if (!BlindEyeGS->bInEnemyTutorial && !BlindEyeGS->bInBeginningTutorial)
+	{
+		return;
+	}
 
 	// Set Player as finishing tutorial and check if both player's tutorials finished
 	uint8 NumPlayersFinishedTutorial = 0;
@@ -227,7 +230,7 @@ void ABlindEyeGameMode::TutorialFinished(ABlindEyePlayerCharacter* Player)
 		ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(PlayerState);
 		if (Player == BlindEyePS->GetPawn())
 		{
-			BlindEyePS->SetTutorialFinished();
+			BlindEyePS->SetTutorialFinished(true);
 			NumPlayersFinishedTutorial++;
 		} else if (BlindEyePS->GetIsTutorialFinished())
 		{
@@ -239,6 +242,12 @@ void ABlindEyeGameMode::TutorialFinished(ABlindEyePlayerCharacter* Player)
 	if (NumPlayersFinishedTutorial == NumPlayers)
 	{
 		OnAllPlayersFinishedTutorial();
+		// reset tutorial being finished for future tutorial skips
+		for (APlayerState* PS : BlindEyeGS->PlayerArray)
+		{
+			ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(PS);
+			BlindEyePS->SetTutorialFinished(false);
+		}
 	}
 }
 
@@ -250,18 +259,36 @@ void ABlindEyeGameMode::OnAllPlayersFinishedTutorial()
 	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(GameState);
 	check(BlindEyeGS)
 
-	// Kill all tutorial dummy enemies in level
-	TArray<AActor*> DummyActors;
-	UGameplayStatics::GetAllActorsOfClass(World, ADummyEnemy::StaticClass(), DummyActors);
-	for (AActor* DummyActor : DummyActors)
+	// If enemy tutorial
+	if (BlindEyeGS->bInEnemyTutorial)
 	{
-		ADummyEnemy* DummyEnemy = Cast<ADummyEnemy>(DummyActor);
-		DummyEnemy->HealthComponent->Kill();
+		// If beginning enemy tutorial (Burrower & Snapper), then start game when it's finished
+		if (InProgressMatchState == InProgressStates::Tutorial)
+		{
+			BlindEyeGS->EnemyTutorialFinished();
+			StartGame();
+		}
+		// Otherwise, it's hunter tutorial so game already started
+		else
+		{
+			BlindEyeGS->EnemyTutorialFinished();
+		}
 	}
+	// Otherwise, Beginning tutorial section skipped
+	else
+	{
+		// Kill all tutorial dummy enemies in level
+		TArray<AActor*> DummyActors;
+		UGameplayStatics::GetAllActorsOfClass(World, ADummyEnemy::StaticClass(), DummyActors);
+		for (AActor* DummyActor : DummyActors)
+		{
+			ADummyEnemy* DummyEnemy = Cast<ADummyEnemy>(DummyActor);
+			DummyEnemy->HealthComponent->Kill();
+		}
 
-	// Start the game
-	BlindEyeGS->TutorialFinished();
-	StartGame();
+		// Start the game
+		BlindEyeGS->TutorialFinished();
+	}
 } 
 
 void ABlindEyeGameMode::StartGame()

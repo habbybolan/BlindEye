@@ -150,6 +150,13 @@ APlayerState* ABlindEyeGameState::GetOtherPlayer(ABlindEyePlayerCharacter* Playe
 	}
 	return nullptr;
 }
+ 
+void ABlindEyeGameState::PauseGameLogicAndDisplayText(EEnemyTutorialType TutorialType)
+{
+	// TODO: Pause game logic
+	// TODO: let BP Find all actors in the level and display text snippets for them
+	BP_ShowEnemyTextSnippet(TutorialType);
+}
 
 void ABlindEyeGameState::EnemyDied(AActor* EnemyActor)
 {
@@ -231,7 +238,19 @@ bool ABlindEyeGameState::IsBlindEyeMatchEnding()
 
 void ABlindEyeGameState::TutorialFinished()
 {
+	bInBeginningTutorial = false;
 	TutorialEndedDelegate.Broadcast();
+	// TODO: Pause all player input
+	// TODO: Spawn Single burrower at specified location
+	// TODO: Tell BurrowerSpawnManager to spawn single burrower and return it
+	// TODO: Tell BP of burrower that spawned and to start cutscene
+}
+
+void ABlindEyeGameState::EnemyTutorialFinished()
+{ 
+	bInEnemyTutorial = false;
+	// TODO: Notify BP to send camera back to players
+	// TODO: Resume game again, give player control
 }
 
 void ABlindEyeGameState::StartGame()
@@ -265,6 +284,7 @@ void ABlindEyeGameState::OnRep_InProgressMatchState()
 
 void ABlindEyeGameState::TutorialState()
 {
+	bInBeginningTutorial = true;
 	TutorialStartedDelegate.Broadcast();
 }
 
@@ -356,4 +376,6 @@ void ABlindEyeGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(ABlindEyeGameState, CurrRoundTimer)
 	DOREPLIFETIME(ABlindEyeGameState, NumRounds)
 	DOREPLIFETIME(ABlindEyeGameState, Shrine)
+	DOREPLIFETIME(ABlindEyeGameState, bInEnemyTutorial)
+	DOREPLIFETIME(ABlindEyeGameState, bInBeginningTutorial)
 }

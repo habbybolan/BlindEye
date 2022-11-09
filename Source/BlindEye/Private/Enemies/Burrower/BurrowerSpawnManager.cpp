@@ -180,6 +180,12 @@ void ABurrowerSpawnManager::SetInBurstState()
 	}
 }
 
+ABurrowerEnemy* ABurrowerSpawnManager::TutorialBurrowerSpawn()
+{
+	// TODO: Spawn single Burrower at specific location
+	return nullptr;
+}
+
 UBurrowerSpawnPoint* ABurrowerSpawnManager::FindRandomUnusedSpawnPoint()
 {
 	AIsland* RandIsland = IslandManager->GetRandIsland();

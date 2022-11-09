@@ -449,18 +449,6 @@ void ABlindEyePlayerCharacter::MULT_ResetWalkMovementToNormal_Implementation()
 	GetCharacterMovement()->MaxAcceleration = CachedAcceleration;
 }
 
-void ABlindEyePlayerCharacter::TutorialFinished()
-{
-	// TODO: Add ready-up button hold before sending notify GM tutorial finished
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		ABlindEyeGameMode* BlindEyeGM = Cast<ABlindEyeGameMode>(UGameplayStatics::GetGameMode(World));
-		BlindEyeGM->TutorialFinished(this);
-	}
-	
-}
-
 void ABlindEyePlayerCharacter::RegenBirdMeter()
 {
 	if (ABlindEyePlayerState* BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState()))
@@ -645,13 +633,6 @@ void ABlindEyePlayerCharacter::UserSkipTutorial()
 
 void ABlindEyePlayerCharacter::SER_UserInputSkipTutorial_Implementation()
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Emerald, "Tutorial skipped");
-
-	// Check if player already finished tutorial
-	ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState());
-	check(BlindEyePS)
-	if (BlindEyePS->GetIsTutorialFinished()) return;
-
 	// Notify GameMode that player finished tutorial
 	UWorld* World = GetWorld();
 	if (World)

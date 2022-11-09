@@ -38,6 +38,9 @@ public:
 
 	void SetInBurstState();
 
+	// Spawns a single burrower for intro enemy tutorial for burrowers and snappers
+	ABurrowerEnemy* TutorialBurrowerSpawn();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

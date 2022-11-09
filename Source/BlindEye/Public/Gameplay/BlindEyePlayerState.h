@@ -29,7 +29,7 @@ public:
 	void SetIsDead(bool IsDead);
 
 	bool GetIsTutorialFinished();
-	void SetTutorialFinished();
+	void SetTutorialFinished(bool IsTutorialFinished);
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPlayerDeathSignature, ABlindEyePlayerState*, PlayerState);
 	FPlayerDeathSignature PlayerDeathDelegate;

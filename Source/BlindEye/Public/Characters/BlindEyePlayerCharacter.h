@@ -256,10 +256,6 @@ public:
 	UFUNCTION(NetMulticast, Reliable)  
 	void MULT_ResetWalkMovementToNormal();
 
-	// Called from BPs to notify player finished tutorial
-	UFUNCTION(BlueprintCallable)
-	void TutorialFinished();
-
 	// Entrance method when tutorial started
 	UFUNCTION()
 	void StartTutorial();

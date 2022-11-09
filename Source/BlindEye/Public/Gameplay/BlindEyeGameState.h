@@ -22,6 +22,13 @@ enum class EGameOverState : uint8
 	Lost
 };
 
+UENUM(BlueprintType)
+enum class EEnemyTutorialType : uint8
+{
+	BurrowerSnapper,
+	Hunter
+};
+
 class ABlindEyePlayerCharacter;
 /**
  * 
@@ -74,6 +81,11 @@ public:
 	float CurrRoundTimer = 0; 
 	UPROPERTY(Replicated)
 	float TimerUntilGameWon; 
+
+	UPROPERTY(Replicated)
+	bool bInEnemyTutorial = false;
+	UPROPERTY(Replicated)
+	bool bInBeginningTutorial = false;
 	
 	virtual void SetInProgressMatchState(FName NewInProgressState);
 
@@ -85,6 +97,9 @@ public:
 	bool IsBlindEyeMatchEnding();
 
 	void TutorialFinished();
+
+	void EnemyTutorialFinished();
+	
 	void StartGame();
 	
 	TArray<ABlindEyePlayerCharacter*> GetPlayers();
@@ -136,6 +151,8 @@ public:
 	void NotifyOtherPlayerOfPlayerExisting(ABlindEyePlayerCharacter* NewPlayer);
 
 	APlayerState* GetOtherPlayer(ABlindEyePlayerCharacter* Player);
+ 
+	void PauseGameLogicAndDisplayText(EEnemyTutorialType);
 
 protected:
 
@@ -172,5 +189,8 @@ protected:
 	void OnMarkAdded(AActor* MarkedActor, EMarkerType MarkerType);
 	UFUNCTION()
 	void OnMarkRemoved(AActor* UnmarkedActor, EMarkerType MarkerType);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_ShowEnemyTextSnippet(EEnemyTutorialType TutorialType);
 	
 };
