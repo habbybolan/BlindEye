@@ -5,6 +5,7 @@
 
 #include "Shrine.h"
 #include "Characters/BlindEyePlayerCharacter.h"
+#include "Characters/PlayerStartingCutscenePosition.h"
 #include "Enemies/Burrower/BurrowerSpawnManager.h"
 #include "Enemies/Burrower/BurrowerTutorialSpawnPoint.h"
 #include "GameFramework/PlayerState.h"
@@ -213,9 +214,24 @@ void ABlindEyeGameState::StartEnemyTutorial(EEnemyTutorialType EnemyTutorial)
 
 void ABlindEyeGameState::StartBurrowerSnapperTutorial()
 {
+	UWorld* World = GetWorld();
+	
+	// Get Tutorial teleport points for burrower/snapper intro cutscene
+	TArray<AActor*> OutActors;
+	UGameplayStatics::GetAllActorsOfClass(World, APlayerStartingCutscenePosition::StaticClass(),OutActors);
+	check(OutActors.Num() >= 2);
+	uint8 SpawnPointIndex = 0;
+	
+	// Apply position to all players
+	for (APlayerState* PlayerState : PlayerArray)
+	{
+		APawn* PlayerPawn = PlayerState->GetPawn();
+		PlayerPawn->SetActorTransform(OutActors[SpawnPointIndex]->GetTransform());
+		SpawnPointIndex++;
+	}
+	
 	CurrEnemyTutorial = EEnemyTutorialType::BurrowerSnapper;
 	// Spawn single burrower from custom tutorial method in SpawnManager
-	UWorld* World = GetWorld(); 
 	AActor* SpawnManagerActor = UGameplayStatics::GetActorOfClass(World, ABurrowerSpawnManager::StaticClass());
 	ABurrowerSpawnManager* SpawnManager = Cast<ABurrowerSpawnManager>(SpawnManagerActor);
 
