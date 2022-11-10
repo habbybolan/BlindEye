@@ -19,7 +19,7 @@ APhoenixFireballCast::APhoenixFireballCast()
 	SphereComponent->SetEnableGravity(false);
 	RootComponent = SphereComponent;
 	
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("mesh");
+	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>("mesh");
 	Mesh->SetupAttachment(RootComponent);
 	
 	Movement = CreateDefaultSubobject<UProjectileMovementComponent>("Movement");

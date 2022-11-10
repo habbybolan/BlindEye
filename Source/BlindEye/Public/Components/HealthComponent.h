@@ -146,7 +146,7 @@ protected:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	void OnDeath(AActor* ActorThatKilled);
+	virtual void OnDeath(AActor* ActorThatKilled);
 
 	// cached owners health interface
 	IHealthInterface* OwnerHealth;

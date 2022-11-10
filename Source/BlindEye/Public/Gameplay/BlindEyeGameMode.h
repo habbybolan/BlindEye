@@ -77,6 +77,9 @@ public:
 	void StartGame();
 
 	float GetCurrRoundLength();
+ 
+	void OnPlayerDied(ABlindEyePlayerState* DeadPlayer);
+	void OnPlayerRevived(ABlindEyePlayerState* RevivedPlayer);
 
 	// Called by shrine once players are close enough to shrine and finished beginning tutorial
 	void FinishBeginningTutorial();

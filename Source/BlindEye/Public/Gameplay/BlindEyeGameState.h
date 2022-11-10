@@ -152,7 +152,10 @@ public:
 	float CurrRoundLength = 1;
 
 	UPROPERTY(Replicated)
-	uint8 NumRounds = 3; 
+	uint8 NumRounds = 3;
+
+	UPROPERTY()
+	TArray<ABlindEyePlayerState*> DeadPlayers;
 
 	UFUNCTION() 
 	void OnPlayerDied(ABlindEyePlayerState* PlayerThatDied);

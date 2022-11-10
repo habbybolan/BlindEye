@@ -344,6 +344,23 @@ float ABlindEyeGameMode::GetCurrRoundLength()
 	return TimerUntilGameWon / NumRounds;
 }
 
+void ABlindEyeGameMode::OnPlayerDied(ABlindEyePlayerState* DeadPlayer)
+{
+	ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState);
+	BlindEyeGameState->OnPlayerDied(DeadPlayer);
+
+	if (BlindEyeGameState->DeadPlayers.Num() >= BlindEyeGameState->PlayerArray.Num())
+	{
+		OnGameEnded();
+	}
+}
+
+void ABlindEyeGameMode::OnPlayerRevived(ABlindEyePlayerState* RevivedPlayer)
+{
+	ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState);
+	BlindEyeGameState->OnPlayerRevived(RevivedPlayer);
+}
+
 void ABlindEyeGameMode::RunMainGameLoop()
 {
 	ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState);
@@ -360,16 +377,19 @@ void ABlindEyeGameMode::RunMainGameLoop()
 	{
 		PulseTimer = 0;
 		CurrRound++;
-		BP_Pulse(CurrRound);
-		BlindEyeGameState->OnPulse(CurrRound, GetCurrRoundLength());
-		BP_LevelShift();
-		BlindEyeGameState->OnLevelShift();
-
-		// Pulse kills all enemies after duration
-		UWorld* World = GetWorld();
-		if (World)
+		if (CurrRound < NumRounds)
 		{
-			World->GetTimerManager().SetTimer(PulseKillDelayTimerHandle, this, &ABlindEyeGameMode::PerformPulse, PulseKillDelay, false);
+			BP_Pulse(CurrRound);
+			BlindEyeGameState->OnPulse(CurrRound, GetCurrRoundLength());
+			BP_LevelShift();
+			BlindEyeGameState->OnLevelShift();
+
+			// Pulse kills all enemies after duration
+			UWorld* World = GetWorld();
+			if (World)
+			{
+				World->GetTimerManager().SetTimer(PulseKillDelayTimerHandle, this, &ABlindEyeGameMode::PerformPulse, PulseKillDelay, false);
+			}
 		}
 	}
 
