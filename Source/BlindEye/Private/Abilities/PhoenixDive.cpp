@@ -79,7 +79,7 @@ void APhoenixDive::LaunchToGround()
 	if (Character == nullptr) return;
 
 	Character->GetCharacterMovement()->GravityScale = CachedGravityScale;
-
+	
 	FVector position;	// Position of ground target
 	FVector ImpulseVec;	// Force vector to apply to player
 	// if something happened to ground target, launch straight down
@@ -107,19 +107,29 @@ void APhoenixDive::LaunchToGround()
 			ImpulseVec *= 1 + (MinDownwardForceCanApply - ImpulseVec.Size()) / ImpulseVec.Size();
 		}
 	}
-	
-	Character->GetCharacterMovement()->Velocity = ImpulseVec;
 
+	MULT_LaunchToGround_Implementation(ImpulseVec);
+	
 	// prevent hanging in air
 	world->GetTimerManager().ClearTimer(HangInAirTimerHandle);
 	// remove hanging expiration
 	world->GetTimerManager().ClearTimer(MaxHangingTimerHandle);
+	
+	// Setup ground collision
+	Character->GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &APhoenixDive::MULT_CollisionWithGround);
 
 	CLI_StopGroundTarget();
-	// Setup ground collision
-	Character->GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &APhoenixDive::CollisionWithGround);
 }
- 
+
+void APhoenixDive::MULT_LaunchToGround_Implementation(FVector LaunchForce)
+{
+	ACharacter* Character = Cast<ACharacter>(GetInstigator());
+	if (Character == nullptr) return;
+
+	Character->GetCharacterMovement()->GravityScale = CachedGravityScale;
+	Character->GetCharacterMovement()->Velocity = LaunchForce;
+}
+
 FVector APhoenixDive::CalculateDownwardVectorImpulse(FVector TargetPosition, float Angle)
 {
 	float angle = UKismetMathLibrary::DegreesToRadians(Angle);
@@ -220,7 +230,7 @@ void APhoenixDive::CLI_SpawnGroundTarget_Implementation()
 	GroundTarget = world->SpawnActor<AGroundTarget>(GroundTargetType);
 	world->GetTimerManager().SetTimer(UpdateGroundTargetPositionTimerHandle, this, &APhoenixDive::UpdateGroundTargetPosition, 0.02, true);
 }
-
+ 
 void APhoenixDive::CLI_StopGroundTarget_Implementation()
 {
 	UWorld* world = GetWorld();
@@ -257,31 +267,36 @@ void APhoenixDive::EndLaunchUp()
 	// immediately enter new state
 	UseAbility(EAbilityInputTypes::None);
 }
-
-void APhoenixDive::CollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+ 
+void APhoenixDive::MULT_CollisionWithGround_Implementation(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	UWorld* world = GetWorld();
-	if (!world) return;
+	ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+	PlayerCharacter->GetCharacterMovement()->GravityScale = CachedGravityScale;
 
-	BP_AbilityInnerState(3);
-
-	// Apply damage to self for detonation effect
-	UGameplayStatics::ApplyPointDamage(GetInstigator(), Damage, FVector::ZeroVector, FHitResult(),
-		GetInstigator()->GetController(), GetInstigator(), DamageType);
-
-	// Apply damage to rest of enemies
-	TArray<FHitResult> OutHits;
-	if (UKismetSystemLibrary::SphereTraceMultiForObjects(world, Hit.Location, Hit.Location + FVector::UpVector * -10, Radius, EnemyObjectTypes,
-		false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true))
+	if (GetLocalRole() == ROLE_Authority)
 	{
-		for (FHitResult CollisionHit : OutHits)
+		UWorld* world = GetWorld();
+		if (!world) return;
+
+		BP_AbilityInnerState(3);
+
+		// Apply damage to self for detonation effect
+		UGameplayStatics::ApplyPointDamage(GetInstigator(), Damage, FVector::ZeroVector, FHitResult(),
+			GetInstigator()->GetController(), GetInstigator(), DamageType);
+
+		// Apply damage to rest of enemies
+		TArray<FHitResult> OutHits;
+		if (UKismetSystemLibrary::SphereTraceMultiForObjects(world, Hit.Location, Hit.Location + FVector::UpVector * -10, Radius, EnemyObjectTypes,
+			false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true))
 		{
-			UGameplayStatics::ApplyPointDamage(CollisionHit.Actor.Get(), Damage, CollisionHit.Location, CollisionHit, GetInstigator()->GetController(),
-				GetInstigator(), DamageType);
+			for (FHitResult CollisionHit : OutHits)
+			{
+				UGameplayStatics::ApplyPointDamage(CollisionHit.Actor.Get(), Damage, CollisionHit.Location, CollisionHit, GetInstigator()->GetController(),
+					GetInstigator(), DamageType);
+			}
 		}
+		UnsubscribeToGroundCollision();
 	}
-	
-	UnsubscribeToGroundCollision();
 }
 
 void APhoenixDive::UnsubscribeToGroundCollision()
@@ -290,7 +305,7 @@ void APhoenixDive::UnsubscribeToGroundCollision()
 	if (!Character) return;
 	
 	// unbind delegate
-	Character->GetCapsuleComponent()->OnComponentHit.Remove(this, TEXT("CollisionWithGround"));
+	Character->GetCapsuleComponent()->OnComponentHit.Remove(this, TEXT("MULT_CollisionWithGround"));
 	AbilityStates[CurrState]->ExitState();
 }
 

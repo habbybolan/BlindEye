@@ -115,6 +115,9 @@ public:
 	void HangInAirTimer();
 	void LaunchToGround();
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_LaunchToGround(FVector LaunchForce);
+
 	// Wait for ability use animation notify to send out flock
 	void PlayAbilityAnimation();
 
@@ -143,7 +146,7 @@ protected:
 	UFUNCTION(Client, Reliable)
 	void CLI_SpawnGroundTarget();
 
-	UFUNCTION(Client, Reliable) 
+	UFUNCTION(Client, Reliable)
 	void CLI_StopGroundTarget();
 
 	void hangingInAirExpired();
@@ -160,8 +163,8 @@ protected:
 	void LandingAnimationFinishExecuted();
 	
 	void EndLaunchUp();
-	UFUNCTION()
-	void CollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_CollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 	void UnsubscribeToGroundCollision();
 	virtual void EndAbilityLogic() override;
 };
