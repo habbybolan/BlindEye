@@ -155,8 +155,10 @@ void AShrine::CheckPlayersNearbyHelper()
 	UWorld* World = GetWorld();
 	UKismetSystemLibrary::SphereOverlapActors(World, GetActorLocation(), CheckTutorialPlayersRadius, TArray<TEnumAsByte<EObjectTypeQuery>>(),
 		ABlindEyeBaseCharacter::StaticClass(), TArray<AActor*>(), OutActors);
+
+	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
 	// If 2 players near shrine, then end beginning tutorial and start first enemy tutorial
-	if (OutActors.Num() >= 2)
+	if (OutActors.Num() >= BlindEyeGS->PlayerArray.Num())
 	{
 		ABlindEyeGameMode* BlindEyeGM = Cast<ABlindEyeGameMode>(UGameplayStatics::GetGameMode(World));
 		BlindEyeGM->FinishBeginningTutorial();
