@@ -6,6 +6,7 @@
 #include "Characters/BlindEyePlayerController.h"
 #include "Enemies/Burrower/BurrowerEnemy.h"
 #include "GameFramework/GameState.h"
+#include "LevelSequence/Public/LevelSequenceActor.h"
 #include "BlindEyeGameState.generated.h"
 
 class AIslandManager;
@@ -105,9 +106,12 @@ public:
 	void MULT_WaitingToInteractWithShrine();
 
 	void TutorialFinished();
-	void StartEnemyTutorial(EEnemyTutorialType EnemyTutorial);
 
-	void EnemyTutorialFinished();
+	void EnemyTutorialTextSkipped();
+	
+	// Stops Cutscene and give control back to players, Called from Blueprints
+	UFUNCTION(BlueprintCallable)
+	void FinishEnemyTutorial();
 	
 	void StartGame();
 	
@@ -163,18 +167,15 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_DisplayTextSnippet(EEnemyTutorialType TutorialType);
- 
-	// Notify BP to display text info of enemies 
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_TutorialBurrowerSpawned_CLI(FTransform BurrowerTutorialTransform);
 
 	void EnemyTutorialTrigger(EEnemyTutorialType TutorialType);
 
 	void SetPlayerMovementBlocked(bool IsMovementBlocked);
-
-	// Spawn tutorial burrower from sequencer in cinematic
-	UFUNCTION(BlueprintCallable)
-	void SpawnTutorialBurrower();
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_PlayLevelSequence(ULevelSequence* SequenceToPlay);
+	
+	void StartEnemyTutorial(EEnemyTutorialType TutorialType);
 
 protected:
 
@@ -195,6 +196,9 @@ protected:
 
 	UPROPERTY(Replicated)
 	uint8 CurrRound = 0;
+
+	UPROPERTY()
+	ULevelSequencePlayer* CurrSequencePlaying;
 
 	UFUNCTION()
 	void EnemyDied(AActor* Enemy);
@@ -229,6 +233,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent) 
 	void BP_BeginningTutorialFinished_CLI();
 
-	void StartBurrowerSnapperTutorial();
-	void StartHunterTutorial();
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_EnemyTutorialStarted_SER(EEnemyTutorialType TutorialType);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_EnemyTutorialTextSkipped_SER(EEnemyTutorialType TutorialType);
 };

@@ -182,6 +182,11 @@ void ABlindEyeGameState::SetPlayerMovementBlocked(bool IsMovementBlocked)
 	}
 }
 
+void ABlindEyeGameState::StartEnemyTutorial(EEnemyTutorialType TutorialType)
+{
+	BP_EnemyTutorialStarted_SER(TutorialType);
+}
+
 void ABlindEyeGameState::MULT_WaitingToInteractWithShrine_Implementation() 
 {
 	if (GetLocalRole() == ROLE_Authority)
@@ -197,70 +202,29 @@ void ABlindEyeGameState::TutorialFinished()
 	bInBeginningTutorial = false;
 	TutorialEndedDelegate.Broadcast();
 	MULT_BeginningTutorialFinished();
-	StartEnemyTutorial(EEnemyTutorialType::BurrowerSnapper);
 }
 
-void ABlindEyeGameState::StartEnemyTutorial(EEnemyTutorialType EnemyTutorial)
-{
-	SetPlayerMovementBlocked(true);
-	switch (EnemyTutorial)
-	{
-	case EEnemyTutorialType::BurrowerSnapper:
-		StartBurrowerSnapperTutorial();
-	case EEnemyTutorialType::Hunter:
-		StartHunterTutorial();
-	}
-}
-
-void ABlindEyeGameState::StartBurrowerSnapperTutorial()
-{
+void ABlindEyeGameState::MULT_PlayLevelSequence_Implementation(ULevelSequence* SequenceToPlay)
+{ 
 	UWorld* World = GetWorld();
-
-	CurrEnemyTutorial = EEnemyTutorialType::BurrowerSnapper;
-	
-	// Get Tutorial teleport points for burrower/snapper intro cutscene
-	TArray<AActor*> OutActors;
-	UGameplayStatics::GetAllActorsOfClass(World, APlayerStartingCutscenePosition::StaticClass(),OutActors);
-	check(OutActors.Num() >= 2);
-	uint8 SpawnPointIndex = 0;
-
-	// Apply position to all players
-	for (APlayerState* PlayerState : PlayerArray)
-	{
-		APawn* PlayerPawn = PlayerState->GetPawn();
-		PlayerPawn->SetActorTransform(OutActors[SpawnPointIndex]->GetTransform());
-		SpawnPointIndex++;
-	}
-}
-
-void ABlindEyeGameState::SpawnTutorialBurrower()
-{
-	UWorld* World = GetWorld();
-
-	// Get Tutorial burrower spawn point
-	AActor* TutorialSpawnPoint = UGameplayStatics::GetActorOfClass(World, ABurrowerTutorialSpawnPoint::StaticClass());
-	BP_TutorialBurrowerSpawned_CLI(TutorialSpawnPoint->GetTransform());
-	
-	// Spawn single burrower from custom tutorial method in SpawnManager
-	AActor* SpawnManagerActor = UGameplayStatics::GetActorOfClass(World, ABurrowerSpawnManager::StaticClass());
-	ABurrowerSpawnManager* SpawnManager = Cast<ABurrowerSpawnManager>(SpawnManagerActor);
-
-	ABurrowerEnemy* SpawnedBurrower = SpawnManager->TutorialBurrowerSpawn();
-	check(SpawnedBurrower)
-}
-
-void ABlindEyeGameState::StartHunterTutorial()
-{
-	CurrEnemyTutorial = EEnemyTutorialType::Hunter;
-	// TODO:
-}
+	FMovieSceneSequencePlaybackSettings Settings;
+	Settings.bPauseAtEnd = true; 
+	ALevelSequenceActor* OutActor; 
+	CurrSequencePlaying = ULevelSequencePlayer::CreateLevelSequencePlayer(World, SequenceToPlay, Settings, OutActor);
+	CurrSequencePlaying->Play(); 
+} 
 
 void ABlindEyeGameState::MULT_BeginningTutorialFinished_Implementation()
 {
 	BP_BeginningTutorialFinished_CLI();
 }
 
-void ABlindEyeGameState::EnemyTutorialFinished()
+void ABlindEyeGameState::EnemyTutorialTextSkipped()
+{
+	BP_EnemyTutorialTextSkipped_SER(CurrEnemyTutorial);
+}
+
+void ABlindEyeGameState::FinishEnemyTutorial()
 {
 	MULT_EnemyTutorialFinished();
 	SetPlayerMovementBlocked(false);
@@ -268,6 +232,7 @@ void ABlindEyeGameState::EnemyTutorialFinished()
 
 void ABlindEyeGameState::MULT_EnemyTutorialFinished_Implementation()
 {
+	CurrSequencePlaying = nullptr;
 	BP_EnemyTutorialFinished_CLI(CurrEnemyTutorial);
 	CurrEnemyTutorial = EEnemyTutorialType::None;
 	bInEnemyTutorialSkippableSection = false;
