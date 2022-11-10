@@ -26,7 +26,7 @@ public:
 	UProjectileMovementComponent* Movement;
 
 	UPROPERTY(EditDefaultsOnly)
-	UStaticMeshComponent* Mesh;
+	USkeletalMeshComponent* Mesh;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	USphereComponent* SphereComponent;

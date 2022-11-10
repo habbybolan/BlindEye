@@ -13,11 +13,11 @@ ABoid::ABoid()
 
 	RootScene = CreateDefaultSubobject<USceneComponent>("Root Scene");
 	RootComponent = RootScene;
-	
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Boid Mesh");
-	Mesh->SetCollisionProfileName("OverlapAll");
-	Mesh->SetEnableGravity(false);
-	Mesh->SetupAttachment(RootComponent);
+	 
+	BirdMesh = CreateDefaultSubobject<USkeletalMeshComponent>("Bird Mesh");
+	BirdMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	BirdMesh->SetEnableGravity(false);
+	BirdMesh->SetupAttachment(RootComponent);
 	
 	BoidMovement = CreateDefaultSubobject<UProjectileMovementComponent>("Boid Movement");
 	BoidMovement->SetUpdatedComponent(RootComponent);
@@ -97,7 +97,7 @@ void ABoid::InitializeBoid(FVector Location, FRotator Rotation)
 void ABoid::DisableActor(bool bDisableActor)
 {
 	bIsDisabled = bDisableActor;
-	Mesh->SetVisibility(true);
+	BirdMesh->SetVisibility(true);
 	SetActorEnableCollision(!bDisableActor);
 	SetActorTickEnabled(!bDisableActor);
 
@@ -181,16 +181,16 @@ void ABoid::HorizontalRotation()
 
 	// Rotate either based on XY plane if turning, otherwise rotate back to resting position
 	float NewRoll = UKismetMathLibrary::Lerp(
-			Mesh->GetRelativeRotation().Roll,
+			BirdMesh->GetRelativeRotation().Roll,
 			abs(angleOnXZPlane) < .1 ? 0 :
 				angleOnXZPlane < 0 ? -MaxRollRotation : MaxRollRotation,
 			RollRotationSpeed);
 	
 	FRotator NewRollRot = FRotator(
-			Mesh->GetRelativeRotation().Pitch,
-			Mesh->GetRelativeRotation().Yaw,
+			BirdMesh->GetRelativeRotation().Pitch,
+			BirdMesh->GetRelativeRotation().Yaw,
 			NewRoll);
 	
-	Mesh->SetRelativeRotation(NewRollRot);
+	BirdMesh->SetRelativeRotation(NewRollRot);
 }
 
