@@ -6,6 +6,7 @@
 #include "Shrine.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Enemies/Burrower/BurrowerSpawnManager.h"
+#include "Enemies/Burrower/BurrowerTutorialSpawnPoint.h"
 #include "GameFramework/PlayerState.h"
 #include "Gameplay/BlindEyeGameMode.h"
 #include "Gameplay/BlindEyePlayerState.h"
@@ -169,6 +170,16 @@ void ABlindEyeGameState::EnemyTutorialTrigger(EEnemyTutorialType TutorialType)
 	}
 }
 
+void ABlindEyeGameState::MULT_WaitingToInteractWithShrine_Implementation() 
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		// Shrine notifies when all players are nearby to end tutorial
+		Shrine->StartWaitingForPlayersToInteract();
+	}
+	BP_WaitingToInteractWithShrine_CLI();
+}
+
 void ABlindEyeGameState::TutorialFinished()
 {
 	bInBeginningTutorial = false;
@@ -182,7 +193,15 @@ void ABlindEyeGameState::TutorialFinished()
 
 	ABurrowerEnemy* SpawnedBurrower = SpawnManager->TutorialBurrowerSpawn();
 	check(SpawnedBurrower)
-	BP_TutorialBurrowerSpawned_SER(SpawnedBurrower);
+	
+	MULT_BeginningTutorialFinished();
+}
+ 
+void ABlindEyeGameState::MULT_BeginningTutorialFinished_Implementation()
+{
+	AActor* TutorialSpawnPoint = UGameplayStatics::GetActorOfClass(GetWorld(), ABurrowerTutorialSpawnPoint::StaticClass());
+	BP_BeginningTutorialFinished_CLI();
+	BP_TutorialBurrowerSpawned_CLI(TutorialSpawnPoint->GetTransform());
 }
 
 void ABlindEyeGameState::EnemyTutorialFinished()
@@ -273,16 +292,6 @@ bool ABlindEyeGameState::IsBlindEyeMatchInProgress()
 bool ABlindEyeGameState::IsBlindEyeMatchEnding()
 {
 	return InProgressMatchState == InProgressStates::GameEnding;
-}
-
-void ABlindEyeGameState::MULT_WaitingToInteractWithShrine_Implementation() 
-{
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		// Shrine notifies when all players are nearby to end tutorial
-		Shrine->StartWaitingForPlayersToInteract();
-	}
-	BP_WaitingToInteractWithShrine_CLI();
 }
 
 void ABlindEyeGameState::StartGame()

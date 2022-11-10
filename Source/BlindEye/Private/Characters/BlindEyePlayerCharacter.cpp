@@ -123,8 +123,6 @@ void ABlindEyePlayerCharacter::BeginPlay()
 		PlayerIndicator = Cast<UPlayerScreenIndicator>(CreateWidget(world, PlayerIndicatorType, FName("PlayerIndicator")));
 		PlayerIndicator->AddToViewport();
 
-		BP_DisplayDefendShrineIndicator_CLI(true);
-
 		// If another player exists
 		if (APlayerState* OtherPlayerState = BlindEyeGS->GetOtherPlayer(this))
 		{
@@ -223,9 +221,21 @@ void ABlindEyePlayerCharacter::StartTutorial()
 	}
 }
 
-void ABlindEyePlayerCharacter::StartGame()
+void ABlindEyePlayerCharacter::StartGame() 
 {
 	BP_DisplayTutorialChecklist_CLI(false);
+	BP_DisplayDefendShrineIndicator_CLI(true);
+ 
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		World->GetTimerManager().SetTimer(HideDefendShrineIndicatorTimerHandle, this, &ABlindEyePlayerCharacter::MULT_HideDefendShrineIndicator,
+			DefendShrineIndicatorLength, false);
+	}
+}
+
+void ABlindEyePlayerCharacter::MULT_HideDefendShrineIndicator_Implementation()
+{
 	BP_DisplayDefendShrineIndicator_CLI(false);
 }
 
@@ -1044,6 +1054,7 @@ void ABlindEyePlayerCharacter::UpdateRadar()
 {
 	// TODO: Call User widget to Update Radar
 }
+
 
 void ABlindEyePlayerCharacter::TryJump()
 {

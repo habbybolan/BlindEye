@@ -103,6 +103,7 @@ public:
 	// Called once beginning tutorial finished/skipped to wait for players to goto shrine
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_WaitingToInteractWithShrine();
+
 	void TutorialFinished();
 
 	void EnemyTutorialFinished();
@@ -161,10 +162,10 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_DisplayTextSnippet(EEnemyTutorialType TutorialType);
-
-	// Notify BP to display text info of enemies
+ 
+	// Notify BP to display text info of enemies 
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_TutorialBurrowerSpawned_SER(ABurrowerEnemy* TutorialBurrower);
+	void BP_TutorialBurrowerSpawned_CLI(FTransform BurrowerTutorialTransform);
 
 	void EnemyTutorialTrigger(EEnemyTutorialType TutorialType);
 
@@ -205,6 +206,9 @@ protected:
 	void OnMarkRemoved(AActor* UnmarkedActor, EMarkerType MarkerType);
 
 	UFUNCTION(NetMulticast, Reliable)
+	void MULT_BeginningTutorialFinished();
+
+	UFUNCTION(NetMulticast, Reliable)
 	void MULT_EnemyTutorialFinished();
 
 	UFUNCTION(BlueprintImplementableEvent)
@@ -215,4 +219,6 @@ protected:
  
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_WaitingToInteractWithShrine_CLI();
+	UFUNCTION(BlueprintImplementableEvent) 
+	void BP_BeginningTutorialFinished_CLI();
 };

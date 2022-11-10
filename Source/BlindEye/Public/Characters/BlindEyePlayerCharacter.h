@@ -63,6 +63,9 @@ class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityU
 	UPROPERTY(EditDefaultsOnly)
 	float ButtonHoldToSkipTutorial = 3.f;
 
+	UPROPERTY(EditDefaultsOnly)
+	float DefendShrineIndicatorLength = 60.f;
+
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UPlayerScreenIndicator> PlayerIndicatorType;
 	
@@ -290,9 +293,6 @@ public:
 
 	void NotifyOfOtherPlayerExistance(ABlindEyePlayerCharacter* NewPlayer);
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_DisplayDefendShrineIndicator_CLI(bool bShowIndicator);
-
 	virtual FVector GetIndicatorPosition() override;
 	
 protected:
@@ -404,6 +404,12 @@ protected:
 	float RadarUpdateDelay = 0.15f;
 	UFUNCTION()
 	void UpdateRadar();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_DisplayDefendShrineIndicator_CLI(bool bShowIndicator);
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_HideDefendShrineIndicator();
+	FTimerHandle HideDefendShrineIndicatorTimerHandle;
 
 protected:
 	// APawn interface
