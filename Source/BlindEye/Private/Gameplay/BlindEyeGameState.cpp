@@ -83,39 +83,21 @@ void ABlindEyeGameState::SkipGameTime(float AmountToSkip)
 
 void ABlindEyeGameState::OnPlayerDied(ABlindEyePlayerState* PlayerThatDied)
 {
-	// TODO: USE LOGIC FOR LOSE CONDITION OF ALL PLAYERS DYING
-	// Notify owning player that player died
-	// UWorld* World = GetWorld();
-	// if (APlayerController* Controller = UGameplayStatics::GetPlayerController(World, 0))
-	// {
-	// 	if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Controller->GetPawn()))
-	// 	{
-	// 		// Only notify if is other player
-	// 		if (Player != PlayerThatDied->GetPawn())
-	// 		{
-	// 			Player->OnOtherPlayerDied(PlayerThatDied);
-	// 		}
-	// 	}
-	// }
+	DeadPlayers.Add(PlayerThatDied);
 }
 
 void ABlindEyeGameState::OnPlayerRevived(ABlindEyePlayerState* PlayerRevived)
 {
-	// TODO: USE LOGIC FOR LOSE CONDITION OF ALL PLAYERS DYING
-	// Notify owning player that player revived
-	// UWorld* World = GetWorld();
-	// if (APlayerController* Controller = UGameplayStatics::GetPlayerController(World, 0))
-	// {
-	// 	// Only notify if is other player
-	// 	if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Controller->GetPawn()))
-	// 	{
-	// 		// Only notify if is other player
-	// 		if (Player != PlayerRevived->GetPawn())
-	// 		{
-	// 			Player->OnOtherPlayerRevived(PlayerRevived);
-	// 		}
-	// 	}
-	// }
+	for (uint8 i = 0; i < DeadPlayers.Num(); i++)
+	{
+		if (DeadPlayers[i] == PlayerRevived)
+		{
+			DeadPlayers.RemoveAt(i);
+			return;
+		}	
+	}
+	// Tried to revive an already revived player
+	check(true);
 }
 
 void ABlindEyeGameState::AddPlayerState(APlayerState* PlayerState)

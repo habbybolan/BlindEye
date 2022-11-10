@@ -76,6 +76,9 @@ public:
 	void StartGame();
 
 	float GetCurrRoundLength();
+ 
+	void OnPlayerDied(ABlindEyePlayerState* DeadPlayer);
+	void OnPlayerRevived(ABlindEyePlayerState* RevivedPlayer);
 
 protected:
 	virtual void BeginPlay() override;

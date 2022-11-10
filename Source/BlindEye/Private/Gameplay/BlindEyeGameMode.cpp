@@ -293,6 +293,23 @@ float ABlindEyeGameMode::GetCurrRoundLength()
 	return TimerUntilGameWon / NumRounds;
 }
 
+void ABlindEyeGameMode::OnPlayerDied(ABlindEyePlayerState* DeadPlayer)
+{
+	ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState);
+	BlindEyeGameState->OnPlayerDied(DeadPlayer);
+
+	if (BlindEyeGameState->DeadPlayers.Num() >= BlindEyeGameState->PlayerArray.Num())
+	{
+		OnGameEnded();
+	}
+}
+
+void ABlindEyeGameMode::OnPlayerRevived(ABlindEyePlayerState* RevivedPlayer)
+{
+	ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState);
+	BlindEyeGameState->OnPlayerRevived(RevivedPlayer);
+}
+
 void ABlindEyeGameMode::RunMainGameLoop()
 {
 	ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState);

@@ -4,6 +4,7 @@
 #include "Gameplay/BlindEyePlayerState.h"
 
 #include "Characters/BlindEyePlayerCharacter.h"
+#include "Gameplay/BlindEyeGameMode.h"
 #include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
@@ -63,6 +64,19 @@ void ABlindEyePlayerState::SetIsDead(bool isDead)
 	if (GetLocalRole() == ROLE_Authority)
 	{
 		OnRep_PlayerDeathStateUpdated();
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			if (isDead)
+			{
+				ABlindEyeGameMode* BlindEyeGM = Cast<ABlindEyeGameMode>(UGameplayStatics::GetGameMode(World));
+				BlindEyeGM->OnPlayerDied(this);
+			} else
+			{
+				ABlindEyeGameMode* BlindEyeGM = Cast<ABlindEyeGameMode>(UGameplayStatics::GetGameMode(World));
+				BlindEyeGM->OnPlayerRevived(this);
+			}
+		}
 	}
 }
 
@@ -93,11 +107,9 @@ void ABlindEyePlayerState::OnRep_PlayerDeathStateUpdated()
 	if (IsDead)
 	{
 		PlayerDeathDelegate.Broadcast(this);
-		BlindEyeGS->OnPlayerDied(this);
 	} else
 	{
 		PlayerRevivedDelegate.Broadcast(this);
-		BlindEyeGS->OnPlayerRevived(this);
 	}
 }
 
