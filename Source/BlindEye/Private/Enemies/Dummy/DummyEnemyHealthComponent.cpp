@@ -74,3 +74,8 @@ void UDummyEnemyHealthComponent::OnDeath(AActor* ActorThatKilled)
 {
 	// Do nothing
 }
+
+void UDummyEnemyHealthComponent::KnockBack(FVector KnockBackForce, AActor* DamageCause)
+{
+	// Do nothing
+}
