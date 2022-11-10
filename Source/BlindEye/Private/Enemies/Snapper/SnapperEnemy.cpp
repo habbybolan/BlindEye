@@ -300,12 +300,10 @@ void ASnapperEnemy::MULT_StopRagdoll_Implementation()
 		TimeForGetup = PlayAnimMontage(GetUpFromBehindMontage);
 	}
 
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = false;
-		GetCharacterMovement()->bServerAcceptClientAuthoritativePosition = false;
-		GetWorldTimerManager().SetTimer(GetupAnimTimerHandle, this, &ASnapperEnemy::FinishGettingUp, TimeForGetup, false);
-	}
+	GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = false;
+	GetCharacterMovement()->bServerAcceptClientAuthoritativePosition = false;
+	GetWorldTimerManager().SetTimer(GetupAnimTimerHandle, this, &ASnapperEnemy::FinishGettingUp, TimeForGetup, false);
+	
 	AlphaBlendWeight = 1;
 	// blend weight loop to smooth out getting up animation
 	GetWorldTimerManager().SetTimer(PhysicsBlendWeightTimerHandle, this, &ASnapperEnemy::SetPhysicsBlendWeight, BlendWeightDelay, true);
