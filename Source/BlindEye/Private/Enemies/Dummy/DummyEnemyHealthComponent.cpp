@@ -9,7 +9,7 @@
 
 UDummyEnemyHealthComponent::UDummyEnemyHealthComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	IsInvincible = true;
+	IsInvincible = false;
 }
 
 void UDummyEnemyHealthComponent::DetonateMark()
@@ -68,4 +68,9 @@ void UDummyEnemyHealthComponent::AddMarkerHelper(EMarkerType MarkerType)
 			}
 		}
 	}
+}
+
+void UDummyEnemyHealthComponent::OnDeath(AActor* ActorThatKilled)
+{
+	// Do nothing
 }
