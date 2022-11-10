@@ -172,6 +172,10 @@ public:
 
 	void SetPlayerMovementBlocked(bool IsMovementBlocked);
 
+	// Spawn tutorial burrower from sequencer in cinematic
+	UFUNCTION(BlueprintCallable)
+	void SpawnTutorialBurrower();
+
 protected:
 
 	UPROPERTY(Replicated)

@@ -215,13 +215,15 @@ void ABlindEyeGameState::StartEnemyTutorial(EEnemyTutorialType EnemyTutorial)
 void ABlindEyeGameState::StartBurrowerSnapperTutorial()
 {
 	UWorld* World = GetWorld();
+
+	CurrEnemyTutorial = EEnemyTutorialType::BurrowerSnapper;
 	
 	// Get Tutorial teleport points for burrower/snapper intro cutscene
 	TArray<AActor*> OutActors;
 	UGameplayStatics::GetAllActorsOfClass(World, APlayerStartingCutscenePosition::StaticClass(),OutActors);
 	check(OutActors.Num() >= 2);
 	uint8 SpawnPointIndex = 0;
-	
+
 	// Apply position to all players
 	for (APlayerState* PlayerState : PlayerArray)
 	{
@@ -229,8 +231,16 @@ void ABlindEyeGameState::StartBurrowerSnapperTutorial()
 		PlayerPawn->SetActorTransform(OutActors[SpawnPointIndex]->GetTransform());
 		SpawnPointIndex++;
 	}
+}
+
+void ABlindEyeGameState::SpawnTutorialBurrower()
+{
+	UWorld* World = GetWorld();
+
+	// Get Tutorial burrower spawn point
+	AActor* TutorialSpawnPoint = UGameplayStatics::GetActorOfClass(World, ABurrowerTutorialSpawnPoint::StaticClass());
+	BP_TutorialBurrowerSpawned_CLI(TutorialSpawnPoint->GetTransform());
 	
-	CurrEnemyTutorial = EEnemyTutorialType::BurrowerSnapper;
 	// Spawn single burrower from custom tutorial method in SpawnManager
 	AActor* SpawnManagerActor = UGameplayStatics::GetActorOfClass(World, ABurrowerSpawnManager::StaticClass());
 	ABurrowerSpawnManager* SpawnManager = Cast<ABurrowerSpawnManager>(SpawnManagerActor);
@@ -241,14 +251,13 @@ void ABlindEyeGameState::StartBurrowerSnapperTutorial()
 
 void ABlindEyeGameState::StartHunterTutorial()
 {
+	CurrEnemyTutorial = EEnemyTutorialType::Hunter;
 	// TODO:
 }
 
 void ABlindEyeGameState::MULT_BeginningTutorialFinished_Implementation()
 {
-	AActor* TutorialSpawnPoint = UGameplayStatics::GetActorOfClass(GetWorld(), ABurrowerTutorialSpawnPoint::StaticClass());
 	BP_BeginningTutorialFinished_CLI();
-	BP_TutorialBurrowerSpawned_CLI(TutorialSpawnPoint->GetTransform());
 }
 
 void ABlindEyeGameState::EnemyTutorialFinished()
