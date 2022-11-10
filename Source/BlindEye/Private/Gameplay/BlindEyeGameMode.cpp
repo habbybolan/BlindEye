@@ -326,16 +326,19 @@ void ABlindEyeGameMode::RunMainGameLoop()
 	{
 		PulseTimer = 0;
 		CurrRound++;
-		BP_Pulse(CurrRound);
-		BlindEyeGameState->OnPulse(CurrRound, GetCurrRoundLength());
-		BP_LevelShift();
-		BlindEyeGameState->OnLevelShift();
-
-		// Pulse kills all enemies after duration
-		UWorld* World = GetWorld();
-		if (World)
+		if (CurrRound < NumRounds)
 		{
-			World->GetTimerManager().SetTimer(PulseKillDelayTimerHandle, this, &ABlindEyeGameMode::PerformPulse, PulseKillDelay, false);
+			BP_Pulse(CurrRound);
+			BlindEyeGameState->OnPulse(CurrRound, GetCurrRoundLength());
+			BP_LevelShift();
+			BlindEyeGameState->OnLevelShift();
+
+			// Pulse kills all enemies after duration
+			UWorld* World = GetWorld();
+			if (World)
+			{
+				World->GetTimerManager().SetTimer(PulseKillDelayTimerHandle, this, &ABlindEyeGameMode::PerformPulse, PulseKillDelay, false);
+			}
 		}
 	}
 
