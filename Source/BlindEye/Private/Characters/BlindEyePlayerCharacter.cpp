@@ -1023,7 +1023,7 @@ bool ABlindEyePlayerCharacter::GetIsDead()
 bool ABlindEyePlayerCharacter::IsActionsBlocked()
 {
 	ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState());
-	return BlindEyePS == nullptr || BlindEyePS->GetIsDead();
+	return BlindEyePS == nullptr || BlindEyePS->GetIsDead() || BlindEyePS->bActionsBlocked;
 }
 
 float ABlindEyePlayerCharacter::GetAllyHealthPercent()
@@ -1058,6 +1058,7 @@ void ABlindEyePlayerCharacter::UpdateRadar()
 
 void ABlindEyePlayerCharacter::TryJump()
 {
+	if (IsActionsBlocked()) return;
 	CLI_TryFinishTutorial(ETutorialChecklist::Jump);
 	if (!HealthComponent->GetIsHunterDebuff() && !GetIsDead())
 	{
@@ -1067,6 +1068,7 @@ void ABlindEyePlayerCharacter::TryJump()
 
 void ABlindEyePlayerCharacter::MoveForward(float Value)
 {
+	if (IsActionsBlocked()) return;
 	if (IsActionsBlocked()) return;
 	
 	if ((Controller != nullptr) && (Value != 0.0f))
@@ -1092,6 +1094,7 @@ void ABlindEyePlayerCharacter::MoveForward(float Value)
 
 void ABlindEyePlayerCharacter::MoveRight(float Value)
 {
+	if (IsActionsBlocked()) return;
 	if (IsActionsBlocked()) return;
 	
 	if ( (Controller != nullptr) && (Value != 0.0f) )

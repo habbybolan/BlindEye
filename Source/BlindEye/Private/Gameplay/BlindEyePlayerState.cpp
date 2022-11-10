@@ -122,4 +122,5 @@ void ABlindEyePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(ABlindEyePlayerState, CurrHealth);
 	DOREPLIFETIME(ABlindEyePlayerState, CurrBirdMeter);
 	DOREPLIFETIME(ABlindEyePlayerState, IsDead);
+	DOREPLIFETIME(ABlindEyePlayerState, bActionsBlocked);
 }

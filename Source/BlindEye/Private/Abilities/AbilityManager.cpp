@@ -17,6 +17,15 @@ UAbilityManager::UAbilityManager()
  
 void UAbilityManager::SER_UsedAbility_Implementation(EAbilityTypes abilityType, EAbilityInputTypes abilityUsageType)
 {
+	ABlindEyePlayerCharacter* OwningPlayer = Cast<ABlindEyePlayerCharacter>(GetOwner());
+	if (ensure(OwningPlayer))
+	{
+		// Prevent using an ability if not already using and actions blocked
+		if (OwningPlayer->IsActionsBlocked() && CurrUsedAbility == nullptr)
+		{
+			return;
+		}
+	}
 	// prevent using ability if another one activated and blocking other abilities
 	// TODO: Check if ability being used is blocking. If not, cancel ability 
 

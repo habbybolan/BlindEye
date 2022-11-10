@@ -170,6 +170,17 @@ void ABlindEyeGameState::EnemyTutorialTrigger(EEnemyTutorialType TutorialType)
 	}
 }
 
+void ABlindEyeGameState::SetPlayerMovementBlocked(bool IsMovementBlocked)
+{
+	for (APlayerState* PlayerState : PlayerArray)
+	{
+		if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(PlayerState))
+		{
+			BlindEyePS->bActionsBlocked = IsMovementBlocked;
+		}
+	}
+}
+
 void ABlindEyeGameState::MULT_WaitingToInteractWithShrine_Implementation() 
 {
 	if (GetLocalRole() == ROLE_Authority)
@@ -183,9 +194,26 @@ void ABlindEyeGameState::MULT_WaitingToInteractWithShrine_Implementation()
 void ABlindEyeGameState::TutorialFinished()
 {
 	bInBeginningTutorial = false;
-	CurrEnemyTutorial = EEnemyTutorialType::BurrowerSnapper;
 	TutorialEndedDelegate.Broadcast();
+	MULT_BeginningTutorialFinished();
+	StartEnemyTutorial(EEnemyTutorialType::BurrowerSnapper);
+}
 
+void ABlindEyeGameState::StartEnemyTutorial(EEnemyTutorialType EnemyTutorial)
+{
+	SetPlayerMovementBlocked(true);
+	switch (EnemyTutorial)
+	{
+	case EEnemyTutorialType::BurrowerSnapper:
+		StartBurrowerSnapperTutorial();
+	case EEnemyTutorialType::Hunter:
+		StartHunterTutorial();
+	}
+}
+
+void ABlindEyeGameState::StartBurrowerSnapperTutorial()
+{
+	CurrEnemyTutorial = EEnemyTutorialType::BurrowerSnapper;
 	// Spawn single burrower from custom tutorial method in SpawnManager
 	UWorld* World = GetWorld(); 
 	AActor* SpawnManagerActor = UGameplayStatics::GetActorOfClass(World, ABurrowerSpawnManager::StaticClass());
@@ -193,10 +221,13 @@ void ABlindEyeGameState::TutorialFinished()
 
 	ABurrowerEnemy* SpawnedBurrower = SpawnManager->TutorialBurrowerSpawn();
 	check(SpawnedBurrower)
-	
-	MULT_BeginningTutorialFinished();
 }
- 
+
+void ABlindEyeGameState::StartHunterTutorial()
+{
+	// TODO:
+}
+
 void ABlindEyeGameState::MULT_BeginningTutorialFinished_Implementation()
 {
 	AActor* TutorialSpawnPoint = UGameplayStatics::GetActorOfClass(GetWorld(), ABurrowerTutorialSpawnPoint::StaticClass());
@@ -207,6 +238,7 @@ void ABlindEyeGameState::MULT_BeginningTutorialFinished_Implementation()
 void ABlindEyeGameState::EnemyTutorialFinished()
 {
 	MULT_EnemyTutorialFinished();
+	SetPlayerMovementBlocked(false);
 }
 
 void ABlindEyeGameState::MULT_EnemyTutorialFinished_Implementation()

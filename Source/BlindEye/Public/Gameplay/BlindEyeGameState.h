@@ -105,6 +105,7 @@ public:
 	void MULT_WaitingToInteractWithShrine();
 
 	void TutorialFinished();
+	void StartEnemyTutorial(EEnemyTutorialType EnemyTutorial);
 
 	void EnemyTutorialFinished();
 	
@@ -169,6 +170,8 @@ public:
 
 	void EnemyTutorialTrigger(EEnemyTutorialType TutorialType);
 
+	void SetPlayerMovementBlocked(bool IsMovementBlocked);
+
 protected:
 
 	UPROPERTY(Replicated)
@@ -221,4 +224,7 @@ protected:
 	void BP_WaitingToInteractWithShrine_CLI();
 	UFUNCTION(BlueprintImplementableEvent) 
 	void BP_BeginningTutorialFinished_CLI();
+
+	void StartBurrowerSnapperTutorial();
+	void StartHunterTutorial();
 };

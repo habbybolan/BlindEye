@@ -37,6 +37,9 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPlayerRevivedSignature, ABlindEyePlayerState*, PlayerState);
 	FPlayerRevivedSignature PlayerRevivedDelegate;
 
+	UPROPERTY(Replicated)
+	bool bActionsBlocked = false;
+
 protected:
 	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
 	
