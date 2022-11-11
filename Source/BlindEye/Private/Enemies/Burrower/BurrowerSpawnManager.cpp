@@ -10,6 +10,7 @@
 #include "Enemies/Burrower/BurrowerEnemyController.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "Enemies/Burrower/BurrowerTriggerVolume.h"
+#include "Enemies/Burrower/BurrowerTutorialSpawnPoint.h"
 #include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -32,11 +33,11 @@ void ABurrowerSpawnManager::BeginPlay()
 		// Initialize Burrower spawner once game set as started
 		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
 		check(BlindEyeGS)
-		BlindEyeGS->GameStartedDelegate.AddDynamic(this, &ABurrowerSpawnManager::OnGameStarted);
+		BlindEyeGS->TutorialEndedDelegate.AddDynamic(this, &ABurrowerSpawnManager::OnStartingTutorialEnded);
 	}
 }
 
-void ABurrowerSpawnManager::OnGameStarted()
+void ABurrowerSpawnManager::OnStartingTutorialEnded()
 {
 	Initialize();
 }
@@ -116,8 +117,7 @@ void ABurrowerSpawnManager::SpawnBurrowerRandLocation()
 			UBurrowerSpawnPoint* SpawnPoint = Island->GetRandUnusedBurrowerSpawnPoint();
 			if (SpawnPoint)
 			{
-				SpawnBurrowerHelper(SpawnPoint, Island);
-				return;
+				SpawnBurrowerAtBurrowerSpawnPoint(SpawnPoint, Island);
 			}
 		}
 	}
@@ -125,35 +125,44 @@ void ABurrowerSpawnManager::SpawnBurrowerRandLocation()
 
 void ABurrowerSpawnManager::SpawnBurrower(AIsland* Island)
 {
-	UBurrowerSpawnPoint* SpawnPoint = Island->GetRandUnusedBurrowerSpawnPoint();
-	if (SpawnPoint)
-	{
-		SpawnBurrowerHelper(SpawnPoint, Island);
-	}
-}
-
-void ABurrowerSpawnManager::SpawnBurrowerHelper(UBurrowerSpawnPoint* SpawnPoint, AIsland* Island)
-{
 	// prevent more spawning if max num burrowers already spawned
 	if (SpawnedBurrowers[Island->IslandID].Num() >= MaxNumBurrowersPerIsland) return;
 	
+	UBurrowerSpawnPoint* SpawnPoint = Island->GetRandUnusedBurrowerSpawnPoint();
+	if (SpawnPoint)
+	{
+		SpawnBurrowerAtBurrowerSpawnPoint(SpawnPoint, Island);
+	}
+}
+
+void ABurrowerSpawnManager::SpawnBurrowerAtBurrowerSpawnPoint(UBurrowerSpawnPoint* SpawnPoint, AIsland* Island)
+{
+	ABurrowerEnemy* Burrower = SpawnBurrowerHelper(SpawnPoint->GetComponentLocation(), SpawnPoint->GetComponentRotation(), Island);
+	if (Burrower)
+	{
+		Burrower->SubscribeToSpawnLocation(SpawnPoint);
+	}
+}
+
+ABurrowerEnemy* ABurrowerSpawnManager::SpawnBurrowerHelper(FVector SpawnLocation, FRotator SpawnRotation, AIsland* Island)
+{
 	UWorld* world = GetWorld();
-	if (!world) return;
 
 	FActorSpawnParameters params;
 	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn; 
-	ABurrowerEnemy* SpawnedBurrower = world->SpawnActor<ABurrowerEnemy>(BurrowerType, SpawnPoint->GetComponentLocation(), SpawnPoint->GetComponentRotation(), params);
+	ABurrowerEnemy* SpawnedBurrower = world->SpawnActor<ABurrowerEnemy>(BurrowerType, SpawnLocation, SpawnRotation, params);
 	if (SpawnedBurrower)
 	{
-		SpawnedBurrower->SpawnMangerSetup(SpawnPoint->IslandID, this);
-		SpawnedBurrower->SubscribeToSpawnLocation(SpawnPoint);
+		SpawnedBurrower->SpawnMangerSetup(Island->IslandID, this);
 		SpawnedBurrower->SubscribeToIsland(Island);
-		SpawnedBurrowers[SpawnPoint->IslandID].Add(SpawnedBurrower);
+		SpawnedBurrowers[Island->IslandID].Add(SpawnedBurrower);
 		if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(SpawnedBurrower))
 		{
 			HealthInterface->GetHealthComponent()->OnDeathDelegate.AddDynamic(this, &ABurrowerSpawnManager::OnBurrowerDeath);
+			return SpawnedBurrower;
 		}
 	}
+	return nullptr;
 }
 
 TArray<ABlindEyePlayerCharacter*> ABurrowerSpawnManager::GetPlayersOnIsland(uint8 islandID)
@@ -176,8 +185,19 @@ void ABurrowerSpawnManager::SetInBurstState()
 
 			BurrowerController->SetInBurstState();
 		}
-		
 	}
+}
+
+ABurrowerEnemy* ABurrowerSpawnManager::TutorialBurrowerSpawn()
+{
+	UWorld* World = GetWorld();
+	AActor* SpawnPoint = UGameplayStatics::GetActorOfClass(World, ABurrowerTutorialSpawnPoint::StaticClass());
+	check(SpawnPoint != nullptr);
+ 
+	AIsland* Island = IslandManager->GetActiveIslands()[0];
+	ABurrowerEnemy* Burrower = SpawnBurrowerHelper(SpawnPoint->GetActorLocation(), SpawnPoint->GetActorRotation(), Island);
+	Burrower->bIsTutorialBurrower = true;
+	return Burrower;
 }
 
 UBurrowerSpawnPoint* ABurrowerSpawnManager::FindRandomUnusedSpawnPoint()

@@ -102,6 +102,8 @@ void ABlindEyeEnemyBase::MYOnTakeDamage(float Damage, FVector HitLocation, const
 
 void ABlindEyeEnemyBase::OnDeath(AActor* ActorThatKilled)
 {
+	if (bIsDead) return;
+	
 	Super::OnDeath(ActorThatKilled);
 	bIsDead = true;
 	UWorld* World = GetWorld();

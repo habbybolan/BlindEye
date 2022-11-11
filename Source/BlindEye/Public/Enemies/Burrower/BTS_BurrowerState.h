@@ -21,12 +21,17 @@ class BLINDEYE_API UBTS_BurrowerState : public UBTService
 	FBlackboardKeySelector EnemyActorKey;
 
 	UPROPERTY(EditAnywhere, Category=BlackBoard) 
-	FBlackboardKeySelector VisibilityStateKey; 
+	FBlackboardKeySelector VisibilityStateKey;
+
+	UPROPERTY(EditAnywhere, Category=BlackBoard)
+	FBlackboardKeySelector IsTutorialKey;
 
 	UPROPERTY(EditAnywhere)
 	float SpawnStateDelay = 15.f;
 
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
+
+	virtual void OnSearchStart(FBehaviorTreeSearchData& SearchData) override;
 
 	float CurrSpawnStateTime = 0;
 	bool bSpawnStateQueued = false;

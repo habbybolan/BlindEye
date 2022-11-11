@@ -84,10 +84,16 @@ bool ABlindEyePlayerState::GetIsTutorialFinished()
 {
 	return bFinishedTutorial;
 }
-
-void ABlindEyePlayerState::SetTutorialFinished()
+ 
+void ABlindEyePlayerState::SetTutorialFinished(bool IsTutorialFinished)
 {
-	bFinishedTutorial = true;
+	if (bFinishedTutorial == IsTutorialFinished) return;
+	bFinishedTutorial = IsTutorialFinished;
+	
+	if (bFinishedTutorial)
+	{
+		BP_PlayerFinishedTutorial_SER();
+	}
 }
 
 void ABlindEyePlayerState::OnRep_HealthUpdated()
@@ -128,4 +134,5 @@ void ABlindEyePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(ABlindEyePlayerState, CurrHealth);
 	DOREPLIFETIME(ABlindEyePlayerState, CurrBirdMeter);
 	DOREPLIFETIME(ABlindEyePlayerState, IsDead);
+	DOREPLIFETIME(ABlindEyePlayerState, bActionsBlocked);
 }

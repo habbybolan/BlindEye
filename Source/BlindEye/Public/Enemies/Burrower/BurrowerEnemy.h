@@ -17,6 +17,7 @@ class IBurrowerSpawnManagerListener;
 class ASnapperEnemy;
 class UHealthComponent;
 class ABlindEyePlayerCharacter;
+class UBaseDamageType;
 
 /**
  * 
@@ -101,6 +102,8 @@ public:
 	// Stored here purely for passing to Controller
 	TScriptInterface<IBurrowerSpawnManagerListener> Listener;
 	uint8 IslandID;
+
+	bool bIsTutorialBurrower = false;
 
 	void SpawnMangerSetup(uint8 islandID, TScriptInterface<IBurrowerSpawnManagerListener> listener);
 	

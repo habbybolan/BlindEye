@@ -7,6 +7,7 @@
 #include "Enemies/Snapper/SnapperEnemy.h"
 #include "Enemies/Burrower/BurrowerEnemy.h"
 #include "GameFramework/Character.h"
+#include "Gameplay/BlindEyeGameState.h"
 #include "HUD/PlayerScreenIndicator.h"
 #include "HUD/ScreenIndicator.h"
 #include "HUD/W_Radar.h"
@@ -62,6 +63,9 @@ class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityU
 
 	UPROPERTY(EditDefaultsOnly)
 	float ButtonHoldToSkipTutorial = 3.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float DefendShrineIndicatorLength = 60.f;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UPlayerScreenIndicator> PlayerIndicatorType;
@@ -256,10 +260,6 @@ public:
 	UFUNCTION(NetMulticast, Reliable)  
 	void MULT_ResetWalkMovementToNormal();
 
-	// Called from BPs to notify player finished tutorial
-	UFUNCTION(BlueprintCallable)
-	void TutorialFinished();
-
 	// Entrance method when tutorial started
 	UFUNCTION()
 	void StartTutorial();
@@ -294,11 +294,17 @@ public:
 
 	void NotifyOfOtherPlayerExistance(ABlindEyePlayerCharacter* NewPlayer);
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_DisplayDefendShrineIndicator_CLI(bool bShowIndicator);
-
 	virtual FVector GetIndicatorPosition() override;
-	
+
+	UFUNCTION(Client, Reliable)
+	void CLI_AddEnemyTutorialTextSnippet(EEnemyTutorialType EnemyTutorialType);
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_AddEnemyTutorialText(EEnemyTutorialType EnemyTutorialType);
+	UFUNCTION(Client, Reliable) 
+	void CLI_RemoveEnemyTutorialTextSnippet();
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_RemoveEnemyTutorialText();
+	 
 protected:
 
 	TSet<ETutorialChecklist> ChecklistFinishedTasks;
@@ -408,6 +414,12 @@ protected:
 	float RadarUpdateDelay = 0.15f;
 	UFUNCTION()
 	void UpdateRadar();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_DisplayDefendShrineIndicator_CLI(bool bShowIndicator);
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_HideDefendShrineIndicator();
+	FTimerHandle HideDefendShrineIndicatorTimerHandle;
 
 protected:
 	// APawn interface

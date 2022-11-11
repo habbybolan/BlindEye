@@ -5,6 +5,9 @@
 
 #include "Shrine.h"
 #include "Characters/BlindEyePlayerCharacter.h"
+#include "Characters/PlayerStartingCutscenePosition.h"
+#include "Enemies/Burrower/BurrowerSpawnManager.h"
+#include "Enemies/Burrower/BurrowerTutorialSpawnPoint.h"
 #include "GameFramework/PlayerState.h"
 #include "Gameplay/BlindEyeGameMode.h"
 #include "Gameplay/BlindEyePlayerState.h"
@@ -132,6 +135,106 @@ APlayerState* ABlindEyeGameState::GetOtherPlayer(ABlindEyePlayerCharacter* Playe
 	}
 	return nullptr;
 }
+  
+void ABlindEyeGameState::MULT_DisplayTextSnippet_Implementation(EEnemyTutorialType TutorialType)
+{
+	bInEnemyTutorialSkippableSection = true;
+	BP_EnemyTutorialTrigger_CLI(TutorialType);
+}
+
+void ABlindEyeGameState::EnemyTutorialTrigger(EEnemyTutorialType TutorialType)
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		if (bInEnemyTutorialSkippableSection) return;
+		MULT_DisplayTextSnippet(TutorialType);
+	}
+
+	for (APlayerState* PS : PlayerArray)
+	{
+		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
+		Player->CLI_AddEnemyTutorialTextSnippet(TutorialType);
+	}
+}
+
+void ABlindEyeGameState::SetPlayerMovementBlocked(bool IsMovementBlocked)
+{
+	for (APlayerState* PlayerState : PlayerArray)
+	{
+		if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(PlayerState))
+		{
+			BlindEyePS->bActionsBlocked = IsMovementBlocked;
+		}
+	}
+}
+
+void ABlindEyeGameState::StartEnemyTutorial(EEnemyTutorialType TutorialType)
+{
+	BP_EnemyTutorialStarted_SER(TutorialType);
+}
+
+void ABlindEyeGameState::MULT_WaitingToInteractWithShrine_Implementation() 
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		// Shrine notifies when all players are nearby to end tutorial
+		Shrine->StartWaitingForPlayersToInteract();
+	}
+	BP_WaitingToInteractWithShrine_CLI();
+}
+
+void ABlindEyeGameState::TutorialFinished()
+{
+	bInBeginningTutorial = false;
+	TutorialEndedDelegate.Broadcast();
+	MULT_BeginningTutorialFinished();
+}
+
+void ABlindEyeGameState::MULT_PlayLevelSequence_Implementation(ULevelSequence* SequenceToPlay)
+{ 
+	UWorld* World = GetWorld();
+	FMovieSceneSequencePlaybackSettings Settings;
+	//Settings.bPauseAtEnd = true;
+	Settings.bHideHud = true;
+	ALevelSequenceActor* OutActor; 
+	CurrSequencePlaying = ULevelSequencePlayer::CreateLevelSequencePlayer(World, SequenceToPlay, Settings, OutActor);
+	CurrSequencePlaying->Play(); 
+} 
+
+void ABlindEyeGameState::MULT_BeginningTutorialFinished_Implementation()
+{
+	BP_BeginningTutorialFinished_CLI();
+}
+
+void ABlindEyeGameState::EnemyTutorialTextSkipped()
+{
+	for (APlayerState* PS : PlayerArray)
+	{
+		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
+		Player->CLI_RemoveEnemyTutorialTextSnippet();
+	}
+	
+	BP_EnemyTutorialTextSkipped_SER(CurrEnemyTutorial);
+}
+
+void ABlindEyeGameState::FinishEnemyTutorial()
+{
+	MULT_EnemyTutorialFinished();
+	// TODO: Remove text snippet to player
+}
+
+void ABlindEyeGameState::MULT_EnemyTutorialFinished_Implementation()
+{
+	SetPlayerMovementBlocked(false);
+	if (CurrSequencePlaying)
+	{
+		CurrSequencePlaying->GoToEndAndStop();
+	}
+	CurrSequencePlaying = nullptr;
+	BP_EnemyTutorialFinished_CLI(CurrEnemyTutorial);
+	CurrEnemyTutorial = EEnemyTutorialType::None;
+	bInEnemyTutorialSkippableSection = false;
+}
 
 void ABlindEyeGameState::EnemyDied(AActor* EnemyActor)
 {
@@ -211,11 +314,6 @@ bool ABlindEyeGameState::IsBlindEyeMatchEnding()
 	return InProgressMatchState == InProgressStates::GameEnding;
 }
 
-void ABlindEyeGameState::TutorialFinished()
-{
-	TutorialEndedDelegate.Broadcast();
-}
-
 void ABlindEyeGameState::StartGame()
 {
 	GameStartedDelegate.Broadcast();
@@ -247,6 +345,7 @@ void ABlindEyeGameState::OnRep_InProgressMatchState()
 
 void ABlindEyeGameState::TutorialState()
 {
+	bInBeginningTutorial = true;
 	TutorialStartedDelegate.Broadcast();
 }
 
@@ -338,4 +437,7 @@ void ABlindEyeGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(ABlindEyeGameState, CurrRoundTimer)
 	DOREPLIFETIME(ABlindEyeGameState, NumRounds)
 	DOREPLIFETIME(ABlindEyeGameState, Shrine)
+	DOREPLIFETIME(ABlindEyeGameState, CurrEnemyTutorial)
+	DOREPLIFETIME(ABlindEyeGameState, bInBeginningTutorial)
+	DOREPLIFETIME(ABlindEyeGameState, bInEnemyTutorialSkippableSection)
 }

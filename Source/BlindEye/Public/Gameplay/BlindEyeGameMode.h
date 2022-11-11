@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BlindEyeGameState.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "GameFramework/GameMode.h"
 #include "Islands/IslandManager.h"
@@ -80,6 +81,12 @@ public:
 	void OnPlayerDied(ABlindEyePlayerState* DeadPlayer);
 	void OnPlayerRevived(ABlindEyePlayerState* RevivedPlayer);
 
+	// Called by shrine once players are close enough to shrine and finished beginning tutorial
+	void FinishBeginningTutorial();
+
+	UFUNCTION(BlueprintCallable)
+	void SpawnTutorialBurrower();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -116,6 +123,17 @@ protected:
 	virtual void InitGameState() override;
 
 	void UpdateGameStateValues();
+	// For placing players in proper positions and settings game logic before entering sequence
+	UFUNCTION(BlueprintCallable)
+	void StartEnemyTutorial(EEnemyTutorialType EnemyTutorial);
+	void BurrowerTutorialSetup();
+	void HunterTutorialSetup();
+
+	UFUNCTION(BlueprintCallable) 
+	void PlayLevelSequence(ULevelSequence* SequenceToPlay);
+
+	UFUNCTION(BlueprintCallable)
+	void FinishEnemyTutorial();
 
 	virtual void Tick(float DeltaSeconds) override;
 };
