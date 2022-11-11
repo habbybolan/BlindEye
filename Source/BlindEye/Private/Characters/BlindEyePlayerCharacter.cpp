@@ -354,6 +354,16 @@ FVector ABlindEyePlayerCharacter::GetIndicatorPosition()
 	return GetActorLocation() + FVector::UpVector * 250;
 }
 
+void ABlindEyePlayerCharacter::CLI_AddEnemyTutorialTextSnippet_Implementation(EEnemyTutorialType EnemyTutorialType)
+{
+	BP_AddEnemyTutorialText(EnemyTutorialType);
+}
+
+void ABlindEyePlayerCharacter::CLI_RemoveEnemyTutorialTextSnippet_Implementation()
+{
+	BP_RemoveEnemyTutorialText();
+}
+
 ABlindEyePlayerState* ABlindEyePlayerCharacter::GetAllyPlayerState()
 {
 	ABlindEyeGameState* GameState = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(GetWorld()));

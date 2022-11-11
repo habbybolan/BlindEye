@@ -139,8 +139,6 @@ APlayerState* ABlindEyeGameState::GetOtherPlayer(ABlindEyePlayerCharacter* Playe
 void ABlindEyeGameState::MULT_DisplayTextSnippet_Implementation(EEnemyTutorialType TutorialType)
 {
 	bInEnemyTutorialSkippableSection = true;
-	// TODO: Pause game logic
-	// TODO: let BP Find all actors in the level and display text snippets for them
 	BP_EnemyTutorialTrigger_CLI(TutorialType);
 }
 
@@ -150,6 +148,12 @@ void ABlindEyeGameState::EnemyTutorialTrigger(EEnemyTutorialType TutorialType)
 	{
 		if (bInEnemyTutorialSkippableSection) return;
 		MULT_DisplayTextSnippet(TutorialType);
+	}
+
+	for (APlayerState* PS : PlayerArray)
+	{
+		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
+		Player->CLI_AddEnemyTutorialTextSnippet(TutorialType);
 	}
 }
 
@@ -204,12 +208,19 @@ void ABlindEyeGameState::MULT_BeginningTutorialFinished_Implementation()
 
 void ABlindEyeGameState::EnemyTutorialTextSkipped()
 {
+	for (APlayerState* PS : PlayerArray)
+	{
+		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
+		Player->CLI_RemoveEnemyTutorialTextSnippet();
+	}
+	
 	BP_EnemyTutorialTextSkipped_SER(CurrEnemyTutorial);
 }
 
 void ABlindEyeGameState::FinishEnemyTutorial()
 {
 	MULT_EnemyTutorialFinished();
+	// TODO: Remove text snippet to player
 }
 
 void ABlindEyeGameState::MULT_EnemyTutorialFinished_Implementation()

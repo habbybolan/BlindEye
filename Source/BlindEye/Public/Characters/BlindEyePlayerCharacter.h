@@ -7,6 +7,7 @@
 #include "Enemies/Snapper/SnapperEnemy.h"
 #include "Enemies/Burrower/BurrowerEnemy.h"
 #include "GameFramework/Character.h"
+#include "Gameplay/BlindEyeGameState.h"
 #include "HUD/PlayerScreenIndicator.h"
 #include "HUD/ScreenIndicator.h"
 #include "HUD/W_Radar.h"
@@ -294,7 +295,16 @@ public:
 	void NotifyOfOtherPlayerExistance(ABlindEyePlayerCharacter* NewPlayer);
 
 	virtual FVector GetIndicatorPosition() override;
-	
+
+	UFUNCTION(Client, Reliable)
+	void CLI_AddEnemyTutorialTextSnippet(EEnemyTutorialType EnemyTutorialType);
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_AddEnemyTutorialText(EEnemyTutorialType EnemyTutorialType);
+	UFUNCTION(Client, Reliable) 
+	void CLI_RemoveEnemyTutorialTextSnippet();
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_RemoveEnemyTutorialText();
+	 
 protected:
 
 	TSet<ETutorialChecklist> ChecklistFinishedTasks;
