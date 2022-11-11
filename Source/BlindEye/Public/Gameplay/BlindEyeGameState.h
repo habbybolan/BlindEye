@@ -110,7 +110,6 @@ public:
 	void EnemyTutorialTextSkipped();
 	
 	// Stops Cutscene and give control back to players, Called from Blueprints
-	UFUNCTION(BlueprintCallable)
 	void FinishEnemyTutorial();
 	
 	void StartGame();

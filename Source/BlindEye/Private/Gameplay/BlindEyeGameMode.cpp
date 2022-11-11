@@ -277,7 +277,7 @@ void ABlindEyeGameMode::OnAllPlayersFinishedTutorial()
 		}
 	}
 	// Otherwise, Beginning tutorial section skipped
-	else
+	else if (BlindEyeGS->bInBeginningTutorial)
 	{
 		// Notify players to goto shrine to start game
 		// TODO: Notify shrine to wait for all players near to end beginning tutorial
@@ -294,7 +294,7 @@ void ABlindEyeGameMode::FinishBeginningTutorial()
 	for (AActor* DummyActor : DummyActors)
 	{
 		ADummyEnemy* DummyEnemy = Cast<ADummyEnemy>(DummyActor);
-		DummyEnemy->HealthComponent->Kill();
+		DummyEnemy->Destroy();
 	}
 
 	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(GameState);

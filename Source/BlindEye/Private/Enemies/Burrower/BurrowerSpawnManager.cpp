@@ -185,7 +185,6 @@ void ABurrowerSpawnManager::SetInBurstState()
 
 			BurrowerController->SetInBurstState();
 		}
-		
 	}
 }
 

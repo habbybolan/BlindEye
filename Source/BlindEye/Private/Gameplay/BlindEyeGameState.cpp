@@ -190,7 +190,7 @@ void ABlindEyeGameState::MULT_PlayLevelSequence_Implementation(ULevelSequence* S
 { 
 	UWorld* World = GetWorld();
 	FMovieSceneSequencePlaybackSettings Settings;
-	Settings.bPauseAtEnd = true;
+	//Settings.bPauseAtEnd = true;
 	Settings.bHideHud = true;
 	ALevelSequenceActor* OutActor; 
 	CurrSequencePlaying = ULevelSequencePlayer::CreateLevelSequencePlayer(World, SequenceToPlay, Settings, OutActor);
@@ -210,15 +210,15 @@ void ABlindEyeGameState::EnemyTutorialTextSkipped()
 void ABlindEyeGameState::FinishEnemyTutorial()
 {
 	MULT_EnemyTutorialFinished();
+}
+
+void ABlindEyeGameState::MULT_EnemyTutorialFinished_Implementation()
+{
 	SetPlayerMovementBlocked(false);
 	if (CurrSequencePlaying)
 	{
 		CurrSequencePlaying->GoToEndAndStop();
 	}
-}
-
-void ABlindEyeGameState::MULT_EnemyTutorialFinished_Implementation()
-{
 	CurrSequencePlaying = nullptr;
 	BP_EnemyTutorialFinished_CLI(CurrEnemyTutorial);
 	CurrEnemyTutorial = EEnemyTutorialType::None;
