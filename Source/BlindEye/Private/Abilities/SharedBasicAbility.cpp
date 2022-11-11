@@ -4,6 +4,7 @@
 #include "Abilities/SharedBasicAbility.h"
 
 #include "Characters/BlindEyePlayerCharacter.h"
+#include "Kismet/GameplayStatics.h"
 
 ASharedBasicAbility::ASharedBasicAbility() : AAbilityBase()
 {
@@ -69,26 +70,31 @@ void ASharedBasicAbility::SpawnFlock_Implementation()
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	FActorSpawnParameters params;
-	params.Instigator = GetInstigator();
-	params.Owner = GetInstigator();
-	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
+	FName BoneSpawnLocation;
+	TSubclassOf<ABasicAttackSmallFlock> FlockType;
 	switch (CurrCharge)
 	{
 	case 0:
-		world->SpawnActor<ABasicAttackSmallFlock>(FirstChargeFlockType, FVector::ZeroVector, FRotator::ZeroRotator, params);
+		BoneSpawnLocation = FName("RightHand");
+		FlockType = FirstChargeFlockType;
 		break;
 	case 1:
-		world->SpawnActor<ABasicAttackSmallFlock>(SecondChargeFlockType, FVector::ZeroVector, FRotator::ZeroRotator, params);
+		BoneSpawnLocation = FName("LeftHand");
+		FlockType = SecondChargeFlockType;
 		break;
 	case 2:
-		world->SpawnActor<ABasicAttackSmallFlock>(LastChargeFlockType, FVector::ZeroVector, FRotator::ZeroRotator, params);
+		BoneSpawnLocation = FName("RightHand");
+		FlockType = LastChargeFlockType;
 		break;
 	default:
-		world->SpawnActor<ABasicAttackSmallFlock>(LastChargeFlockType, FVector::ZeroVector, FRotator::ZeroRotator, params);
+		BoneSpawnLocation = FName("RightHand");
+		FlockType = FirstChargeFlockType;
 		break;
 	}
+	ABasicAttackSmallFlock* Flock = world->SpawnActorDeferred<ABasicAttackSmallFlock>(FlockType, FTransform::Identity, GetOwner(),
+			GetInstigator(), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+	Flock->BoneSpawnLocation = BoneSpawnLocation;
+	UGameplayStatics::FinishSpawningActor(Flock, FTransform::Identity);
 }
 
 void ASharedBasicAbility::SetLeaveAbilityTimer()
