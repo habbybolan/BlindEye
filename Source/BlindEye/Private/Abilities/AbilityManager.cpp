@@ -193,8 +193,7 @@ bool UAbilityManager::IsAbilityUnavailable(AAbilityBase* AbilityToUse) const
 	ABlindEyePlayerCharacter* OwningPlayer = Cast<ABlindEyePlayerCharacter>(GetOwner());
 
 	// Try to prevent using ability if hunter marked if possible
-	FMarkData MarkData = OwningPlayer->GetHealthComponent()->GetCurrMark();
-	if (MarkData.bHasMark && MarkData.MarkerType == EMarkerType::Hunter)
+	if (OwningPlayer->GetHealthComponent()->GetIsHunterDebuff())
 	{
 		if (CurrUsedAbility != nullptr)
 		{
