@@ -262,19 +262,27 @@ void ABlindEyeGameMode::OnAllPlayersFinishedTutorial()
 	check(BlindEyeGS)
 
 	// If enemy tutorial
-	if (BlindEyeGS->CurrEnemyTutorial > EEnemyTutorialType::None && BlindEyeGS->bInEnemyTutorialSkippableSection)
+	if (BlindEyeGS->CurrEnemyTutorial > EEnemyTutorialType::None)
 	{
-		// End Burrower/Snapper enemy tutorial
-		if (BlindEyeGS->CurrEnemyTutorial == EEnemyTutorialType::BurrowerSnapper)
+		if ( BlindEyeGS->bInEnemyTutorialSkippableSection)
 		{
-			BlindEyeGS->EnemyTutorialTextSkipped();
+			// End Burrower/Snapper enemy tutorial
+			if (BlindEyeGS->CurrEnemyTutorial == EEnemyTutorialType::BurrowerSnapper)
+			{
+				BlindEyeGS->EnemyTutorialTextSkipped();
+				StartGame();
+			}
+			// End Hunter Enemy tutorial
+			else if (BlindEyeGS->CurrEnemyTutorial == EEnemyTutorialType::Hunter)
+			{
+				BlindEyeGS->EnemyTutorialTextSkipped();
+			}
+		} else
+		{
+			BlindEyeGS->FinishEnemyTutorial();
 			StartGame();
 		}
-		// End Hunter Enemy tutorial
-		else if (BlindEyeGS->CurrEnemyTutorial == EEnemyTutorialType::Hunter)
-		{
-			BlindEyeGS->EnemyTutorialTextSkipped();
-		}
+		
 	}
 	// Otherwise, Beginning tutorial section skipped
 	else if (BlindEyeGS->bInBeginningTutorial)

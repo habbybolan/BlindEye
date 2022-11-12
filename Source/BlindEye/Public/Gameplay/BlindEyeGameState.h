@@ -222,7 +222,7 @@ protected:
 	void MULT_BeginningTutorialFinished();
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_EnemyTutorialFinished();
+	void MULT_BurrowerTutorialFinished();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_EnemyTutorialTrigger_CLI(EEnemyTutorialType TutorialType);

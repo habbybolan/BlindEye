@@ -121,8 +121,7 @@ public:
 	
 
 protected:
-
-	UPROPERTY(Replicated)
+	
 	float CurrTargetIndex = 0;
 
 	bool IsCurrTargetValid();

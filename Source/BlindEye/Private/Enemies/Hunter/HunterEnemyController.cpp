@@ -175,15 +175,8 @@ void AHunterEnemyController::OnStunStart(float StunDuration)
 
 void AHunterEnemyController::OnStunEnd()
 {
-	if (Hunter)
-	{
-		Hunter->SetFleeing();
-		UWorld* World = GetWorld();
-		if (ensure(World))
-		{
-			World->GetTimerManager().SetTimer(InvisDelayTimerHandle, this, &AHunterEnemyController::StunInvisDelayFinished, 1, false);
-		}
-	}	 
+	bFleeingAfterStun = true;
+	SetFleeing();
 }
 
 void AHunterEnemyController::DespawnHunter()
@@ -195,16 +188,26 @@ void AHunterEnemyController::DespawnHunter()
 	RemoveHunterHelper();
 }
 
-void AHunterEnemyController::StunInvisDelayFinished()
+void AHunterEnemyController::FleeingFinished()
 {
-	DespawnHunter(); 
-	DelayedReturn(AfterStunReturnDelay);
+	// If fleeing after stun
+	if (bFleeingAfterStun)
+	{
+		DespawnHunter(); 
+		DelayedReturn(AfterStunReturnDelay);
+	}
+	// Otherwise fleeing after killing target
+	else
+	{
+		DespawnHunter(); 
+		DelayedReturn(AfterKillingPlayerDelay);
+	}
 }
 
-void AHunterEnemyController::TargetKilledInvisDelayFinished()
+UHunterSpawnPoint* AHunterEnemyController::GetRandHunterSpawnPoint()
 {
-	DespawnHunter(); 
-	DelayedReturn(AfterKillingPlayerDelay);
+	AIsland* RandIsland = IslandManager->GetRandIsland();
+	return RandIsland->GetRandHunterSpawnPoint();
 }
 
 void AHunterEnemyController::MULT_SetCachedHealth_Implementation()
@@ -222,6 +225,16 @@ void AHunterEnemyController::DelayedReturn(float ReturnDelay)
 	{
 		World->GetTimerManager().SetTimer(ReturnDelayTimerHandle, this, &AHunterEnemyController::SpawnHunter, ReturnDelay, false);
 	}
+}
+
+void AHunterEnemyController::SetFleeing()
+{
+	UWorld* World = GetWorld();
+	if (Hunter)
+	{
+		Hunter->SetFleeing();
+		World->GetTimerManager().SetTimer(FleeingTimerHandle, this, &AHunterEnemyController::FleeingFinished, FleeingDuration, false);
+	}	 
 }
 
 void AHunterEnemyController::OnPossess(APawn* InPawn)
@@ -320,9 +333,9 @@ void AHunterEnemyController::OnMarkedPlayerDeath()
 			check(Player);
 			if (!Player->GetIsDead())
 			{
-				Hunter->SetFleeing();
 				SetBTTarget(Player);
-				World->GetTimerManager().SetTimer(InvisDelayTimerHandle, this, &AHunterEnemyController::TargetKilledInvisDelayFinished, 1, false);
+				bFleeingAfterStun = false;
+				SetFleeing();
 			}
 		}
 	}
@@ -335,9 +348,8 @@ void AHunterEnemyController::SpawnHunter()
 
 	bIsHunterAlive = true;
 
-	AIsland* RandIsland = IslandManager->GetRandIsland();
-	UHunterSpawnPoint* RandSpawnPoint = RandIsland->GetRandHunterSpawnPoint();
 	
+	UHunterSpawnPoint* RandSpawnPoint = GetRandHunterSpawnPoint();
 	FVector SpawnLocation = RandSpawnPoint->GetComponentLocation();
 	FRotator Rotation = RandSpawnPoint->GetComponentRotation();
 	FActorSpawnParameters params; 

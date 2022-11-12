@@ -1079,7 +1079,6 @@ void ABlindEyePlayerCharacter::TryJump()
 void ABlindEyePlayerCharacter::MoveForward(float Value)
 {
 	if (IsActionsBlocked()) return;
-	if (IsActionsBlocked()) return;
 	
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
@@ -1104,7 +1103,6 @@ void ABlindEyePlayerCharacter::MoveForward(float Value)
 
 void ABlindEyePlayerCharacter::MoveRight(float Value)
 {
-	if (IsActionsBlocked()) return;
 	if (IsActionsBlocked()) return;
 	
 	if ( (Controller != nullptr) && (Value != 0.0f) )

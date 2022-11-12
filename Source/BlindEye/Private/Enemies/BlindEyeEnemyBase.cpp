@@ -70,6 +70,11 @@ void ABlindEyeEnemyBase::SetHealthbarVisibility(bool IsVisible)
 	HealthBar->SetVisibility(true);
 }
 
+void ABlindEyeEnemyBase::MULT_PlayAnimMontage_Implementation(UAnimMontage* AnimToPlay)
+{
+	PlayAnimMontage(AnimToPlay);
+}
+
 void ABlindEyeEnemyBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 
