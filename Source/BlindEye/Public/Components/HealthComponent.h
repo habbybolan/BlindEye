@@ -128,6 +128,7 @@ public:
 
 
 	// Check if enemy is marked by Hunter
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool GetIsHunterDebuff();
 
 	virtual void Stun(float StunDuration, AActor* DamageCause) override;
