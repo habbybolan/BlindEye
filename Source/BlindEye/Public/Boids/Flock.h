@@ -3,12 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DamageTypes/BaseDamageType.h"
 #include "GameFramework/Actor.h"
 #include "Tools/LocalPlayerSubsystem_Pooling.h"
 #include "Flock.generated.h"
 
 class ABoid;
-class UBaseDamageType;
 
 UCLASS()
 class BLINDEYE_API AFlock : public AActor
@@ -99,7 +99,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Damage")
 	float DamageAmount = 10.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage")
 	TSubclassOf<UBaseDamageType> DamageType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Damage")
@@ -116,6 +116,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	bool bFlippedSwirlRotation = false;
+
+	FName BoneSpawnName = "";
 	
 
 protected:
@@ -142,7 +144,7 @@ protected:
 
 	bool CheckInRangeOfTarget();
 
-	void TryStartFlock();
+	void TryStartFlock(FVector spawnLocation);
 
 	virtual void Destroyed() override;
 
@@ -175,4 +177,6 @@ private:
 	void SpawnFlockWave();
 
 	void PerformFlock();
+
+	FVector SpawnLocation;
 };

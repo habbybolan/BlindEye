@@ -21,11 +21,12 @@ AFlock::AFlock()
 	bReplicates = true;
 }
  
-void AFlock::TryStartFlock()
+void AFlock::TryStartFlock(FVector spawnLocation)
 {
 	if (bFlockInitialized) return;
 	
 	bFlockInitialized = true;
+	SpawnLocation = spawnLocation;
 	InitializeFlock();
 }
 
@@ -89,11 +90,9 @@ void AFlock::AddBoid(ABoid* newBoid)
 
 void AFlock::SpawnBoidRand()
 {
-	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
-	check(OwnerCharacter);
-	FVector HandLocation = OwnerCharacter->GetMesh()->GetBoneLocation(TEXT("RightHand"));
+	AActor* OwningActor = Cast<ACharacter>(GetOwner());
 	
-	FVector location = HandLocation +
+	FVector location = SpawnLocation +
 		FVector(UKismetMathLibrary::RandomFloat() * XSpawnRange,
 				UKismetMathLibrary::RandomFloat() * YSpawnRange,
 				UKismetMathLibrary::RandomFloat() * ZSpawnRange);
@@ -101,10 +100,10 @@ void AFlock::SpawnBoidRand()
 
 	if (IsCurrTargetValid())
 	{
-		direction = (TargetList[CurrTargetIndex]->GetActorLocation() - OwnerCharacter->GetActorLocation()).Rotation();
+		direction = (TargetList[CurrTargetIndex]->GetActorLocation() - OwningActor->GetActorLocation()).Rotation();
 	} else
 	{
-		direction = OwnerCharacter->GetActorForwardVector().Rotation();
+		direction = OwningActor->GetActorForwardVector().Rotation();
 	}
 
 	// ULocalPlayer* LocalPlayer = GetGameInstance()->GetLocalPlayerByIndex(0);

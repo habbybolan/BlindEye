@@ -46,6 +46,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
 	float MovementPercentAfterReachingTarget = 0.75f;
 
+	FName BoneSpawnLocation;
+
 protected:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void BeginPlay() override;

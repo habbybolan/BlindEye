@@ -106,6 +106,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category=Movement)
 	TEnumAsByte<EEasingFunc::Type> EasingFunction;
+
+	UPROPERTY(EditDefaultsOnly)
+	TArray<TEnumAsByte<EObjectTypeQuery>> GroundObjectTypes;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* LandingAnim;
 	
 	void ApplyDamage();
 
@@ -131,6 +137,11 @@ protected:
 	void UpdateTargetPosition();
 	FTimerHandle UpdateTargetTimerHandle;
 
+	UFUNCTION()
+	void CheckIsLanded(); 
+	bool CheckIsLandedHelper();
+	FTimerHandle CheckIsLandedTimerHandle;
+
 	FVector CalculateTargetPosition();
 
 	UFUNCTION()
@@ -138,6 +149,10 @@ protected:
 	
 	FTimerHandle UpdatePlayerTimerHandle; 
 	float CurrDuration = 0;
+
+	void SetAsLanded();
+	UFUNCTION()
+	void SetLandingAnimFinished(UAnimMontage* Montage, bool bInterrupted);
 
 	virtual void EndAbilityLogic() override;
 

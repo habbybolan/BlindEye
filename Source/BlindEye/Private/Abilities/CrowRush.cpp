@@ -172,7 +172,17 @@ void ACrowRush::MULT_StartMovementHelper_Implementation(FVector StartPos, FVecto
 		if (GetLocalRole() == ROLE_Authority)
 		{
 			ApplyDamage();
-			AbilityStates[CurrState]->ExitState();
+		}
+
+		// If Already on the ground, then dont play landing montage
+		if (CheckIsLandedHelper())
+		{
+			SetAsLanded();
+		}
+		// Otherwise, wait to land to play anim
+		else
+		{
+			World->GetTimerManager().SetTimer(CheckIsLandedTimerHandle, this, &ACrowRush::CheckIsLanded, 0.1, true);
 		}
 		
 		// ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
@@ -184,13 +194,57 @@ void ACrowRush::MULT_StartMovementHelper_Implementation(FVector StartPos, FVecto
 	}
 }
 
+void ACrowRush::CheckIsLanded()
+{
+	UWorld* World = GetWorld();
+	if (World && CheckIsLandedHelper())
+	{
+		World->GetTimerManager().ClearTimer(CheckIsLandedTimerHandle);
+		SetAsLanded();
+	}
+}
+
+bool ACrowRush::CheckIsLandedHelper()
+{
+	UWorld* World = GetWorld();
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+	if (World)
+	{
+		FVector StartLoc = Player->GetMesh()->GetBoneLocation("RightFoot");
+		FVector EndLoc = StartLoc + FVector::DownVector * 150;
+		FHitResult OutHit;
+		return UKismetSystemLibrary::LineTraceSingleForObjects(World, StartLoc, EndLoc, GroundObjectTypes, false,
+			TArray<AActor*>(), EDrawDebugTrace::ForDuration, OutHit, true);
+	}
+	return false;
+}
+
+void ACrowRush::SetAsLanded()
+{
+	BP_AbilityInnerState(2);
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+	Player->PlayAnimMontage(LandingAnim);
+	Player->GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &ACrowRush::SetLandingAnimFinished);
+}
+
+void ACrowRush::SetLandingAnimFinished(UAnimMontage* Montage, bool bInterrupted)
+{
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+	Player->GetMesh()->GetAnimInstance()->OnMontageEnded.Remove(this, TEXT("SetLandingAnimFinished"));
+	// Landing finished, goto ending state
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		AbilityStates[CurrState]->ExitState();
+	}
+}
+
 void ACrowRush::CLI_RemoveTarget_Implementation()
 {
 	if (Target)
 	{
 		Target->Destroy();
 	}
-}
+} 
 
 void ACrowRush::UpdatePlayerMovement()
 {

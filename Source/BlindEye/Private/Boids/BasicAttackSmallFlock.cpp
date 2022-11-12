@@ -72,7 +72,9 @@ void ABasicAttackSmallFlock::MULT_SetTargets_Implementation(const TArray<FVector
 	{
 		TargetList.Add(world->SpawnActor<AActor>(TargetType, TargetLoc, FRotator::ZeroRotator, params));
 	}
-	TryStartFlock();
+	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
+	FVector HandLocation = OwnerCharacter->GetMesh()->GetBoneLocation(BoneSpawnLocation);
+	TryStartFlock(HandLocation);
 }
 
 void ABasicAttackSmallFlock::FlockCheck()
