@@ -18,7 +18,7 @@ AFlock::AFlock()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
-	bReplicates = true;
+	bReplicates = false;
 }
  
 void AFlock::TryStartFlock(FVector spawnLocation)
@@ -309,11 +309,6 @@ void AFlock::Destroyed()
 {
 	Super::Destroyed();
 	RemoveBoids();
-}
-
-void AFlock::GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
 

@@ -35,7 +35,7 @@ void ASharedBasicAbility::PlayAbilityAnimation()
 void ASharedBasicAbility::UseAnimNotifyExecuted()
 {
 	AnimNotifyDelegate.Unbind();
-	SpawnFlock();
+	SER_SpawnFlock();
 	WaitForEndAbilityNotify();
 }
 
@@ -65,7 +65,30 @@ void ASharedBasicAbility::EndAbilityLogic()
 	CurrCharge = 0;
 }
 
-void ASharedBasicAbility::SpawnFlock_Implementation()
+FVector ASharedBasicAbility::CalcFirstFlockingTarget()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return FVector::ZeroVector;
+		
+	FVector ViewportLocation;
+	FRotator ViewportRotation;
+	GetInstigator()->GetController()->GetPlayerViewPoint(OUT ViewportLocation, OUT ViewportRotation);
+	FVector InstigatorFwd =  ViewportRotation.Vector() * TargetDistanceFromInstigator;
+
+	FVector TargetLocation;
+	FHitResult OutHit;
+	if (UKismetSystemLibrary::LineTraceSingleForObjects(World, ViewportLocation, ViewportLocation + InstigatorFwd, SpawnLineCastObjectTypes,
+		false, TArray<AActor*>(), EDrawDebugTrace::None, OutHit, true))
+	{
+		TargetLocation = OutHit.Location;
+	} else
+	{
+		TargetLocation = ViewportLocation + InstigatorFwd;
+	}
+	return TargetLocation;
+}
+
+void ASharedBasicAbility::SER_SpawnFlock_Implementation()
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
@@ -91,10 +114,22 @@ void ASharedBasicAbility::SpawnFlock_Implementation()
 		FlockType = FirstChargeFlockType;
 		break;
 	}
-	ABasicAttackSmallFlock* Flock = world->SpawnActorDeferred<ABasicAttackSmallFlock>(FlockType, FTransform::Identity, GetOwner(),
+	MULT_SpawnFlockHelper(BoneSpawnLocation, FlockType, CalcFirstFlockingTarget());
+}
+
+void ASharedBasicAbility::MULT_SpawnFlockHelper_Implementation(FName BoneSpawnLocation,
+	TSubclassOf<ABasicAttackSmallFlock> FlockType, FVector StartTargetLoc)
+{
+	UWorld* World = GetWorld();
+	if (World) 
+	{
+		ABasicAttackSmallFlock* Flock = World->SpawnActorDeferred<ABasicAttackSmallFlock>(FlockType, FTransform::Identity, GetOwner(),
 			GetInstigator(), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-	Flock->BoneSpawnLocation = BoneSpawnLocation;
-	UGameplayStatics::FinishSpawningActor(Flock, FTransform::Identity);
+		Flock->BoneSpawnLocation = BoneSpawnLocation;
+		Flock->InitialTarget = StartTargetLoc;
+		UGameplayStatics::FinishSpawningActor(Flock, FTransform::Identity);
+	}
+	
 }
 
 void ASharedBasicAbility::SetLeaveAbilityTimer()
