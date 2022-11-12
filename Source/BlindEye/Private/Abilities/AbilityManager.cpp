@@ -17,18 +17,6 @@ UAbilityManager::UAbilityManager()
  
 void UAbilityManager::SER_UsedAbility_Implementation(EAbilityTypes abilityType, EAbilityInputTypes abilityUsageType)
 {
-	ABlindEyePlayerCharacter* OwningPlayer = Cast<ABlindEyePlayerCharacter>(GetOwner());
-	if (ensure(OwningPlayer))
-	{
-		// Prevent using an ability if not already using and actions blocked
-		if (OwningPlayer->IsActionsBlocked() && CurrUsedAbility == nullptr)
-		{
-			return;
-		}
-	}
-	// prevent using ability if another one activated and blocking other abilities
-	// TODO: Check if ability being used is blocking. If not, cancel ability 
-
 	if (abilityType == EAbilityTypes::Basic)
 	{
 		if (IsAbilityUnavailable(BasicAttack)) return;
@@ -202,15 +190,46 @@ void UAbilityManager::AbilityEnded()
 
 bool UAbilityManager::IsAbilityUnavailable(AAbilityBase* AbilityToUse) const
 {
+	ABlindEyePlayerCharacter* OwningPlayer = Cast<ABlindEyePlayerCharacter>(GetOwner());
+
+	// Try to prevent using ability if hunter marked if possible
+	FMarkData MarkData = OwningPlayer->GetHealthComponent()->GetCurrMark();
+	if (MarkData.bHasMark && MarkData.MarkerType == EMarkerType::Hunter)
+	{
+		if (CurrUsedAbility != nullptr)
+		{
+			// Allow using ability if it is a blocker (Cancelling abilities weren't fully implemented, so this is to prevent deadlocking on an ability)
+			if (!CurrUsedAbility->Blockers.IsOtherAbilitiesBlocked)
+			{
+				return false;
+			}
+			// if basic attack, cancel it and prevent attacking
+			else if (CurrUsedAbility == BasicAttack)
+			{
+				CurrUsedAbility->TryCancelAbility();
+				return true;
+			}
+		} else
+		{
+			return true;
+		}
+	}
+	
 	// Allow using if same ability currently in use 
 	if (CurrUsedAbility == AbilityToUse)
-		return false;
+		return false;  
 	
 	// If ability being used but not blocking
 	if (CurrUsedAbility != nullptr && !CurrUsedAbility->Blockers.IsOtherAbilitiesBlocked)
-	{
+	{ 
 		CurrUsedAbility->TryCancelAbility();
 		return false;
+	}
+
+	
+	if (OwningPlayer->IsActionsBlocked() && CurrUsedAbility == nullptr)
+	{
+		return true;
 	}
 	
 	return	(AbilityToUse->GetIsOnCooldown() == true) ||
