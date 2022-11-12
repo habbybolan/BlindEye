@@ -34,6 +34,8 @@ void AHunterEnemy::BeginPlay()
 	{
 		Shrine = Cast<AShrine>(ShrineActor);
 	}
+
+	GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &AHunterEnemy::AnimMontageEnded);
 }
 
 void AHunterEnemy::Despawn()
@@ -194,6 +196,7 @@ void AHunterEnemy::RemoveHunterMarkOnPlayer()
 		}
 	}
 }
+
 void AHunterEnemy::PerformBasicAttack()
 {
 	bAttacking = true;
@@ -360,10 +363,14 @@ void AHunterEnemy::ChannelingAnimFinished()
 	SetCharged();
 }
 
-void AHunterEnemy::SetAttackFinished()
+void AHunterEnemy::AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	bAttacking = false;
-	GetMesh()->GetAnimInstance()->StopAllMontages(0);
+	// If attacking animation
+	if (Montage == ChargedJumpAnim || Montage == BasicAttackAnimation)
+	{
+		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Red, "Attack Ended: " + bInterrupted ? "Interrupted" : "NOT");
+		bAttacking = false;
+	}
 }
 
 void AHunterEnemy::OnStunStart(float StunDuration)

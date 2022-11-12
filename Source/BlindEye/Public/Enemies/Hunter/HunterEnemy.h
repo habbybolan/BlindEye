@@ -141,8 +141,6 @@ public:
 
 	void ChannelingAnimFinished();
 
-	void SetAttackFinished();
-
 	void SetFleeing();
  
 protected:
@@ -228,5 +226,8 @@ protected:
 	virtual void OnMarkAdded(AActor* MarkedActor, EMarkerType MarkerType) override;
 
 	void RemoveHunterMarkOnPlayer();
+
+	UFUNCTION()
+	void AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 };
 
