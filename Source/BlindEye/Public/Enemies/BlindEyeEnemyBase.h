@@ -43,6 +43,9 @@ public:
 
 	void SetHealthbarVisibility(bool IsVisible);
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_PlayAnimMontage(UAnimMontage* AnimToPlay);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
