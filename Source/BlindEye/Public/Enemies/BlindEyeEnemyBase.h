@@ -30,7 +30,7 @@ public:
 
 	virtual bool GetIsDead() override;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float DestroyDelay = 1;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
