@@ -219,21 +219,26 @@ void ABlindEyeGameState::EnemyTutorialTextSkipped()
 
 void ABlindEyeGameState::FinishEnemyTutorial()
 {
-	MULT_EnemyTutorialFinished();
-	// TODO: Remove text snippet to player
+	if (CurrEnemyTutorial == EEnemyTutorialType::BurrowerSnapper)
+	{
+		MULT_BurrowerTutorialFinished();
+	} else if (CurrEnemyTutorial == EEnemyTutorialType::Hunter)
+	{
+		// TODO:
+	}
+	SetPlayerMovementBlocked(false);
+	CurrEnemyTutorial = EEnemyTutorialType::None;
+	bInEnemyTutorialSkippableSection = false;
 }
 
-void ABlindEyeGameState::MULT_EnemyTutorialFinished_Implementation()
+void ABlindEyeGameState::MULT_BurrowerTutorialFinished_Implementation()
 {
-	SetPlayerMovementBlocked(false);
 	if (CurrSequencePlaying)
 	{
 		CurrSequencePlaying->GoToEndAndStop();
 	}
 	CurrSequencePlaying = nullptr;
 	BP_EnemyTutorialFinished_CLI(CurrEnemyTutorial);
-	CurrEnemyTutorial = EEnemyTutorialType::None;
-	bInEnemyTutorialSkippableSection = false;
 }
 
 void ABlindEyeGameState::EnemyDied(AActor* EnemyActor)
