@@ -63,7 +63,7 @@ void AHunterEnemy::PerformChargedJump()
 void AHunterEnemy::MULT_PerformChargedJumpHelper_Implementation(FVector StartLoc, FVector EndLoc)
 {
 	PlayAnimMontage(ChargedJumpAnim);
-	ChargedJumpDuration = .74;
+	ChargedJumpDuration = 1.38; // Duration of the jump part of the animation 
 	// Set Start and end locations of jump for Easing
 	ChargedJumpStartLocation = StartLoc;
 	ChargedJumpTargetLocation = EndLoc;
