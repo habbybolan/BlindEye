@@ -39,6 +39,9 @@ public:
  
 	UPROPERTY(EditDefaultsOnly)
 	float AfterKillingPlayerDelay = 10;
+
+	UPROPERTY(EditDefaultsOnly)
+	float FleeingDuration = 3.f;
 	
 	void SetAlwaysVisible(bool IsAlwaysVisible);
 
@@ -73,6 +76,11 @@ public:
 
 	UFUNCTION()
 	void SpawnHunter();
+
+	// Called from Hunter enemy whe finished fleeing
+	void FleeingFinished();
+
+	UHunterSpawnPoint* GetRandHunterSpawnPoint();
 	
 protected:
 
@@ -87,13 +95,8 @@ protected:
 
 	UPROPERTY()
 	AIslandManager* IslandManager;
-	
-	FTimerHandle InvisDelayTimerHandle;
 
 	bool bIsHunterAlive = false;
-	
-	void StunInvisDelayFinished();
-	void TargetKilledInvisDelayFinished();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_SetCachedHealth();
@@ -121,10 +124,17 @@ protected:
 	UPROPERTY() 
 	AHunterEnemy* Hunter;
 
+	void SetFleeing();
+
 	virtual void OnPossess(APawn* InPawn) override;
 
 	UBurrowerTriggerVolume* CheckIslandSpawnedOn();
 
 	UFUNCTION()
 	void OnTakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
+
+	// either fleeing after being stunned, or fleeing after killing player
+	bool bFleeingAfterStun = false;
+
+	FTimerHandle FleeingTimerHandle;
 };

@@ -63,7 +63,7 @@ void AHunterEnemy::PerformChargedJump()
 void AHunterEnemy::MULT_PerformChargedJumpHelper_Implementation(FVector StartLoc, FVector EndLoc)
 {
 	PlayAnimMontage(ChargedJumpAnim);
-	ChargedJumpDuration = 1.38; // Duration of the jump part of the animation 
+	ChargedJumpDuration = 1; // Duration of the jump part of the animation 
 	// Set Start and end locations of jump for Easing
 	ChargedJumpStartLocation = StartLoc;
 	ChargedJumpTargetLocation = EndLoc;
@@ -388,9 +388,19 @@ void AHunterEnemy::SetPlayerMarked(AActor* NewTarget)
 	if (ensure(BlindEyePlayerCharacter))
 	{
 		bPlayerMarked = true;
-		BlindEyePlayerCharacter->GetHealthComponent()->DetonateDelegate.AddDynamic(this, &AHunterEnemy::OnHunterMarkDetonated);
-		BlindEyePlayerCharacter->GetHealthComponent()->MarkedRemovedDelegate.AddDynamic(this, &AHunterEnemy::OnHunterMarkRemoved);
-		BlindEyePlayerCharacter->GetHealthComponent()->OnDeathDelegate.AddDynamic(this, &AHunterEnemy::OnMarkedPlayerDied);
+		if (!BlindEyePlayerCharacter->GetHealthComponent()->DetonateDelegate.Contains(this, TEXT("OnHunterMarkDetonated")))
+		{
+			BlindEyePlayerCharacter->GetHealthComponent()->DetonateDelegate.AddDynamic(this, &AHunterEnemy::OnHunterMarkDetonated);
+		}
+		if (!BlindEyePlayerCharacter->GetHealthComponent()->MarkedRemovedDelegate.Contains(this, TEXT("OnHunterMarkRemoved")))
+		{
+			BlindEyePlayerCharacter->GetHealthComponent()->MarkedRemovedDelegate.AddDynamic(this, &AHunterEnemy::OnHunterMarkRemoved);
+		}
+		if (!BlindEyePlayerCharacter->GetHealthComponent()->OnDeathDelegate.Contains(this, TEXT("OnMarkedPlayerDied")))
+		{
+			BlindEyePlayerCharacter->GetHealthComponent()->OnDeathDelegate.AddDynamic(this, &AHunterEnemy::OnMarkedPlayerDied);
+		}
+		
 		HunterController->SetBTTarget(NewTarget);
 	}
 }
@@ -398,7 +408,6 @@ void AHunterEnemy::SetPlayerMarked(AActor* NewTarget)
 void AHunterEnemy::SetFleeing()
 {
 	bFleeing = true;
-	TrySetVisibility(false);
 	RemoveHunterMarkOnPlayer();
 }
 

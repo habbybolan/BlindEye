@@ -35,8 +35,9 @@ void UBTT_PlayAnimationReplication::OnAnimEnded(UAnimMontage* Montage, bool bInt
 {
 	if (MyOwnerComp)
 	{
+		FinishLatentTask(*MyOwnerComp, EBTNodeResult::Succeeded);
 		CleanUp(*MyOwnerComp);
-	} 
+	}
 }
 
 void UBTT_PlayAnimationReplication::CleanUp(UBehaviorTreeComponent& OwnerComp)
