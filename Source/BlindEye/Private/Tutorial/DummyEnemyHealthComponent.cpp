@@ -1,7 +1,7 @@
 // Copyright (C) Nicholas Johnson 2022
 
-
-#include "Enemies/Dummy/DummyEnemyHealthComponent.h"
+ 
+#include "Tutorial/DummyEnemyHealthComponent.h"
 
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Gameplay/BlindEyeGameState.h"

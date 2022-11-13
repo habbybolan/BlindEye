@@ -7,7 +7,7 @@
 #include "Characters/BlindEyePlayerController.h"
 #include "Characters/PlayerStartingCutscenePosition.h"
 #include "Enemies/Burrower/BurrowerSpawnManager.h"
-#include "Enemies/Dummy/DummyEnemy.h"
+#include "Tutorial/DummyEnemy.h"
 #include "Enemies/Hunter/HunterEnemyController.h"
 #include "GameFramework/PlayerStart.h"
 #include "GameFramework/PlayerState.h"
