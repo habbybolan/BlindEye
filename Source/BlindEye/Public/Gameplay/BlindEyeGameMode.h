@@ -101,6 +101,8 @@ protected:
 
 	uint8 CurrRound = 0;
 
+	uint8 PlayersConnected = 0;
+
 	FTimerHandle PulseKillDelayTimerHandle;
 
 	FTimerHandle MainGameLoopTimerHandle;
@@ -140,4 +142,7 @@ protected:
 	void FinishEnemyTutorial();
 
 	virtual void Tick(float DeltaSeconds) override;
+
+	FTimerHandle StartingTutorialTimerHandle;
+	void DelayedStartTutorial();
 };

@@ -25,12 +25,16 @@ public:
 	UFUNCTION()
 	void GotoNextTutorial();
 
+	void SetFinishTutorials();
+
 protected:
 
 	UPROPERTY()
 	TArray<ATutorialBase*> AllTutorials;
 
 	uint8 CurrTutorialIndex = 0;
+
+	bool bTutorialsRunning = false;
 	
 
 };

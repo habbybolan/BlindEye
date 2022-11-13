@@ -31,6 +31,7 @@ void ATutorialManager::BeginPlay()
 void ATutorialManager::StartTutorials()
 {
 	check(AllTutorials.Num() > 0);
+	bTutorialsRunning = true;
 	AllTutorials[0]->SetupTutorial();
 }
 
@@ -46,5 +47,14 @@ void ATutorialManager::GotoNextTutorial()
 	{
 		AllTutorials[CurrTutorialIndex]->SetupTutorial();
 	}
+}
+
+void ATutorialManager::SetFinishTutorials()
+{
+	if (bTutorialsRunning && CurrTutorialIndex < AllTutorials.Num())
+	{
+		AllTutorials[CurrTutorialIndex]->EndTutorial();
+	}
+	bTutorialsRunning = false;
 }
 

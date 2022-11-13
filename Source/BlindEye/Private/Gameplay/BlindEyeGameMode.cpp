@@ -27,8 +27,22 @@ void ABlindEyeGameMode::PostLogin(APlayerController* NewPlayer)
 	if (ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(NewPlayer))
 	{
 		BlindEyeController->SER_SpawnPlayer();
-		// TODO: Any match logic needed
+		//BlindEyeController->SetInputMode(FInputModeUIOnly());
 	}
+
+	PlayersConnected++;
+	if (PlayersConnected >= 2)
+	{
+		if (InProgressMatchState == InProgressStates::WaitingLoadingPhase)
+		{
+			GetWorldTimerManager().SetTimer(StartingTutorialTimerHandle, this, &ABlindEyeGameMode::DelayedStartTutorial, 2, false);
+		}
+	}
+}
+
+void ABlindEyeGameMode::DelayedStartTutorial()
+{
+	SetInProgressMatchState(InProgressStates::Tutorial);
 }
 
 void ABlindEyeGameMode::BeginPlay()
@@ -66,7 +80,7 @@ void ABlindEyeGameMode::OnShrineDeath()
 void ABlindEyeGameMode::HandleMatchHasStarted() 
 {
 	Super::HandleMatchHasStarted();
-	SetInProgressMatchState(InProgressStates::Tutorial);
+	SetInProgressMatchState(InProgressStates::WaitingLoadingPhase);
 }
 
 void ABlindEyeGameMode::TutorialState()
@@ -223,6 +237,13 @@ void ABlindEyeGameMode::TutorialFinished(ABlindEyePlayerCharacter* Player)
 	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(GameState);
 	check(BlindEyeGS)
 
+	// For debugging, if single player waiting, can goto tutorial without 2 players
+	if (InProgressMatchState == InProgressStates::WaitingLoadingPhase)
+	{
+		SetInProgressMatchState(InProgressStates::Tutorial);
+		return;
+	}
+
 	// trying to skip tutorial while not in tutorial
 	if (BlindEyeGS->CurrEnemyTutorial == EEnemyTutorialType::None && !BlindEyeGS->bInBeginningTutorial)
 	{
@@ -294,6 +315,7 @@ void ABlindEyeGameMode::OnAllPlayersFinishedTutorial()
 		// Notify players to goto shrine to start game
 		// TODO: Notify shrine to wait for all players near to end beginning tutorial
 		BlindEyeGS->MULT_WaitingToInteractWithShrine();
+		TutorialManager->SetFinishTutorials();
 	}
 }
 

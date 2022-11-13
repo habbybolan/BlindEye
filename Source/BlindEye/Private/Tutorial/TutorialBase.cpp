@@ -3,6 +3,8 @@
 
 #include "Tutorial/TutorialBase.h"
 
+#include "Characters/BlindEyePlayerCharacter.h"
+#include "GameFramework/PlayerState.h"
 #include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -21,6 +23,16 @@ void ATutorialBase::SetupTutorial()
 
 void ATutorialBase::EndTutorial()
 {
+	for (APlayerState* PS : BlindEyeGS->PlayerArray)
+	{
+		if (PS->GetPawn())
+		{
+			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
+			check(Player)
+			Player->TutorialActionBlockers.Reset();
+		}
+	}
+	
 	bRunning = false;
 	TutorialFinishedDelegate.ExecuteIfBound();
 }
