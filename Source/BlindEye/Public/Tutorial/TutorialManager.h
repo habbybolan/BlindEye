@@ -22,6 +22,7 @@ public:
 	TArray<TSubclassOf<ATutorialBase>> TutorialTypes;
 
 	void StartTutorials();
+	UFUNCTION()
 	void GotoNextTutorial();
 
 protected:

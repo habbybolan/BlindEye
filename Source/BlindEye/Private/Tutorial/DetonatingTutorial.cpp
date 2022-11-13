@@ -22,15 +22,20 @@ void ADetonatingTutorial::SetupTutorial()
 		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 		ADetonatingDummyEnemy* Dummy = World->SpawnActor<ADetonatingDummyEnemy>(DummyType, DummySpawnPoint->GetActorLocation(), DummySpawnPoint->GetActorRotation(), Params);
 
-		Dummy->HealthComponent->DetonateDelegate.AddDynamic(this, &ADetonatingTutorial::OnMarkDetonated);
-		if (DummySpawnPoint->DummyType == EDummySpawnType::Crow)
+		// Setup Dummy and subscribe to detonation events
+		if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(Dummy))
 		{
-			NumPhoenixMarksToDetonate++;
-			Dummy->HealthComponent->AddMarkerHelper(EMarkerType::Phoenix);
-		} else if (DummySpawnPoint->DummyType == EDummySpawnType::Phoenix)
-		{
-			NumCrowMarksToDetonate++;
-			Dummy->HealthComponent->AddMarkerHelper(EMarkerType::Crow);
+			HealthInterface->GetHealthComponent()->DetonateDelegate.AddDynamic(this, &ADetonatingTutorial::OnMarkDetonated);
+
+			if (DummySpawnPoint->DummyType == EDummySpawnType::Crow)
+			{
+				NumPhoenixMarksToDetonate++;
+				HealthInterface->GetHealthComponent()->AddMarkerHelper(EMarkerType::Phoenix);
+			} else if (DummySpawnPoint->DummyType == EDummySpawnType::Phoenix)
+			{
+				NumCrowMarksToDetonate++;
+				HealthInterface->GetHealthComponent()->AddMarkerHelper(EMarkerType::Crow);
+			}
 		}
 	}
 }

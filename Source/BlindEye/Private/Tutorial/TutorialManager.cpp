@@ -20,8 +20,11 @@ void ATutorialManager::BeginPlay()
 	for (TSubclassOf<ATutorialBase> Tutorial : TutorialTypes)
 	{
 		ATutorialBase* tutorial = World->SpawnActor<ATutorialBase>(Tutorial);
-		tutorial->TutorialFinishedDelegate.BindDynamic(this, &ATutorialManager::GotoNextTutorial);
-		AllTutorials.Add(tutorial);
+		if (tutorial)
+		{
+			tutorial->TutorialFinishedDelegate.BindDynamic(this, &ATutorialManager::GotoNextTutorial);
+			AllTutorials.Add(tutorial);
+		}
 	}
 }
 

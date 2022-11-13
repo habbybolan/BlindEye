@@ -26,6 +26,7 @@ public:
 
 	virtual void EndTutorial() override;
 
+	UFUNCTION()
 	void OnMarkDetonated(AActor* MarkedPawn, EMarkerType MarkerType);
 
 protected:
