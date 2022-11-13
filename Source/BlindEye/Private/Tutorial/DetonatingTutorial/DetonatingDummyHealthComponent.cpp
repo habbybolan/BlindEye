@@ -1,7 +1,7 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
-#include "Tutorial/DetonatingDummyHealthComponent.h"
+#include "Tutorial/DetonatingTutorial/DetonatingDummyHealthComponent.h"
 
 UDetonatingDummyHealthComponent::UDetonatingDummyHealthComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}
 

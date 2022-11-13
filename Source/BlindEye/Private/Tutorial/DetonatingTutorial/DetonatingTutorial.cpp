@@ -1,7 +1,7 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
-#include "Tutorial/DetonatingTutorial.h"
+#include "Tutorial/DetonatingTutorial/DetonatingTutorial.h"
 
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "GameFramework/PlayerState.h"
