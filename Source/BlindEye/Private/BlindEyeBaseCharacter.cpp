@@ -102,12 +102,12 @@ void ABlindEyeBaseCharacter::MULT_OnMarkAddedHelper_Implementation(EMarkerType M
 void ABlindEyeBaseCharacter::OnMarkRemoved(AActor* UnmarkedActor, EMarkerType MarkerType)
 {
 	BP_OnMarkRemoved();
-	MULT_OnMarkRemovedHelper();
+	MULT_OnMarkRemovedHelper(MarkerType);
 }
 
-void ABlindEyeBaseCharacter::MULT_OnMarkRemovedHelper_Implementation()
+void ABlindEyeBaseCharacter::MULT_OnMarkRemovedHelper_Implementation(EMarkerType MarkType)
 {
-	MarkerComponent->RemoveMark();
+	MarkerComponent->RemoveMark(MarkType);
 }
 
 void ABlindEyeBaseCharacter::OnMarkDetonated(AActor* MarkedPawn, EMarkerType MarkerType)
