@@ -162,35 +162,35 @@ void ABlindEyePlayerCharacter::BeginPlay()
 void ABlindEyePlayerCharacter::CLI_TryFinishTutorial_Implementation(ETutorialChecklist CheckListItem)
 {
 	// Check if Player in tutorial 
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
-		if (BlindEyeGS->IsBlindEyeMatchTutorial())
-		{
-			if ((!bTutorial1Finished && CheckListItem <= ETutorialChecklist::Ability2) ||
-				(bTutorial1Finished && CheckListItem > ETutorialChecklist::Ability2))
-			// Check if checklist item not yet done
-			if (!ChecklistFinishedTasks.Contains(CheckListItem))
-			{
-				// Send checklist item to BP
-				BP_TutorialCheckList(CheckListItem);
-				ChecklistFinishedTasks.Add(CheckListItem);
-				
-				// Swap to next tutorial if finished first
-				if (!bTutorial1Finished && ChecklistFinishedTasks.Num() >= 6)
-				{
-					bTutorial1Finished = !bTutorial1Finished;
-				}
-
-				// Check if tutorial finished
-				if (ChecklistFinishedTasks.Num() >= (uint8)ETutorialChecklist::Count)
-				{
-					SER_SetTutorialFinished();
-				}
-			}
-		}
-	}
+	// UWorld* World = GetWorld();
+	// if (World)
+	// {
+	// 	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+	// 	if (BlindEyeGS->IsBlindEyeMatchTutorial())
+	// 	{
+	// 		if ((!bTutorial1Finished && CheckListItem <= ETutorialChecklist::Ability2) ||
+	// 			(bTutorial1Finished && CheckListItem > ETutorialChecklist::Ability2))
+	// 		// Check if checklist item not yet done
+	// 		if (!ChecklistFinishedTasks.Contains(CheckListItem))
+	// 		{
+	// 			// Send checklist item to BP
+	// 			BP_TutorialCheckList(CheckListItem);
+	// 			ChecklistFinishedTasks.Add(CheckListItem);
+	// 			
+	// 			// Swap to next tutorial if finished first
+	// 			if (!bTutorial1Finished && ChecklistFinishedTasks.Num() >= 6)
+	// 			{
+	// 				bTutorial1Finished = !bTutorial1Finished;
+	// 			}
+	//
+	// 			// Check if tutorial finished
+	// 			if (ChecklistFinishedTasks.Num() >= (uint8)ETutorialChecklist::Count)
+	// 			{
+	// 				SER_SetTutorialFinished();
+	// 			}
+	// 		}
+	// 	}
+	// }
 }
 
 void ABlindEyePlayerCharacter::SER_SetTutorialFinished_Implementation()

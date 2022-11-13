@@ -40,6 +40,9 @@ void ABlindEyeGameMode::BeginPlay()
 
 	IslandManager = Cast<AIslandManager>(UGameplayStatics::GetActorOfClass(world, AIslandManager::StaticClass()));
 	check(IslandManager);
+
+	TutorialManager = Cast<ATutorialManager>(UGameplayStatics::GetActorOfClass(world, ATutorialManager::StaticClass()));
+	check(TutorialManager)
 }
 
 FTransform ABlindEyeGameMode::GetSpawnPoint() const
@@ -69,6 +72,7 @@ void ABlindEyeGameMode::HandleMatchHasStarted()
 void ABlindEyeGameMode::TutorialState()
 {
 	// TODO: Add this logic to when all players have first connected
+	TutorialManager->StartTutorials();
 }
 
 void ABlindEyeGameMode::GameInProgressState()
@@ -295,16 +299,17 @@ void ABlindEyeGameMode::OnAllPlayersFinishedTutorial()
 
 void ABlindEyeGameMode::FinishBeginningTutorial()
 {
-	UWorld* World = GetWorld();
-	// Kill all tutorial dummy enemies in level
-	TArray<AActor*> DummyActors;
-	UGameplayStatics::GetAllActorsOfClass(World, ADummyEnemy::StaticClass(), DummyActors);
-	for (AActor* DummyActor : DummyActors)
-	{
-		ADummyEnemy* DummyEnemy = Cast<ADummyEnemy>(DummyActor);
-		DummyEnemy->Destroy();
-	}
-
+	// UWorld* World = GetWorld();
+	// // Kill all tutorial dummy enemies in level
+	// TArray<AActor*> DummyActors;
+	// UGameplayStatics::GetAllActorsOfClass(World, ADummyEnemy::StaticClass(), DummyActors);
+	// for (AActor* DummyActor : DummyActors)
+	// {
+	// 	ADummyEnemy* DummyEnemy = Cast<ADummyEnemy>(DummyActor);
+	// 	DummyEnemy->Destroy();
+	// }
+	//
+	
 	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(GameState);
 
 	// notify tutorial finished, going to first enemy tutorial

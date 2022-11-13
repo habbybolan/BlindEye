@@ -7,6 +7,7 @@
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "GameFramework/GameMode.h"
 #include "Islands/IslandManager.h"
+#include "Tutorial/TutorialManager.h"
 #include "BlindEyeGameMode.generated.h"
 
 namespace InProgressStates 
@@ -92,6 +93,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	AIslandManager* IslandManager;
+
+	UPROPERTY()
+	ATutorialManager* TutorialManager;
 	
 	uint8 NumRounds = 3;
 
