@@ -2,7 +2,6 @@
 
 #include "TextPopupManager.h"
 
-#include "HUD/TextPopup.h"
 #include "HUD/TextPopupWidget.h"
 
 void UTextPopupManager::NativeConstruct()
