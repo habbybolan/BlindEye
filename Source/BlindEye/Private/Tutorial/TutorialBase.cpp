@@ -22,6 +22,7 @@ void ATutorialBase::SetupTutorial()
 void ATutorialBase::EndTutorial()
 {
 	bRunning = false;
+	TutorialFinishedDelegate.ExecuteIfBound();
 }
 
 

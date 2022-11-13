@@ -206,7 +206,7 @@ void ABurrowerEnemyController::OnPossess(APawn* InPawn)
 	HealthComponent->DetonateDelegate.AddDynamic(this, &ABurrowerEnemyController::OnDetonated);
 }
 
-void ABurrowerEnemyController::OnDetonated()
+void ABurrowerEnemyController::OnDetonated(AActor* MarkedPawn, EMarkerType MarkerType)
 {
 	// On detonation, set state as cancelled
 	UBlackboardComponent* BBComp = GetBlackboardComponent();

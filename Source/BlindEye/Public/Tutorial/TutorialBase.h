@@ -16,6 +16,9 @@ class BLINDEYE_API ATutorialBase : public AActor
 	
 public:	
 	ATutorialBase();
+
+	DECLARE_DYNAMIC_DELEGATE(FTutorialFinishedSignature);
+	FTutorialFinishedSignature TutorialFinishedDelegate;
  
 	virtual void SetupTutorial();
 	virtual void SetTutorialRunning() PURE_VIRTUAL(ATutorialBase::SetTutorialRunning,);

@@ -89,7 +89,7 @@ protected:
 	void BP_OnMarkRemoved();
 	// mark detonated
 	UFUNCTION() 
-	virtual void OnMarkDetonated();
+	virtual void OnMarkDetonated(AActor* MarkedPawn, EMarkerType MarkerType);
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_OnMarkDetonatedHelper(EMarkerType MarkerType); 
 	UFUNCTION(BlueprintImplementableEvent)

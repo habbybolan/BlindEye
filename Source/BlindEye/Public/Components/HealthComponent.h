@@ -98,7 +98,7 @@ public:
 	UPROPERTY()
 	FUnMarkedSignature MarkedRemovedDelegate; 
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDetonateSignature);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDetonateSignature, AActor*, MarkedPawn, EMarkerType, MarkerType);
 	UPROPERTY()
 	FDetonateSignature DetonateDelegate;
  
@@ -121,7 +121,7 @@ public:
 	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	// TSubclassOf<AHealingWell> HealingWellType;
 
-	void RemoveMark();
+	virtual void RemoveMark();
 	FMarkData& GetCurrMark();
 
 	virtual void KnockBack(FVector KnockBackForce, AActor* DamageCause) override;

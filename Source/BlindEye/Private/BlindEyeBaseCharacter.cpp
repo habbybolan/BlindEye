@@ -110,7 +110,7 @@ void ABlindEyeBaseCharacter::MULT_OnMarkRemovedHelper_Implementation()
 	MarkerComponent->RemoveMark();
 }
 
-void ABlindEyeBaseCharacter::OnMarkDetonated()
+void ABlindEyeBaseCharacter::OnMarkDetonated(AActor* MarkedPawn, EMarkerType MarkerType)
 {
 	FMarkData marker = HealthComponent->GetCurrMark();
 	if (marker.bHasMark)
