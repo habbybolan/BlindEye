@@ -30,13 +30,13 @@ public:
 	DECLARE_DYNAMIC_DELEGATE_OneParam(FPopupToRemoveSignature, UTextPopupWidget*, WidgetToRemove);
 	FPopupToRemoveSignature PopupToRemoveDelegate;
 
+	// Duration for Info, UrgentInfo, and Warning
+	UPROPERTY(EditDefaultsOnly, meta=(ToolTip="Info, UrgentInfo, and Warning default durations"))
+	TArray<float> Durations;
+
 	void InitializeTextPopup(FString Text, ETextPopupType PopupType, float Duration);
 
 protected:
-
-	// Duration for Info, UrgentInfo, and Warning
-	UPROPERTY(EditDefaultsOnly, EditFixedSize, meta=(ToolTip="Info, UrgentInfo, and Warning default durations"))
-	TArray<float> Durations;
 
 	FTimerHandle DurationTimerHandle;
 	UFUNCTION()

@@ -12,17 +12,17 @@
 #include "HUD/ScreenIndicator.h"
 #include "HUD/W_Radar.h"
 #include "Interfaces/AbilityUserInterface.h"
-#include "Interfaces/HealthInterface.h"
+#include "HUD/TextPopupWidget.h"
 #include "BlindEyePlayerCharacter.generated.h"
 
 enum class TEAMS;
 enum class EAbilityTypes : uint8;
-enum class EPlayerType : uint8;
 class UAbilityManager;
 class UHealthComponent;
 class ABlindEyePlayerState;
 
 class UMarkerComponent;
+class UTextPopupManager;
 
 UENUM(BlueprintType)
 enum class ETutorialChecklist : uint8
@@ -304,6 +304,9 @@ public:
 	void CLI_RemoveEnemyTutorialTextSnippet();
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_RemoveEnemyTutorialText();
+
+	UFUNCTION(Client, Reliable, BlueprintCallable)
+	void CLI_AddTextPopup(const FString& Text, ETextPopupType TextPopupType, float Duration = 0);
 	 
 protected:
 
@@ -332,6 +335,10 @@ protected:
 
 	UPROPERTY(EditAnywhere) 
 	UPlayerScreenIndicator* PlayerIndicator;
+
+	// Crated in BP, holds manager for dealing with all text popups
+	UPROPERTY(BlueprintReadWrite)
+	UTextPopupManager* TextPopupManager;
 
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);

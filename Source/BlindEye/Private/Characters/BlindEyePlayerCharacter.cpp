@@ -25,6 +25,7 @@
 #include "Enemies/Burrower/BurrowerSpawnManager.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "Gameplay/BlindEyeGameMode.h"
+#include "HUD/TextPopupManager.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 
@@ -467,6 +468,11 @@ void ABlindEyePlayerCharacter::MULT_ResetWalkMovementToNormal_Implementation()
 {
 	GetCharacterMovement()->MaxWalkSpeed = CachedMovementSpeed;
 	GetCharacterMovement()->MaxAcceleration = CachedAcceleration;
+}
+
+void ABlindEyePlayerCharacter::CLI_AddTextPopup_Implementation(const FString& Text, ETextPopupType TextPopupType, float Duration)
+{
+	TextPopupManager->AddTextPopup(Text, TextPopupType, Duration);
 }
 
 void ABlindEyePlayerCharacter::RegenBirdMeter()

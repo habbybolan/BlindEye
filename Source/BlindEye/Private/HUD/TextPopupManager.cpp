@@ -9,7 +9,7 @@ void UTextPopupManager::NativeConstruct()
 	Super::NativeConstruct();
 }
  
-void UTextPopupManager::AddTextPopup(FString Text, ETextPopupType TextPopupType, float Duration)
+void UTextPopupManager::AddTextPopup(const FString& Text, ETextPopupType TextPopupType, float Duration)
 {
 	UTextPopupWidget* TextPopup = Cast<UTextPopupWidget>(CreateWidgetInstance(*this, PopupWidgetType, FName("TextPopupWidget")));
 	if (TextPopup)
@@ -24,10 +24,14 @@ void UTextPopupManager::AddTextPopup(FString Text, ETextPopupType TextPopupType,
 
 void UTextPopupManager::PopupToRemove(UTextPopupWidget* PopupToRemove)
 {
+	const uint32 Index = AddedTextSnippets.IndexOfByPredicate([PopupToRemove](const UTextPopupWidget* PopupWidget)
+	{
+		return PopupToRemove == PopupWidget;
+	}); 
 	// remove reference to widget and remove from viewport
-	// if (const uint32 Index = AddedTextSnippets.IndexOfByPredicate(PopupToRemove) != INDEX_NONE)
-	// {
-	// 	AddedTextSnippets.RemoveAtSwap(Index, 1, false);
-	// 	PopupToRemove->RemoveFromParent();
-	// }
+	if (Index != INDEX_NONE)
+	{
+		AddedTextSnippets.RemoveAtSwap(Index, 1, false);
+		PopupToRemove->RemoveFromParent();
+	}
 }

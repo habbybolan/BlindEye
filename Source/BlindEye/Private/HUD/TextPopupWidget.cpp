@@ -7,7 +7,7 @@ void UTextPopupWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	Durations.SetNum((uint8)ETextPopupType::Count);
+	Durations.SetNum(3);
 }
 
 void UTextPopupWidget::InitializeTextPopup(FString Text, ETextPopupType PopupType, float Duration)

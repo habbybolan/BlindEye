@@ -22,7 +22,8 @@ public:
 	UPROPERTY(EditDefaultsOnly) 
 	TSubclassOf<UTextPopupWidget> PopupWidgetType;
 
-	void AddTextPopup(FString Text, ETextPopupType TextPopupType, float Duration = 0);
+	UFUNCTION(BlueprintCallable)
+	void AddTextPopup(const FString& Text, ETextPopupType TextPopupType, float Duration = 0);
 
 protected:
 
