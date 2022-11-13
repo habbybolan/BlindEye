@@ -13,6 +13,7 @@
 #include "HUD/W_Radar.h"
 #include "Interfaces/AbilityUserInterface.h"
 #include "HUD/TextPopupWidget.h"
+#include "BlindEyeUtils.h"
 #include "BlindEyePlayerCharacter.generated.h"
 
 enum class TEAMS;
@@ -307,6 +308,10 @@ public:
 
 	UFUNCTION(Client, Reliable, BlueprintCallable)
 	void CLI_AddTextPopup(const FString& Text, ETextPopupType TextPopupType, float Duration = 0);
+
+	UPROPERTY(Replicated)
+	FTutorialActionBlockers TutorialActionBlockers;
+
 	 
 protected:
 

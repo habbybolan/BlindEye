@@ -3,6 +3,9 @@
 
 #include "Tutorial/DetonatingTutorial.h"
 
+#include "Characters/BlindEyePlayerCharacter.h"
+#include "GameFramework/PlayerState.h"
+#include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Tutorial/DummySpawnPoint.h"
 
@@ -38,11 +41,20 @@ void ADetonatingTutorial::SetupTutorial()
 			}
 		}
 	}
+	SetTutorialRunning();
 }
 
 void ADetonatingTutorial::SetTutorialRunning()
 {
-	Super::SetTutorialRunning();
+	for (APlayerState* PS : BlindEyeGS->PlayerArray)
+	{
+		if (PS->GetPawn())
+		{
+			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
+			check(Player)
+			Player->TutorialActionBlockers.bUnique1Blocked = true;
+		}
+	}
 }
 
 void ADetonatingTutorial::EndTutorial()
@@ -70,7 +82,7 @@ void ADetonatingTutorial::OnMarkDetonated(AActor* MarkedPawn, EMarkerType Marker
 			SetPlayerFinishedTutorial(EPlayerType::PhoenixPlayer);
 		}
 	} else if (MarkerType == EMarkerType::Phoenix)
-	{ 
+	{
 		NumPhoenixMarksToDetonate--;
 		// If all phoenix marks detonated, notify Phoenix player finished
 		if (NumPhoenixMarksToDetonate <= 0)

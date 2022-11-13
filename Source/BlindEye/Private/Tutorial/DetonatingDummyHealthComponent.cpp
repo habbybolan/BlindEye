@@ -12,5 +12,5 @@ void UDetonatingDummyHealthComponent::RemoveMark()
 
 void UDetonatingDummyHealthComponent::TryApplyMarker(EMarkerType Player, AActor* DamageCause)
 {
-	// Do nothing
+	Super::TryApplyMarker(Player, DamageCause);
 }

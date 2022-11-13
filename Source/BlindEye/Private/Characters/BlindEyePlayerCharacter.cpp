@@ -577,6 +577,7 @@ void ABlindEyePlayerCharacter::OnRevive()
 
 void ABlindEyePlayerCharacter::BasicAttackPressed() 
 {
+	if (TutorialActionBlockers.bBasicAttackBlocked) return;
 	CLI_TryFinishTutorial(ETutorialChecklist::BasicAttack);
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Basic, EAbilityInputTypes::Pressed);
@@ -596,6 +597,7 @@ void ABlindEyePlayerCharacter::ChargedAttackReleased()
 
 void ABlindEyePlayerCharacter::DashPressed()
 {
+	if (TutorialActionBlockers.bDashBlocked) return;
 	CLI_TryFinishTutorial(ETutorialChecklist::Dash);
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Dash, EAbilityInputTypes::Pressed);
@@ -609,6 +611,7 @@ void ABlindEyePlayerCharacter::DashReleased()
 
 void ABlindEyePlayerCharacter::Unique1Pressed()
 {
+	if (TutorialActionBlockers.bUnique1Blocked) return;
 	CLI_TryFinishTutorial(ETutorialChecklist::Ability1);
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Pressed);
@@ -616,12 +619,14 @@ void ABlindEyePlayerCharacter::Unique1Pressed()
 
 void ABlindEyePlayerCharacter::Unique1Released()
 {
+	if (TutorialActionBlockers.bUnique1Blocked) return;
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Released);
 }
 
 void ABlindEyePlayerCharacter::Unique2Pressed()
 {
+	if (TutorialActionBlockers.bUnique2blocked) return;
 	CLI_TryFinishTutorial(ETutorialChecklist::Ability2);
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Pressed);
@@ -629,6 +634,7 @@ void ABlindEyePlayerCharacter::Unique2Pressed()
 
 void ABlindEyePlayerCharacter::Unique2Released()
 {
+	if (TutorialActionBlockers.bUnique2blocked) return;
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Released);
 }
@@ -1074,6 +1080,7 @@ void ABlindEyePlayerCharacter::UpdateRadar()
 
 void ABlindEyePlayerCharacter::TryJump()
 {
+	if (TutorialActionBlockers.bLocomotionBlocked) return;
 	if (IsActionsBlocked()) return;
 	CLI_TryFinishTutorial(ETutorialChecklist::Jump);
 	if (!HealthComponent->GetIsHunterDebuff() && !GetIsDead())
@@ -1084,6 +1091,7 @@ void ABlindEyePlayerCharacter::TryJump()
 
 void ABlindEyePlayerCharacter::MoveForward(float Value)
 {
+	if (TutorialActionBlockers.bLocomotionBlocked) return;
 	if (IsActionsBlocked()) return;
 	
 	if ((Controller != nullptr) && (Value != 0.0f))
@@ -1109,6 +1117,7 @@ void ABlindEyePlayerCharacter::MoveForward(float Value)
 
 void ABlindEyePlayerCharacter::MoveRight(float Value)
 {
+	if (TutorialActionBlockers.bLocomotionBlocked) return;
 	if (IsActionsBlocked()) return;
 	
 	if ( (Controller != nullptr) && (Value != 0.0f) )
@@ -1139,6 +1148,7 @@ void ABlindEyePlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	DOREPLIFETIME(ABlindEyePlayerCharacter, bUnlimitedBirdMeter);
 	DOREPLIFETIME(ABlindEyePlayerCharacter, PlayerType);
 	DOREPLIFETIME(ABlindEyePlayerCharacter, CurrRevivePercent);
+	DOREPLIFETIME(ABlindEyePlayerCharacter, TutorialActionBlockers);
 }
 
 //////////////////////////////////////////////////////////////////////////
