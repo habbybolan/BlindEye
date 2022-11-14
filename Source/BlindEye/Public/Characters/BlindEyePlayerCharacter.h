@@ -14,6 +14,7 @@
 #include "Interfaces/AbilityUserInterface.h"
 #include "HUD/TextPopupWidget.h"
 #include "BlindEyeUtils.h"
+#include "Components/IndicatorManagerComponent.h"
 #include "BlindEyePlayerCharacter.generated.h"
 
 enum class TEAMS;
@@ -56,6 +57,9 @@ class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityU
 	UPROPERTY(EditDefaultsOnly)
 	UStaticMeshComponent* HealthbarVisibilityBounds;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UIndicatorManagerComponent* IndicatorManagerComponent;
+
 	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
 	float HunterMarkMovementAlter = 0;
 
@@ -64,9 +68,6 @@ class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityU
 
 	UPROPERTY(EditDefaultsOnly)
 	float ButtonHoldToSkipTutorial = 3.f;
-
-	UPROPERTY(EditDefaultsOnly)
-	float DefendShrineIndicatorLength = 60.f;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UPlayerScreenIndicator> PlayerIndicatorType;
@@ -141,7 +142,9 @@ public:
 	EPlayerType PlayerType;
  
 	UFUNCTION(BlueprintPure)
-	EPlayerType GetPlayerType(); 
+	EPlayerType GetPlayerType();
+
+	const FName PlayerIndicatorID = "PlayerIndicator";
 
 	// Debugger Functionality *********
 
@@ -311,7 +314,6 @@ public:
 
 	UPROPERTY(Replicated)
 	FTutorialActionBlockers TutorialActionBlockers;
-
 	 
 protected:
 
@@ -337,9 +339,6 @@ protected:
 
 	float CachedMovementSpeed;
 	float CachedAcceleration;
-
-	UPROPERTY(EditAnywhere) 
-	UPlayerScreenIndicator* PlayerIndicator;
 
 	// Crated in BP, holds manager for dealing with all text popups
 	UPROPERTY(BlueprintReadWrite)
@@ -428,10 +427,7 @@ protected:
 	void UpdateRadar();
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_DisplayDefendShrineIndicator_CLI(bool bShowIndicator);
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_HideDefendShrineIndicator();
-	FTimerHandle HideDefendShrineIndicatorTimerHandle;
+	void BP_DisplayDefendShrineIndicator_CLI();
 
 protected:
 	// APawn interface

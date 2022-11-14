@@ -18,8 +18,7 @@ class BLINDEYE_API UScreenIndicator : public UUserWidget
 public:
 
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
-
-	UFUNCTION(BlueprintCallable)
+	
 	virtual void SetTarget(TScriptInterface<IIndicatorInterface> target);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)

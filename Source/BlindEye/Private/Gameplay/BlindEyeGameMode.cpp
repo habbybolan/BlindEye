@@ -339,7 +339,7 @@ void ABlindEyeGameMode::StartGame()
 	
 	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(GameState);
     check(BlindEyeGS)
-    BlindEyeGS->StartGame();
+    BlindEyeGS->MULT_StartGame();
 
 	// perform initial level shift after tutorial finished
 	BP_LevelShift();

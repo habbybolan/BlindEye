@@ -69,6 +69,8 @@ ABlindEyePlayerCharacter::ABlindEyePlayerCharacter(const FObjectInitializer& Obj
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 	AbilityManager = CreateDefaultSubobject<UAbilityManager>(TEXT("AbilityManager"));
+
+	IndicatorManagerComponent = CreateDefaultSubobject<UIndicatorManagerComponent>("IndicatorManager");
 	
 	PlayerType = EPlayerType::CrowPlayer;
 	Team = TEAMS::Player;
@@ -121,10 +123,7 @@ void ABlindEyePlayerCharacter::BeginPlay()
 			BlindEyeGS->TutorialStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::StartTutorial);
 		}
 
-		PlayerIndicator = Cast<UPlayerScreenIndicator>(CreateWidget(world, PlayerIndicatorType, FName("PlayerIndicator")));
-		PlayerIndicator->AddToViewport();
-
-		// If another player exists
+		// If join and another player exists already
 		if (APlayerState* OtherPlayerState = BlindEyeGS->GetOtherPlayer(this))
 		{
 			if (ABlindEyePlayerCharacter* OtherPlayer = Cast<ABlindEyePlayerCharacter>(OtherPlayerState->GetPawn()))
@@ -132,7 +131,9 @@ void ABlindEyePlayerCharacter::BeginPlay()
 				NotifyOfOtherPlayerExistance(OtherPlayer);
 			}
 		}
-	} else
+	}
+	// If not the owning player, notify owner that it exists
+	else
 	{
 		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(world, 0);
 		if (PlayerController != GetController())
@@ -222,22 +223,10 @@ void ABlindEyePlayerCharacter::StartTutorial()
 	}
 }
 
-void ABlindEyePlayerCharacter::StartGame() 
+void ABlindEyePlayerCharacter::StartGame()
 {
 	BP_DisplayTutorialChecklist_CLI(false);
-	BP_DisplayDefendShrineIndicator_CLI(true);
- 
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		World->GetTimerManager().SetTimer(HideDefendShrineIndicatorTimerHandle, this, &ABlindEyePlayerCharacter::MULT_HideDefendShrineIndicator,
-			DefendShrineIndicatorLength, false);
-	}
-}
-
-void ABlindEyePlayerCharacter::MULT_HideDefendShrineIndicator_Implementation()
-{
-	BP_DisplayDefendShrineIndicator_CLI(false);
+	BP_DisplayDefendShrineIndicator_CLI();
 }
 
 void ABlindEyePlayerCharacter::HealthbarBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -262,8 +251,9 @@ void ABlindEyePlayerCharacter::OnOtherPlayerDied(ABlindEyePlayerCharacter* Other
 {
 	if (OtherPlayer)
 	{
-		if (PlayerIndicator)
+		if (UScreenIndicator* ScreenIndicator = IndicatorManagerComponent->GetIndicator(PlayerIndicatorID))
 		{
+			UPlayerScreenIndicator* PlayerIndicator = Cast<UPlayerScreenIndicator>(ScreenIndicator);
 			PlayerIndicator->bisPlayerDowned = true;
 		}
 	}
@@ -273,8 +263,9 @@ void ABlindEyePlayerCharacter::OnOtherPlayerRevived(ABlindEyePlayerCharacter* Ot
 {
 	if (OtherPlayer)
 	{
-		if (PlayerIndicator)
+		if (UScreenIndicator* ScreenIndicator = IndicatorManagerComponent->GetIndicator(PlayerIndicatorID))
 		{
+			UPlayerScreenIndicator* PlayerIndicator = Cast<UPlayerScreenIndicator>(ScreenIndicator);
 			PlayerIndicator->bisPlayerDowned = false;
 		}
 	}
@@ -328,26 +319,25 @@ void ABlindEyePlayerCharacter::MULT_OnUnMarked_Implementation(AActor* UnMarkedPl
 
 void ABlindEyePlayerCharacter::NotifyOtherPlayerHunterMarked()
 {
-	if (PlayerIndicator)
+	if (UScreenIndicator* ScreenIndicator = IndicatorManagerComponent->GetIndicator(PlayerIndicatorID))
 	{
+		UPlayerScreenIndicator* PlayerIndicator = Cast<UPlayerScreenIndicator>(ScreenIndicator);
 		PlayerIndicator->bIsPlayerMarked = true;
 	}
 }
 
 void ABlindEyePlayerCharacter::NotifyOtherPlayerHunterUnMarked()
 {
-	if (PlayerIndicator)
+	if (UScreenIndicator* ScreenIndicator = IndicatorManagerComponent->GetIndicator(PlayerIndicatorID))
 	{
+		UPlayerScreenIndicator* PlayerIndicator = Cast<UPlayerScreenIndicator>(ScreenIndicator);
 		PlayerIndicator->bIsPlayerMarked = false;
 	}
 }
 
 void ABlindEyePlayerCharacter::NotifyOfOtherPlayerExistance(ABlindEyePlayerCharacter* NewPlayer)
 {
-	if (PlayerIndicator)
-	{
-		PlayerIndicator->SetTarget(NewPlayer);
-	}
+	IndicatorManagerComponent->CLI_AddIndicator(PlayerIndicatorID, PlayerIndicatorType, NewPlayer, 0);
 }
 
 FVector ABlindEyePlayerCharacter::GetIndicatorPosition()

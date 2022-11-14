@@ -107,8 +107,9 @@ public:
 	
 	// Stops Cutscene and give control back to players, Called from Blueprints
 	void FinishEnemyTutorial();
-	
-	void StartGame();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_StartGame();
 	
 	TArray<ABlindEyePlayerCharacter*> GetPlayers();
 	ABlindEyePlayerCharacter* GetPlayer(EPlayerType PlayerType);

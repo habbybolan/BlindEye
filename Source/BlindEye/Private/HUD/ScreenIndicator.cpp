@@ -39,7 +39,8 @@ void UScreenIndicator::FindScreenEdgeLocationForWorldLocation(FVector2D& OutScre
                                                               float& OutRotationAngleDegrees, bool &bIsOnScreen)
 {
 	// TODO: Need validity check
-	//if (IsValid(Target.GetObjectRef())) return;
+	IIndicatorInterface* IndicatorInterface = Cast<IIndicatorInterface>(Target.GetObjectRef());
+	if (!IndicatorInterface) return;
 	
 	bIsOnScreen = false;
 	OutRotationAngleDegrees = 0.f;
