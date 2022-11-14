@@ -41,11 +41,8 @@ void ADetonatingTutorial::SetupTutorial()
 			}
 		}
 	}
-	SetTutorialRunning();
-}
 
-void ADetonatingTutorial::SetTutorialRunning()
-{
+	// Set ability 1 as blocked
 	for (APlayerState* PS : BlindEyeGS->PlayerArray)
 	{
 		if (PS->GetPawn())
@@ -60,7 +57,6 @@ void ADetonatingTutorial::SetTutorialRunning()
 void ADetonatingTutorial::EndTutorial()
 {
 	Super::EndTutorial();
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Green, "TUTORIAL FINISHED");
 
 	UWorld* World = GetWorld();
 	TArray<AActor*> Dummies;

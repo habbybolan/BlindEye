@@ -21,7 +21,6 @@ public:
 	FTutorialFinishedSignature TutorialFinishedDelegate;
  
 	virtual void SetupTutorial();
-	virtual void SetTutorialRunning() PURE_VIRTUAL(ATutorialBase::SetTutorialRunning,);
 	virtual void EndTutorial();
 
 	// TODO: Logic for player joining in middle of tutorial, update their states?

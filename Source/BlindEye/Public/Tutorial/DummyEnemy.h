@@ -17,6 +17,9 @@ class BLINDEYE_API ADummyEnemy : public ABlindEyeEnemyBase
 public:
 	ADummyEnemy(const FObjectInitializer& ObjectInitializer);
 
+	UPROPERTY(EditDefaultsOnly)
+	UStaticMeshComponent* DummyMesh;
+
 	virtual void BeginPlay() override;
 	
 };

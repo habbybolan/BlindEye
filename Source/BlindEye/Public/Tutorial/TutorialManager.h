@@ -19,6 +19,9 @@ public:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditDefaultsOnly)
+	float DelayBetweenTutorials = 1;
+
+	UPROPERTY(EditDefaultsOnly)
 	TArray<TSubclassOf<ATutorialBase>> TutorialTypes;
 
 	void StartTutorials();
@@ -33,8 +36,10 @@ protected:
 	TArray<ATutorialBase*> AllTutorials;
 
 	uint8 CurrTutorialIndex = 0;
-
 	bool bTutorialsRunning = false;
-	
+
+	FTimerHandle DelayBetweenTutorialsTimerHandle;
+
+	void StartNextTutorial();
 
 };

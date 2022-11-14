@@ -10,6 +10,9 @@ ADummyEnemy::ADummyEnemy(const FObjectInitializer& ObjectInitializer)
 {
 	bReplicates = true;
 	PrimaryActorTick.bCanEverTick = false;
+
+	DummyMesh = CreateDefaultSubobject<UStaticMeshComponent>("DummyMesh");
+	DummyMesh->SetupAttachment(RootComponent);
 }
 
 void ADummyEnemy::BeginPlay()
