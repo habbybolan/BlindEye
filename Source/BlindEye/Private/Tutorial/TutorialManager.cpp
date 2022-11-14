@@ -3,6 +3,8 @@
 
 #include "Tutorial/TutorialManager.h"
 
+#include "Gameplay/BlindEyeGameMode.h"
+#include "Kismet/GameplayStatics.h"
 #include "Tutorial/TutorialBase.h"
 
 ATutorialManager::ATutorialManager()
@@ -38,7 +40,7 @@ void ATutorialManager::StartTutorials()
 void ATutorialManager::GotoNextTutorial()
 {
 	CurrTutorialIndex++;
-
+ 
 	// If finished all tutorials
 	if (CurrTutorialIndex < AllTutorials.Num())
 	{
@@ -46,7 +48,8 @@ void ATutorialManager::GotoNextTutorial()
 		GetWorldTimerManager().SetTimer(DelayBetweenTutorialsTimerHandle, this, &ATutorialManager::StartNextTutorial, DelayBetweenTutorials, false);
 	} else
 	{
-		// TODO: Notify GM all tutorials finished
+		ABlindEyeGameMode* BlindEyeGM = Cast<ABlindEyeGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+		BlindEyeGM->OnAllPlayersFinishedTutorial();
 	}
 }
 

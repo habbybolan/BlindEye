@@ -139,34 +139,6 @@ FVector AShrine::GetIndicatorPosition()
 	return IndicatorPosition->GetComponentLocation();
 }
 
-void AShrine::StartWaitingForPlayersToInteract()
-{
-	// TODO:
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		World->GetTimerManager().SetTimer(CheckPlayersNearTimerHandle, this, &AShrine::CheckPlayersNearbyHelper, 0.5, true);
-	}
-}
-
-void AShrine::CheckPlayersNearbyHelper()
-{
-	TArray<AActor*> OutActors;
-	UWorld* World = GetWorld();
-	UKismetSystemLibrary::SphereOverlapActors(World, GetActorLocation(), CheckTutorialPlayersRadius, TArray<TEnumAsByte<EObjectTypeQuery>>(),
-		ABlindEyeBaseCharacter::StaticClass(), TArray<AActor*>(), OutActors);
-
-	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
-	// If 2 players near shrine, then end beginning tutorial and start first enemy tutorial
-	if (OutActors.Num() >= BlindEyeGS->PlayerArray.Num())
-	{
-		ABlindEyeGameMode* BlindEyeGM = Cast<ABlindEyeGameMode>(UGameplayStatics::GetGameMode(World));
-		BlindEyeGM->FinishBeginningTutorial();
-		// Stop timer
-		World->GetTimerManager().ClearTimer(CheckPlayersNearTimerHandle);
-	}
-}
-
 void AShrine::OnRep_HealthUpdated()
 {
 	ShrineHealthChange.Broadcast();

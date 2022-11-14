@@ -314,29 +314,12 @@ void ABlindEyeGameMode::OnAllPlayersFinishedTutorial()
 	{
 		// Notify players to goto shrine to start game
 		// TODO: Notify shrine to wait for all players near to end beginning tutorial
-		BlindEyeGS->MULT_WaitingToInteractWithShrine();
 		TutorialManager->SetFinishTutorials();
+
+		// notify tutorial finished, going to first enemy tutorial
+		BlindEyeGS->TutorialFinished();
+		StartEnemyTutorial(EEnemyTutorialType::BurrowerSnapper);
 	}
-}
-
-void ABlindEyeGameMode::FinishBeginningTutorial()
-{
-	// UWorld* World = GetWorld();
-	// // Kill all tutorial dummy enemies in level
-	// TArray<AActor*> DummyActors;
-	// UGameplayStatics::GetAllActorsOfClass(World, ADummyEnemy::StaticClass(), DummyActors);
-	// for (AActor* DummyActor : DummyActors)
-	// {
-	// 	ADummyEnemy* DummyEnemy = Cast<ADummyEnemy>(DummyActor);
-	// 	DummyEnemy->Destroy();
-	// }
-	//
-	
-	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(GameState);
-
-	// notify tutorial finished, going to first enemy tutorial
-	BlindEyeGS->TutorialFinished();
-	StartEnemyTutorial(EEnemyTutorialType::BurrowerSnapper);
 }
 
 void ABlindEyeGameMode::SpawnTutorialBurrower()

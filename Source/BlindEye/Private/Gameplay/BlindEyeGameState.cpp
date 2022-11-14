@@ -173,16 +173,6 @@ void ABlindEyeGameState::StartEnemyTutorial(EEnemyTutorialType TutorialType)
 	BP_EnemyTutorialStarted_SER(TutorialType);
 }
 
-void ABlindEyeGameState::MULT_WaitingToInteractWithShrine_Implementation() 
-{
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		// Shrine notifies when all players are nearby to end tutorial
-		Shrine->StartWaitingForPlayersToInteract();
-	}
-	BP_WaitingToInteractWithShrine_CLI();
-}
-
 void ABlindEyeGameState::TutorialFinished()
 {
 	bInBeginningTutorial = false;
