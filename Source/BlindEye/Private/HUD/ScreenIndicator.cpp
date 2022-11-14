@@ -23,7 +23,7 @@ void UScreenIndicator::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 
 void UScreenIndicator::SetTarget(UObject* target)
 {
-	Target = target;
+	Target = MakeWeakObjectPtr(target);
 	FAnchors Anchor;
 	Anchor.Minimum = FVector2D::ZeroVector;
 	Anchor.Maximum = FVector2D::ZeroVector;
@@ -32,7 +32,7 @@ void UScreenIndicator::SetTarget(UObject* target)
 
 UObject* UScreenIndicator::GetTarget()
 {
-	return Target;
+	return Target.Get();
 }
 
 void UScreenIndicator::RemoveFromParent()
@@ -52,8 +52,9 @@ void UScreenIndicator::FindScreenEdgeLocationForWorldLocation(FVector2D& OutScre
                                                               float& OutRotationAngleDegrees, bool &bIsOnScreen)
 {
 	// TODO: Need validity check
-	IIndicatorInterface* TargetInterface = Cast<IIndicatorInterface>(Target);
-	if (!Target) return;
+	if (!Target.IsValid()) return;
+	IIndicatorInterface* TargetInterface = Cast<IIndicatorInterface>(Target.Get());
+	if (!TargetInterface) return;
 	
 	bIsOnScreen = false;
 	OutRotationAngleDegrees = 0.f;

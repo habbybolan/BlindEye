@@ -35,7 +35,7 @@ public:
 	
 protected: 
 	
-	UObject* Target = nullptr;
+	TWeakObjectPtr<UObject> Target = nullptr;
 
 	UFUNCTION(BlueprintCallable)
 	void FindScreenEdgeLocationForWorldLocation(FVector2D& OutScreenPosition,
