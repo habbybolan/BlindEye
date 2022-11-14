@@ -191,7 +191,7 @@ protected:
 	void MULT_PerformChargedJumpHelper(FVector StartLoc, FVector EndLoc);
 
 	UFUNCTION()
-	void OnHunterMarkDetonated();
+	void OnHunterMarkDetonated(AActor* MarkedPawn, EMarkerType MarkerType);
 
 	UFUNCTION() 
 	void OnHunterMarkRemoved(AActor* UnmarkedActor, EMarkerType MarkerType);
@@ -222,7 +222,7 @@ protected:
 	void SetNotCharged();
 
 	void ApplyAttackDamageHelper(float Damage, bool IfShouldApplyHunterMark, TSubclassOf<UBaseDamageType> DamageType, FHitResult Hit);
-	virtual void OnMarkDetonated() override;
+	virtual void OnMarkDetonated(AActor* MarkedPawn, EMarkerType MarkerType) override;
 	virtual void OnMarkAdded(AActor* MarkedActor, EMarkerType MarkerType) override;
 
 	void RemoveHunterMarkOnPlayer();

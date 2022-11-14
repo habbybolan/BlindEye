@@ -25,6 +25,8 @@
 #include "Enemies/Burrower/BurrowerSpawnManager.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "Gameplay/BlindEyeGameMode.h"
+#include "HUD/Checklist.h"
+#include "HUD/TextPopupManager.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 
@@ -68,6 +70,8 @@ ABlindEyePlayerCharacter::ABlindEyePlayerCharacter(const FObjectInitializer& Obj
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 	AbilityManager = CreateDefaultSubobject<UAbilityManager>(TEXT("AbilityManager"));
+
+	IndicatorManagerComponent = CreateDefaultSubobject<UIndicatorManagerComponent>("IndicatorManager");
 	
 	PlayerType = EPlayerType::CrowPlayer;
 	Team = TEAMS::Player;
@@ -120,10 +124,7 @@ void ABlindEyePlayerCharacter::BeginPlay()
 			BlindEyeGS->TutorialStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::StartTutorial);
 		}
 
-		PlayerIndicator = Cast<UPlayerScreenIndicator>(CreateWidget(world, PlayerIndicatorType, FName("PlayerIndicator")));
-		PlayerIndicator->AddToViewport();
-
-		// If another player exists
+		// If join and another player exists already
 		if (APlayerState* OtherPlayerState = BlindEyeGS->GetOtherPlayer(this))
 		{
 			if (ABlindEyePlayerCharacter* OtherPlayer = Cast<ABlindEyePlayerCharacter>(OtherPlayerState->GetPawn()))
@@ -131,7 +132,9 @@ void ABlindEyePlayerCharacter::BeginPlay()
 				NotifyOfOtherPlayerExistance(OtherPlayer);
 			}
 		}
-	} else
+	}
+	// If not the owning player, notify owner that it exists
+	else
 	{
 		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(world, 0);
 		if (PlayerController != GetController())
@@ -149,58 +152,11 @@ void ABlindEyePlayerCharacter::BeginPlay()
 		world->GetTimerManager().SetTimer(HealthRegenTimerHandle, this, &ABlindEyePlayerCharacter::RegenHealth, RegenHealthCallDelay, true);
 	}
 
-	world->GetTimerManager().SetTimer(RadarUpdateTimerHandle, this, &ABlindEyePlayerCharacter::UpdateRadar, RadarUpdateDelay, true);
-
 	HealthbarVisibilityBounds->OnComponentBeginOverlap.AddDynamic(this, &ABlindEyePlayerCharacter::HealthbarBeginOverlap);
 	HealthbarVisibilityBounds->OnComponentEndOverlap.AddDynamic(this, &ABlindEyePlayerCharacter::HealthbarEndOverlap);
 
 	HealthComponent->MarkedAddedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::MULT_OnMarked);
 	HealthComponent->MarkedRemovedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::MULT_OnUnMarked);
-}
-
-void ABlindEyePlayerCharacter::CLI_TryFinishTutorial_Implementation(ETutorialChecklist CheckListItem)
-{
-	// Check if Player in tutorial 
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
-		if (BlindEyeGS->IsBlindEyeMatchTutorial())
-		{
-			if ((!bTutorial1Finished && CheckListItem <= ETutorialChecklist::Ability2) ||
-				(bTutorial1Finished && CheckListItem > ETutorialChecklist::Ability2))
-			// Check if checklist item not yet done
-			if (!ChecklistFinishedTasks.Contains(CheckListItem))
-			{
-				// Send checklist item to BP
-				BP_TutorialCheckList(CheckListItem);
-				ChecklistFinishedTasks.Add(CheckListItem);
-				
-				// Swap to next tutorial if finished first
-				if (!bTutorial1Finished && ChecklistFinishedTasks.Num() >= 6)
-				{
-					bTutorial1Finished = !bTutorial1Finished;
-				}
-
-				// Check if tutorial finished
-				if (ChecklistFinishedTasks.Num() >= (uint8)ETutorialChecklist::Count)
-				{
-					SER_SetTutorialFinished();
-				}
-			}
-		}
-	}
-}
-
-void ABlindEyePlayerCharacter::SER_SetTutorialFinished_Implementation()
-{
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		ABlindEyeGameMode* BlindEyeGM = Cast<ABlindEyeGameMode>(UGameplayStatics::GetGameMode(World));
-		check(BlindEyeGM)
-		BlindEyeGM->TutorialFinished(this);
-	}
 }
 
 void ABlindEyePlayerCharacter::OnEnemyMarkDetonated()
@@ -221,22 +177,10 @@ void ABlindEyePlayerCharacter::StartTutorial()
 	}
 }
 
-void ABlindEyePlayerCharacter::StartGame() 
+void ABlindEyePlayerCharacter::StartGame()
 {
 	BP_DisplayTutorialChecklist_CLI(false);
-	BP_DisplayDefendShrineIndicator_CLI(true);
- 
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		World->GetTimerManager().SetTimer(HideDefendShrineIndicatorTimerHandle, this, &ABlindEyePlayerCharacter::MULT_HideDefendShrineIndicator,
-			DefendShrineIndicatorLength, false);
-	}
-}
-
-void ABlindEyePlayerCharacter::MULT_HideDefendShrineIndicator_Implementation()
-{
-	BP_DisplayDefendShrineIndicator_CLI(false);
+	BP_DisplayDefendShrineIndicator_CLI();
 }
 
 void ABlindEyePlayerCharacter::HealthbarBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -261,8 +205,9 @@ void ABlindEyePlayerCharacter::OnOtherPlayerDied(ABlindEyePlayerCharacter* Other
 {
 	if (OtherPlayer)
 	{
-		if (PlayerIndicator)
+		if (UScreenIndicator* ScreenIndicator = IndicatorManagerComponent->GetIndicator(PlayerIndicatorID))
 		{
+			UPlayerScreenIndicator* PlayerIndicator = Cast<UPlayerScreenIndicator>(ScreenIndicator);
 			PlayerIndicator->bisPlayerDowned = true;
 		}
 	}
@@ -272,8 +217,9 @@ void ABlindEyePlayerCharacter::OnOtherPlayerRevived(ABlindEyePlayerCharacter* Ot
 {
 	if (OtherPlayer)
 	{
-		if (PlayerIndicator)
+		if (UScreenIndicator* ScreenIndicator = IndicatorManagerComponent->GetIndicator(PlayerIndicatorID))
 		{
+			UPlayerScreenIndicator* PlayerIndicator = Cast<UPlayerScreenIndicator>(ScreenIndicator);
 			PlayerIndicator->bisPlayerDowned = false;
 		}
 	}
@@ -327,26 +273,25 @@ void ABlindEyePlayerCharacter::MULT_OnUnMarked_Implementation(AActor* UnMarkedPl
 
 void ABlindEyePlayerCharacter::NotifyOtherPlayerHunterMarked()
 {
-	if (PlayerIndicator)
+	if (UScreenIndicator* ScreenIndicator = IndicatorManagerComponent->GetIndicator(PlayerIndicatorID))
 	{
+		UPlayerScreenIndicator* PlayerIndicator = Cast<UPlayerScreenIndicator>(ScreenIndicator);
 		PlayerIndicator->bIsPlayerMarked = true;
 	}
 }
 
 void ABlindEyePlayerCharacter::NotifyOtherPlayerHunterUnMarked()
 {
-	if (PlayerIndicator)
+	if (UScreenIndicator* ScreenIndicator = IndicatorManagerComponent->GetIndicator(PlayerIndicatorID))
 	{
+		UPlayerScreenIndicator* PlayerIndicator = Cast<UPlayerScreenIndicator>(ScreenIndicator);
 		PlayerIndicator->bIsPlayerMarked = false;
 	}
 }
 
 void ABlindEyePlayerCharacter::NotifyOfOtherPlayerExistance(ABlindEyePlayerCharacter* NewPlayer)
 {
-	if (PlayerIndicator)
-	{
-		PlayerIndicator->SetTarget(NewPlayer);
-	}
+	IndicatorManagerComponent->CLI_AddIndicator(PlayerIndicatorID, PlayerIndicatorType, NewPlayer, 0);
 }
 
 FVector ABlindEyePlayerCharacter::GetIndicatorPosition()
@@ -469,6 +414,51 @@ void ABlindEyePlayerCharacter::MULT_ResetWalkMovementToNormal_Implementation()
 	GetCharacterMovement()->MaxAcceleration = CachedAcceleration;
 }
 
+void ABlindEyePlayerCharacter::CLI_AddTextPopup_Implementation(const FString& Text, ETextPopupType TextPopupType, float Duration)
+{
+	TextPopupManager->AddTextPopup(Text, TextPopupType, Duration);
+}
+
+void ABlindEyePlayerCharacter::CLI_SetupChecklist_Implementation()
+{
+	UScaleBox* ChecklistContainer = BP_GetTutorialBox();
+	if (ChecklistContainer->HasAnyChildren()) return;
+
+	if (Checklist != nullptr) return;
+	
+	Checklist = Cast<UChecklist>( UUserWidget::CreateWidgetInstance(*ChecklistContainer, ChecklistType, TEXT("CheckList")));
+	//ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(GetController());
+	//check(BlindEyeController)
+	//Checklist = CreateWidget<UChecklist>(BlindEyeController, ChecklistType);
+	//ChecklistContainer->AddChild(Checklist);
+	Checklist->AddToPlayerScreen();
+}
+
+void ABlindEyePlayerCharacter::CLI_DestroyChecklist_Implementation() 
+{
+	if (Checklist)
+	{
+		Checklist->RemoveFromViewport();
+	}
+	Checklist = nullptr;
+}
+
+void ABlindEyePlayerCharacter::CLI_UpdateChecklist_Implementation(uint8 ItemID)
+{
+	if (Checklist)
+	{
+		Checklist->UpdateChecklistItem(ItemID);
+	}
+}
+
+void ABlindEyePlayerCharacter::CLI_AddChecklist_Implementation(uint8 ItemID, const FString& text, uint8 MaxCount)
+{
+	if (Checklist)
+	{
+		Checklist->AddChecklistItem(ItemID, text, MaxCount);
+	}
+}
+
 void ABlindEyePlayerCharacter::RegenBirdMeter()
 {
 	if (ABlindEyePlayerState* BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState()))
@@ -571,7 +561,7 @@ void ABlindEyePlayerCharacter::OnRevive()
 
 void ABlindEyePlayerCharacter::BasicAttackPressed() 
 {
-	CLI_TryFinishTutorial(ETutorialChecklist::BasicAttack);
+	if (TutorialActionBlockers.bBasicAttackBlocked) return;
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Basic, EAbilityInputTypes::Pressed);
 }
@@ -590,7 +580,7 @@ void ABlindEyePlayerCharacter::ChargedAttackReleased()
 
 void ABlindEyePlayerCharacter::DashPressed()
 {
-	CLI_TryFinishTutorial(ETutorialChecklist::Dash);
+	if (TutorialActionBlockers.bDashBlocked) return;
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Dash, EAbilityInputTypes::Pressed);
 }
@@ -603,26 +593,28 @@ void ABlindEyePlayerCharacter::DashReleased()
 
 void ABlindEyePlayerCharacter::Unique1Pressed()
 {
-	CLI_TryFinishTutorial(ETutorialChecklist::Ability1);
+	if (TutorialActionBlockers.bUnique1Blocked) return;
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Pressed);
 }
 
 void ABlindEyePlayerCharacter::Unique1Released()
 {
+	if (TutorialActionBlockers.bUnique1Blocked) return;
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Released);
 }
 
 void ABlindEyePlayerCharacter::Unique2Pressed()
 {
-	CLI_TryFinishTutorial(ETutorialChecklist::Ability2);
+	if (TutorialActionBlockers.bUnique2blocked) return;
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Pressed);
 }
 
 void ABlindEyePlayerCharacter::Unique2Released()
 {
+	if (TutorialActionBlockers.bUnique2blocked) return;
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Released);
 }
@@ -1060,16 +1052,10 @@ float ABlindEyePlayerCharacter::GetShrineHealthPercent()
 	return 0;
 }
 
-void ABlindEyePlayerCharacter::UpdateRadar()
-{
-	// TODO: Call User widget to Update Radar
-}
-
-
 void ABlindEyePlayerCharacter::TryJump()
 {
+	if (TutorialActionBlockers.bLocomotionBlocked) return;
 	if (IsActionsBlocked()) return;
-	CLI_TryFinishTutorial(ETutorialChecklist::Jump);
 	if (!HealthComponent->GetIsHunterDebuff() && !GetIsDead())
 	{
 		Jump();
@@ -1078,6 +1064,7 @@ void ABlindEyePlayerCharacter::TryJump()
 
 void ABlindEyePlayerCharacter::MoveForward(float Value)
 {
+	if (TutorialActionBlockers.bLocomotionBlocked) return;
 	if (IsActionsBlocked()) return;
 	
 	if ((Controller != nullptr) && (Value != 0.0f))
@@ -1103,6 +1090,7 @@ void ABlindEyePlayerCharacter::MoveForward(float Value)
 
 void ABlindEyePlayerCharacter::MoveRight(float Value)
 {
+	if (TutorialActionBlockers.bLocomotionBlocked) return;
 	if (IsActionsBlocked()) return;
 	
 	if ( (Controller != nullptr) && (Value != 0.0f) )
@@ -1133,6 +1121,7 @@ void ABlindEyePlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	DOREPLIFETIME(ABlindEyePlayerCharacter, bUnlimitedBirdMeter);
 	DOREPLIFETIME(ABlindEyePlayerCharacter, PlayerType);
 	DOREPLIFETIME(ABlindEyePlayerCharacter, CurrRevivePercent);
+	DOREPLIFETIME(ABlindEyePlayerCharacter, TutorialActionBlockers);
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -173,16 +173,6 @@ void ABlindEyeGameState::StartEnemyTutorial(EEnemyTutorialType TutorialType)
 	BP_EnemyTutorialStarted_SER(TutorialType);
 }
 
-void ABlindEyeGameState::MULT_WaitingToInteractWithShrine_Implementation() 
-{
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		// Shrine notifies when all players are nearby to end tutorial
-		Shrine->StartWaitingForPlayersToInteract();
-	}
-	BP_WaitingToInteractWithShrine_CLI();
-}
-
 void ABlindEyeGameState::TutorialFinished()
 {
 	bInBeginningTutorial = false;
@@ -318,8 +308,8 @@ bool ABlindEyeGameState::IsBlindEyeMatchEnding()
 {
 	return InProgressMatchState == InProgressStates::GameEnding;
 }
-
-void ABlindEyeGameState::StartGame()
+ 
+void ABlindEyeGameState::MULT_StartGame_Implementation()
 {
 	GameStartedDelegate.Broadcast();
 }
@@ -366,13 +356,11 @@ void ABlindEyeGameState::GetShrineReference()
 
 void ABlindEyeGameState::OnMarkAdded(AActor* MarkedActor, EMarkerType MarkerType)
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Blue, "Player Marked");
 	// TODO:
 }
 
 void ABlindEyeGameState::OnMarkRemoved(AActor* UnmarkedActor, EMarkerType MarkerType)
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Blue, "Player Unmarked");
 	// TODO:
 }
 

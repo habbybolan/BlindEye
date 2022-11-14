@@ -350,7 +350,7 @@ FMarkData& UHealthComponent::GetCurrMark()
 
 void UHealthComponent::DetonateMark()
 {
-	DetonateDelegate.Broadcast();
+	DetonateDelegate.Broadcast(GetOwner(), CurrMark.MarkerType);
 	CurrMark.RemoveMark();
 }
 

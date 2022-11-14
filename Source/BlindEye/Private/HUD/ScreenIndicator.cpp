@@ -39,7 +39,8 @@ void UScreenIndicator::FindScreenEdgeLocationForWorldLocation(FVector2D& OutScre
                                                               float& OutRotationAngleDegrees, bool &bIsOnScreen)
 {
 	// TODO: Need validity check
-	//if (IsValid(Target.GetObjectRef())) return;
+	IIndicatorInterface* IndicatorInterface = Cast<IIndicatorInterface>(Target.GetObjectRef());
+	if (!IndicatorInterface) return;
 	
 	bIsOnScreen = false;
 	OutRotationAngleDegrees = 0.f;
@@ -47,7 +48,6 @@ void UScreenIndicator::FindScreenEdgeLocationForWorldLocation(FVector2D& OutScre
 	
 	const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 	const FVector2D  ViewportCenter =  FVector2D(ViewportSize.X/2, ViewportSize.Y/2);
-	
 	
 	APlayerController* PlayerController = GetOwningPlayer();
 

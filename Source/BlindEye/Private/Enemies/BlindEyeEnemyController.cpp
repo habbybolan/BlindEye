@@ -49,30 +49,24 @@ void ABlindEyeEnemyController::OnPossess(APawn* InPawn)
 
 void ABlindEyeEnemyController::OnStunStart(float StunDuration)
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Blue, "Enemy Stunned: " + FString::SanitizeFloat(StunDuration));
 }
 
 void ABlindEyeEnemyController::OnStunEnd()
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Blue, "Stun ended");
 }
 
 void ABlindEyeEnemyController::OnBurnStart(float DamagePerSec, float Duration)
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Blue, "Burn Started");
 }
 
 void ABlindEyeEnemyController::OnBurnEnd()
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Blue, "Burn ended");
 }
 
 void ABlindEyeEnemyController::OnTauntStart(float Duration, AActor* Taunter)
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Blue, "Taunt started for " + FString::SanitizeFloat(Duration) + "from: " + Taunter->GetName());
 }
 
 void ABlindEyeEnemyController::OnTauntEnd()
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Blue, "Taunt ended");
 }

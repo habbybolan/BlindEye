@@ -13,15 +13,17 @@ UCLASS()
 class BLINDEYE_API UDummyEnemyHealthComponent : public UHealthComponent
 {
 	GENERATED_BODY()
+
+public:
 	
 	UDummyEnemyHealthComponent(const FObjectInitializer& ObjectInitializer);
 
-	virtual void DetonateMark() override;
-
-	virtual void AddMarkerHelper(EMarkerType MarkerType) override;
-
-	virtual void OnDeath(AActor* ActorThatKilled) override;
+	// virtual void DetonateMark() override;
+	//
+	// virtual void AddMarkerHelper(EMarkerType MarkerType) override;
 
 	virtual void KnockBack(FVector KnockBackForce, AActor* DamageCause) override;
+
+	virtual void OnDeath(AActor* ActorThatKilled) override;
 	
 };

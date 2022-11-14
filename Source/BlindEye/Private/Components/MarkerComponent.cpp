@@ -29,8 +29,6 @@ void UMarkerComponent::BeginPlay()
 	if (World == nullptr) return;
 
 	FVector location = GetComponentLocation();
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Blue, "Location: " +
-		FString::SanitizeFloat(location.X) + "," + FString::SanitizeFloat(location.Y) + "," + FString::SanitizeFloat(location.Z));
 	
 	FActorSpawnParameters params;
 	params.Owner = GetOwner();
@@ -69,82 +67,47 @@ void UMarkerComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	SetWorldRotation(FRotator(0, ControlRot.Yaw, 0));
 }
 
-void UMarkerComponent::RemoveMark()
+void UMarkerComponent::RemoveMark(EMarkerType MarkType)
 {
-	if (AMarkerStaticMesh* ActiveMark = GetActiveMark())
+	if (AMarkerStaticMesh* ActiveMark = GetMarkMesh(MarkType))
 	{
 		ActiveMark->BP_RemoveMark();
-		ActiveMark->GetStaticMeshComponent()->SetVisibility(false);
 	}
 	bMarked = false;
-	
+	UpdateMarkVisibility(MarkType, false);
 }
 
 void UMarkerComponent::DetonateMark(EMarkerType MarkerType)
 {
-	if (AMarkerStaticMesh* ActiveMark = GetActiveMark())
+	if (AMarkerStaticMesh* ActiveMark = GetMarkMesh(MarkerType))
 	{
 		ActiveMark->BP_DetonateMark(MarkerType);
-		ActiveMark->GetStaticMeshComponent()->SetVisibility(false);
 	}
 	bMarked = false;
-
-	// Marker logic for tutorial
-	if (MarkerType == EMarkerType::Crow)
-	{
-		UWorld* World = GetWorld();
-		if (World)
-		{
-			ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
-			for (APlayerState* PlayerState : BlindEyeGS->PlayerArray)
-			{
-				if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerState->GetPawn()))
-				{
-					if (Player->PlayerType == EPlayerType::CrowPlayer && MarkerType == EMarkerType::Phoenix ||
-						Player->PlayerType == EPlayerType::PhoenixPlayer && MarkerType == EMarkerType::Crow)
-					{
-						Player->CLI_TryFinishTutorial(ETutorialChecklist::Detonate);
-					}
-				}
-			}
-		}
-	}
+	UpdateMarkVisibility(MarkerType, false);
 }
 
 void UMarkerComponent::AddMark(EMarkerType MarkerType)
 {
 	if (bMarked) return;
-	CrowMark->GetStaticMeshComponent()->SetVisibility(MarkerType == EMarkerType::Crow);
-	PhoenixMark->GetStaticMeshComponent()->SetVisibility(MarkerType == EMarkerType::Phoenix);
-	HunterMark->GetStaticMeshComponent()->SetVisibility(MarkerType == EMarkerType::Hunter);
 	bMarked = true;
-	GetActiveMark()->BP_AddMark(MarkerType);
-
-	// Marker logic for tutorial
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
-		for (APlayerState* PlayerState : BlindEyeGS->PlayerArray)
-		{
-			if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerState->GetPawn()))
-			{
-				if (Player->PlayerType == EPlayerType::CrowPlayer && MarkerType == EMarkerType::Crow ||
-					Player->PlayerType == EPlayerType::PhoenixPlayer && MarkerType == EMarkerType::Phoenix)
-				{
-					Player->CLI_TryFinishTutorial(ETutorialChecklist::MarkEnemy);
-				}
-			}
-		}
-	}
+	GetMarkMesh(MarkerType)->BP_AddMark(MarkerType);
+	UpdateMarkVisibility(MarkerType, true);
 }
 
 void UMarkerComponent::RefreshMark(EMarkerType MarkerType, float RemainingDecay)
 {
-	if (AMarkerStaticMesh* ActiveMark = GetActiveMark())
+	if (AMarkerStaticMesh* ActiveMark = GetMarkMesh(MarkerType))
 	{
 		ActiveMark->BP_RefreshMark(MarkerType, RemainingDecay);
 	}
+}
+ 
+void UMarkerComponent::UpdateMarkVisibility(EMarkerType MarkerType, bool bShowMark)
+{
+	CrowMark->GetStaticMeshComponent()->SetVisibility(MarkerType == EMarkerType::Crow && bShowMark);
+	PhoenixMark->GetStaticMeshComponent()->SetVisibility(MarkerType == EMarkerType::Phoenix && bShowMark);
+	HunterMark->GetStaticMeshComponent()->SetVisibility(MarkerType == EMarkerType::Hunter && bShowMark);
 }
 
 void UMarkerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -159,11 +122,18 @@ void UMarkerComponent::OnOwnerDestroyed(AActor* OwnerDestroyed)
 	DestroyComponent();
 }
 
-AMarkerStaticMesh* UMarkerComponent::GetActiveMark()
+AMarkerStaticMesh* UMarkerComponent::GetMarkMesh(EMarkerType MarkType)
 {
-	if (CrowMark->GetStaticMeshComponent()->IsVisible()) return CrowMark;
-	if (PhoenixMark->GetStaticMeshComponent()->IsVisible()) return PhoenixMark;
-	if (HunterMark->GetStaticMeshComponent()->IsVisible()) return HunterMark;
-	return nullptr;
+	switch(MarkType)
+	{
+	case EMarkerType::Crow:
+		return CrowMark;
+	case EMarkerType::Phoenix:
+		return PhoenixMark;
+	case EMarkerType::Hunter:
+		return HunterMark;
+	default:
+		return CrowMark;
+	}
 }
 

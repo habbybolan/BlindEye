@@ -140,9 +140,9 @@ void AHunterEnemy::SetNotCharged()
 	//World->GetTimerManager().SetTimer(ChargedCooldownTimerHandle, this, &AHunterEnemy::SetCharged, ChargedCooldown, false);
 }
 
-void AHunterEnemy::OnMarkDetonated()
+void AHunterEnemy::OnMarkDetonated(AActor* MarkedPawn, EMarkerType MarkerType)
 {
-	Super::OnMarkDetonated();
+	Super::OnMarkDetonated(MarkedPawn, MarkerType);
 	if (GetIsCharged())
 	{
 		AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(Controller);
@@ -208,7 +208,7 @@ void AHunterEnemy::MULT_PerformBasicAttackHelper_Implementation()
 	PlayAnimMontage(BasicAttackAnimation);
 }
 
-void AHunterEnemy::OnHunterMarkDetonated()
+void AHunterEnemy::OnHunterMarkDetonated(AActor* MarkedPawn, EMarkerType MarkerType)
 {
 	GetMesh()->GetAnimInstance()->StopAllMontages(0);
 	UnsubscribeToTargetMarks();
@@ -368,7 +368,6 @@ void AHunterEnemy::AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	// If attacking animation
 	if (Montage == ChargedJumpAnim || Montage == BasicAttackAnimation)
 	{
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Red, "Attack Ended: " + bInterrupted ? "Interrupted" : "NOT");
 		bAttacking = false;
 	}
 }

@@ -122,7 +122,6 @@ void AAbilityBase::SetOffCooldown()
 
 void AAbilityBase::TryCancelAbility()
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, "Ability cancelled");
 	// TODO: Do functionality later
 	//		Probably add IsCancellable as base state boolean and extra cancel logic in the state (cancel method?)
 

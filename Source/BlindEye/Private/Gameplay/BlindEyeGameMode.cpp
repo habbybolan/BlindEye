@@ -7,7 +7,7 @@
 #include "Characters/BlindEyePlayerController.h"
 #include "Characters/PlayerStartingCutscenePosition.h"
 #include "Enemies/Burrower/BurrowerSpawnManager.h"
-#include "Enemies/Dummy/DummyEnemy.h"
+#include "Tutorial/DummyEnemy.h"
 #include "Enemies/Hunter/HunterEnemyController.h"
 #include "GameFramework/PlayerStart.h"
 #include "GameFramework/PlayerState.h"
@@ -27,8 +27,22 @@ void ABlindEyeGameMode::PostLogin(APlayerController* NewPlayer)
 	if (ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(NewPlayer))
 	{
 		BlindEyeController->SER_SpawnPlayer();
-		// TODO: Any match logic needed
+		//BlindEyeController->SetInputMode(FInputModeUIOnly());
 	}
+
+	PlayersConnected++;
+	if (PlayersConnected >= 2)
+	{
+		if (InProgressMatchState == InProgressStates::WaitingLoadingPhase)
+		{
+			GetWorldTimerManager().SetTimer(StartingTutorialTimerHandle, this, &ABlindEyeGameMode::DelayedStartTutorial, 2, false);
+		}
+	}
+}
+
+void ABlindEyeGameMode::DelayedStartTutorial()
+{
+	SetInProgressMatchState(InProgressStates::Tutorial);
 }
 
 void ABlindEyeGameMode::BeginPlay()
@@ -40,6 +54,9 @@ void ABlindEyeGameMode::BeginPlay()
 
 	IslandManager = Cast<AIslandManager>(UGameplayStatics::GetActorOfClass(world, AIslandManager::StaticClass()));
 	check(IslandManager);
+
+	TutorialManager = Cast<ATutorialManager>(UGameplayStatics::GetActorOfClass(world, ATutorialManager::StaticClass()));
+	check(TutorialManager)
 }
 
 FTransform ABlindEyeGameMode::GetSpawnPoint() const
@@ -63,12 +80,13 @@ void ABlindEyeGameMode::OnShrineDeath()
 void ABlindEyeGameMode::HandleMatchHasStarted() 
 {
 	Super::HandleMatchHasStarted();
-	SetInProgressMatchState(InProgressStates::Tutorial);
+	SetInProgressMatchState(InProgressStates::WaitingLoadingPhase);
 }
 
 void ABlindEyeGameMode::TutorialState()
 {
 	// TODO: Add this logic to when all players have first connected
+	TutorialManager->StartTutorials();
 }
 
 void ABlindEyeGameMode::GameInProgressState()
@@ -163,7 +181,6 @@ void ABlindEyeGameMode::SetInProgressMatchState(FName NewInProgressState)
 
 void ABlindEyeGameMode::OnBlindEyeMatchStateSet()
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Red, InProgressMatchState.ToString());
 	if (InProgressMatchState == InProgressStates::NotInProgress)
 	{
 		// TODO?
@@ -218,6 +235,13 @@ void ABlindEyeGameMode::TutorialFinished(ABlindEyePlayerCharacter* Player)
 {
 	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(GameState);
 	check(BlindEyeGS)
+
+	// For debugging, if single player waiting, can goto tutorial without 2 players
+	if (InProgressMatchState == InProgressStates::WaitingLoadingPhase)
+	{
+		SetInProgressMatchState(InProgressStates::Tutorial);
+		return;
+	}
 
 	// trying to skip tutorial while not in tutorial
 	if (BlindEyeGS->CurrEnemyTutorial == EEnemyTutorialType::None && !BlindEyeGS->bInBeginningTutorial)
@@ -289,27 +313,12 @@ void ABlindEyeGameMode::OnAllPlayersFinishedTutorial()
 	{
 		// Notify players to goto shrine to start game
 		// TODO: Notify shrine to wait for all players near to end beginning tutorial
-		BlindEyeGS->MULT_WaitingToInteractWithShrine();
+		TutorialManager->SetFinishTutorials();
+
+		// notify tutorial finished, going to first enemy tutorial
+		BlindEyeGS->TutorialFinished();
+		StartEnemyTutorial(EEnemyTutorialType::BurrowerSnapper);
 	}
-}
-
-void ABlindEyeGameMode::FinishBeginningTutorial()
-{
-	UWorld* World = GetWorld();
-	// Kill all tutorial dummy enemies in level
-	TArray<AActor*> DummyActors;
-	UGameplayStatics::GetAllActorsOfClass(World, ADummyEnemy::StaticClass(), DummyActors);
-	for (AActor* DummyActor : DummyActors)
-	{
-		ADummyEnemy* DummyEnemy = Cast<ADummyEnemy>(DummyActor);
-		DummyEnemy->Destroy();
-	}
-
-	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(GameState);
-
-	// notify tutorial finished, going to first enemy tutorial
-	BlindEyeGS->TutorialFinished();
-	StartEnemyTutorial(EEnemyTutorialType::BurrowerSnapper);
 }
 
 void ABlindEyeGameMode::SpawnTutorialBurrower()
@@ -329,7 +338,7 @@ void ABlindEyeGameMode::StartGame()
 	
 	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(GameState);
     check(BlindEyeGS)
-    BlindEyeGS->StartGame();
+    BlindEyeGS->MULT_StartGame();
 
 	// perform initial level shift after tutorial finished
 	BP_LevelShift();

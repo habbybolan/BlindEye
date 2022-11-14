@@ -7,6 +7,7 @@
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "GameFramework/GameMode.h"
 #include "Islands/IslandManager.h"
+#include "Tutorial/TutorialManager.h"
 #include "BlindEyeGameMode.generated.h"
 
 namespace InProgressStates 
@@ -81,9 +82,6 @@ public:
 	void OnPlayerDied(ABlindEyePlayerState* DeadPlayer);
 	void OnPlayerRevived(ABlindEyePlayerState* RevivedPlayer);
 
-	// Called by shrine once players are close enough to shrine and finished beginning tutorial
-	void FinishBeginningTutorial();
-
 	UFUNCTION(BlueprintCallable)
 	void SpawnTutorialBurrower();
 
@@ -92,10 +90,15 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	AIslandManager* IslandManager;
+
+	UPROPERTY()
+	ATutorialManager* TutorialManager;
 	
 	uint8 NumRounds = 3;
 
 	uint8 CurrRound = 0;
+
+	uint8 PlayersConnected = 0;
 
 	FTimerHandle PulseKillDelayTimerHandle;
 
@@ -136,4 +139,7 @@ protected:
 	void FinishEnemyTutorial();
 
 	virtual void Tick(float DeltaSeconds) override;
+
+	FTimerHandle StartingTutorialTimerHandle;
+	void DelayedStartTutorial();
 };

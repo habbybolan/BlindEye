@@ -101,18 +101,15 @@ public:
 	bool IsBlindEyeMatchInProgress();
 	bool IsBlindEyeMatchEnding();
 
-	// Called once beginning tutorial finished/skipped to wait for players to goto shrine
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_WaitingToInteractWithShrine();
-
 	void TutorialFinished();
 
 	void EnemyTutorialTextSkipped();
 	
 	// Stops Cutscene and give control back to players, Called from Blueprints
 	void FinishEnemyTutorial();
-	
-	void StartGame();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_StartGame();
 	
 	TArray<ABlindEyePlayerCharacter*> GetPlayers();
 	ABlindEyePlayerCharacter* GetPlayer(EPlayerType PlayerType);
@@ -229,9 +226,7 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_EnemyTutorialFinished_CLI(EEnemyTutorialType TutorialType);
- 
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_WaitingToInteractWithShrine_CLI();
+	
 	UFUNCTION(BlueprintImplementableEvent) 
 	void BP_BeginningTutorialFinished_CLI();
 

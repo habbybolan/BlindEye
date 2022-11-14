@@ -84,12 +84,12 @@ protected:
 	UFUNCTION()
 	virtual void OnMarkRemoved(AActor* UnmarkedActor, EMarkerType MarkerType);
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_OnMarkRemovedHelper();
+	void MULT_OnMarkRemovedHelper(EMarkerType MarkType);
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnMarkRemoved();
 	// mark detonated
 	UFUNCTION() 
-	virtual void OnMarkDetonated();
+	virtual void OnMarkDetonated(AActor* MarkedPawn, EMarkerType MarkerType);
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_OnMarkDetonatedHelper(EMarkerType MarkerType); 
 	UFUNCTION(BlueprintImplementableEvent)
@@ -97,7 +97,7 @@ protected:
 	UFUNCTION()
 	virtual void OnMarkRefreshed(float RemainingDecay);
 	UFUNCTION(NetMulticast, Reliable) 
-	void MULT_OnMarkRefreshedHelper(EMarkerType MarkerType, float RemainingDecay); 
+	void MULT_OnMarkRefreshedHelper(EMarkerType MarkerType, float RemainingDecay);
 public:
 	virtual float GetHealth() override;
 	virtual float GetMaxHealth() override;
