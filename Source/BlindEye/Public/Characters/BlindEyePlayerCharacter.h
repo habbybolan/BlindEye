@@ -82,9 +82,6 @@ public:
 
 	virtual void BeginPlay() override;
 
-	UFUNCTION(Client, Reliable)
-	void CLI_TryFinishTutorial(ETutorialChecklist CheckListItem);
-
 	void OnEnemyMarkDetonated();
 	UFUNCTION(BlueprintImplementableEvent) 
 	void BP_CooldownRefreshed(float RefreshAmount);
@@ -410,9 +407,6 @@ protected:
 	UFUNCTION()
 	void Unique2Released();
 
-	UFUNCTION(Server, Reliable)
-	void SER_SetTutorialFinished();
-
 	void TutorialSkipPressed();
 	void TutorialSkipReleased();
 
@@ -420,11 +414,6 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void SER_UserInputSkipTutorial();
 	FTimerHandle TutorialSkipTimerHandle;
-
-	FTimerHandle RadarUpdateTimerHandle;
-	float RadarUpdateDelay = 0.15f;
-	UFUNCTION()
-	void UpdateRadar();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_DisplayDefendShrineIndicator_CLI();

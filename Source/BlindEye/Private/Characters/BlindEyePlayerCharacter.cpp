@@ -151,58 +151,11 @@ void ABlindEyePlayerCharacter::BeginPlay()
 		world->GetTimerManager().SetTimer(HealthRegenTimerHandle, this, &ABlindEyePlayerCharacter::RegenHealth, RegenHealthCallDelay, true);
 	}
 
-	world->GetTimerManager().SetTimer(RadarUpdateTimerHandle, this, &ABlindEyePlayerCharacter::UpdateRadar, RadarUpdateDelay, true);
-
 	HealthbarVisibilityBounds->OnComponentBeginOverlap.AddDynamic(this, &ABlindEyePlayerCharacter::HealthbarBeginOverlap);
 	HealthbarVisibilityBounds->OnComponentEndOverlap.AddDynamic(this, &ABlindEyePlayerCharacter::HealthbarEndOverlap);
 
 	HealthComponent->MarkedAddedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::MULT_OnMarked);
 	HealthComponent->MarkedRemovedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::MULT_OnUnMarked);
-}
-
-void ABlindEyePlayerCharacter::CLI_TryFinishTutorial_Implementation(ETutorialChecklist CheckListItem)
-{
-	// Check if Player in tutorial 
-	// UWorld* World = GetWorld();
-	// if (World)
-	// {
-	// 	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
-	// 	if (BlindEyeGS->IsBlindEyeMatchTutorial())
-	// 	{
-	// 		if ((!bTutorial1Finished && CheckListItem <= ETutorialChecklist::Ability2) ||
-	// 			(bTutorial1Finished && CheckListItem > ETutorialChecklist::Ability2))
-	// 		// Check if checklist item not yet done
-	// 		if (!ChecklistFinishedTasks.Contains(CheckListItem))
-	// 		{
-	// 			// Send checklist item to BP
-	// 			BP_TutorialCheckList(CheckListItem);
-	// 			ChecklistFinishedTasks.Add(CheckListItem);
-	// 			
-	// 			// Swap to next tutorial if finished first
-	// 			if (!bTutorial1Finished && ChecklistFinishedTasks.Num() >= 6)
-	// 			{
-	// 				bTutorial1Finished = !bTutorial1Finished;
-	// 			}
-	//
-	// 			// Check if tutorial finished
-	// 			if (ChecklistFinishedTasks.Num() >= (uint8)ETutorialChecklist::Count)
-	// 			{
-	// 				SER_SetTutorialFinished();
-	// 			}
-	// 		}
-	// 	}
-	// }
-}
-
-void ABlindEyePlayerCharacter::SER_SetTutorialFinished_Implementation()
-{
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		ABlindEyeGameMode* BlindEyeGM = Cast<ABlindEyeGameMode>(UGameplayStatics::GetGameMode(World));
-		check(BlindEyeGM)
-		BlindEyeGM->TutorialFinished(this);
-	}
 }
 
 void ABlindEyePlayerCharacter::OnEnemyMarkDetonated()
@@ -568,7 +521,6 @@ void ABlindEyePlayerCharacter::OnRevive()
 void ABlindEyePlayerCharacter::BasicAttackPressed() 
 {
 	if (TutorialActionBlockers.bBasicAttackBlocked) return;
-	CLI_TryFinishTutorial(ETutorialChecklist::BasicAttack);
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Basic, EAbilityInputTypes::Pressed);
 }
@@ -588,7 +540,6 @@ void ABlindEyePlayerCharacter::ChargedAttackReleased()
 void ABlindEyePlayerCharacter::DashPressed()
 {
 	if (TutorialActionBlockers.bDashBlocked) return;
-	CLI_TryFinishTutorial(ETutorialChecklist::Dash);
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Dash, EAbilityInputTypes::Pressed);
 }
@@ -602,7 +553,6 @@ void ABlindEyePlayerCharacter::DashReleased()
 void ABlindEyePlayerCharacter::Unique1Pressed()
 {
 	if (TutorialActionBlockers.bUnique1Blocked) return;
-	CLI_TryFinishTutorial(ETutorialChecklist::Ability1);
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Pressed);
 }
@@ -617,7 +567,6 @@ void ABlindEyePlayerCharacter::Unique1Released()
 void ABlindEyePlayerCharacter::Unique2Pressed()
 {
 	if (TutorialActionBlockers.bUnique2blocked) return;
-	CLI_TryFinishTutorial(ETutorialChecklist::Ability2);
 	if (IsActionsBlocked()) return;
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Pressed);
 }
@@ -1062,17 +1011,10 @@ float ABlindEyePlayerCharacter::GetShrineHealthPercent()
 	return 0;
 }
 
-void ABlindEyePlayerCharacter::UpdateRadar()
-{
-	// TODO: Call User widget to Update Radar
-}
-
-
 void ABlindEyePlayerCharacter::TryJump()
 {
 	if (TutorialActionBlockers.bLocomotionBlocked) return;
 	if (IsActionsBlocked()) return;
-	CLI_TryFinishTutorial(ETutorialChecklist::Jump);
 	if (!HealthComponent->GetIsHunterDebuff() && !GetIsDead())
 	{
 		Jump();

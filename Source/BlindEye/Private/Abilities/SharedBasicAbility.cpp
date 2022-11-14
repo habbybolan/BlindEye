@@ -19,7 +19,7 @@ ASharedBasicAbility::ASharedBasicAbility() : AAbilityBase()
 void ASharedBasicAbility::SetComboFinished()
 {
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetOwner());
-	Player->CLI_TryFinishTutorial(ETutorialChecklist::Combo);
+	//Player->CLI_TryFinishTutorial(ETutorialChecklist::Combo);
 }
 
 void ASharedBasicAbility::PlayAbilityAnimation()

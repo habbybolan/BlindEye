@@ -49,7 +49,6 @@ void UScreenIndicator::FindScreenEdgeLocationForWorldLocation(FVector2D& OutScre
 	const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 	const FVector2D  ViewportCenter =  FVector2D(ViewportSize.X/2, ViewportSize.Y/2);
 	
-	
 	APlayerController* PlayerController = GetOwningPlayer();
 
 	FVector ViewportLocation;
