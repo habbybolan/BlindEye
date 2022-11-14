@@ -16,6 +16,7 @@
 #include "BlindEyeUtils.h"
 #include "Components/IndicatorManagerComponent.h"
 #include "Components/ScaleBox.h"
+#include "Components/SizeBox.h"
 #include "BlindEyePlayerCharacter.generated.h"
 
 class UChecklist;
@@ -318,7 +319,7 @@ public:
 	FTutorialActionBlockers TutorialActionBlockers;
 
 	UFUNCTION(BlueprintImplementableEvent) 
-	UScaleBox* BP_GetTutorialBox();
+	USizeBox* BP_GetTutorialBox();
 
 	UPROPERTY()
 	UChecklist* Checklist;
