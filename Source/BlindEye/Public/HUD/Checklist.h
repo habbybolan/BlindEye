@@ -44,6 +44,8 @@ public:
 
 	void UpdateChecklistItem(uint8 ID);
 
+	virtual void RemoveFromParent() override;
+
 protected:
 	
 	TMap<uint8, FChecklistItemData> ChecklistItems;
