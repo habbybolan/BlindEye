@@ -32,7 +32,7 @@ void ATutorialManager::StartTutorials()
 {
 	check(AllTutorials.Num() > 0);
 	bTutorialsRunning = true;
-	AllTutorials[0]->SetupTutorial();
+	StartNextTutorial();
 }
 
 void ATutorialManager::GotoNextTutorial()
@@ -40,12 +40,13 @@ void ATutorialManager::GotoNextTutorial()
 	CurrTutorialIndex++;
 
 	// If finished all tutorials
-	if (CurrTutorialIndex <= AllTutorials.Num())
+	if (CurrTutorialIndex < AllTutorials.Num())
 	{
-		// TODO: Notify GameMode that all the tutorials are finished (Skip)
+		// Setup delay to starting next tutorial
+		GetWorldTimerManager().SetTimer(DelayBetweenTutorialsTimerHandle, this, &ATutorialManager::StartNextTutorial, DelayBetweenTutorials, false);
 	} else
 	{
-		AllTutorials[CurrTutorialIndex]->SetupTutorial();
+		// TODO: Notify GM all tutorials finished
 	}
 }
 
@@ -56,5 +57,10 @@ void ATutorialManager::SetFinishTutorials()
 		AllTutorials[CurrTutorialIndex]->EndTutorial();
 	}
 	bTutorialsRunning = false;
+}
+
+void ATutorialManager::StartNextTutorial()
+{
+	AllTutorials[CurrTutorialIndex]->SetupTutorial();
 }
 
