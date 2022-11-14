@@ -3,10 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "TutorialManager.h"
 #include "GameFramework/Actor.h"
+#include "Gameplay/BlindEyeGameState.h"
 #include "TutorialBase.generated.h"
 
+class UScaleBox;
 class ABlindEyeGameState;
 
 UCLASS(Abstract)
@@ -25,8 +26,13 @@ public:
 
 	// TODO: Logic for player joining in middle of tutorial, update their states?
 
+protected:
+
 	bool bRunning = false;
  
 	UPROPERTY()
 	ABlindEyeGameState* BlindEyeGS;
+ 
+	void UpdateChecklistOfPlayer(EPlayerType PlayerType, uint8 ItemID);
+	void AddChecklistItem(EPlayerType PlayerType, uint8 ItemID, FString& text, uint8 MaxCount);
 };

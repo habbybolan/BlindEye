@@ -52,6 +52,11 @@ void ADetonatingTutorial::SetupTutorial()
 			Player->TutorialActionBlockers.bUnique1Blocked = true;
 		}
 	}
+
+	FString PhoenixText = TEXT("Detonate Crow Marks");
+	AddChecklistItem(EPlayerType::PhoenixPlayer, 0, PhoenixText, NumCrowMarksToDetonate);
+	FString CrowText = TEXT("Detonate Phoenix Marks");
+	AddChecklistItem(EPlayerType::CrowPlayer, 0, CrowText, NumPhoenixMarksToDetonate);
 }
 
 void ADetonatingTutorial::EndTutorial()
@@ -77,6 +82,7 @@ void ADetonatingTutorial::OnMarkDetonated(AActor* MarkedPawn, EMarkerType Marker
 		{
 			SetPlayerFinishedTutorial(EPlayerType::PhoenixPlayer);
 		}
+		UpdateChecklistOfPlayer(EPlayerType::PhoenixPlayer, 0);
 	} else if (MarkerType == EMarkerType::Phoenix)
 	{
 		NumPhoenixMarksToDetonate--;
@@ -85,6 +91,7 @@ void ADetonatingTutorial::OnMarkDetonated(AActor* MarkedPawn, EMarkerType Marker
 		{
 			SetPlayerFinishedTutorial(EPlayerType::CrowPlayer);
 		}
+		UpdateChecklistOfPlayer(EPlayerType::CrowPlayer, 0);
 	}
 }
 

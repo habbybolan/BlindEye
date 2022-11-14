@@ -15,8 +15,10 @@
 #include "HUD/TextPopupWidget.h"
 #include "BlindEyeUtils.h"
 #include "Components/IndicatorManagerComponent.h"
+#include "Components/ScaleBox.h"
 #include "BlindEyePlayerCharacter.generated.h"
 
+class UChecklist;
 enum class TEAMS;
 enum class EAbilityTypes : uint8;
 class UAbilityManager;
@@ -68,6 +70,9 @@ class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityU
 
 	UPROPERTY(EditDefaultsOnly)
 	float ButtonHoldToSkipTutorial = 3.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UChecklist> ChecklistType;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UPlayerScreenIndicator> PlayerIndicatorType;
@@ -311,7 +316,21 @@ public:
 
 	UPROPERTY(Replicated)
 	FTutorialActionBlockers TutorialActionBlockers;
-	 
+
+	UFUNCTION(BlueprintImplementableEvent) 
+	UScaleBox* BP_GetTutorialBox();
+
+	UPROPERTY()
+	UChecklist* Checklist;
+	UFUNCTION(Client, Reliable)
+	void CLI_SetupChecklist();
+	UFUNCTION(Client, Reliable)
+	void CLI_DestroyChecklist();
+	UFUNCTION(Client, Reliable)
+	void CLI_UpdateChecklist(uint8 ItemID);
+	UFUNCTION(Client, Reliable)
+	void CLI_AddChecklist(uint8 ItemID, const FString& text, uint8 MaxCount); 
+	
 protected:
 
 	TSet<ETutorialChecklist> ChecklistFinishedTasks;

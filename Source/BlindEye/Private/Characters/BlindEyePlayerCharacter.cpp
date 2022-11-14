@@ -25,6 +25,7 @@
 #include "Enemies/Burrower/BurrowerSpawnManager.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "Gameplay/BlindEyeGameMode.h"
+#include "HUD/Checklist.h"
 #include "HUD/TextPopupManager.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -416,6 +417,46 @@ void ABlindEyePlayerCharacter::MULT_ResetWalkMovementToNormal_Implementation()
 void ABlindEyePlayerCharacter::CLI_AddTextPopup_Implementation(const FString& Text, ETextPopupType TextPopupType, float Duration)
 {
 	TextPopupManager->AddTextPopup(Text, TextPopupType, Duration);
+}
+
+void ABlindEyePlayerCharacter::CLI_SetupChecklist_Implementation()
+{
+	UScaleBox* ChecklistContainer = BP_GetTutorialBox();
+	if (ChecklistContainer->HasAnyChildren()) return;
+
+	if (Checklist != nullptr) return;
+	
+	Checklist = Cast<UChecklist>( UUserWidget::CreateWidgetInstance(*ChecklistContainer, ChecklistType, TEXT("CheckList")));
+	//ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(GetController());
+	//check(BlindEyeController)
+	//Checklist = CreateWidget<UChecklist>(BlindEyeController, ChecklistType);
+	//ChecklistContainer->AddChild(Checklist);
+	Checklist->AddToPlayerScreen();
+}
+
+void ABlindEyePlayerCharacter::CLI_DestroyChecklist_Implementation() 
+{
+	if (Checklist)
+	{
+		Checklist->RemoveFromViewport();
+	}
+	Checklist = nullptr;
+}
+
+void ABlindEyePlayerCharacter::CLI_UpdateChecklist_Implementation(uint8 ItemID)
+{
+	if (Checklist)
+	{
+		Checklist->UpdateChecklistItem(ItemID);
+	}
+}
+
+void ABlindEyePlayerCharacter::CLI_AddChecklist_Implementation(uint8 ItemID, const FString& text, uint8 MaxCount)
+{
+	if (Checklist)
+	{
+		Checklist->AddChecklistItem(ItemID, text, MaxCount);
+	}
 }
 
 void ABlindEyePlayerCharacter::RegenBirdMeter()

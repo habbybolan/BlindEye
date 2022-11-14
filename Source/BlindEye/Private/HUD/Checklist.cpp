@@ -3,15 +3,23 @@
 
 #include "HUD/Checklist.h"
 
+#include "HUD/ChecklistItem.h"
+
 void UChecklist::AddChecklistItem(uint8 ItemID, FString Text, uint8 AmountToComplete)
 {
-	// TODO:
+	UChecklistItem* ChecklistItem = Cast<UChecklistItem>(CreateWidgetInstance(*this, ChecklistItemType, TEXT("ChecklistItem")));
+	ChecklistItem->AddToPlayerScreen();
+	ChecklistItem->SetInitialText(Text, AmountToComplete);
+	//ChecklistContainer->AddChild(ChecklistItem);
+	FChecklistItemData NewChecklistData;
+	NewChecklistData.Initialize(ItemID, Text, AmountToComplete, ChecklistItem);
+	ChecklistItems.Add(ItemID, NewChecklistData);
 }
 
 void UChecklist::UpdateChecklistItem(uint8 ID)
 {
 	if (ChecklistItems.Contains(ID))
 	{
-		// TODO:
+		ChecklistItems[ID].ChecklistItem->UpdateText();
 	}
 }

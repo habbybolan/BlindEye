@@ -14,25 +14,28 @@ void UChecklistItem::NativeConstruct()
 void UChecklistItem::SetInitialText(FString& text, uint8 maxCount)
 {
 	MaxCount = maxCount;
-	FString newText = CreateText(text, 0);
+	CurrCount = 0;
+	CachedText = text;
+	FString newText = CreateText();
 	Text->SetText(FText::FromString(newText));
 }
 
-void UChecklistItem::UpdateText(uint8 newCount)
-{ 
+void UChecklistItem::UpdateText()
+{
+	CurrCount++;
 	FString oldText = Text->GetText().ToString();
-	FString newText = CreateText(oldText, newCount);
+	FString newText = CreateText();
 	Text->SetText(FText::FromString(newText));
 
-	if (newCount >= MaxCount)
+	if (CurrCount >= MaxCount)
 	{
 		Text->SetRenderOpacity(0.4);
 		CompletedBox->SetCheckedState(ECheckBoxState::Checked);
 	}
 } 
  
-FString UChecklistItem::CreateText(FString& text, uint8 newCount)
+FString UChecklistItem::CreateText()
 { 
-	FString newText = text + " " +  FString::FromInt(newCount) + FString::FromInt(MaxCount);
+	FString newText = CachedText + " " +  FString::FromInt(CurrCount) + "/" + FString::FromInt(MaxCount);
 	return newText;
 }

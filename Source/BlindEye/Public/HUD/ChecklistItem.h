@@ -23,17 +23,21 @@ public:
 	virtual void NativeConstruct() override;
 
 	void SetInitialText(FString& text, uint8 maxCount);
-	void UpdateText(uint8 newCount);
+
+	// Update text by incrementing counter, finishing task if counter passing max count
+	void UpdateText();
 
 protected:
 
 	uint8 MaxCount;
- 
+	uint8 CurrCount = 0;
+	FString CachedText;
+	
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	UCheckBox* CompletedBox;
  
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	UTextBlock* Text;
 
-	FString CreateText(FString& text, uint8 newCount);
+	FString CreateText();
 };
