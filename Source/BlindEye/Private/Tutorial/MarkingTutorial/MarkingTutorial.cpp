@@ -47,6 +47,12 @@ void AMarkingTutorial::SetupTutorial()
 			Player->TutorialActionBlockers.bUnique2blocked = true;
 		}
 	}
+
+	FString PhoenixText = TEXT("Mark Enemies with your Phoenix Mark");
+	AddChecklistItem(EPlayerType::PhoenixPlayer, 0, PhoenixText, NumTimesForEachPlayerToMark);
+	 
+	FString CrowText = TEXT("Mark Enemies with your Crow Mark");
+	AddChecklistItem(EPlayerType::CrowPlayer, 0, CrowText, NumTimesForEachPlayerToMark);
 }
 
 void AMarkingTutorial::EndTutorial()
@@ -72,6 +78,7 @@ void AMarkingTutorial::OnDummyMarked(AActor* MarkedPawn, EMarkerType MarkerType)
 		{
 			SetPlayerFinishedTutorial(EPlayerType::CrowPlayer);
 		}
+		UpdateChecklistOfPlayer(EPlayerType::CrowPlayer, 0);
 	}
 	// Phoenix marked dummy
 	else if (MarkerType == EMarkerType::Phoenix)
@@ -81,6 +88,7 @@ void AMarkingTutorial::OnDummyMarked(AActor* MarkedPawn, EMarkerType MarkerType)
 		{
 			SetPlayerFinishedTutorial(EPlayerType::PhoenixPlayer);
 		}
+		UpdateChecklistOfPlayer(EPlayerType::PhoenixPlayer, 0);
 	}
 }
 
