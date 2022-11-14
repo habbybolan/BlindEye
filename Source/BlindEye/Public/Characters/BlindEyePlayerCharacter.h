@@ -330,7 +330,12 @@ public:
 	UFUNCTION(Client, Reliable)
 	void CLI_UpdateChecklist(uint8 ItemID);
 	UFUNCTION(Client, Reliable)
-	void CLI_AddChecklist(uint8 ItemID, const FString& text, uint8 MaxCount); 
+	void CLI_AddChecklist(uint8 ItemID, const FString& text, uint8 MaxCount);
+
+	UFUNCTION()
+	void AddScreenIndicator(const FName& IndicatorID, TSubclassOf<UScreenIndicator> ScreenIndicatorType,
+	UObject* Target, float Duration);
+	void RemoveScreenIndicator(const FName& IndicatorID);
 	
 protected:
 

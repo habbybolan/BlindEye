@@ -5,6 +5,7 @@
 
 #include "BlindEyeBaseCharacter.h"
 #include "Shrine.h"
+#include "GameFramework/PlayerState.h"
 #include "Gameplay/BlindEyeGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -23,6 +24,16 @@ void AGotoShrineTutorial::EndTutorial()
 	{
 		World->GetTimerManager().ClearTimer(CheckPlayersNearTimerHandle);
 	}
+
+	check(BlindEyeGS)
+	for (APlayerState* PS : BlindEyeGS->PlayerArray)
+	{
+		if (PS->GetPawn())
+		{
+			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
+			Player->RemoveScreenIndicator(GotoShrineIndicatorID);
+		}
+	}
 }
 
 void AGotoShrineTutorial::StartWaitingForPlayersToInteract()
@@ -33,6 +44,16 @@ void AGotoShrineTutorial::StartWaitingForPlayersToInteract()
 		ShrineActor = UGameplayStatics::GetActorOfClass(World, AShrine::StaticClass());
 		check(ShrineActor)
 		World->GetTimerManager().SetTimer(CheckPlayersNearTimerHandle, this, &AGotoShrineTutorial::CheckPlayersNearbyHelper, 0.5, true);
+	}
+
+	check(BlindEyeGS)
+	for (APlayerState* PS : BlindEyeGS->PlayerArray)
+	{
+		if (PS->GetPawn())
+		{
+			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
+			Player->AddScreenIndicator(GotoShrineIndicatorID, GotoShrineIndicator, BlindEyeGS->GetShrine(), 0);
+		}
 	}
 }
 

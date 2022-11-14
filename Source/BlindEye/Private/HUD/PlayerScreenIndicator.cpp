@@ -7,7 +7,7 @@
 #include "Components/CanvasPanelSlot.h"
 #include "Engine/Engine.h"
 
-void UPlayerScreenIndicator::SetTarget(TScriptInterface<IIndicatorInterface> target)
+void UPlayerScreenIndicator::SetTarget(UObject* target)
 {
 	Super::SetTarget(target);
 	bInitialized = true;

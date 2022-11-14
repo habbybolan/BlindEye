@@ -10,19 +10,22 @@ UIndicatorManagerComponent::UIndicatorManagerComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-void UIndicatorManagerComponent::CLI_AddIndicator_Implementation(const FName& IndicatorID, TSubclassOf<UScreenIndicator> ScreenIndicatorType,
-	const TScriptInterface<IIndicatorInterface>& Target, float Duration)
+void UIndicatorManagerComponent::CLI_AddIndicator_Implementation(const FName IndicatorID, TSubclassOf<UScreenIndicator> ScreenIndicatorType,
+	UObject* Target, float Duration)
 {
 	if (ShowingScreenIndicators.Contains(IndicatorID)) return;
-	
-	if (UWorld* World = GetWorld())
+
+	if (IIndicatorInterface* IndicatorInterface = Cast<IIndicatorInterface>(Target))
 	{
-		UScreenIndicator* ScreenIndicator = Cast<UScreenIndicator>(CreateWidget(World, ScreenIndicatorType, FName(IndicatorID)));
-		ScreenIndicator->SetTarget(Target);
-		ScreenIndicator->AddToViewport();
-		FIndicatorData ScreenIndicatorData;
-		ScreenIndicatorData.Initialize(IndicatorID, ScreenIndicator, Duration);
-		ShowingScreenIndicators.Add(IndicatorID, ScreenIndicatorData);
+		if (UWorld* World = GetWorld())
+		{
+			UScreenIndicator* ScreenIndicator = Cast<UScreenIndicator>(CreateWidget(World, ScreenIndicatorType, FName(IndicatorID)));
+			ScreenIndicator->SetTarget(Target);
+			ScreenIndicator->AddToViewport();
+			FIndicatorData ScreenIndicatorData;
+			ScreenIndicatorData.Initialize(IndicatorID, ScreenIndicator, Duration);
+			ShowingScreenIndicators.Add(IndicatorID, ScreenIndicatorData);
+		}
 	}
 }
 

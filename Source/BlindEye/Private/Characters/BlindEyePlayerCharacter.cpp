@@ -460,6 +460,17 @@ void ABlindEyePlayerCharacter::CLI_AddChecklist_Implementation(uint8 ItemID, con
 	}
 }
 
+void ABlindEyePlayerCharacter::AddScreenIndicator(const FName& IndicatorID, TSubclassOf<UScreenIndicator> ScreenIndicatorType,
+	UObject* Target, float Duration)
+{
+	IndicatorManagerComponent->CLI_AddIndicator(IndicatorID, ScreenIndicatorType, Target, Duration);
+}
+
+void ABlindEyePlayerCharacter::RemoveScreenIndicator(const FName& IndicatorID)
+{
+	IndicatorManagerComponent->CLI_RemoveIndicator(IndicatorID);
+}
+
 void ABlindEyePlayerCharacter::RegenBirdMeter()
 {
 	if (ABlindEyePlayerState* BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState()))
