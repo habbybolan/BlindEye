@@ -38,6 +38,8 @@ protected:
 	uint8 CurrTutorialIndex = 0;
 	bool bTutorialsRunning = false;
 
+	bool bTutorialEnded = false;
+
 	FTimerHandle DelayBetweenTutorialsTimerHandle;
 
 	void StartNextTutorial();

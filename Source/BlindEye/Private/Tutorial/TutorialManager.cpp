@@ -39,6 +39,7 @@ void ATutorialManager::StartTutorials()
 
 void ATutorialManager::GotoNextTutorial()
 {
+	if (bTutorialEnded) return;
 	CurrTutorialIndex++;
  
 	// If finished all tutorials
@@ -55,6 +56,7 @@ void ATutorialManager::GotoNextTutorial()
 
 void ATutorialManager::SetFinishTutorials()
 {
+	bTutorialEnded = true;
 	if (bTutorialsRunning && CurrTutorialIndex < AllTutorials.Num())
 	{
 		AllTutorials[CurrTutorialIndex]->EndTutorial();
