@@ -181,7 +181,6 @@ void ABlindEyeGameMode::SetInProgressMatchState(FName NewInProgressState)
 
 void ABlindEyeGameMode::OnBlindEyeMatchStateSet()
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Red, InProgressMatchState.ToString());
 	if (InProgressMatchState == InProgressStates::NotInProgress)
 	{
 		// TODO?

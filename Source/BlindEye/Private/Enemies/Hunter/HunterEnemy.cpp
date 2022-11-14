@@ -368,7 +368,6 @@ void AHunterEnemy::AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	// If attacking animation
 	if (Montage == ChargedJumpAnim || Montage == BasicAttackAnimation)
 	{
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Red, "Attack Ended: " + bInterrupted ? "Interrupted" : "NOT");
 		bAttacking = false;
 	}
 }
