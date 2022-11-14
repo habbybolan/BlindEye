@@ -6,6 +6,7 @@
 
 enum class ETextPopupType : uint8;
 class UTextPopupWidget;
+class UVerticalBox;
 
 /**
  * Generalized way of adding temporary text to the screen
@@ -22,6 +23,9 @@ public:
 	UPROPERTY(EditDefaultsOnly) 
 	TSubclassOf<UTextPopupWidget> PopupWidgetType;
 
+	UPROPERTY(EditDefaultsOnly, meta=(BindWidget))
+	UVerticalBox* TextPopupContainer;
+
 	UFUNCTION(BlueprintCallable)
 	void AddTextPopup(const FString& Text, ETextPopupType TextPopupType, float Duration = 0);
 
@@ -29,10 +33,9 @@ protected:
 
 	UPROPERTY()
 	TArray<UTextPopupWidget*> AddedTextSnippets;
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_AddTextPopup_CLI(UTextPopupWidget* TextPopup);
  
 	UFUNCTION()
 	void PopupToRemove(UTextPopupWidget* PopupToRemove);
+
+	uint8 WidgetCount = 0;
 };

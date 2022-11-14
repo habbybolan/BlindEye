@@ -1,7 +1,7 @@
 ﻿// Copyright (C) Nicholas Johnson 2022
 
 #include "TextPopupManager.h"
-
+#include "Components/VerticalBox.h"
 #include "HUD/TextPopupWidget.h"
 
 void UTextPopupManager::NativeConstruct()
@@ -11,12 +11,12 @@ void UTextPopupManager::NativeConstruct()
  
 void UTextPopupManager::AddTextPopup(const FString& Text, ETextPopupType TextPopupType, float Duration)
 {
-	UTextPopupWidget* TextPopup = Cast<UTextPopupWidget>(CreateWidgetInstance(*this, PopupWidgetType, FName("TextPopupWidget")));
+	FString PopupName = TEXT("TextPopupWidget") + FString::FromInt(WidgetCount++);
+	UTextPopupWidget* TextPopup = Cast<UTextPopupWidget>(CreateWidgetInstance(*this, PopupWidgetType, FName(*PopupName)));
 	if (TextPopup)
 	{
 		TextPopup->InitializeTextPopup(Text, TextPopupType, Duration);
-		// let BP add to viewport in proper container
-		BP_AddTextPopup_CLI(TextPopup);
+		TextPopupContainer->AddChildToVerticalBox(TextPopup);
 		AddedTextSnippets.Add(TextPopup);
 		TextPopup->PopupToRemoveDelegate.BindDynamic(this, &UTextPopupManager::PopupToRemove);
 	}
