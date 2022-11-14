@@ -7,7 +7,10 @@
 
 void UChecklist::AddChecklistItem(uint8 ItemID, FString Text, uint8 AmountToComplete)
 {
-	UChecklistItem* ChecklistItem = Cast<UChecklistItem>(CreateWidgetInstance(*this, ChecklistItemType, TEXT("ChecklistItem")));
+	if (ChecklistItems.Contains(ItemID)) return;
+
+	FString name =  TEXT("ChecklistItem") + FString::FromInt(ItemID);
+	UChecklistItem* ChecklistItem = Cast<UChecklistItem>(CreateWidgetInstance(*this, ChecklistItemType, FName(*name)));
 	//ChecklistItem->AddToPlayerScreen();
 	ChecklistItem->SetInitialText(Text, AmountToComplete);
 	//ChecklistContainer->AddChild(ChecklistItem);
@@ -15,7 +18,7 @@ void UChecklist::AddChecklistItem(uint8 ItemID, FString Text, uint8 AmountToComp
 	NewChecklistData.Initialize(ItemID, Text, AmountToComplete, ChecklistItem);
 	ChecklistItems.Add(ItemID, NewChecklistData);
 
-	ChecklistContainer->AddChild(ChecklistItem);
+	ChecklistContainer->AddChildToVerticalBox(ChecklistItem);
 }
 
 void UChecklist::UpdateChecklistItem(uint8 ID)

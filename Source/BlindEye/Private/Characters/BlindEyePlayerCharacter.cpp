@@ -421,7 +421,7 @@ void ABlindEyePlayerCharacter::CLI_AddTextPopup_Implementation(const FString& Te
 
 void ABlindEyePlayerCharacter::CLI_SetupChecklist_Implementation()
 {
-	UScaleBox* ChecklistContainer = BP_GetTutorialBox();
+	USizeBox* ChecklistContainer = BP_GetTutorialBox();
 	if (ChecklistContainer->HasAnyChildren()) return;
 
 	if (Checklist != nullptr) return;
@@ -431,7 +431,8 @@ void ABlindEyePlayerCharacter::CLI_SetupChecklist_Implementation()
 	//check(BlindEyeController)
 	//Checklist = CreateWidget<UChecklist>(BlindEyeController, ChecklistType);
 	//ChecklistContainer->AddChild(Checklist);
-	Checklist->AddToPlayerScreen();
+	ChecklistContainer->AddChild(Checklist);
+	//->AddToPlayerScreen();
 }
 
 void ABlindEyePlayerCharacter::CLI_DestroyChecklist_Implementation() 

@@ -55,6 +55,7 @@ void ADetonatingTutorial::SetupTutorial()
 
 	FString PhoenixText = TEXT("Detonate Crow Marks");
 	AddChecklistItem(EPlayerType::PhoenixPlayer, 0, PhoenixText, NumCrowMarksToDetonate);
+	 
 	FString CrowText = TEXT("Detonate Phoenix Marks");
 	AddChecklistItem(EPlayerType::CrowPlayer, 0, CrowText, NumPhoenixMarksToDetonate);
 }
