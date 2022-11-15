@@ -10,28 +10,34 @@ UIndicatorManagerComponent::UIndicatorManagerComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-void UIndicatorManagerComponent::CLI_AddIndicator_Implementation(const FName& IndicatorID, TSubclassOf<UScreenIndicator> ScreenIndicatorType,
-	const TScriptInterface<IIndicatorInterface>& Target, float Duration)
+void UIndicatorManagerComponent::CLI_AddIndicator_Implementation(const FName IndicatorID, TSubclassOf<UScreenIndicator> ScreenIndicatorType,
+	UObject* Target, float Duration)
 {
 	if (ShowingScreenIndicators.Contains(IndicatorID)) return;
-	
-	if (UWorld* World = GetWorld())
+
+	if (IIndicatorInterface* IndicatorInterface = Cast<IIndicatorInterface>(Target))
 	{
-		UScreenIndicator* ScreenIndicator = Cast<UScreenIndicator>(CreateWidget(World, ScreenIndicatorType, FName(IndicatorID)));
-		ScreenIndicator->SetTarget(Target);
-		ScreenIndicator->AddToViewport();
-		FIndicatorData ScreenIndicatorData;
-		ScreenIndicatorData.Initialize(IndicatorID, ScreenIndicator, Duration);
-		ShowingScreenIndicators.Add(IndicatorID, ScreenIndicatorData);
+		if (UWorld* World = GetWorld())
+		{
+			UScreenIndicator* ScreenIndicator = Cast<UScreenIndicator>(CreateWidget(World, ScreenIndicatorType, FName(IndicatorID)));
+			ScreenIndicator->SetTarget(Target);
+			ScreenIndicator->IndicatorID = IndicatorID;
+			ScreenIndicator->AddToViewport();
+			FIndicatorData ScreenIndicatorData;
+			ScreenIndicatorData.Initialize(IndicatorID, ScreenIndicator, Duration);
+			ShowingScreenIndicators.Add(IndicatorID, ScreenIndicatorData);
+		}
 	}
 }
 
 void UIndicatorManagerComponent::CLI_RemoveIndicator_Implementation(const FName& IndicatorID)
-{
+{ 
 	if (ShowingScreenIndicators.Contains(IndicatorID))
 	{
 		UScreenIndicator* IndicatorToDelete = ShowingScreenIndicators[IndicatorID].ScreenIndicator;
 		IndicatorToDelete->RemoveFromParent();
+		// let garbage collection remove it
+		ShowingScreenIndicators[IndicatorID].ScreenIndicator = nullptr;
 		ShowingScreenIndicators.Remove(IndicatorID);
 	}
 }
@@ -57,7 +63,8 @@ void UIndicatorManagerComponent::BeginPlay()
 }
 
 void UIndicatorManagerComponent::UpdateDurations()
-{
+{ 
+	TArray<FName> IndicatorIDsToDelete;
 	// Update durations on all screen indicators with a definite duration
 	for (TPair<FName, FIndicatorData>& ScreenIndicator : ShowingScreenIndicators)
 	{
@@ -67,9 +74,25 @@ void UIndicatorManagerComponent::UpdateDurations()
 			// If passed max duration, then remove screen indicator
 			if (ScreenIndicator.Value.CurrDuration >= ScreenIndicator.Value.MaxDuration)
 			{
-				CLI_RemoveIndicator(ScreenIndicator.Value.IndicatorID);
+				IndicatorIDsToDelete.Add(ScreenIndicator.Value.IndicatorID);
 			}
 		}
+		// If lost reference to target, remove indicator
+		else if (ScreenIndicator.Value.ScreenIndicator->GetTarget() == nullptr)
+		{
+			IndicatorIDsToDelete.Add(ScreenIndicator.Value.IndicatorID);
+		}
 	}
+
+	// Delete all indicators signalled for deletion
+	for (FName IndicatorIDToDelete : IndicatorIDsToDelete)
+	{
+		CLI_RemoveIndicator(IndicatorIDToDelete);
+	}
+}
+
+void UIndicatorManagerComponent::RemoveLostReferencedIndicator(FName IndicatorID)
+{
+	CLI_RemoveIndicator(IndicatorID);
 }
 

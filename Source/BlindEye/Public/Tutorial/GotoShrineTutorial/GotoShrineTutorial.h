@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "HUD/BasicSingleIndicator.h"
 #include "Tutorial/TutorialBase.h"
 #include "GotoShrineTutorial.generated.h"
 
@@ -19,6 +20,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	float CheckTutorialPlayersRadius = 500;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UBasicSingleIndicator> GotoShrineIndicator;
+
 	virtual void SetupTutorial() override;
 	virtual void EndTutorial() override;
 
@@ -32,5 +36,7 @@ protected:
 	UFUNCTION()
 	void CheckPlayersNearbyHelper();
 	void StartWaitingForPlayersToInteract();
+
+	const FName GotoShrineIndicatorID = "GotoShrineIndicator";
 	
 };

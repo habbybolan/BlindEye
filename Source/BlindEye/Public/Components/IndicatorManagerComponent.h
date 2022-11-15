@@ -46,7 +46,7 @@ public:
 	 * @param Duration		Duration for indicator to stay, 0 if indefinite duration
 	 */
 	UFUNCTION(Client, Reliable, BlueprintCallable)
-	void CLI_AddIndicator(const FName& IndicatorID, TSubclassOf<UScreenIndicator> ScreenIndicatorType, const TScriptInterface<IIndicatorInterface>& Target, float Duration);
+	void CLI_AddIndicator(const FName IndicatorID, TSubclassOf<UScreenIndicator> ScreenIndicatorType, UObject* Target, float Duration);
 	UFUNCTION(Client, Reliable, BlueprintCallable)
 	void CLI_RemoveIndicator(const FName& IndicatorID);
 
@@ -62,5 +62,7 @@ protected:
 	const float UpdateDurationDelay = 0.5;
 	FTimerHandle UpdateDurationsTimerHandle;
 	void UpdateDurations();
-	
+
+	UFUNCTION()
+	void RemoveLostReferencedIndicator(FName IndicatorID);
 };

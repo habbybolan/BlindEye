@@ -123,27 +123,6 @@ void ABlindEyePlayerCharacter::BeginPlay()
 		{
 			BlindEyeGS->TutorialStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::StartTutorial);
 		}
-
-		// If join and another player exists already
-		if (APlayerState* OtherPlayerState = BlindEyeGS->GetOtherPlayer(this))
-		{
-			if (ABlindEyePlayerCharacter* OtherPlayer = Cast<ABlindEyePlayerCharacter>(OtherPlayerState->GetPawn()))
-			{
-				NotifyOfOtherPlayerExistance(OtherPlayer);
-			}
-		}
-	}
-	// If not the owning player, notify owner that it exists
-	else
-	{
-		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(world, 0);
-		if (PlayerController != GetController())
-		{
-			if (ABlindEyePlayerCharacter* OtherPlayer = Cast<ABlindEyePlayerCharacter>(PlayerController->GetPawn()))
-			{
-				OtherPlayer->NotifyOfOtherPlayerExistance(this);
-			}
-		}
 	}
 
 	if (GetLocalRole() == ROLE_Authority)
@@ -458,6 +437,17 @@ void ABlindEyePlayerCharacter::CLI_AddChecklist_Implementation(uint8 ItemID, con
 	{
 		Checklist->AddChecklistItem(ItemID, text, MaxCount);
 	}
+}
+
+void ABlindEyePlayerCharacter::AddScreenIndicator(const FName& IndicatorID, TSubclassOf<UScreenIndicator> ScreenIndicatorType,
+	UObject* Target, float Duration)
+{
+	IndicatorManagerComponent->CLI_AddIndicator(IndicatorID, ScreenIndicatorType, Target, Duration);
+}
+
+void ABlindEyePlayerCharacter::RemoveScreenIndicator(const FName& IndicatorID)
+{
+	IndicatorManagerComponent->CLI_RemoveIndicator(IndicatorID);
 }
 
 void ABlindEyePlayerCharacter::RegenBirdMeter()
