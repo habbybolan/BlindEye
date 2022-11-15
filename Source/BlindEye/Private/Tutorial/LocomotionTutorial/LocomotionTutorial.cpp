@@ -27,7 +27,7 @@ void ALocomotionTutorial::SetupTutorial()
 	PlayersFinishedTasks.SetNum(2);
 	for (uint8 i = 0; i < 2; i++)
 	{
-		FFinishedTasks FinishedTasks;
+		FFinishedTasks_Locomotion FinishedTasks;
 		FinishedTasks.MaxDashCount = DashCount;
 		FinishedTasks.MaxJumpCount = JumpCount;
 		PlayersFinishedTasks[i] = FinishedTasks;
@@ -57,7 +57,7 @@ void ALocomotionTutorial::EndTutorial()
 void ALocomotionTutorial::OnPlayerAction(ABlindEyePlayerCharacter* Player, TutorialInputActions::ETutorialInputActions InputActions)
 {
 	if (!bRunning) return;
-	FFinishedTasks& Tasks = PlayersFinishedTasks[(uint8)Player->PlayerType];
+	FFinishedTasks_Locomotion& Tasks = PlayersFinishedTasks[(uint8)Player->PlayerType];
 	switch(InputActions)
 	{
 	case TutorialInputActions::Walk:
@@ -81,7 +81,7 @@ void ALocomotionTutorial::OnPlayerAction(ABlindEyePlayerCharacter* Player, Tutor
 void ALocomotionTutorial::CheckAllPlayersFinished()
 {
 	// If all players finished their tasks, end tutorial
-	for (FFinishedTasks& FinishedTasks : PlayersFinishedTasks)
+	for (FFinishedTasks_Locomotion& FinishedTasks : PlayersFinishedTasks)
 	{
 		if (!FinishedTasks.IsFinished()) return;
 	}

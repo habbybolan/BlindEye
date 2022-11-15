@@ -26,7 +26,7 @@ void ABasicAttackTutorial::SetupTutorial()
 	PlayersFinishedTasks.SetNum(2);
 	for (uint8 i = 0; i < 2; i++)
 	{
-		FFinishedTasks FinishedTasks;
+		FFinishedTasks_BasicAttack FinishedTasks;
 		FinishedTasks.MaxComboCount = ComboCount;
 		PlayersFinishedTasks[i] = FinishedTasks;
 	}
@@ -53,7 +53,7 @@ void ABasicAttackTutorial::OnPlayerAction(ABlindEyePlayerCharacter* Player,
 	TutorialInputActions::ETutorialInputActions InputActions)
 {
 	if (!bRunning) return;
-	FFinishedTasks& Tasks = PlayersFinishedTasks[(uint8)Player->PlayerType];
+	FFinishedTasks_BasicAttack& Tasks = PlayersFinishedTasks[(uint8)Player->PlayerType];
 	switch(InputActions)
 	{
 	case TutorialInputActions::BasicAttack:
@@ -73,7 +73,7 @@ void ABasicAttackTutorial::OnPlayerAction(ABlindEyePlayerCharacter* Player,
 void ABasicAttackTutorial::CheckAllPlayersFinished()
 {
 	// If all players finished their tasks, end tutorial
-	for (FFinishedTasks& FinishedTasks : PlayersFinishedTasks)
+	for (FFinishedTasks_BasicAttack& FinishedTasks : PlayersFinishedTasks)
 	{
 		if (!FinishedTasks.IsFinished()) return;
 	}

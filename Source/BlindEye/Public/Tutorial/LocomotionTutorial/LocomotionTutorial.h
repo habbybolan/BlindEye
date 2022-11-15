@@ -6,7 +6,7 @@
 #include "Tutorial/TutorialBase.h"
 #include "LocomotionTutorial.generated.h"
 
-struct FFinishedTasks
+struct FFinishedTasks_Locomotion
 {
 	bool bMovement = false;
 
@@ -43,7 +43,7 @@ public:
 
 protected:
 
-	TArray<FFinishedTasks> PlayersFinishedTasks;
+	TArray<FFinishedTasks_Locomotion> PlayersFinishedTasks;
 
 	void SetupCheckboxes(EPlayerType PlayerType);
 

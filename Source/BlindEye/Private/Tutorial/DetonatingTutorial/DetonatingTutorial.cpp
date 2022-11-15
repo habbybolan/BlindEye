@@ -53,10 +53,10 @@ void ADetonatingTutorial::SetupTutorial()
 		}
 	}
 
-	FString PhoenixText = TEXT("Detonate Crow Marks");
+	FString PhoenixText = TEXT("Use Detonation ability with <E> to detonate allies' crow marks");
 	AddChecklistItem(EPlayerType::PhoenixPlayer, 0, PhoenixText, NumCrowMarksToDetonate);
 	 
-	FString CrowText = TEXT("Detonate Phoenix Marks");
+	FString CrowText = TEXT("Use Detonation ability with <E> to detonate allies' phoenix marks");
 	AddChecklistItem(EPlayerType::CrowPlayer, 0, CrowText, NumPhoenixMarksToDetonate);
 }
 

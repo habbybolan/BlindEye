@@ -6,7 +6,7 @@
 #include "Tutorial/TutorialBase.h"
 #include "BasicAttackTutorial.generated.h"
 
-struct FFinishedTasks
+struct FFinishedTasks_BasicAttack
 {
 	bool bBasicAttack = false;
 
@@ -37,7 +37,7 @@ public:
 
 protected:
 
-	TArray<FFinishedTasks> PlayersFinishedTasks;
+	TArray<FFinishedTasks_BasicAttack> PlayersFinishedTasks;
 
 	void SetupCheckboxes(EPlayerType PlayerType);
 
