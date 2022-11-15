@@ -17,6 +17,8 @@ void ABasicAttackTutorial::SetupTutorial()
 		{
 			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
 			Player->TutorialActionsDelegate.AddDynamic(this, &ABasicAttackTutorial::OnPlayerAction);
+			Player->TutorialActionBlockers.bUnique2blocked = true;
+			Player->TutorialActionBlockers.bUnique1Blocked = true;
 		}
 	}
 

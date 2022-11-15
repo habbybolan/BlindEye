@@ -17,6 +17,9 @@ void ALocomotionTutorial::SetupTutorial()
 		{
 			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
 			Player->TutorialActionsDelegate.AddDynamic(this, &ALocomotionTutorial::OnPlayerAction);
+			Player->TutorialActionBlockers.bUnique2blocked = true;
+			Player->TutorialActionBlockers.bUnique1Blocked = true;
+			Player->TutorialActionBlockers.bBasicAttackBlocked = true;
 		}
 	}
 
