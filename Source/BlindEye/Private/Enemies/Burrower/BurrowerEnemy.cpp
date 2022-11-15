@@ -124,6 +124,7 @@ void ABurrowerEnemy::StartHiding()
 
 void ABurrowerEnemy::MULT_StartHidingHelper_Implementation(float StartTime)
 {
+	GetMesh()->GetAnimInstance()->StopAllMontages(.5);
 	// If currently surfacing, start hiding from current position
 	if (StartTime > 0)
 	{
