@@ -14,6 +14,12 @@ void AGotoShrineTutorial::SetupTutorial()
 {
 	Super::SetupTutorial();
 	StartWaitingForPlayersToInteract();
+
+	FString PhoenixText = TEXT("When you're ready, go to the shrine");
+	AddChecklistItem(EPlayerType::PhoenixPlayer, 0, PhoenixText, 0);
+	 
+	FString CrowText = TEXT("When you're ready, go to the shrine");
+	AddChecklistItem(EPlayerType::CrowPlayer, 0, CrowText, 0);
 }
 
 void AGotoShrineTutorial::EndTutorial()
