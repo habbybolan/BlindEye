@@ -141,8 +141,10 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_PlaySpawnSnapperAnimationHelper();
 
-	void WarningStarted();
-	void WarningEnded();
+	UFUNCTION(NetMulticast, Unreliable)
+	void MULT_WarningStarted();
+	UFUNCTION(NetMulticast, Unreliable)
+	void MULT_WarningEnded();
 
 	UFUNCTION(BlueprintCallable)
 	EBurrowerVisibilityState GetVisibilityState();

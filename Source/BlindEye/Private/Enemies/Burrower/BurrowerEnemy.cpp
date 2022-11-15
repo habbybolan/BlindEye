@@ -179,12 +179,12 @@ FVector ABurrowerEnemy::GetRelativeFollowParticleSpawnLocation()
 	return FVector(0, 0, -GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
 }
 
-void ABurrowerEnemy::WarningStarted()
+void ABurrowerEnemy::MULT_WarningStarted_Implementation()
 {
 	BP_WarningStarted_CLI();
 } 
 
-void ABurrowerEnemy::WarningEnded()
+void ABurrowerEnemy::MULT_WarningEnded_Implementation()
 {
 	BP_WarningEnded_CLI();
 }
