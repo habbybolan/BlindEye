@@ -123,27 +123,6 @@ void ABlindEyePlayerCharacter::BeginPlay()
 		{
 			BlindEyeGS->TutorialStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::StartTutorial);
 		}
-
-		// If join and another player exists already
-		if (APlayerState* OtherPlayerState = BlindEyeGS->GetOtherPlayer(this))
-		{
-			if (ABlindEyePlayerCharacter* OtherPlayer = Cast<ABlindEyePlayerCharacter>(OtherPlayerState->GetPawn()))
-			{
-				NotifyOfOtherPlayerExistance(OtherPlayer);
-			}
-		}
-	}
-	// If not the owning player, notify owner that it exists
-	else
-	{
-		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(world, 0);
-		if (PlayerController != GetController())
-		{
-			if (ABlindEyePlayerCharacter* OtherPlayer = Cast<ABlindEyePlayerCharacter>(PlayerController->GetPawn()))
-			{
-				OtherPlayer->NotifyOfOtherPlayerExistance(this);
-			}
-		}
 	}
 
 	if (GetLocalRole() == ROLE_Authority)

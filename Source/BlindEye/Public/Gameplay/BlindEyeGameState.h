@@ -134,7 +134,13 @@ public:
 	  
 	void OnPulse(uint8 currRound, float roundLength);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FPulseSignature, uint8, CurrRound, float, RoundLength);
-	FPulseSignature PulseDelegate; 
+	FPulseSignature PulseDelegate;
+
+	UPROPERTY(Replicated, ReplicatedUsing="OnRep_PlayerAdded")
+	TArray<ABlindEyePlayerCharacter*> BlindEyePlayers;
+
+	UFUNCTION()
+	void OnRep_PlayerAdded();
 
 	uint8 GetCurrRound();
 

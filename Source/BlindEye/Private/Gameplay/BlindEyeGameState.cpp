@@ -57,6 +57,18 @@ void ABlindEyeGameState::OnPulse(uint8 currRound, float roundLength)
 	PulseDelegate.Broadcast(CurrRound, roundLength);
 }
 
+void ABlindEyeGameState::OnRep_PlayerAdded()
+{
+	if (GetLocalRole() < ROLE_Authority)
+	{
+		if (BlindEyePlayers.Num() >= 2)
+		{
+			BlindEyePlayers[0]->NotifyOfOtherPlayerExistance(BlindEyePlayers[1]);
+			BlindEyePlayers[1]->NotifyOfOtherPlayerExistance(BlindEyePlayers[0]);
+		}
+	}
+}
+
 uint8 ABlindEyeGameState::GetCurrRound()
 {
 	return CurrRound;
@@ -433,4 +445,5 @@ void ABlindEyeGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(ABlindEyeGameState, CurrEnemyTutorial)
 	DOREPLIFETIME(ABlindEyeGameState, bInBeginningTutorial)
 	DOREPLIFETIME(ABlindEyeGameState, bInEnemyTutorialSkippableSection)
+	DOREPLIFETIME(ABlindEyeGameState, BlindEyePlayers)
 }
