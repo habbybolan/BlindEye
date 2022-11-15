@@ -15,7 +15,7 @@ void ADetonatingTutorial::SetupTutorial()
 
 	UWorld* World = GetWorld();
 	TArray<AActor*> SpawnPoints;
-	UGameplayStatics::GetAllActorsOfClass(World, ADummySpawnPoint::StaticClass(), SpawnPoints);
+	UGameplayStatics::GetAllActorsOfClass(World, SpawnPointTypes, SpawnPoints);
  
 	for (AActor* SpawnActor : SpawnPoints)
 	{

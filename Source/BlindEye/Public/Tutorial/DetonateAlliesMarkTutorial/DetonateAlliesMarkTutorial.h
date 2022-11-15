@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Tutorial/DummyEnemy.h"
+#include "Tutorial/DummySpawnPoint.h"
 #include "Tutorial/TutorialBase.h"
 #include "DetonateAlliesMarkTutorial.generated.h"
 
@@ -22,6 +23,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	uint8 NumTimesForEachPlayerToDetonate = 8;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ADummySpawnPoint> SpawnPointTypes;
 
 	virtual void SetupTutorial() override;
 

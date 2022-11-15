@@ -6,6 +6,7 @@
 #include "Tutorial/TutorialBase.h"
 #include "MarkingTutorial.generated.h"
 
+class ADummySpawnPoint;
 enum class EMarkerType : uint8;
 enum class EPlayerType : uint8;
 class AMarkingDummyEnemy;
@@ -25,6 +26,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	uint8 NumTimesForEachPlayerToMark = 8;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ADummySpawnPoint> SpawnPointTypes;
 	
 	virtual void SetupTutorial() override;
 	virtual void EndTutorial() override;

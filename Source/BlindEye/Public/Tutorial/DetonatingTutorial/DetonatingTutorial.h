@@ -7,6 +7,7 @@
 #include "Tutorial/TutorialBase.h"
 #include "DetonatingTutorial.generated.h"
 
+class ADummySpawnPoint;
 /**
  * 
  */
@@ -19,6 +20,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<ADetonatingDummyEnemy> DummyType;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ADummySpawnPoint> SpawnPointTypes;
 
 	virtual void SetupTutorial() override;
 
