@@ -49,5 +49,19 @@ struct FTutorialActionBlockers
 	}
 };
 
+UENUM()
+namespace TutorialInputActions
+{
+	enum ETutorialInputActions
+	{
+		Walk, 
+		Jump,
+		BasicAttack, 
+		BasicAttackCombo,
+		Dash,
+	};
+}
+
+
 
 

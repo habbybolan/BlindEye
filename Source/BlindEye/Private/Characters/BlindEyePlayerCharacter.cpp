@@ -450,6 +450,17 @@ void ABlindEyePlayerCharacter::RemoveScreenIndicator(const FName& IndicatorID)
 	IndicatorManagerComponent->CLI_RemoveIndicator(IndicatorID);
 }
 
+bool ABlindEyePlayerCharacter::IsInTutorial()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(GetWorld()));
+		return BlindEyeGS->IsBlindEyeMatchTutorial();
+	}
+	return false;
+}
+
 void ABlindEyePlayerCharacter::RegenBirdMeter()
 {
 	if (ABlindEyePlayerState* BlindEyePlayerState = Cast<ABlindEyePlayerState>(GetPlayerState()))
@@ -554,6 +565,7 @@ void ABlindEyePlayerCharacter::BasicAttackPressed()
 {
 	if (TutorialActionBlockers.bBasicAttackBlocked) return;
 	if (IsActionsBlocked()) return;
+	TutorialActionPerformed(TutorialInputActions::BasicAttack);
 	AbilityManager->SER_UsedAbility(EAbilityTypes::Basic, EAbilityInputTypes::Pressed);
 }
 
@@ -1049,6 +1061,7 @@ void ABlindEyePlayerCharacter::TryJump()
 	if (IsActionsBlocked()) return;
 	if (!HealthComponent->GetIsHunterDebuff() && !GetIsDead())
 	{
+		TutorialActionPerformed(TutorialInputActions::Jump);
 		Jump();
 	}
 }
@@ -1060,6 +1073,7 @@ void ABlindEyePlayerCharacter::MoveForward(float Value)
 	
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
+		TutorialActionPerformed(TutorialInputActions::Walk);
 		if (AbilityManager->IsMovementBlocked()) return;
 		float MovementAlter = AbilityManager->IsMovementSlowBlocked();
 
@@ -1086,6 +1100,7 @@ void ABlindEyePlayerCharacter::MoveRight(float Value)
 	
 	if ( (Controller != nullptr) && (Value != 0.0f) )
 	{
+		TutorialActionPerformed(TutorialInputActions::Walk);
 		if (AbilityManager->IsMovementBlocked()) return;
 		float MovementAlter = AbilityManager->IsMovementSlowBlocked();
 
@@ -1104,6 +1119,19 @@ void ABlindEyePlayerCharacter::MoveRight(float Value)
 		// add movement in that direction
 		AddMovementInput(Direction, Value * MovementAlter);
 	}
+}
+
+void ABlindEyePlayerCharacter::TutorialActionPerformed(TutorialInputActions::ETutorialInputActions TutorialAction)
+{
+	if (IsInTutorial())
+	{
+		SER_TutorialActionPerformedHelper(TutorialAction);
+	}
+}
+void ABlindEyePlayerCharacter::SER_TutorialActionPerformedHelper_Implementation(
+	TutorialInputActions::ETutorialInputActions TutorialAction)
+{
+	TutorialActionsDelegate.Broadcast(this, TutorialAction);
 }
 
 void ABlindEyePlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
