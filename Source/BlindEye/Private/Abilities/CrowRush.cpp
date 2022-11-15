@@ -224,7 +224,10 @@ void ACrowRush::SetAsLanded()
 	BP_AbilityInnerState(2);
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
 	Player->PlayAnimMontage(LandingAnim);
-	Player->GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &ACrowRush::SetLandingAnimFinished);
+	if (!Player->GetMesh()->GetAnimInstance()->OnMontageEnded.Contains(this, TEXT("SetLandingAnimFinished")))
+	{
+		Player->GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &ACrowRush::SetLandingAnimFinished);
+	}
 }
 
 void ACrowRush::SetLandingAnimFinished(UAnimMontage* Montage, bool bInterrupted)
