@@ -6,6 +6,9 @@
 #include "Tutorial/TutorialBase.h"
 #include "BasicAttackTutorial.generated.h"
 
+class ADummySpawnPoint;
+class ADummyEnemy;
+
 struct FFinishedTasks_BasicAttack
 {
 	bool bBasicAttack = false;
@@ -28,9 +31,15 @@ class BLINDEYE_API ABasicAttackTutorial : public ATutorialBase
 	GENERATED_BODY()
 
 public:
-
+	
 	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=1))
 	uint8 ComboCount = 2;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ADummyEnemy> DummyType;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ADummySpawnPoint> SpawnPointTypes;
 	
 	virtual void SetupTutorial() override;
 	virtual void EndTutorial() override;

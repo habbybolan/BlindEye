@@ -5,6 +5,9 @@
 
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "GameFramework/PlayerState.h"
+#include "Kismet/GameplayStatics.h"
+#include "Tutorial/DummyEnemy.h"
+#include "Tutorial/DummySpawnPoint.h"
 
 void ABasicAttackTutorial::SetupTutorial()
 {
@@ -20,6 +23,19 @@ void ABasicAttackTutorial::SetupTutorial()
 			Player->TutorialActionBlockers.bUnique2blocked = true;
 			Player->TutorialActionBlockers.bUnique1Blocked = true;
 		}
+	}
+
+	UWorld* World = GetWorld();
+	TArray<AActor*> SpawnPoints;
+	UGameplayStatics::GetAllActorsOfClass(World, SpawnPointTypes, SpawnPoints);
+	
+	for (AActor* SpawnActor : SpawnPoints)
+	{
+		ADummySpawnPoint* DummySpawnPoint = Cast<ADummySpawnPoint>(SpawnActor);
+
+		FActorSpawnParameters Params;
+		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		World->SpawnActor<ADummyEnemy>(DummyType, DummySpawnPoint->GetActorLocation(), DummySpawnPoint->GetActorRotation(), Params);
 	}
 
 	// setup initial task values for all players
@@ -38,6 +54,14 @@ void ABasicAttackTutorial::SetupTutorial()
 void ABasicAttackTutorial::EndTutorial()
 {
 	Super::EndTutorial();
+
+	UWorld* World = GetWorld();
+	TArray<AActor*> Dummies;
+	UGameplayStatics::GetAllActorsOfClass(World, ADummyEnemy::StaticClass(), Dummies);
+	for (AActor* Dummy : Dummies)
+	{
+		Dummy->Destroy();
+	}
 }
 
 void ABasicAttackTutorial::SetupCheckboxes(EPlayerType PlayerType)
