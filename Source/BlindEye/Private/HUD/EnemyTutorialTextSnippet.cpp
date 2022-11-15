@@ -31,6 +31,7 @@ int32 UEnemyTutorialTextSnippet::NativePaint(const FPaintArgs& Args, const FGeom
 		{
 			for (TPair<UUserWidget*, ABlindEyeEnemyBase*> LineToDraw : LinesToDraw)
 			{
+				if (!LineToDraw.Key) continue; 
 				FVector2D StartPos = UWidgetLayoutLibrary::SlotAsCanvasSlot(LineToDraw.Key)->GetPosition();
 				FVector2D EndPos;
 				UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PlayerController, LineToDraw.Value->GetActorLocation(), EndPos, false);
@@ -40,4 +41,18 @@ int32 UEnemyTutorialTextSnippet::NativePaint(const FPaintArgs& Args, const FGeom
 	}
 	
 	return Super::NativePaint(Args, AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
+}
+
+void UEnemyTutorialTextSnippet::RemoveFromParent()
+{
+	Super::RemoveFromParent();
+
+	if (TextSnippetContainer)
+	{
+		for (UWidget* Child : TextSnippetContainer->GetAllChildren())
+		{
+			Child->RemoveFromParent();
+		}
+	}
+	
 }

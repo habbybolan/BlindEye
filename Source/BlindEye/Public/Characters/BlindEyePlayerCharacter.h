@@ -17,6 +17,7 @@
 #include "Components/IndicatorManagerComponent.h"
 #include "Components/ScaleBox.h"
 #include "Components/SizeBox.h"
+#include "HUD/EnemyTutorialTextSnippet.h"
 #include "BlindEyePlayerCharacter.generated.h"
 
 class UChecklist;
@@ -306,14 +307,15 @@ public:
 
 	virtual FVector GetIndicatorPosition() override;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UEnemyTutorialTextSnippet> BurrowerSnapperTextSnippetType;
+	UPROPERTY()
+	UEnemyTutorialTextSnippet* CurrShowingTextSnippet;
+	
 	UFUNCTION(Client, Reliable)
 	void CLI_AddEnemyTutorialTextSnippet(EEnemyTutorialType EnemyTutorialType);
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_AddEnemyTutorialText(EEnemyTutorialType EnemyTutorialType);
 	UFUNCTION(Client, Reliable) 
 	void CLI_RemoveEnemyTutorialTextSnippet();
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_RemoveEnemyTutorialText();
 
 	UFUNCTION(Client, Reliable, BlueprintCallable)
 	void CLI_AddTextPopup(const FString& Text, ETextPopupType TextPopupType, float Duration = 0);

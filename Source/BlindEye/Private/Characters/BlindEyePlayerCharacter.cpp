@@ -20,6 +20,7 @@
 #include "Gameplay/BlindEyePlayerState.h"
 #include "Kismet/GameplayStatics.h"
 #include "BlindEyeUtils.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
 #include "Enemies/Hunter/HunterEnemy.h"
 #include "Enemies/Hunter/HunterEnemyController.h"
 #include "Enemies/Burrower/BurrowerSpawnManager.h"
@@ -280,12 +281,22 @@ FVector ABlindEyePlayerCharacter::GetIndicatorPosition()
 
 void ABlindEyePlayerCharacter::CLI_AddEnemyTutorialTextSnippet_Implementation(EEnemyTutorialType EnemyTutorialType)
 {
-	BP_AddEnemyTutorialText(EnemyTutorialType);
+	FString WidgetName = TEXT("BurrowerSnapperTextSnippet");
+	if (GetController())
+	{
+		ABlindEyePlayerController* PlayerController = Cast<ABlindEyePlayerController>(GetController());
+		CurrShowingTextSnippet = Cast<UEnemyTutorialTextSnippet>(CreateWidget(PlayerController, BurrowerSnapperTextSnippetType, FName(*WidgetName))); 
+		CurrShowingTextSnippet->AddToPlayerScreen();
+	}
 }
 
 void ABlindEyePlayerCharacter::CLI_RemoveEnemyTutorialTextSnippet_Implementation()
 {
-	BP_RemoveEnemyTutorialText();
+	if (CurrShowingTextSnippet)
+	{
+		CurrShowingTextSnippet->RemoveFromParent();	
+	}
+	CurrShowingTextSnippet = nullptr;
 }
 
 ABlindEyePlayerState* ABlindEyePlayerCharacter::GetAllyPlayerState()

@@ -212,10 +212,12 @@ void ABlindEyeGameState::EnemyTutorialTextSkipped()
 {
 	for (APlayerState* PS : PlayerArray)
 	{
-		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
-		Player->CLI_RemoveEnemyTutorialTextSnippet();
+		if (PS->GetPawn())
+		{
+			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
+			Player->CLI_RemoveEnemyTutorialTextSnippet();
+		}
 	}
-	
 	BP_EnemyTutorialTextSkipped_SER(CurrEnemyTutorial);
 }
 
