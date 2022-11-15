@@ -32,6 +32,12 @@ void ADetonateAlliesMarkTutorial::SetupTutorial()
 		NumCrowMarksToDetonate = NumTimesForEachPlayerToDetonate;
 		NumPhoenixMarksToDetonate = NumTimesForEachPlayerToDetonate;
 	}
+
+	FString PhoenixText = TEXT("Detonate Allies' Crow Marks");
+	AddChecklistItem(EPlayerType::PhoenixPlayer, 0, PhoenixText, NumTimesForEachPlayerToDetonate);
+	 
+	FString CrowText = TEXT("Detonate Allies' Phoenix Marks");
+	AddChecklistItem(EPlayerType::CrowPlayer, 0, CrowText, NumTimesForEachPlayerToDetonate);
 }
 
 void ADetonateAlliesMarkTutorial::EndTutorial()
