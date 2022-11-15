@@ -30,6 +30,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, meta=(BindWidget))
 	UCanvasPanel* IndicatorContainer;
+	
+	FName IndicatorID;
 
 	virtual void RemoveFromParent() override;
 	

@@ -51,7 +51,6 @@ void UScreenIndicator::RemoveFromParent()
 void UScreenIndicator::FindScreenEdgeLocationForWorldLocation(FVector2D& OutScreenPosition,
                                                               float& OutRotationAngleDegrees, bool &bIsOnScreen)
 {
-	// TODO: Need validity check
 	if (!Target.IsValid()) return;
 	IIndicatorInterface* TargetInterface = Cast<IIndicatorInterface>(Target.Get());
 	if (!TargetInterface) return;

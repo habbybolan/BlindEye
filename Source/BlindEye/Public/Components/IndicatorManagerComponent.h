@@ -62,5 +62,7 @@ protected:
 	const float UpdateDurationDelay = 0.5;
 	FTimerHandle UpdateDurationsTimerHandle;
 	void UpdateDurations();
-	
+
+	UFUNCTION()
+	void RemoveLostReferencedIndicator(FName IndicatorID);
 };
