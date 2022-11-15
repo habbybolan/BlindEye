@@ -16,10 +16,18 @@ ASharedBasicAbility::ASharedBasicAbility() : AAbilityBase()
 	AbilityType = EAbilityTypes::Basic;
 }
 
+void ASharedBasicAbility::AbilityStarted()
+{
+	Super::AbilityStarted();
+
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetOwner());
+	Player->TutorialActionPerformed(TutorialInputActions::BasicAttack);
+}
+
 void ASharedBasicAbility::SetComboFinished()
 {
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetOwner());
-	//Player->CLI_TryFinishTutorial(ETutorialChecklist::Combo);
+	Player->TutorialActionPerformed(TutorialInputActions::BasicAttackCombo);
 }
 
 void ASharedBasicAbility::PlayAbilityAnimation()

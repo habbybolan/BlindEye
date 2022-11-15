@@ -180,10 +180,11 @@ void ABurrowerSpawnManager::SetInBurstState()
 	{
 		for (ABurrowerEnemy* Burrower : Pair.Value)
 		{
-			ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Burrower->GetController());
-			check(BurrowerController);
-
-			BurrowerController->SetInBurstState();
+			if (Burrower->GetController())
+			{
+				ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Burrower->GetController());
+				BurrowerController->SetInBurstState();
+			}
 		}
 	}
 }

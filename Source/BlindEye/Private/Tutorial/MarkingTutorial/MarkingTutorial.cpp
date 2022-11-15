@@ -48,10 +48,10 @@ void AMarkingTutorial::SetupTutorial()
 		}
 	}
 
-	FString PhoenixText = TEXT("Mark Enemies with your Phoenix Mark");
+	FString PhoenixText = TEXT("Use Marking ability with <Q> to mark enemies with your phoenix mark");
 	AddChecklistItem(EPlayerType::PhoenixPlayer, 0, PhoenixText, NumTimesForEachPlayerToMark);
 	 
-	FString CrowText = TEXT("Mark Enemies with your Crow Mark");
+	FString CrowText = TEXT("Use Marking ability with <Q> to mark enemies with your crow mark");
 	AddChecklistItem(EPlayerType::CrowPlayer, 0, CrowText, NumTimesForEachPlayerToMark);
 }
 

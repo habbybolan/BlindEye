@@ -45,6 +45,8 @@ class BLINDEYE_API ASharedBasicAbility : public AAbilityBase
 public:
 	ASharedBasicAbility();
 
+	virtual void AbilityStarted() override;
+
 	void SetComboFinished();
 
 	void SetLeaveAbilityTimer();

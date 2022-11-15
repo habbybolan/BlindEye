@@ -149,6 +149,9 @@ public:
 
 	const FName PlayerIndicatorID = "PlayerIndicator";
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FTutorialActionsSignature, ABlindEyePlayerCharacter*, Player, TutorialInputActions::ETutorialInputActions, TutorialInput);
+	FTutorialActionsSignature TutorialActionsDelegate;
+
 	// Debugger Functionality *********
 
 	UFUNCTION(Server, Reliable, BlueprintCallable)
@@ -336,6 +339,11 @@ public:
 	void AddScreenIndicator(const FName& IndicatorID, TSubclassOf<UScreenIndicator> ScreenIndicatorType,
 	UObject* Target, float Duration);
 	void RemoveScreenIndicator(const FName& IndicatorID);
+
+	bool IsInTutorial();
+	void TutorialActionPerformed(TutorialInputActions::ETutorialInputActions TutorialAction);
+	UFUNCTION(Server, Reliable)
+	void SER_TutorialActionPerformedHelper(TutorialInputActions::ETutorialInputActions TutorialAction);
 	
 protected:
 

@@ -70,7 +70,7 @@ public:
 
 	bool TryConsumeBirdMeter(float BirdMeterAmount);
 	
-	void AbilityStarted();
+	virtual void AbilityStarted();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_AbilityStarted();
