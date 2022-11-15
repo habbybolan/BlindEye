@@ -74,7 +74,6 @@ void ABurrowerEnemy::StartSurfacing()
 	GetCapsuleComponent()->SetCollisionObjectType(CachedCollisionObject);
 	MULT_StartSurfacingHelper();
 	PerformSurfacingDamage();
-	MULT_PlaySurfacingAnimation();
 }
 
 void ABurrowerEnemy::MULT_StartSurfacingHelper_Implementation()
@@ -120,8 +119,6 @@ void ABurrowerEnemy::StartHiding()
 	{
 		MULT_StartHidingHelper(0);
 	}
-	
-	MULT_PlaySurfacingAnimation();
 }
 
 void ABurrowerEnemy::MULT_StartHidingHelper_Implementation(float StartTime)
@@ -273,11 +270,6 @@ TArray<FVector> ABurrowerEnemy::GetSnapperSpawnPoints()
 		}
 	}
 	return SpawnPoints;
-}
-
-void ABurrowerEnemy::MULT_PlaySurfacingAnimation_Implementation()
-{
-	PlayAnimMontage(SurfacingAnimation);
 }
 
 void ABurrowerEnemy::TimelineSurfacingMovement(float Value)

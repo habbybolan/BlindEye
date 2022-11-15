@@ -62,6 +62,14 @@ namespace TutorialInputActions
 	};
 }
 
+UENUM(BlueprintType) 
+enum class EBurrowerVisibilityState : uint8
+{
+	Hidden,
+	Hiding,
+	Surfacing,
+	Surfaced
+};
 
 
 

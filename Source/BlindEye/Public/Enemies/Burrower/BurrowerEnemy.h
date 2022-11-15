@@ -127,9 +127,6 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_CancelHideHelper();
 
-	UPROPERTY(EditDefaultsOnly) 
-	UAnimMontage* SurfacingAnimation;
-
 	UPROPERTY(EditDefaultsOnly)  
 	UAnimMontage* SpawnSnapperAnimation;
 
@@ -147,6 +144,7 @@ public:
 	void WarningStarted();
 	void WarningEnded();
 
+	UFUNCTION(BlueprintCallable)
 	EBurrowerVisibilityState GetVisibilityState();
 
 	void SubscribeToSpawnLocation(UBurrowerSpawnPoint* SpawnPoint);
@@ -187,9 +185,6 @@ protected:
 
 	UPROPERTY()
 	TArray<ASnapperEnemy*> SnappersBeingSpawned;
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_PlaySurfacingAnimation();
 
 	// UFUNCTION()
 	// void StartAttackAppearance();

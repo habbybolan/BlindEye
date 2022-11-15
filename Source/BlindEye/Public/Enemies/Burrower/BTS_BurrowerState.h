@@ -25,6 +25,9 @@ class BLINDEYE_API UBTS_BurrowerState : public UBTService
 
 	UPROPERTY(EditAnywhere, Category=BlackBoard)
 	FBlackboardKeySelector IsTutorialKey;
+	
+	UPROPERTY(EditAnywhere, Category=BlackBoard)
+	FBlackboardKeySelector IsDeadKey; 
 
 	UPROPERTY(EditAnywhere)
 	float SpawnStateDelay = 15.f;

@@ -20,7 +20,9 @@ void UBTS_BurrowerState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Node
 	check(BurrowerController)
 
 	ABurrowerEnemy* Burrower = Cast<ABurrowerEnemy>(BurrowerController->GetPawn());
-	check(Burrower)
+	if (!Burrower) return;
+
+	BBComp->SetValueAsBool(IsDeadKey.SelectedKeyName, Burrower->GetIsDead());
 
 	BBComp->SetValueAsEnum(VisibilityStateKey.SelectedKeyName, (uint8)Burrower->GetVisibilityState());
 

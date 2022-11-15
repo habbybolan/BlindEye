@@ -18,15 +18,6 @@ enum class EBurrowActionState : uint8
 	Cancelled,
 	BurstWave
 };
- 
-UENUM(BlueprintType) 
-enum class EBurrowerVisibilityState : uint8
-{
-	Hidden,
-	Hiding,
-	Surfacing,
-	Surfaced
-};
 
 /**
  * 
