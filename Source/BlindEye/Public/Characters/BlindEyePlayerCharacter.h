@@ -410,9 +410,6 @@ protected:
 
 	UPROPERTY(Replicated, EditDefaultsOnly)
 	float CurrRevivePercent = 0; 
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_TutorialCheckList(ETutorialChecklist TutorialChecklist);
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_PlayerRevived();
