@@ -147,7 +147,6 @@ void ABlindEyePlayerCharacter::OnEnemyMarkDetonated()
 
 void ABlindEyePlayerCharacter::StartTutorial()
 {
-	BP_DisplayTutorialChecklist_CLI(true);
 	UWorld* World = GetWorld();
 	if (World)
 	{
@@ -159,7 +158,6 @@ void ABlindEyePlayerCharacter::StartTutorial()
 
 void ABlindEyePlayerCharacter::StartGame()
 {
-	BP_DisplayTutorialChecklist_CLI(false);
 	BP_DisplayDefendShrineIndicator_CLI();
 }
 
@@ -676,7 +674,6 @@ void ABlindEyePlayerCharacter::TutorialSkipReleased()
 
 void ABlindEyePlayerCharacter::UserSkipTutorial()
 {
-	BP_DisplayTutorialChecklist_CLI(false);
 	SER_UserInputSkipTutorial();
 }
 

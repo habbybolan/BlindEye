@@ -278,9 +278,6 @@ public:
 	// Entrance method for when main game loop starts
 	UFUNCTION()
 	void StartGame(); 
- 
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_DisplayTutorialChecklist_CLI(bool bShowChecklist);
 
 	UFUNCTION()
 	void HealthbarBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
