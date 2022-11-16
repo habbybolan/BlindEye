@@ -3,6 +3,9 @@
 
 #include "HUD/BasicSingleIndicator.h"
 
+#include "Blueprint/WidgetLayoutLibrary.h"
+#include "Components/CanvasPanelSlot.h"
+
 void UBasicSingleIndicator::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
@@ -19,13 +22,15 @@ void UBasicSingleIndicator::NativeTick(const FGeometry& MyGeometry, float InDelt
 	{
 		OffScreenIndicator->SetVisibility(ESlateVisibility::Hidden);
 		OnScreenIndicator->SetVisibility(ESlateVisibility::Visible);
-		OnScreenIndicator->SetPositionInViewport(ScreenPosition);
+		UWidgetLayoutLibrary::SlotAsCanvasSlot(OnScreenIndicator)->SetPosition(ScreenPosition);
+		//OnScreenIndicator->SetPositionInViewport(ScreenPosition);
 	}
 	else
 	{
 		OffScreenIndicator->SetVisibility(ESlateVisibility::Visible);
 		OnScreenIndicator->SetVisibility(ESlateVisibility::Hidden);
-		OffScreenIndicator->SetPositionInViewport(ScreenPosition);
+		//OffScreenIndicator->SetPositionInViewport(ScreenPosition);
+		UWidgetLayoutLibrary::SlotAsCanvasSlot(OffScreenIndicator)->SetPosition(ScreenPosition);
 		OffScreenIndicator->SetRenderTransformAngle(Degrees);
 	}
 }
@@ -35,7 +40,7 @@ void UBasicSingleIndicator::NativeConstruct()
 	Super::NativeConstruct();
 
 	OffScreenIndicator = CreateWidgetInstance(*this, OffScreenIndicatorType, FName("OffScreenIndicator"));
-	OffScreenIndicator->AddToViewport();
+	IndicatorContainer->AddChild(OffScreenIndicator);
 	OnScreenIndicator = CreateWidgetInstance(*this, OnScreenIndicatorType, FName("OnScreenIndicator"));
-	OnScreenIndicator->AddToViewport();
+	IndicatorContainer->AddChild(OnScreenIndicator);
 }

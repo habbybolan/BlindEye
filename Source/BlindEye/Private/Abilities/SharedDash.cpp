@@ -12,6 +12,14 @@ ASharedDash::ASharedDash()
 	AbilityType = EAbilityTypes::Dash;
 }
 
+void ASharedDash::AbilityStarted()
+{
+	Super::AbilityStarted();
+
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetOwner());
+	Player->TutorialActionPerformed(TutorialInputActions::Dash);
+}
+
 void ASharedDash::UpdatePlayerSpeed()
 {
 	if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))

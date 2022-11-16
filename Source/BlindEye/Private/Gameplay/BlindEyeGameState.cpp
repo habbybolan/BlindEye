@@ -5,6 +5,9 @@
 
 #include "Shrine.h"
 #include "Characters/BlindEyePlayerCharacter.h"
+#include "Characters/PlayerStartingCutscenePosition.h"
+#include "Enemies/Burrower/BurrowerSpawnManager.h"
+#include "Enemies/Burrower/BurrowerTutorialSpawnPoint.h"
 #include "GameFramework/PlayerState.h"
 #include "Gameplay/BlindEyeGameMode.h"
 #include "Gameplay/BlindEyePlayerState.h"
@@ -54,6 +57,18 @@ void ABlindEyeGameState::OnPulse(uint8 currRound, float roundLength)
 	PulseDelegate.Broadcast(CurrRound, roundLength);
 }
 
+void ABlindEyeGameState::OnRep_PlayerAdded()
+{
+	if (GetLocalRole() < ROLE_Authority)
+	{
+		if (BlindEyePlayers.Num() >= 2)
+		{
+			BlindEyePlayers[0]->NotifyOfOtherPlayerExistance(BlindEyePlayers[1]);
+			BlindEyePlayers[1]->NotifyOfOtherPlayerExistance(BlindEyePlayers[0]);
+		}
+	}
+}
+
 uint8 ABlindEyeGameState::GetCurrRound()
 {
 	return CurrRound;
@@ -83,39 +98,21 @@ void ABlindEyeGameState::SkipGameTime(float AmountToSkip)
 
 void ABlindEyeGameState::OnPlayerDied(ABlindEyePlayerState* PlayerThatDied)
 {
-	// TODO: USE LOGIC FOR LOSE CONDITION OF ALL PLAYERS DYING
-	// Notify owning player that player died
-	// UWorld* World = GetWorld();
-	// if (APlayerController* Controller = UGameplayStatics::GetPlayerController(World, 0))
-	// {
-	// 	if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Controller->GetPawn()))
-	// 	{
-	// 		// Only notify if is other player
-	// 		if (Player != PlayerThatDied->GetPawn())
-	// 		{
-	// 			Player->OnOtherPlayerDied(PlayerThatDied);
-	// 		}
-	// 	}
-	// }
+	DeadPlayers.Add(PlayerThatDied);
 }
 
 void ABlindEyeGameState::OnPlayerRevived(ABlindEyePlayerState* PlayerRevived)
 {
-	// TODO: USE LOGIC FOR LOSE CONDITION OF ALL PLAYERS DYING
-	// Notify owning player that player revived
-	// UWorld* World = GetWorld();
-	// if (APlayerController* Controller = UGameplayStatics::GetPlayerController(World, 0))
-	// {
-	// 	// Only notify if is other player
-	// 	if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Controller->GetPawn()))
-	// 	{
-	// 		// Only notify if is other player
-	// 		if (Player != PlayerRevived->GetPawn())
-	// 		{
-	// 			Player->OnOtherPlayerRevived(PlayerRevived);
-	// 		}
-	// 	}
-	// }
+	for (uint8 i = 0; i < DeadPlayers.Num(); i++)
+	{
+		if (DeadPlayers[i] == PlayerRevived)
+		{
+			DeadPlayers.RemoveAt(i);
+			return;
+		}	
+	}
+	// Tried to revive an already revived player
+	check(true);
 }
 
 void ABlindEyeGameState::AddPlayerState(APlayerState* PlayerState)
@@ -149,6 +146,100 @@ APlayerState* ABlindEyeGameState::GetOtherPlayer(ABlindEyePlayerCharacter* Playe
 		}
 	}
 	return nullptr;
+}
+  
+void ABlindEyeGameState::MULT_DisplayTextSnippet_Implementation(EEnemyTutorialType TutorialType)
+{
+	bInEnemyTutorialSkippableSection = true;
+	BP_EnemyTutorialTrigger_CLI(TutorialType);
+}
+
+void ABlindEyeGameState::SER_EnemyTutorialTrigger_Implementation(EEnemyTutorialType TutorialType)
+{
+	if (bInEnemyTutorialSkippableSection) return;
+	MULT_DisplayTextSnippet(TutorialType);
+
+	for (APlayerState* PS : PlayerArray)
+	{
+		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
+		Player->CLI_AddEnemyTutorialTextSnippet(TutorialType);
+	}
+}
+
+void ABlindEyeGameState::SetPlayerMovementBlocked(bool IsMovementBlocked)
+{
+	for (APlayerState* PlayerState : PlayerArray)
+	{
+		if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(PlayerState))
+		{
+			BlindEyePS->bActionsBlocked = IsMovementBlocked;
+		}
+	}
+}
+
+void ABlindEyeGameState::StartEnemyTutorial(EEnemyTutorialType TutorialType)
+{
+	BP_EnemyTutorialStarted_SER(TutorialType);
+}
+
+void ABlindEyeGameState::TutorialFinished()
+{
+	bInBeginningTutorial = false;
+	TutorialEndedDelegate.Broadcast();
+	MULT_BeginningTutorialFinished();
+}
+
+void ABlindEyeGameState::MULT_PlayLevelSequence_Implementation(ULevelSequence* SequenceToPlay)
+{ 
+	UWorld* World = GetWorld();
+	FMovieSceneSequencePlaybackSettings Settings;
+	//Settings.bPauseAtEnd = true;
+	Settings.bHideHud = true;
+	ALevelSequenceActor* OutActor; 
+	CurrSequencePlaying = ULevelSequencePlayer::CreateLevelSequencePlayer(World, SequenceToPlay, Settings, OutActor);
+	CurrSequencePlaying->Play(); 
+} 
+
+void ABlindEyeGameState::MULT_BeginningTutorialFinished_Implementation()
+{
+	BP_BeginningTutorialFinished_CLI();
+}
+
+void ABlindEyeGameState::EnemyTutorialTextSkipped()
+{
+	for (APlayerState* PS : PlayerArray)
+	{
+		if (PS->GetPawn())
+		{
+			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
+			Player->CLI_RemoveEnemyTutorialTextSnippet();
+		}
+	}
+	BP_EnemyTutorialTextSkipped_SER(CurrEnemyTutorial);
+}
+
+void ABlindEyeGameState::FinishEnemyTutorial()
+{
+	if (CurrEnemyTutorial == EEnemyTutorialType::BurrowerSnapper)
+	{
+		MULT_EnemyTutorialFinished();
+	} else if (CurrEnemyTutorial == EEnemyTutorialType::Hunter)
+	{
+		MULT_EnemyTutorialFinished();
+	}
+	SetPlayerMovementBlocked(false);
+	CurrEnemyTutorial = EEnemyTutorialType::None;
+	bInEnemyTutorialSkippableSection = false;
+}
+
+void ABlindEyeGameState::MULT_EnemyTutorialFinished_Implementation()
+{
+	if (CurrSequencePlaying)
+	{
+		CurrSequencePlaying->GoToEndAndStop();
+	}
+	CurrSequencePlaying = nullptr;
+	BP_EnemyTutorialFinished_CLI(CurrEnemyTutorial);
 }
 
 void ABlindEyeGameState::EnemyDied(AActor* EnemyActor)
@@ -228,13 +319,8 @@ bool ABlindEyeGameState::IsBlindEyeMatchEnding()
 {
 	return InProgressMatchState == InProgressStates::GameEnding;
 }
-
-void ABlindEyeGameState::TutorialFinished()
-{
-	TutorialEndedDelegate.Broadcast();
-}
-
-void ABlindEyeGameState::StartGame()
+ 
+void ABlindEyeGameState::MULT_StartGame_Implementation()
 {
 	GameStartedDelegate.Broadcast();
 }
@@ -265,6 +351,7 @@ void ABlindEyeGameState::OnRep_InProgressMatchState()
 
 void ABlindEyeGameState::TutorialState()
 {
+	bInBeginningTutorial = true;
 	TutorialStartedDelegate.Broadcast();
 }
 
@@ -280,13 +367,11 @@ void ABlindEyeGameState::GetShrineReference()
 
 void ABlindEyeGameState::OnMarkAdded(AActor* MarkedActor, EMarkerType MarkerType)
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Blue, "Player Marked");
 	// TODO:
 }
 
 void ABlindEyeGameState::OnMarkRemoved(AActor* UnmarkedActor, EMarkerType MarkerType)
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Blue, "Player Unmarked");
 	// TODO:
 }
 
@@ -356,4 +441,8 @@ void ABlindEyeGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(ABlindEyeGameState, CurrRoundTimer)
 	DOREPLIFETIME(ABlindEyeGameState, NumRounds)
 	DOREPLIFETIME(ABlindEyeGameState, Shrine)
+	DOREPLIFETIME(ABlindEyeGameState, CurrEnemyTutorial)
+	DOREPLIFETIME(ABlindEyeGameState, bInBeginningTutorial)
+	DOREPLIFETIME(ABlindEyeGameState, bInEnemyTutorialSkippableSection)
+	DOREPLIFETIME(ABlindEyeGameState, BlindEyePlayers)
 }

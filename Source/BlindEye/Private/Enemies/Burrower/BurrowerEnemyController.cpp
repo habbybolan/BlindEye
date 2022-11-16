@@ -89,7 +89,7 @@ void ABurrowerEnemyController::StopWarningParticles()
 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
 	if (!CachedBurrower) return;
 
-	CachedBurrower->WarningEnded();
+	CachedBurrower->MULT_WarningEnded();
 }
 
 void ABurrowerEnemyController::NotifyPlayerEnteredIsland(ABlindEyePlayerCharacter* Player)
@@ -150,14 +150,14 @@ void ABurrowerEnemyController::SetInBurstState()
 void ABurrowerEnemyController::NotifySpawningStopped()
 {
 	CachedBurrower->NotifySpawningStopped();
-}
-
+} 
+ 
 void ABurrowerEnemyController::StartWarningParticles()
 {
 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
 	if (!CachedBurrower) return;
 
-	CachedBurrower->WarningStarted();
+	CachedBurrower->MULT_WarningStarted();
 }
 
 void ABurrowerEnemyController::AddNewActionState(EBurrowActionState NewAction)
@@ -206,7 +206,7 @@ void ABurrowerEnemyController::OnPossess(APawn* InPawn)
 	HealthComponent->DetonateDelegate.AddDynamic(this, &ABurrowerEnemyController::OnDetonated);
 }
 
-void ABurrowerEnemyController::OnDetonated()
+void ABurrowerEnemyController::OnDetonated(AActor* MarkedPawn, EMarkerType MarkerType)
 {
 	// On detonation, set state as cancelled
 	UBlackboardComponent* BBComp = GetBlackboardComponent();

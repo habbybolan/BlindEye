@@ -20,7 +20,9 @@ void UBTS_BurrowerState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Node
 	check(BurrowerController)
 
 	ABurrowerEnemy* Burrower = Cast<ABurrowerEnemy>(BurrowerController->GetPawn());
-	check(Burrower)
+	if (!Burrower) return;
+
+	BBComp->SetValueAsBool(IsDeadKey.SelectedKeyName, Burrower->GetIsDead());
 
 	BBComp->SetValueAsEnum(VisibilityStateKey.SelectedKeyName, (uint8)Burrower->GetVisibilityState());
 
@@ -79,6 +81,24 @@ void UBTS_BurrowerState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Node
 	{
 		CurrSpawnStateTime += DeltaSeconds;
 	}
+}
+
+void UBTS_BurrowerState::OnSearchStart(FBehaviorTreeSearchData& SearchData)
+{
+	UBlackboardComponent* BBComp = SearchData.OwnerComp.GetBlackboardComponent();
+
+	// Set initial values on burrower search start
+	ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(SearchData.OwnerComp.GetAIOwner());
+	if (BurrowerController->GetPawn())
+	{
+		ABurrowerEnemy* Burrower = Cast<ABurrowerEnemy>(BurrowerController->GetPawn());
+		if (Burrower)
+		{
+			// Check if burrower is tutorial burrower
+			BBComp->SetValueAsBool(IsTutorialKey.SelectedKeyName, Burrower->bIsTutorialBurrower);
+		}
+	}
+	
 }
 
 /*

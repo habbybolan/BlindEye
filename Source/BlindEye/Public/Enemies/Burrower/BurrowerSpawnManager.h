@@ -30,20 +30,24 @@ public:
  
 	void SpawnBurrowerRandLocation(); 
 	void SpawnBurrower(AIsland* Island);
+	void SpawnBurrowerAtBurrowerSpawnPoint(UBurrowerSpawnPoint* SpawnPoint, AIsland* Island);
 
-	// Helper for performing spawning logic of burrower
-	void SpawnBurrowerHelper(UBurrowerSpawnPoint* SpawnPoint, AIsland* Island);
+	// Helper for performing spawning logic of burrower at island and general location
+	ABurrowerEnemy* SpawnBurrowerHelper(FVector SpawnLocation, FRotator SpawnRotation, AIsland* Island);
  
 	TArray<ABlindEyePlayerCharacter*> GetPlayersOnIsland(uint8 islandID) override;
 
 	void SetInBurstState();
+
+	// Spawns a single burrower for intro enemy tutorial for burrowers and snappers
+	ABurrowerEnemy* TutorialBurrowerSpawn();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
-	void OnGameStarted();
+	void OnStartingTutorialEnded();
 
 	// Called after level loaded
 	UFUNCTION()

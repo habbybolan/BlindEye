@@ -4,6 +4,7 @@
 #include "Abilities/SharedBasicAbility.h"
 
 #include "Characters/BlindEyePlayerCharacter.h"
+#include "Kismet/GameplayStatics.h"
 
 ASharedBasicAbility::ASharedBasicAbility() : AAbilityBase()
 {
@@ -15,10 +16,18 @@ ASharedBasicAbility::ASharedBasicAbility() : AAbilityBase()
 	AbilityType = EAbilityTypes::Basic;
 }
 
+void ASharedBasicAbility::AbilityStarted()
+{
+	Super::AbilityStarted();
+
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetOwner());
+	Player->TutorialActionPerformed(TutorialInputActions::BasicAttack);
+}
+
 void ASharedBasicAbility::SetComboFinished()
 {
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetOwner());
-	Player->CLI_TryFinishTutorial(ETutorialChecklist::Combo);
+	Player->TutorialActionPerformed(TutorialInputActions::BasicAttackCombo);
 }
 
 void ASharedBasicAbility::PlayAbilityAnimation()
@@ -34,7 +43,7 @@ void ASharedBasicAbility::PlayAbilityAnimation()
 void ASharedBasicAbility::UseAnimNotifyExecuted()
 {
 	AnimNotifyDelegate.Unbind();
-	SpawnFlock();
+	SER_SpawnFlock();
 	WaitForEndAbilityNotify();
 }
 
@@ -50,11 +59,12 @@ void ASharedBasicAbility::EndAnimNotifyExecuted()
 	AbilityStates[CurrState]->ExitState();
 }
 
-void ASharedBasicAbility::TryCancelAbility()
+bool ASharedBasicAbility::TryCancelAbility()
 {
 	Super::TryCancelAbility();
 	AnimNotifyDelegate.Unbind();
 	bIsAttacking = false;
+	return true;
 }
 
 void ASharedBasicAbility::EndAbilityLogic()
@@ -64,31 +74,76 @@ void ASharedBasicAbility::EndAbilityLogic()
 	CurrCharge = 0;
 }
 
-void ASharedBasicAbility::SpawnFlock_Implementation()
+FVector ASharedBasicAbility::CalcFirstFlockingTarget()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return FVector::ZeroVector;
+		
+	FVector ViewportLocation;
+	FRotator ViewportRotation;
+	GetInstigator()->GetController()->GetPlayerViewPoint(OUT ViewportLocation, OUT ViewportRotation);
+	FVector InstigatorFwd =  ViewportRotation.Vector() * TargetDistanceFromInstigator;
+
+	FVector TargetLocation;
+	FHitResult OutHit;
+	if (UKismetSystemLibrary::LineTraceSingleForObjects(World, ViewportLocation, ViewportLocation + InstigatorFwd, SpawnLineCastObjectTypes,
+		false, TArray<AActor*>(), EDrawDebugTrace::None, OutHit, true))
+	{
+		TargetLocation = OutHit.Location;
+	} else
+	{
+		TargetLocation = ViewportLocation + InstigatorFwd;
+	}
+	return TargetLocation;
+}
+
+void ASharedBasicAbility::TryCancelAbilityHelper()
+{
+	TryCancelAbility();
+}
+
+void ASharedBasicAbility::SER_SpawnFlock_Implementation()
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	FActorSpawnParameters params;
-	params.Instigator = GetInstigator();
-	params.Owner = GetInstigator();
-	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
+	FName BoneSpawnLocation;
+	TSubclassOf<ABasicAttackSmallFlock> FlockType;
 	switch (CurrCharge)
 	{
 	case 0:
-		world->SpawnActor<ABasicAttackSmallFlock>(FirstChargeFlockType, FVector::ZeroVector, FRotator::ZeroRotator, params);
+		BoneSpawnLocation = FName("RightHand");
+		FlockType = FirstChargeFlockType;
 		break;
 	case 1:
-		world->SpawnActor<ABasicAttackSmallFlock>(SecondChargeFlockType, FVector::ZeroVector, FRotator::ZeroRotator, params);
+		BoneSpawnLocation = FName("LeftHand");
+		FlockType = SecondChargeFlockType;
 		break;
 	case 2:
-		world->SpawnActor<ABasicAttackSmallFlock>(LastChargeFlockType, FVector::ZeroVector, FRotator::ZeroRotator, params);
+		BoneSpawnLocation = FName("RightHand");
+		FlockType = LastChargeFlockType;
 		break;
 	default:
-		world->SpawnActor<ABasicAttackSmallFlock>(LastChargeFlockType, FVector::ZeroVector, FRotator::ZeroRotator, params);
+		BoneSpawnLocation = FName("RightHand");
+		FlockType = FirstChargeFlockType;
 		break;
 	}
+	MULT_SpawnFlockHelper(BoneSpawnLocation, FlockType, CalcFirstFlockingTarget());
+}
+
+void ASharedBasicAbility::MULT_SpawnFlockHelper_Implementation(FName BoneSpawnLocation,
+	TSubclassOf<ABasicAttackSmallFlock> FlockType, FVector StartTargetLoc)
+{
+	UWorld* World = GetWorld();
+	if (World) 
+	{
+		ABasicAttackSmallFlock* Flock = World->SpawnActorDeferred<ABasicAttackSmallFlock>(FlockType, FTransform::Identity, GetOwner(),
+			GetInstigator(), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+		Flock->BoneSpawnLocation = BoneSpawnLocation;
+		Flock->InitialTarget = StartTargetLoc;
+		UGameplayStatics::FinishSpawningActor(Flock, FTransform::Identity);
+	}
+	
 }
 
 void ASharedBasicAbility::SetLeaveAbilityTimer()
@@ -97,7 +152,7 @@ void ASharedBasicAbility::SetLeaveAbilityTimer()
 	if (!world) return;
 
 	world->GetTimerManager().ClearTimer(ResetAbilityTimerHandle);
-	world->GetTimerManager().SetTimer(ResetAbilityTimerHandle, this, &AAbilityBase::TryCancelAbility, AbilityCancelDelay, false);
+	world->GetTimerManager().SetTimer(ResetAbilityTimerHandle, this, &ASharedBasicAbility::TryCancelAbilityHelper, AbilityCancelDelay, false);
 } 
 
 void ASharedBasicAbility::ClearLeaveAbilityTimer()

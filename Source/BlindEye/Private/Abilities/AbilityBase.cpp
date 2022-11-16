@@ -120,15 +120,18 @@ void AAbilityBase::SetOffCooldown()
 	bOnCooldown = false;
 }
 
-void AAbilityBase::TryCancelAbility()
+bool AAbilityBase::TryCancelAbility()
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, "Ability cancelled");
 	// TODO: Do functionality later
 	//		Probably add IsCancellable as base state boolean and extra cancel logic in the state (cancel method?)
 
 	// Clean up current state
-	AbilityStates[CurrState]->CancelState();
-	EndAbilityLogic();
+	if (AbilityStates[CurrState]->CancelState())
+	{
+		EndAbilityLogic();
+		return true;
+	}
+	return false;
 }
 
 void AAbilityBase::DelayToNextState(float delay, bool IsDelayToExit)

@@ -17,6 +17,7 @@ class IBurrowerSpawnManagerListener;
 class ASnapperEnemy;
 class UHealthComponent;
 class ABlindEyePlayerCharacter;
+class UBaseDamageType;
 
 /**
  * 
@@ -102,14 +103,15 @@ public:
 	TScriptInterface<IBurrowerSpawnManagerListener> Listener;
 	uint8 IslandID;
 
+	bool bIsTutorialBurrower = false;
+
 	void SpawnMangerSetup(uint8 islandID, TScriptInterface<IBurrowerSpawnManagerListener> listener);
 	
 	void StartSurfacing();
 	void PerformSurfacingDamage();
 	void StartHiding();
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SetVisibility(bool isHidden);
+	void SetVisibility(bool isHidden);
 
 	UFUNCTION()
 	void SpawnSnappers(); 
@@ -123,9 +125,6 @@ public:
 	void CancelHide();
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_CancelHideHelper();
-
-	UPROPERTY(EditDefaultsOnly) 
-	UAnimMontage* SurfacingAnimation;
 
 	UPROPERTY(EditDefaultsOnly)  
 	UAnimMontage* SpawnSnapperAnimation;
@@ -141,9 +140,12 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_PlaySpawnSnapperAnimationHelper();
 
-	void WarningStarted();
-	void WarningEnded();
+	UFUNCTION(NetMulticast, Unreliable)
+	void MULT_WarningStarted();
+	UFUNCTION(NetMulticast, Unreliable)
+	void MULT_WarningEnded();
 
+	UFUNCTION(BlueprintCallable)
 	EBurrowerVisibilityState GetVisibilityState();
 
 	void SubscribeToSpawnLocation(UBurrowerSpawnPoint* SpawnPoint);
@@ -170,8 +172,12 @@ protected:
 	// bool bIsSurfacing = false;
 	// bool bIsHiding = false;
 	// bool bIsHidden = false;
-
-	EBurrowerVisibilityState VisibilityState;
+ 
+	UPROPERTY(Replicated, ReplicatedUsing="OnRep_VisibilityState")
+	EBurrowerVisibilityState VisibilityState; 
+ 
+	UFUNCTION()
+	void OnRep_VisibilityState(EBurrowerVisibilityState OldVisibilityState);
 	
 	bool bIsFollowing = false;
 
@@ -184,9 +190,6 @@ protected:
 
 	UPROPERTY()
 	TArray<ASnapperEnemy*> SnappersBeingSpawned;
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_PlaySurfacingAnimation();
 
 	// UFUNCTION()
 	// void StartAttackAppearance();
@@ -256,5 +259,10 @@ protected:
 
 	UFUNCTION(BlueprintCallable) 
 	FVector GetRelativeFollowParticleSpawnLocation();
+
+	UFUNCTION()
+	void UpdateBurrowerState(EBurrowerVisibilityState NewState);
+
+	void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const;
 	 
 };

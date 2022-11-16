@@ -98,7 +98,7 @@ public:
 	UPROPERTY()
 	FUnMarkedSignature MarkedRemovedDelegate; 
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDetonateSignature);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDetonateSignature, AActor*, MarkedPawn, EMarkerType, MarkerType);
 	UPROPERTY()
 	FDetonateSignature DetonateDelegate;
  
@@ -121,13 +121,14 @@ public:
 	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	// TSubclassOf<AHealingWell> HealingWellType;
 
-	void RemoveMark();
+	virtual void RemoveMark();
 	FMarkData& GetCurrMark();
 
 	virtual void KnockBack(FVector KnockBackForce, AActor* DamageCause) override;
 
 
 	// Check if enemy is marked by Hunter
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool GetIsHunterDebuff();
 
 	virtual void Stun(float StunDuration, AActor* DamageCause) override;
@@ -146,7 +147,7 @@ protected:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	void OnDeath(AActor* ActorThatKilled);
+	virtual void OnDeath(AActor* ActorThatKilled);
 
 	// cached owners health interface
 	IHealthInterface* OwnerHealth;

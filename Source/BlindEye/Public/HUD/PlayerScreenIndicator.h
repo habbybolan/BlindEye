@@ -19,7 +19,8 @@ public:
 	bool bIsPlayerMarked = false;
 	bool bisPlayerDowned = false;
 
-	virtual void SetTarget(TScriptInterface<IIndicatorInterface> target) override;
+	virtual void SetTarget(UObject* target) override;
+
 
 protected:
 

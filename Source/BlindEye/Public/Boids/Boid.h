@@ -48,7 +48,7 @@ public:
 	UProjectileMovementComponent* BoidMovement;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UStaticMeshComponent* Mesh;
+	USkeletalMeshComponent* BirdMesh;
 
 	UPROPERTY(EditDefaultsOnly, Category=SpawnGrow)
 	float TimeUntilFullSizeOnSpawn = 1.0f;

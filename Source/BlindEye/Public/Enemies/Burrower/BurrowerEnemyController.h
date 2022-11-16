@@ -18,15 +18,6 @@ enum class EBurrowActionState : uint8
 	Cancelled,
 	BurstWave
 };
- 
-UENUM(BlueprintType) 
-enum class EBurrowerVisibilityState : uint8
-{
-	Hidden,
-	Hiding,
-	Surfacing,
-	Surfaced
-};
 
 /**
  * 
@@ -93,7 +84,7 @@ protected:
 	virtual void OnPossess(APawn* InPawn) override;
 
 	UFUNCTION()
-	void OnDetonated();
+	void OnDetonated(AActor* MarkedPawn, EMarkerType MarkerType);
 
 	UPROPERTY()
 	ABurrowerEnemy* CachedBurrower;

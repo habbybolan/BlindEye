@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Characters/BlindEyePlayerController.h"
+#include "Enemies/Burrower/BurrowerEnemy.h"
 #include "GameFramework/GameState.h"
+#include "LevelSequence/Public/LevelSequenceActor.h"
 #include "BlindEyeGameState.generated.h"
 
 class AIslandManager;
@@ -20,6 +22,14 @@ enum class EGameOverState : uint8
 	InProgress, 
 	Won,
 	Lost
+};
+
+UENUM(BlueprintType)
+enum class EEnemyTutorialType : uint8
+{
+	None,
+	BurrowerSnapper,
+	Hunter
 };
 
 class ABlindEyePlayerCharacter;
@@ -74,6 +84,13 @@ public:
 	float CurrRoundTimer = 0; 
 	UPROPERTY(Replicated)
 	float TimerUntilGameWon; 
+
+	UPROPERTY(Replicated)
+	EEnemyTutorialType CurrEnemyTutorial = EEnemyTutorialType::None;
+	UPROPERTY(Replicated)   
+	bool bInEnemyTutorialSkippableSection = false;
+	UPROPERTY(Replicated)
+	bool bInBeginningTutorial = false;
 	
 	virtual void SetInProgressMatchState(FName NewInProgressState);
 
@@ -85,7 +102,14 @@ public:
 	bool IsBlindEyeMatchEnding();
 
 	void TutorialFinished();
-	void StartGame();
+
+	void EnemyTutorialTextSkipped();
+	
+	// Stops Cutscene and give control back to players, Called from Blueprints
+	void FinishEnemyTutorial();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_StartGame();
 	
 	TArray<ABlindEyePlayerCharacter*> GetPlayers();
 	ABlindEyePlayerCharacter* GetPlayer(EPlayerType PlayerType);
@@ -110,7 +134,13 @@ public:
 	  
 	void OnPulse(uint8 currRound, float roundLength);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FPulseSignature, uint8, CurrRound, float, RoundLength);
-	FPulseSignature PulseDelegate; 
+	FPulseSignature PulseDelegate;
+
+	UPROPERTY(Replicated, ReplicatedUsing="OnRep_PlayerAdded")
+	TArray<ABlindEyePlayerCharacter*> BlindEyePlayers;
+
+	UFUNCTION()
+	void OnRep_PlayerAdded();
 
 	uint8 GetCurrRound();
 
@@ -124,7 +154,10 @@ public:
 	float CurrRoundLength = 1;
 
 	UPROPERTY(Replicated)
-	uint8 NumRounds = 3; 
+	uint8 NumRounds = 3;
+
+	UPROPERTY()
+	TArray<ABlindEyePlayerState*> DeadPlayers;
 
 	UFUNCTION() 
 	void OnPlayerDied(ABlindEyePlayerState* PlayerThatDied);
@@ -136,6 +169,19 @@ public:
 	void NotifyOtherPlayerOfPlayerExisting(ABlindEyePlayerCharacter* NewPlayer);
 
 	APlayerState* GetOtherPlayer(ABlindEyePlayerCharacter* Player);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_DisplayTextSnippet(EEnemyTutorialType TutorialType);
+
+	UFUNCTION(Server, Reliable)
+	void SER_EnemyTutorialTrigger(EEnemyTutorialType TutorialType);
+
+	void SetPlayerMovementBlocked(bool IsMovementBlocked);
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_PlayLevelSequence(ULevelSequence* SequenceToPlay);
+	
+	void StartEnemyTutorial(EEnemyTutorialType TutorialType);
 
 protected:
 
@@ -157,6 +203,9 @@ protected:
 	UPROPERTY(Replicated)
 	uint8 CurrRound = 0;
 
+	UPROPERTY()
+	ULevelSequencePlayer* CurrSequencePlaying;
+
 	UFUNCTION()
 	void EnemyDied(AActor* Enemy);
 
@@ -172,5 +221,25 @@ protected:
 	void OnMarkAdded(AActor* MarkedActor, EMarkerType MarkerType);
 	UFUNCTION()
 	void OnMarkRemoved(AActor* UnmarkedActor, EMarkerType MarkerType);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_BeginningTutorialFinished();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_EnemyTutorialFinished();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_EnemyTutorialTrigger_CLI(EEnemyTutorialType TutorialType);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_EnemyTutorialFinished_CLI(EEnemyTutorialType TutorialType);
 	
+	UFUNCTION(BlueprintImplementableEvent) 
+	void BP_BeginningTutorialFinished_CLI();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_EnemyTutorialStarted_SER(EEnemyTutorialType TutorialType);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_EnemyTutorialTextSkipped_SER(EEnemyTutorialType TutorialType);
 };

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/CanvasPanel.h"
 #include "Interfaces/IndicatorInterface.h"
 #include "ScreenIndicator.generated.h"
 
@@ -18,20 +19,25 @@ class BLINDEYE_API UScreenIndicator : public UUserWidget
 public:
 
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
-
-	UFUNCTION(BlueprintCallable)
-	virtual void SetTarget(TScriptInterface<IIndicatorInterface> target);
+	
+	virtual void SetTarget(UObject* target);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	TScriptInterface<IIndicatorInterface> GetTarget(); 
+	UObject* GetTarget(); 
 
 	UPROPERTY(EditDefaultsOnly)
 	float EdgePercent = 0.9;
+
+	UPROPERTY(EditDefaultsOnly, meta=(BindWidget))
+	UCanvasPanel* IndicatorContainer;
+	
+	FName IndicatorID;
+
+	virtual void RemoveFromParent() override;
 	
 protected: 
-
-	UPROPERTY()
-	TScriptInterface<IIndicatorInterface> Target = nullptr;
+	
+	TWeakObjectPtr<UObject> Target = nullptr;
 
 	UFUNCTION(BlueprintCallable)
 	void FindScreenEdgeLocationForWorldLocation(FVector2D& OutScreenPosition,

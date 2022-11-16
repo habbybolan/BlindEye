@@ -49,7 +49,8 @@ void ABlindEyeEnemyBase::BeginPlay()
 		BlindEyeGS->SubscribeToEnemy(this);
 	}
 
-	HealthBar->SetVisibility(false);
+	// TODO: Start as false when fixed healthbar overlap issue
+	HealthBar->SetVisibility(true);
 }
 
 void ABlindEyeEnemyBase::DestroyEnemy()
@@ -65,7 +66,13 @@ void ABlindEyeEnemyBase::ApplyPulse(ABlindEyePlayerCharacter* PlayerEffectToAppl
 
 void ABlindEyeEnemyBase::SetHealthbarVisibility(bool IsVisible)
 {
-	HealthBar->SetVisibility(IsVisible);
+	// TODO: Make not permanent here
+	HealthBar->SetVisibility(true);
+}
+
+void ABlindEyeEnemyBase::MULT_PlayAnimMontage_Implementation(UAnimMontage* AnimToPlay)
+{
+	PlayAnimMontage(AnimToPlay);
 }
 
 void ABlindEyeEnemyBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -100,6 +107,8 @@ void ABlindEyeEnemyBase::MYOnTakeDamage(float Damage, FVector HitLocation, const
 
 void ABlindEyeEnemyBase::OnDeath(AActor* ActorThatKilled)
 {
+	if (bIsDead) return;
+	
 	Super::OnDeath(ActorThatKilled);
 	bIsDead = true;
 	UWorld* World = GetWorld();

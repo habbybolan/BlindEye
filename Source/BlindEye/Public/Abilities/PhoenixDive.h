@@ -15,6 +15,7 @@ public:
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
+	virtual bool CancelState() override;
 };
 
 // Jumping State
@@ -25,6 +26,7 @@ public:
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
+	virtual bool CancelState() override;
 };
  
 // Extended in air state 
@@ -35,6 +37,7 @@ public:
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
+	virtual bool CancelState() override;
 };
 
 // Hanging in the air, waiting for input to launch to ground
@@ -45,6 +48,7 @@ public:
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
+	virtual bool CancelState() override;
 };
 
 // Hanging in the air, waiting for input to launch to ground
@@ -55,6 +59,7 @@ public:
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
+	virtual bool CancelState() override;
 };
 
 /**
@@ -115,6 +120,9 @@ public:
 	void HangInAirTimer();
 	void LaunchToGround();
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_LaunchToGround(FVector LaunchForce);
+
 	// Wait for ability use animation notify to send out flock
 	void PlayAbilityAnimation();
 
@@ -130,21 +138,24 @@ public:
 	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=45))
 	float AngleUpOffsetOnLaunch = 10.f;
 
-protected:
-
 	FTimerHandle HangInAirTimerHandle;
 	FTimerHandle MaxHangingTimerHandle;
-	
 	FTimerHandle UpdateGroundTargetPositionTimerHandle;
-	void UpdateGroundTargetPosition();
+
+	UFUNCTION(Client, Reliable)
+	void CLI_StopGroundTarget();
 
 	float CachedGravityScale = 1;
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_ResetPlayerOnCancel();
+
+protected:
+	
+	void UpdateGroundTargetPosition();
+
 	UFUNCTION(Client, Reliable)
 	void CLI_SpawnGroundTarget();
-
-	UFUNCTION(Client, Reliable) 
-	void CLI_StopGroundTarget();
 
 	void hangingInAirExpired();
 
@@ -160,8 +171,8 @@ protected:
 	void LandingAnimationFinishExecuted();
 	
 	void EndLaunchUp();
-	UFUNCTION()
-	void CollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_CollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 	void UnsubscribeToGroundCollision();
 	virtual void EndAbilityLogic() override;
 };

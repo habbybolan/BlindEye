@@ -14,6 +14,7 @@ public:
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
+	virtual bool CancelState() override;
 };
 
 class BLINDEYE_API FCancelCrowFlurryState : public FAbilityState
@@ -23,6 +24,7 @@ public:
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
+	virtual bool CancelState() override;
 };
 
 class BLINDEYE_API FEndCrowFlurryState : public FAbilityState
@@ -32,6 +34,7 @@ public:
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
+	virtual bool CancelState() override;
 };
 
 /**
@@ -93,18 +96,18 @@ public:
 	
 	void StartCrowFlurry();
 	void PlayAbilityAnimation();
-	void EndAbilityAnimation(); 
+	void EndAbilityAnimation();
+
+	FTimerHandle CrowFlurryTimerHandle;
+	FTimerHandle DurationTimerHandle;
+	// For calculating crow flurry rotation lerping to control rotation
+	FTimerHandle CalculateRotationTimerHandle;
+	FTimerHandle RotateFlurryTimerHandle;
 
 protected:
 	
-	FTimerHandle CrowFlurryTimerHandle;
-	FTimerHandle DurationTimerHandle;
-
-	// For calculating crow flurry rotation lerping to control rotation
-	FTimerHandle CalculateRotationTimerHandle;
 	float CalcRotationDelay = 0.05f;
 
-	FTimerHandle RotateFlurryTimerHandle;
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void MULT_RotateFlurry(); 

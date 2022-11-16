@@ -16,6 +16,7 @@ public:
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
+	virtual bool CancelState() override;
 };
  
 // End casting ability
@@ -26,6 +27,7 @@ public:
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
+	virtual bool CancelState() override;
 };
 /**
  * 
@@ -55,6 +57,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
 	float SlowAmount = 0.5f;
 
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0))
+	float FireballExplosionRadius = 300.f;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UBaseDamageType> DamageType;
 
@@ -80,7 +85,7 @@ public:
 	void CastFireball();
 
 	UFUNCTION()
-	void OnFireballCastHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	void OnFireballCastHit();
 
 	// Wait for ability use animation notify to cast fireball
 	void PlayAbilityAnimation();

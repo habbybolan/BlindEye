@@ -72,6 +72,8 @@ void ASnapperEnemy::BeginPlay()
 	{
 		GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &ASnapperEnemy::SpawnCollisionWithGround);
 	}
+
+	GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &ASnapperEnemy::OnAnimMontageEnded);
 }
 
 void ASnapperEnemy::SpawnCollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
@@ -298,12 +300,10 @@ void ASnapperEnemy::MULT_StopRagdoll_Implementation()
 		TimeForGetup = PlayAnimMontage(GetUpFromBehindMontage);
 	}
 
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = false;
-		GetCharacterMovement()->bServerAcceptClientAuthoritativePosition = false;
-		GetWorldTimerManager().SetTimer(GetupAnimTimerHandle, this, &ASnapperEnemy::FinishGettingUp, TimeForGetup, false);
-	}
+	GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = false;
+	GetCharacterMovement()->bServerAcceptClientAuthoritativePosition = false;
+	GetWorldTimerManager().SetTimer(GetupAnimTimerHandle, this, &ASnapperEnemy::FinishGettingUp, TimeForGetup, false);
+	
 	AlphaBlendWeight = 1;
 	// blend weight loop to smooth out getting up animation
 	GetWorldTimerManager().SetTimer(PhysicsBlendWeightTimerHandle, this, &ASnapperEnemy::SetPhysicsBlendWeight, BlendWeightDelay, true);
@@ -311,8 +311,17 @@ void ASnapperEnemy::MULT_StopRagdoll_Implementation()
 
 void ASnapperEnemy::FinishGettingUp()
 {
-	bGettingUp = false;
-	bRagdolling = false;
+	PlayAnimMontage(GetupRoarAnim);
+}
+
+void ASnapperEnemy::OnAnimMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	// Getup Roar animation
+	if (Montage == GetupRoarAnim)
+	{
+		bGettingUp = false;
+		bRagdolling = false;
+	}
 }
 
 void ASnapperEnemy::SetPhysicsBlendWeight()

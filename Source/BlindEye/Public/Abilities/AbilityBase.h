@@ -54,7 +54,7 @@ public:
 
 	// Try to cancel the abilities execution
 	UFUNCTION()
-	virtual void TryCancelAbility();
+	virtual bool TryCancelAbility();
 
 	/**
 	 * Delay to either the exit state that's a part of the current state, or delay to the next outer state entirely.
@@ -70,7 +70,7 @@ public:
 
 	bool TryConsumeBirdMeter(float BirdMeterAmount);
 	
-	void AbilityStarted();
+	virtual void AbilityStarted();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_AbilityStarted();

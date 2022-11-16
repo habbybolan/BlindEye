@@ -10,9 +10,11 @@
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "Enemies/Burrower/BurrowerTriggerVolume.h"
 #include "Enemies/Hunter/HunterSpawnPoint.h"
+#include "Enemies/Hunter/HunterTutorialSpawnPoint.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
+#include "Gameplay/BlindEyeGameMode.h"
 #include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -175,15 +177,8 @@ void AHunterEnemyController::OnStunStart(float StunDuration)
 
 void AHunterEnemyController::OnStunEnd()
 {
-	if (Hunter)
-	{
-		Hunter->SetFleeing();
-		UWorld* World = GetWorld();
-		if (ensure(World))
-		{
-			World->GetTimerManager().SetTimer(InvisDelayTimerHandle, this, &AHunterEnemyController::StunInvisDelayFinished, 1, false);
-		}
-	}	 
+	bFleeingAfterStun = true;
+	SetFleeing();
 }
 
 void AHunterEnemyController::DespawnHunter()
@@ -195,16 +190,26 @@ void AHunterEnemyController::DespawnHunter()
 	RemoveHunterHelper();
 }
 
-void AHunterEnemyController::StunInvisDelayFinished()
+void AHunterEnemyController::FleeingFinished()
 {
-	DespawnHunter(); 
-	DelayedReturn(AfterStunReturnDelay);
+	// If fleeing after stun
+	if (bFleeingAfterStun)
+	{
+		DespawnHunter(); 
+		DelayedReturn(AfterStunReturnDelay);
+	}
+	// Otherwise fleeing after killing target
+	else
+	{
+		DespawnHunter(); 
+		DelayedReturn(AfterKillingPlayerDelay);
+	}
 }
 
-void AHunterEnemyController::TargetKilledInvisDelayFinished()
+UHunterSpawnPoint* AHunterEnemyController::GetRandHunterSpawnPoint()
 {
-	DespawnHunter(); 
-	DelayedReturn(AfterKillingPlayerDelay);
+	AIsland* RandIsland = IslandManager->GetRandIsland();
+	return RandIsland->GetRandHunterSpawnPoint();
 }
 
 void AHunterEnemyController::MULT_SetCachedHealth_Implementation()
@@ -222,6 +227,16 @@ void AHunterEnemyController::DelayedReturn(float ReturnDelay)
 	{
 		World->GetTimerManager().SetTimer(ReturnDelayTimerHandle, this, &AHunterEnemyController::SpawnHunter, ReturnDelay, false);
 	}
+}
+
+void AHunterEnemyController::SetFleeing()
+{
+	UWorld* World = GetWorld();
+	if (Hunter)
+	{
+		Hunter->SetFleeing();
+		World->GetTimerManager().SetTimer(FleeingTimerHandle, this, &AHunterEnemyController::FleeingFinished, FleeingDuration, false);
+	}	 
 }
 
 void AHunterEnemyController::OnPossess(APawn* InPawn)
@@ -320,9 +335,9 @@ void AHunterEnemyController::OnMarkedPlayerDeath()
 			check(Player);
 			if (!Player->GetIsDead())
 			{
-				Hunter->SetFleeing();
 				SetBTTarget(Player);
-				World->GetTimerManager().SetTimer(InvisDelayTimerHandle, this, &AHunterEnemyController::TargetKilledInvisDelayFinished, 1, false);
+				bFleeingAfterStun = false;
+				SetFleeing();
 			}
 		}
 	}
@@ -335,11 +350,26 @@ void AHunterEnemyController::SpawnHunter()
 
 	bIsHunterAlive = true;
 
-	AIsland* RandIsland = IslandManager->GetRandIsland();
-	UHunterSpawnPoint* RandSpawnPoint = RandIsland->GetRandHunterSpawnPoint();
+	FVector SpawnLocation;
+	FRotator Rotation;
+	// If first spawn, spawn at specific location and start enemy tutorial
+	if (bIsFirstSpawn)
+	{
+		ABlindEyeGameMode* BlindEyeGM = Cast<ABlindEyeGameMode>(UGameplayStatics::GetGameMode(World));
+		BlindEyeGM->StartEnemyTutorial(EEnemyTutorialType::Hunter);
+		bIsFirstSpawn = false;
+
+		AActor* SpawnPoint = UGameplayStatics::GetActorOfClass(World, AHunterTutorialSpawnPoint::StaticClass());
+		check(SpawnPoint);
+		SpawnLocation = SpawnPoint->GetActorLocation();
+		Rotation = SpawnPoint->GetActorRotation();
+	} else
+	{
+		UHunterSpawnPoint* RandSpawnPoint = GetRandHunterSpawnPoint();
+		SpawnLocation = RandSpawnPoint->GetComponentLocation();
+		Rotation = RandSpawnPoint->GetComponentRotation();
+	}
 	
-	FVector SpawnLocation = RandSpawnPoint->GetComponentLocation();
-	FRotator Rotation = RandSpawnPoint->GetComponentRotation();
 	FActorSpawnParameters params; 
 	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 	AHunterEnemy* SpawnedHunter = World->SpawnActor<AHunterEnemy>(HunterType, SpawnLocation, Rotation, params);

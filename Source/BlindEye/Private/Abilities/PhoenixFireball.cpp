@@ -95,22 +95,22 @@ void APhoenixFireball::CastFireball()
 	}
 	
 	FireballCast = world->SpawnActor<APhoenixFireballCast>(FireballCastType, SpawnLocation, vectorRotation.Rotation(), params);
-	FireballCast->GetSphereComponent()->OnComponentHit.AddDynamic(this, &APhoenixFireball::OnFireballCastHit);
+	FireballCast->CustomCollisionDelegate.BindDynamic(this, &APhoenixFireball::OnFireballCastHit);
 }
 
-void APhoenixFireball::OnFireballCastHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void APhoenixFireball::OnFireballCastHit()
 {
+	if (GetLocalRole() < ROLE_Authority) return;
+	
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
-	if (GetLocalRole() < ROLE_Authority) return;
 	if (!FireballCast) return;
 
 	// Area damage from fireball cast colliding / expiring and exploding
 	TArray<FHitResult> OutHits;
 	UKismetSystemLibrary::SphereTraceMultiForObjects(World, FireballCast->GetActorLocation(), FireballCast->GetActorLocation() + FireballCast->GetActorForwardVector() * 5,
-		Damage, ConeTraceObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true);
-	for (FHitResult ExplosionHit : OutHits)
+		FireballExplosionRadius, ConeTraceObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true);
+	for (FHitResult ExplosionHit : OutHits) 
 	{
 		DealWithDamage(ExplosionHit.Actor.Get(), ExplosionHit.ImpactNormal, ExplosionHit, Damage);
 	}
@@ -179,8 +179,7 @@ void FStartCastingAbilityState::RunState(EAbilityInputTypes abilityUsageType)
 	Ability->AbilityStarted();
 	
 	APhoenixFireball* PhoenixFireball = Cast<APhoenixFireball>(Ability);
-	if (!PhoenixFireball) return;
-
+	
 	// blockers
 	PhoenixFireball->Blockers.IsOtherAbilitiesBlocked = true;
 	PhoenixFireball->Blockers.IsMovementSlowBlocked = true;
@@ -196,6 +195,16 @@ void FStartCastingAbilityState::ExitState()
 	Ability->BP_AbilityInnerState(1);
 	Ability->EndCurrState();
 	Ability->UseAbility(EAbilityInputTypes::None);
+}
+
+bool FStartCastingAbilityState::CancelState()
+{
+	FAbilityState::CancelState();
+
+	APhoenixFireball* PhoenixFireball = Cast<APhoenixFireball>(Ability);
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PhoenixFireball->GetOwner());
+	Player->MULT_StopAnimMontage(PhoenixFireball->FireballCastAnimation);
+	return true;
 }
 
 // Casting fireball state *********************
@@ -232,6 +241,16 @@ void FCastFireballState::ExitState()
 {
 	FAbilityState::ExitState();
 	Ability->EndCurrState();
+}
+
+bool FCastFireballState::CancelState()
+{
+	FAbilityState::CancelState();
+
+	APhoenixFireball* PhoenixFireball = Cast<APhoenixFireball>(Ability);
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PhoenixFireball->GetOwner());
+	Player->MULT_StopAnimMontage(PhoenixFireball->FireballCastAnimation);
+	return true;
 }
 
 

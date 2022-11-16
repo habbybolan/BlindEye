@@ -17,6 +17,7 @@ public:
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
+	virtual bool CancelState() override;
 };
 
 // Moving to target state 
@@ -27,16 +28,7 @@ public:
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
-};
-
-// End State
-class BLINDEYE_API FEndState : public FAbilityState
-{ 
-public:
-	FEndState(AAbilityBase* ability);
-	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
-	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
-	virtual void ExitState() override;
+	virtual bool CancelState() override;
 };
 
 /**
@@ -106,6 +98,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category=Movement)
 	TEnumAsByte<EEasingFunc::Type> EasingFunction;
+
+	UPROPERTY(EditDefaultsOnly)
+	TArray<TEnumAsByte<EObjectTypeQuery>> GroundObjectTypes;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* LandingAnim;
 	
 	void ApplyDamage();
 
@@ -122,6 +120,9 @@ public:
 	UFUNCTION(Client, Reliable)
 	void CLI_RemoveTarget();
 
+	FTimerHandle UpdateTargetTimerHandle;
+	FTimerHandle CheckIsLandedTimerHandle;
+
 protected:
 
 	FVector StartingPosition; 
@@ -129,7 +130,11 @@ protected:
 	float CalculatedDuration;
 
 	void UpdateTargetPosition();
-	FTimerHandle UpdateTargetTimerHandle;
+	
+	UFUNCTION()
+	void CheckIsLanded(); 
+	bool CheckIsLandedHelper();
+	
 
 	FVector CalculateTargetPosition();
 
@@ -138,6 +143,10 @@ protected:
 	
 	FTimerHandle UpdatePlayerTimerHandle; 
 	float CurrDuration = 0;
+
+	void SetAsLanded();
+	UFUNCTION()
+	void SetLandingAnimFinished(UAnimMontage* Montage, bool bInterrupted);
 
 	virtual void EndAbilityLogic() override;
 

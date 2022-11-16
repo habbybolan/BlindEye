@@ -26,41 +26,21 @@ void ABasicAttackSmallFlock::BeginPlay()
 	Super::BeginPlay();
 
 	BaseSeekingStrength = TargetStrength;
-
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		FVector ViewportLocation;
-		FRotator ViewportRotation;
-		GetInstigator()->GetController()->GetPlayerViewPoint(OUT ViewportLocation, OUT ViewportRotation);
-		FVector InstigatorFwd =  ViewportRotation.Vector() * TargetDistanceFromInstigator;
-
-		FVector TargetLocation;
-		FHitResult OutHit;
-		if (UKismetSystemLibrary::LineTraceSingleForObjects(world, ViewportLocation, ViewportLocation + InstigatorFwd, SpawnLineCastObjectTypes,
-			false, TArray<AActor*>(), EDrawDebugTrace::None, OutHit, true))
-		{
-			TargetLocation = OutHit.Location;
-		} else
-		{
-			TargetLocation = ViewportLocation + InstigatorFwd;
-		}
-
-		TArray<FVector> TargetLocations;
-		TargetLocations.Add(TargetLocation);
+	TArray<FVector> TargetPoints;
+	TargetPoints.Add(InitialTarget);
 	
-		if (float DistToPlayer = FVector::Distance(TargetLocation, GetInstigator()->GetActorLocation()) < DistToPlayerToStartShrinking)
-		{
-			FVector NextTargetLocation = TargetLocation + GetInstigator()->GetActorForwardVector() * (DistToPlayerToStartShrinking - DistToPlayer);
-			TargetLocations.Add(NextTargetLocation);
-		}
-		
-		MULT_SetTargets(TargetLocations);
+	// Create another target last target too close to player to force certain distance bird travels
+	if (float DistToPlayer = FVector::Distance(InitialTarget, GetInstigator()->GetActorLocation()) < DistToPlayerToStartShrinking)
+	{
+		FVector NextTargetLocation = InitialTarget + GetInstigator()->GetActorForwardVector() * (DistToPlayerToStartShrinking - DistToPlayer);
+		TargetPoints.Add(NextTargetLocation);
 	}
 
+	SetTargets(TargetPoints);
 	world->GetTimerManager().SetTimer(FlockCheckTimerHandle, this, &ABasicAttackSmallFlock::FlockCheck, FlockCheckDelay, true);
 }
-
-void ABasicAttackSmallFlock::MULT_SetTargets_Implementation(const TArray<FVector>& TargetLocation)
+ 
+void ABasicAttackSmallFlock::SetTargets(const TArray<FVector>& TargetLocation)
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
@@ -72,7 +52,9 @@ void ABasicAttackSmallFlock::MULT_SetTargets_Implementation(const TArray<FVector
 	{
 		TargetList.Add(world->SpawnActor<AActor>(TargetType, TargetLoc, FRotator::ZeroRotator, params));
 	}
-	TryStartFlock();
+	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
+	FVector HandLocation = OwnerCharacter->GetMesh()->GetBoneLocation(BoneSpawnLocation);
+	TryStartFlock(HandLocation);
 }
 
 void ABasicAttackSmallFlock::FlockCheck()
@@ -177,11 +159,6 @@ void ABasicAttackSmallFlock::CheckShrinking()
 			boid->SetActorScale3D(FVector::OneVector * scale);
 		}
 	}
-}
-
-void ABasicAttackSmallFlock::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
 void ABasicAttackSmallFlock::SendEachBoidUp()

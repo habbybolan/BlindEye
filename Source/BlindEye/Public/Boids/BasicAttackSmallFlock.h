@@ -16,17 +16,11 @@ class BLINDEYE_API ABasicAttackSmallFlock : public AFlock
 
 public:
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float TargetDistanceFromInstigator = 2000.f;
-
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AActor> TargetType;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<EObjectTypeQuery>> DamageObjectTypes;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly) 
-	TArray<TEnumAsByte<EObjectTypeQuery>> SpawnLineCastObjectTypes;
 
 	UPROPERTY(EditDefaultsOnly)
 	float UpForceOnTargetReached = 100000.f;
@@ -45,6 +39,10 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
 	float MovementPercentAfterReachingTarget = 0.75f;
+
+	FName BoneSpawnLocation;
+
+	FVector InitialTarget;
 
 protected:
 	virtual void Tick(float DeltaSeconds) override;
@@ -70,9 +68,5 @@ protected:
 	UPROPERTY()
 	bool bHasReachedTarget = false;
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SetTargets(const TArray<FVector>& TargetLocation);
-
-	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
-	
+	void SetTargets(const TArray<FVector>& TargetLocation);
 };

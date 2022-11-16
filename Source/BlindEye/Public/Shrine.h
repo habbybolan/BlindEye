@@ -55,6 +55,8 @@ public:
 
 	virtual FVector GetIndicatorPosition() override;
  
+	void StartWaitingForPlayersToInteract();
+ 
 protected:
 	
 	virtual void BeginPlay() override;
@@ -70,6 +72,7 @@ protected:
 
 	FTimerHandle ChargeUpdatingTimerHandle;
 	float ChargeUpdatingDelay = 0.1f;
+	
 	UFUNCTION()
 	void UpdateChargeUI();
 

@@ -30,7 +30,7 @@ public:
 
 	virtual bool GetIsDead() override;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float DestroyDelay = 1;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
@@ -42,6 +42,9 @@ public:
 	virtual void ApplyPulse(ABlindEyePlayerCharacter* PlayerEffectToApply);
 
 	void SetHealthbarVisibility(bool IsVisible);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_PlayAnimMontage(UAnimMontage* AnimToPlay);
 
 protected:
 	// Called when the game starts or when spawned

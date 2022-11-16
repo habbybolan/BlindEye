@@ -14,7 +14,6 @@ void UANS_HunterChargedJump::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimS
 
 	if (!Hunter.IsValid()) return;
  
-	PerformSwing(TEXT("RightHand"), TEXT("RightForeArm"), MeshComp);
 	PerformSwing(TEXT("LeftHand"), TEXT("LeftForeArm"), MeshComp);
 }
 

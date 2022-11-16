@@ -11,15 +11,12 @@ UAbilityManager::UAbilityManager()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 	UniqueAbilityTypes.SetNum(2);
 }
  
 void UAbilityManager::SER_UsedAbility_Implementation(EAbilityTypes abilityType, EAbilityInputTypes abilityUsageType)
 {
-	// prevent using ability if another one activated and blocking other abilities
-	// TODO: Check if ability being used is blocking. If not, cancel ability 
-
 	if (abilityType == EAbilityTypes::Basic)
 	{
 		if (IsAbilityUnavailable(BasicAttack)) return;
@@ -130,6 +127,14 @@ void UAbilityManager::RefreshAllCooldowns(float CooldownRefreshAmount)
 	}
 }
 
+void UAbilityManager::TryCancelCurrentAbility()
+{
+	if (CurrUsedAbility != nullptr)
+	{
+		CurrUsedAbility->TryCancelAbility();
+	}
+}
+
 
 // Called when the game starts
 void UAbilityManager::BeginPlay()
@@ -137,11 +142,6 @@ void UAbilityManager::BeginPlay()
 	Super::BeginPlay();
 
 	SetupAbilities();
-}
-
-void UAbilityManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
 void UAbilityManager::SetupAbilities()
@@ -198,20 +198,33 @@ void UAbilityManager::AbilityEnded()
 
 bool UAbilityManager::IsAbilityUnavailable(AAbilityBase* AbilityToUse) const
 {
-	// Allow using if same ability currently in use 
-	if (CurrUsedAbility == AbilityToUse)
-		return false;
-	
-	// If ability being used but not blocking
-	if (CurrUsedAbility != nullptr && !CurrUsedAbility->Blockers.IsOtherAbilitiesBlocked)
+	ABlindEyePlayerCharacter* OwningPlayer = Cast<ABlindEyePlayerCharacter>(GetOwner());
+
+	// Try to prevent using ability if hunter marked if possible
+	if (OwningPlayer->GetHealthComponent()->GetIsHunterDebuff())
 	{
-		CurrUsedAbility->TryCancelAbility();
 		return false;
 	}
 	
+	// Allow using if same ability currently in use 
+	if (CurrUsedAbility == AbilityToUse)
+	{
+		return false;  
+	}
+
+	// If curr ability is basic attack, cancel that attack
+	if (CurrUsedAbility == BasicAttack)
+	{
+		CurrUsedAbility->TryCancelAbility();
+	}
+	
+	if (OwningPlayer->IsActionsBlocked() && CurrUsedAbility == nullptr)
+	{
+		return true;
+	}
+	
 	return	(AbilityToUse->GetIsOnCooldown() == true) ||
-			(CurrUsedAbility != nullptr &&
-			CurrUsedAbility->Blockers.IsOtherAbilitiesBlocked);
+			(CurrUsedAbility != nullptr);
 }
 
 void UAbilityManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

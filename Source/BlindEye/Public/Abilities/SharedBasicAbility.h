@@ -45,6 +45,8 @@ class BLINDEYE_API ASharedBasicAbility : public AAbilityBase
 public:
 	ASharedBasicAbility();
 
+	virtual void AbilityStarted() override;
+
 	void SetComboFinished();
 
 	void SetLeaveAbilityTimer();
@@ -89,10 +91,18 @@ public:
 	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
 	float Charge3MovementSlow = 0.45;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float TargetDistanceFromInstigator = 2000.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly) 
+	TArray<TEnumAsByte<EObjectTypeQuery>> SpawnLineCastObjectTypes;
+
 	uint8 CurrCharge = 0;
 	
 	UFUNCTION(Server, Reliable)
-	void SpawnFlock();
+	void SER_SpawnFlock();
+
+	
 
 	bool bIsAttacking = false;
 
@@ -111,10 +121,16 @@ protected:
 	FTimerHandle ResetAbilityTimerHandle;
 	
 
-	virtual void TryCancelAbility() override;
+	virtual bool TryCancelAbility() override;
 	virtual void EndAbilityLogic() override;
+ 
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_SpawnFlockHelper(FName BoneSpawnLocation, TSubclassOf<ABasicAttackSmallFlock> FlockType, FVector StartTargetLoc);
 
-	
+	FVector CalcFirstFlockingTarget();
+
+	UFUNCTION()
+	void TryCancelAbilityHelper();
 };
 
 

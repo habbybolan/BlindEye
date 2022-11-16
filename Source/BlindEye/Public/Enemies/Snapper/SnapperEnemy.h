@@ -51,6 +51,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=Ragdoll)
 	float RagdollDuration = 2.0f;
 
+	UPROPERTY(EditDefaultsOnly, Category=Ragdoll)
+	UAnimMontage* GetupRoarAnim;
+
 	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0.1, ClampMax=1), Category=Spawning)
 	float GravityScaleAlteredOnSpawn = 0.25f;
 
@@ -93,7 +96,7 @@ protected:
 	FTimerHandle GetupAnimTimerHandle;
 
 	float AlphaBlendWeight = 1;
-
+	
 	void BeginStopRagdollTimer();
 
 	UFUNCTION(NetMulticast, Reliable)
@@ -120,6 +123,9 @@ protected:
 	float BlendWeightDelay = 0.02f;
 
 	bool IsLayingOnFront();
+
+	UFUNCTION()
+	void OnAnimMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 	virtual void OnDeath(AActor* ActorThatKilled) override;
 
