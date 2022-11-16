@@ -17,7 +17,7 @@ public:
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
-	virtual void CancelState() override;
+	virtual bool CancelState() override;
 };
 
 // Moving to target state 
@@ -28,7 +28,7 @@ public:
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
-	virtual void CancelState() override;
+	virtual bool CancelState() override;
 };
 
 /**

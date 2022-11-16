@@ -197,13 +197,14 @@ void FStartCastingAbilityState::ExitState()
 	Ability->UseAbility(EAbilityInputTypes::None);
 }
 
-void FStartCastingAbilityState::CancelState()
+bool FStartCastingAbilityState::CancelState()
 {
 	FAbilityState::CancelState();
 
 	APhoenixFireball* PhoenixFireball = Cast<APhoenixFireball>(Ability);
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PhoenixFireball->GetOwner());
 	Player->CLI_StopAnimation(0, PhoenixFireball->FireballCastAnimation);
+	return true;
 }
 
 // Casting fireball state *********************
@@ -234,8 +235,6 @@ void FCastFireballState::RunState(EAbilityInputTypes abilityUsageType)
 	
 	PhoenixFireball->CastFireball();
 	PhoenixFireball->CastFireCone();
-
-	Ability->TryCancelAbility();
 }
 
 void FCastFireballState::ExitState()
@@ -244,13 +243,14 @@ void FCastFireballState::ExitState()
 	Ability->EndCurrState();
 }
 
-void FCastFireballState::CancelState()
+bool FCastFireballState::CancelState()
 {
 	FAbilityState::CancelState();
 
 	APhoenixFireball* PhoenixFireball = Cast<APhoenixFireball>(Ability);
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PhoenixFireball->GetOwner());
 	Player->CLI_StopAnimation(0, PhoenixFireball->FireballCastAnimation);
+	return true;
 }
 
 

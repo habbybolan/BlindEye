@@ -313,7 +313,7 @@ void FAimingStartState::ExitState()
 	Ability->UseAbility(EAbilityInputTypes::None);
 }
 
-void FAimingStartState::CancelState()
+bool FAimingStartState::CancelState()
 {
 	FAbilityState::CancelState();
 	
@@ -326,6 +326,7 @@ void FAimingStartState::CancelState()
 	{
 		World->GetTimerManager().ClearTimer(Rush->UpdateTargetTimerHandle);
 	}
+	return true;
 }
 
 // Moving to target state ******************
@@ -359,7 +360,7 @@ void FMovingState::ExitState()
 	Ability->EndCurrState();
 }
 
-void FMovingState::CancelState()
+bool FMovingState::CancelState()
 {
 	FAbilityState::CancelState();
 
@@ -370,4 +371,5 @@ void FMovingState::CancelState()
 	{
 		World->GetTimerManager().ClearTimer(Rush->CheckIsLandedTimerHandle);
 	}
+	return true;
 }

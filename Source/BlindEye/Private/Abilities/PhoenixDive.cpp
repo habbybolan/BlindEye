@@ -41,7 +41,7 @@ void APhoenixDive::LaunchPlayerUpwards()
 	if (!world) return;
 	world->GetTimerManager().SetTimer(MaxHangingTimerHandle, this, &APhoenixDive::hangingInAirExpired, MaxTimeHanging, false);
 }
-
+ 
 void APhoenixDive::HangInAir()
 {
 	BP_AbilityInnerState(1);
@@ -175,7 +175,7 @@ void APhoenixDive::UseAnimNotifyExecuted()
 	AbilityStates[CurrState]->ExitState();
 }
 
-void APhoenixDive::PlayLandingSectionOfAnim()
+void APhoenixDive::PlayLandingSectionOfAnim() 
 {
 	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
@@ -312,6 +312,9 @@ void APhoenixDive::UnsubscribeToGroundCollision()
 void APhoenixDive::EndAbilityLogic()
 {
 	Super::EndAbilityLogic();
+
+	ACharacter* Character = Cast<ACharacter>(GetInstigator());
+	Character->GetCapsuleComponent()->OnComponentHit.Remove(this, "MULT_CollisionWithGround");
 }
 
 // **** States *******
@@ -357,6 +360,16 @@ void FStartAbilityState::ExitState()
 	Ability->UseAbility(EAbilityInputTypes::None);
 }
 
+bool FStartAbilityState::CancelState()
+{
+	FAbilityState::CancelState();
+
+	APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability);
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Ability->GetOwner());
+	Player->CLI_StopAnimation(0, PhoenixDive->DiveAbilityAnim);
+	return true;
+}
+
 // Jumping State *********************
 
 FJumpState::FJumpState(AAbilityBase* ability) : FAbilityState(ability) {}
@@ -395,6 +408,12 @@ void FJumpState::ExitState()
 	Ability->UseAbility(EAbilityInputTypes::None);
 }
 
+bool FJumpState::CancelState()
+{
+	FAbilityState::CancelState();
+	return true;
+}
+
 // In Air State *********************
 
 FInAirState::FInAirState(AAbilityBase* ability) : FAbilityState(ability) {}
@@ -417,15 +436,36 @@ void FInAirState::RunState(EAbilityInputTypes abilityUsageType)
 	Ability->Blockers.IsMovementBlocked = true;
 	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 
-	PhoenixDive->HangInAirTimer();
+	PhoenixDive->HangInAirTimer(); 
 } 
 
-void FInAirState::ExitState()
+void FInAirState::ExitState() 
 {
 	FAbilityState::ExitState();
 	if (!Ability) return;
 	Ability->EndCurrState();
 	Ability->UseAbility(EAbilityInputTypes::None);
+}
+
+bool FInAirState::CancelState()
+{
+	FAbilityState::CancelState(); 
+
+	APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability);
+	// clear timers for stopping at certain height and launching to ground
+	UWorld* World = Ability->GetWorld();
+	if (World)
+	{
+		World->GetTimerManager().ClearTimer(PhoenixDive->MaxHangingTimerHandle);
+		World->GetTimerManager().ClearTimer(PhoenixDive->HangInAirTimerHandle);
+	}
+	// Update player's state back to normal
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Ability->GetOwner());
+	Player->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+	Player->GetCharacterMovement()->StopMovementImmediately();
+	Player->MULT_StopAnimMontage(PhoenixDive->DiveAbilityAnim);
+	Ability->BP_AbilityInnerState(2);
+	return true;
 }
 
 // Hanging State **********
@@ -446,12 +486,19 @@ void FHangingState::TryEnterState(EAbilityInputTypes abilityUsageType)
 
 void FHangingState::RunState(EAbilityInputTypes abilityUsageType)
 {
+	// prevent inputs in run state
 	if (abilityUsageType > EAbilityInputTypes::None) return;
 	// Launch to ground
 	FAbilityState::RunState(abilityUsageType);
 	if (!Ability) return;
 	APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability);
 	if (!PhoenixDive) return;
+
+	// remove expiration timer
+	if (UWorld* World = Ability->GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(PhoenixDive->MaxHangingTimerHandle);
+	}
 
 	Ability->Blockers.IsMovementBlocked = true;
 	Ability->Blockers.IsOtherAbilitiesBlocked = true;
@@ -466,6 +513,33 @@ void FHangingState::ExitState()
 	if (!Ability) return;
 	Ability->EndCurrState();
 	Ability->UseAbility(EAbilityInputTypes::None);
+}
+
+bool FHangingState::CancelState()
+{
+	// Hanging in air state
+	if (CurrInnerState == EInnerState::None)
+	{
+		FAbilityState::CancelState();
+		
+		APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability);
+		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Ability->GetInstigator());
+		Player->GetCharacterMovement()->GravityScale = PhoenixDive->CachedGravityScale;
+		Player->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+		
+		Player->MULT_StopAnimMontage(PhoenixDive->DiveAbilityAnim);
+		PhoenixDive->CLI_StopGroundTarget();
+		UWorld* World = Ability->GetWorld();
+		if (World)
+		{
+			World->GetTimerManager().ClearTimer(PhoenixDive->MaxHangingTimerHandle);
+		}
+		Ability->SetOnCooldown();
+		Ability->BP_AbilityInnerState(2);
+		return true;
+	}
+	// prevent cancellation when launching to ground
+	return false;
 }
 
 // Colliding with ground state **********
@@ -484,7 +558,7 @@ void FHitGroundState::RunState(EAbilityInputTypes abilityUsageType)
 	if (abilityUsageType > EAbilityInputTypes::None) return;
 	
 	FAbilityState::RunState(abilityUsageType);
-
+ 
 	if (!Ability) return;
 	Ability->Blockers.IsMovementBlocked = true;
 	Ability->Blockers.IsOtherAbilitiesBlocked = true;
@@ -499,6 +573,16 @@ void FHitGroundState::ExitState()
 	FAbilityState::ExitState();
 	if (Ability == nullptr) return;
 	Ability->EndCurrState();
+}
+
+bool FHitGroundState::CancelState()
+{
+	FAbilityState::CancelState();
+
+	APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability);
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PhoenixDive->GetOwner());
+	Player->MULT_StopAnimMontage(PhoenixDive->DiveAbilityAnim);
+	return true;
 }
 
 

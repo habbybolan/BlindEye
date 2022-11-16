@@ -59,11 +59,12 @@ void ASharedBasicAbility::EndAnimNotifyExecuted()
 	AbilityStates[CurrState]->ExitState();
 }
 
-void ASharedBasicAbility::TryCancelAbility()
+bool ASharedBasicAbility::TryCancelAbility()
 {
 	Super::TryCancelAbility();
 	AnimNotifyDelegate.Unbind();
 	bIsAttacking = false;
+	return true;
 }
 
 void ASharedBasicAbility::EndAbilityLogic()
@@ -94,6 +95,11 @@ FVector ASharedBasicAbility::CalcFirstFlockingTarget()
 		TargetLocation = ViewportLocation + InstigatorFwd;
 	}
 	return TargetLocation;
+}
+
+void ASharedBasicAbility::TryCancelAbilityHelper()
+{
+	TryCancelAbility();
 }
 
 void ASharedBasicAbility::SER_SpawnFlock_Implementation()
@@ -146,7 +152,7 @@ void ASharedBasicAbility::SetLeaveAbilityTimer()
 	if (!world) return;
 
 	world->GetTimerManager().ClearTimer(ResetAbilityTimerHandle);
-	world->GetTimerManager().SetTimer(ResetAbilityTimerHandle, this, &AAbilityBase::TryCancelAbility, AbilityCancelDelay, false);
+	world->GetTimerManager().SetTimer(ResetAbilityTimerHandle, this, &ASharedBasicAbility::TryCancelAbilityHelper, AbilityCancelDelay, false);
 } 
 
 void ASharedBasicAbility::ClearLeaveAbilityTimer()

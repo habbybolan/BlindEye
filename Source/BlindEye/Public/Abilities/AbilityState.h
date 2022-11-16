@@ -37,7 +37,7 @@ public:
 	virtual void ExitState();
 	
 	// Children can add functionality for cleaning up the state
-	virtual void CancelState();
+	virtual bool CancelState();
 
 	// Only allow input being passed to TryEnter or Running states
 	virtual void HandleInput(EAbilityInputTypes abilityUsageType);

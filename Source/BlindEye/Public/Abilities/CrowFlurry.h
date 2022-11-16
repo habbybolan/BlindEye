@@ -14,7 +14,7 @@ public:
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
-	virtual void CancelState() override;
+	virtual bool CancelState() override;
 };
 
 class BLINDEYE_API FCancelCrowFlurryState : public FAbilityState
@@ -24,7 +24,7 @@ public:
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
-	virtual void CancelState() override;
+	virtual bool CancelState() override;
 };
 
 class BLINDEYE_API FEndCrowFlurryState : public FAbilityState
@@ -34,7 +34,7 @@ public:
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
-	virtual void CancelState() override;
+	virtual bool CancelState() override;
 };
 
 /**

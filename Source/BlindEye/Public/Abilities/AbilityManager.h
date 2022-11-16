@@ -65,6 +65,7 @@ public:
 	
 	void RefreshAllCooldowns(float CooldownRefreshAmount);
 
+	UFUNCTION(BlueprintCallable)
 	void TryCancelCurrentAbility();
 
 protected:

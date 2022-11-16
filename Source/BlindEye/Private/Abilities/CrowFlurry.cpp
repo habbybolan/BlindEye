@@ -192,13 +192,14 @@ void FPerformCrowFlurryState::ExitState()
 	Ability->UseAbility(EAbilityInputTypes::None);
 }
 
-void FPerformCrowFlurryState::CancelState()
+bool FPerformCrowFlurryState::CancelState()
 {
 	FAbilityState::CancelState();
 
 	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(CrowFlurry->GetOwner());
 	Player->CLI_StopAnimation(0, CrowFlurry->CrowFlurryAnimation);
+	return true;
 }
 
 // State to Start actually using the crow flurry *****************
@@ -235,7 +236,7 @@ void FCancelCrowFlurryState::ExitState()
 	Ability->UseAbility(EAbilityInputTypes::None);
 }
 
-void FCancelCrowFlurryState::CancelState()
+bool FCancelCrowFlurryState::CancelState()
 {
 	FAbilityState::CancelState();
 	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);
@@ -250,6 +251,7 @@ void FCancelCrowFlurryState::CancelState()
 		World->GetTimerManager().ClearTimer(CrowFlurry->RotateFlurryTimerHandle);
 		World->GetTimerManager().ClearTimer(CrowFlurry->DurationTimerHandle);
 	}
+	return true;
 	
 }
 
@@ -280,13 +282,14 @@ void FEndCrowFlurryState::ExitState()
 	Ability->EndCurrState();
 }
 
-void FEndCrowFlurryState::CancelState()
+bool FEndCrowFlurryState::CancelState()
 {
 	FAbilityState::CancelState();
 
 	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(CrowFlurry->GetOwner());
 	Player->CLI_StopAnimation(0, CrowFlurry->CrowFlurryAnimation);
+	return true;
 }
 
 
