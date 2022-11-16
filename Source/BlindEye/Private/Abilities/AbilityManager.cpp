@@ -127,6 +127,14 @@ void UAbilityManager::RefreshAllCooldowns(float CooldownRefreshAmount)
 	}
 }
 
+void UAbilityManager::TryCancelCurrentAbility()
+{
+	if (CurrUsedAbility != nullptr)
+	{
+		CurrUsedAbility->TryCancelAbility();
+	}
+}
+
 
 // Called when the game starts
 void UAbilityManager::BeginPlay()

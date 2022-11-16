@@ -982,6 +982,9 @@ void ABlindEyePlayerCharacter::FellOutOfWorld(const UDamageType& dmgType)
 		// Apply damage
 		UGameplayStatics::ApplyPointDamage(this, DamageFallingOffMap, FVector::ZeroVector, FHitResult(),
 		GetController(), this, UDebugDamageType::StaticClass());
+
+		// Cancel current ability to prevent deadlocking
+		AbilityManager->TryCancelCurrentAbility();
 	}
 	if (GetPlayerState()) 
 	{

@@ -65,6 +65,8 @@ public:
 	
 	void RefreshAllCooldowns(float CooldownRefreshAmount);
 
+	void TryCancelCurrentAbility();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
