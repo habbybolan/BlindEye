@@ -196,6 +196,11 @@ void ABlindEyePlayerCharacter::MULT_OnMarked_Implementation(AActor* MarkedPlayer
 {
 	if (MarkType == EMarkerType::Hunter)
 	{
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			AbilityManager->TryCancelCurrentAbility();
+		}
+		
 		if (!IsLocallyControlled())
 		{
 			// get owning player to notify hunter marked
