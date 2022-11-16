@@ -78,40 +78,6 @@ ABlindEyePlayerCharacter::ABlindEyePlayerCharacter(const FObjectInitializer& Obj
 	Team = TEAMS::Player;
 }
 
-void ABlindEyePlayerCharacter::FellOutOfWorld(const UDamageType& dmgType)
-{
-	// reset player to a playerStart on killz reached
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		UWorld* world = GetWorld();
-		if (world == nullptr) return;
-
-		AActor* ActorPlayerStart = UGameplayStatics::GetActorOfClass(world, APlayerStart::StaticClass());
-		SetActorLocation(ActorPlayerStart->GetActorLocation());
-
-		// TODO: Play animation and take damage
-		MULT_PlayAnimMontage(TeleportingBackToShrineAnim);
-		if (GetPlayerState()) 
-		{
-			ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState());
-			BlindEyePS->bActionsBlocked = true;
-		}
-	}
-}
-
-void ABlindEyePlayerCharacter::AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted)
-{
-	// If fell off world animation ended, then return control back to player
-	if (Montage == TeleportingBackToShrineAnim)
-	{
-		if (GetPlayerState())
-		{
-			ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState());
-			BlindEyePS->bActionsBlocked = false;
-		}
-	}
-}
-
 void ABlindEyePlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -997,6 +963,44 @@ bool ABlindEyePlayerCharacter::GetIsHunterAlwaysVisible()
 		}
 	}
 	return false;
+}
+
+void ABlindEyePlayerCharacter::FellOutOfWorld(const UDamageType& dmgType)
+{
+	// reset player to a playerStart on killz reached
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		UWorld* world = GetWorld();
+		if (world == nullptr) return;
+
+		AActor* ActorPlayerStart = UGameplayStatics::GetActorOfClass(world, APlayerStart::StaticClass());
+		SetActorLocation(ActorPlayerStart->GetActorLocation());
+
+		// TODO: Play animation and take damage
+		MULT_PlayAnimMontage(TeleportingBackToShrineAnim);
+
+		// Apply damage
+		UGameplayStatics::ApplyPointDamage(this, DamageFallingOffMap, FVector::ZeroVector, FHitResult(),
+		GetController(), this, UDebugDamageType::StaticClass());
+	}
+	if (GetPlayerState()) 
+	{
+		ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState());
+		BlindEyePS->bActionsBlocked = true;
+	}
+}
+
+void ABlindEyePlayerCharacter::AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	// If fell off world animation ended, then return control back to player
+	if (Montage == TeleportingBackToShrineAnim)
+	{
+		if (GetPlayerState())
+		{
+			ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState());
+			BlindEyePS->bActionsBlocked = false;
+		}
+	}
 }
 
 void ABlindEyePlayerCharacter::HealthUpdated()

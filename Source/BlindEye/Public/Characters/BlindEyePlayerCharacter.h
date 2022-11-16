@@ -110,6 +110,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* TeleportingBackToShrineAnim;
 
+	UPROPERTY(EditDefaultsOnly)
+	float DamageFallingOffMap = 20.f;
+
 	virtual float GetHealth() override;
 	virtual void SetHealth(float NewHealth) override;
 	
