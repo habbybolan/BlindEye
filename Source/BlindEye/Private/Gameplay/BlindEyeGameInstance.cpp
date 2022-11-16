@@ -8,6 +8,10 @@
 #include "../../Engine/Plugins/Online/OnlineSubsystem/Source/Public/OnlineSubsystemTypes.h"
 #include "Kismet/GameplayStatics.h"
 
+
+const static FName SESSION_NAME = TEXT("BlindEyeGame");
+const static FName SERVER_NAME_SETTINGS_KEY = TEXT("ServerName");
+
 void UBlindEyeGameInstance::LoadMainMenu()
 {
 	UWorld* World = GetWorld();
@@ -26,7 +30,7 @@ void UBlindEyeGameInstance::Init()
 	if (SessionInterface.IsValid()) 
 	{
 		// Subscribe to minimum events to handling sessions
-		//SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UBlindEyeGameInstance::OnCreateSessionComplete);
+		SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UBlindEyeGameInstance::OnCreateSessionComplete);
 		//SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UBlindEyeGameInstance::OnDestroySessionComplete);
 		SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UBlindEyeGameInstance::OnFindSessionsComplete);     
 		SessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UBlindEyeGameInstance::OnJoinSessionsComplete);
@@ -35,18 +39,67 @@ void UBlindEyeGameInstance::Init()
 
 void UBlindEyeGameInstance::Host(FString ServerName)
 {
+	DesiredServerName = ServerName;
+
 	if (SessionInterface.IsValid())
 	{
-		FOnlineSessionSettings SessionSettings;
-		SessionSettings.bIsLANMatch = false;  
-		SessionSettings.NumPublicConnections = 2;
-		SessionSettings.bShouldAdvertise = true;
-		SessionSettings.bUsesPresence = true;
-		// TODO:
-		SessionSettings.Set("SERVER_NAME_SETTINGS_KEY", "DesiredServerName",  EOnlineDataAdvertisementType::DontAdvertise);
-		SessionInterface->CreateSession(0, FName(*ServerName), SessionSettings);
+		// Checks for an existing session
+		auto ExistingSession = SessionInterface->GetNamedSession(SESSION_NAME);
+
+		if (ExistingSession != nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[UCoopPuzzleGameInstance::Host] There is an existing session about to remove the current one"));			
+
+			SessionInterface->DestroySession(SESSION_NAME);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[UCoopPuzzleGameInstance::Host] About to create session"));			
+
+			// Create a new session
+			CreateSession();
+			
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[UCoopPuzzleGameInstance::Host] SessionInterface invalid"));
 	}
 }
+
+void UBlindEyeGameInstance::OnCreateSessionComplete(FName SessionName, bool Success)
+{
+	// It will not be success if there are more than one session with the same name already created
+	if (!Success)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[UCoopPuzzleGameInstance::OnCreateSessionComplete] UNSUCESS"));
+		return;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("[UNetTileMazeGameInstance::OnCreateSessionComplete] SUCESS SessionName: %s"), *SessionName.ToString());
+
+	// Teardown Menu and change levels
+	if (MainMenu != nullptr)
+	{
+		MainMenu->TearDown();
+	}
+
+	UEngine* Engine = GetEngine();
+
+	if (Engine == nullptr) return;
+
+	Engine->AddOnScreenDebugMessage(0, 2, FColor::Green, TEXT("[OnCreateSessionComplete::Host]"));
+
+	UE_LOG(LogTemp, Warning, TEXT("[OnCreateSessionComplete::OnCreateSessionComplete] HOST TRAVEL TO LOBBY"));
+
+	UWorld* World = GetWorld();
+
+	if (World == nullptr) return;
+ 
+	//bUseSeamlessTravel = true;
+	World->ServerTravel("/Game/Maps/WhiteBox?listen");
+}
+
 
 void UBlindEyeGameInstance::JoinSession(uint32 Index)
 {
@@ -118,3 +171,30 @@ void UBlindEyeGameInstance::OnJoinSessionsComplete(FName SessionName, EOnJoinSes
 	PlayerController->ClientTravel(Url, ETravelType::TRAVEL_Absolute);
 }
 
+void UBlindEyeGameInstance::CreateSession()
+{
+	UE_LOG(LogTemp, Warning, TEXT("[UCoopPuzzleGameInstance::CreateSession] Creating %s"), *SESSION_NAME.ToString());
+
+	if (SessionInterface.IsValid())
+	{
+		FOnlineSessionSettings SessionSettings;
+
+		// Switch between bIsLANMatch when using NULL subsystem
+		if (IOnlineSubsystem::Get()->GetSubsystemName().ToString() == "NULL")
+		{
+			SessionSettings.bIsLANMatch = true;
+		}
+		else
+		{
+			SessionSettings.bIsLANMatch = false;
+		}
+
+		// Number of sessions
+		SessionSettings.NumPublicConnections = 2;
+		SessionSettings.bShouldAdvertise = true;
+		SessionSettings.bUsesPresence = true;
+		SessionSettings.Set(SERVER_NAME_SETTINGS_KEY, DesiredServerName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+
+		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings);
+	}
+}

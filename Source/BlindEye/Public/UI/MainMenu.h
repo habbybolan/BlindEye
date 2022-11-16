@@ -20,6 +20,8 @@ struct FServerData;
 class ISessionMenuInterface;
 class USessionMenuInterface;
 class UButton;
+class USessionRow;
+
 /**
  * 
  */
@@ -33,19 +35,32 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UButton* NewSessionButton;
 
-	UPROPERTY(meta = (BindWidget))
-	UButton* JoinButton;
-
-	uint32 SelectedScrollIndex = 0;
-
 	UPROPERTY()
 	TScriptInterface<ISessionMenuInterface> SessionMenuInterface;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<USessionRow> SessionRowType;
+
 	virtual void NativeConstruct() override;
+
+	virtual bool Initialize() override;
 
 	void InitializeSessionList(TArray<FServerData> ServerData);
 
+	UFUNCTION()
 	void OnNewSessionPressed();
+	UFUNCTION()
 	void OnJoinSelectedSession();
+
+	void TearDown();
+
+protected:
+	UPROPERTY(meta = (BindWidget))
+	class UButton* JoinSelectedSessionButton;
+
+	UPROPERTY(meta = (BindWidget))
+	class UScrollBox* ScrollSessionList;
+	
+	TOptional<uint32> SelectedScrollIndex = 0;
 	
 };

@@ -25,4 +25,8 @@ public:
 	virtual void Host(FString ServerName) = 0;
 	virtual void JoinSession(uint32 Index) = 0;
 	virtual void EndSession() = 0;
+
+	virtual void OpenSessionListMenu() = 0;
+
+	FString DesiredServerName;
 };

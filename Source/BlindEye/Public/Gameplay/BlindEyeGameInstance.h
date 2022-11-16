@@ -39,11 +39,13 @@ public:
 	virtual void JoinSession(uint32 Index) override;
 	virtual void EndSession() override;
 
-	void OpenSessionListMenu();
+	virtual void OpenSessionListMenu() override;
 
 	void OnFindSessionsComplete(bool success);
-
+	void OnCreateSessionComplete(FName SessionName, bool Success);
 	void OnJoinSessionsComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
+
+	void CreateSession();
 
 	const FName SESSION_NAME = TEXT("BlindEyeServer");
 };

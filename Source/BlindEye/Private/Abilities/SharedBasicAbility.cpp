@@ -193,7 +193,7 @@ void UFirstAttackState::RunState(EAbilityInputTypes abilityUsageType)
 		SharedAbility->Blockers.IsMovementSlowBlocked = true;
 		SharedAbility->Blockers.MovementSlowAmount = SharedAbility->Charge1MovementSlow;
 		SharedAbility->PlayAbilityAnimation();
-	}
+	} 
 	
 	if (!Ability) return;
 	Ability->StartLockRotation(1);
