@@ -98,6 +98,8 @@ protected:
 
 	bool bIsHunterAlive = false;
 
+	bool bIsFirstSpawn = true;
+
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_SetCachedHealth();
 

@@ -225,17 +225,17 @@ void ABlindEyeGameState::FinishEnemyTutorial()
 {
 	if (CurrEnemyTutorial == EEnemyTutorialType::BurrowerSnapper)
 	{
-		MULT_BurrowerTutorialFinished();
+		MULT_EnemyTutorialFinished();
 	} else if (CurrEnemyTutorial == EEnemyTutorialType::Hunter)
 	{
-		// TODO:
+		MULT_EnemyTutorialFinished();
 	}
 	SetPlayerMovementBlocked(false);
 	CurrEnemyTutorial = EEnemyTutorialType::None;
 	bInEnemyTutorialSkippableSection = false;
 }
 
-void ABlindEyeGameState::MULT_BurrowerTutorialFinished_Implementation()
+void ABlindEyeGameState::MULT_EnemyTutorialFinished_Implementation()
 {
 	if (CurrSequencePlaying)
 	{

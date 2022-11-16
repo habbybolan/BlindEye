@@ -332,6 +332,12 @@ void ABlindEyeGameMode::SpawnTutorialBurrower()
 	SpawnManager->TutorialBurrowerSpawn();
 }
 
+void ABlindEyeGameMode::TutorialHunterSpawned()
+{
+	UWorld* World = GetWorld();
+}
+
+
 void ABlindEyeGameMode::StartGame()
 {
 	SetInProgressMatchState(InProgressStates::GameInProgress);

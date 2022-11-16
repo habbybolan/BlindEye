@@ -85,6 +85,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SpawnTutorialBurrower();
 
+	UFUNCTION()
+	void TutorialHunterSpawned();
+
+	// For placing players in proper positions and settings game logic before entering sequence
+	UFUNCTION(BlueprintCallable)
+	void StartEnemyTutorial(EEnemyTutorialType EnemyTutorial);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -126,9 +133,6 @@ protected:
 	virtual void InitGameState() override;
 
 	void UpdateGameStateValues();
-	// For placing players in proper positions and settings game logic before entering sequence
-	UFUNCTION(BlueprintCallable)
-	void StartEnemyTutorial(EEnemyTutorialType EnemyTutorial);
 	void BurrowerTutorialSetup();
 	void HunterTutorialSetup();
 
