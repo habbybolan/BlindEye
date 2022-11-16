@@ -1181,6 +1181,12 @@ void ABlindEyePlayerCharacter::TutorialActionPerformed(TutorialInputActions::ETu
 		SER_TutorialActionPerformedHelper(TutorialAction);
 	}
 }
+
+void ABlindEyePlayerCharacter::CLI_StopAnimation_Implementation(float BlendOut, UAnimMontage* Anim)
+{
+	GetMesh()->GetAnimInstance()->Montage_Stop(0, Anim);
+}
+
 void ABlindEyePlayerCharacter::SER_TutorialActionPerformedHelper_Implementation(
 	TutorialInputActions::ETutorialInputActions TutorialAction)
 {
