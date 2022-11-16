@@ -179,8 +179,7 @@ void FStartCastingAbilityState::RunState(EAbilityInputTypes abilityUsageType)
 	Ability->AbilityStarted();
 	
 	APhoenixFireball* PhoenixFireball = Cast<APhoenixFireball>(Ability);
-	if (!PhoenixFireball) return;
-
+	
 	// blockers
 	PhoenixFireball->Blockers.IsOtherAbilitiesBlocked = true;
 	PhoenixFireball->Blockers.IsMovementSlowBlocked = true;
@@ -196,6 +195,16 @@ void FStartCastingAbilityState::ExitState()
 	Ability->BP_AbilityInnerState(1);
 	Ability->EndCurrState();
 	Ability->UseAbility(EAbilityInputTypes::None);
+}
+
+bool FStartCastingAbilityState::CancelState()
+{
+	FAbilityState::CancelState();
+
+	APhoenixFireball* PhoenixFireball = Cast<APhoenixFireball>(Ability);
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PhoenixFireball->GetOwner());
+	Player->MULT_StopAnimMontage(PhoenixFireball->FireballCastAnimation);
+	return true;
 }
 
 // Casting fireball state *********************
@@ -232,6 +241,16 @@ void FCastFireballState::ExitState()
 {
 	FAbilityState::ExitState();
 	Ability->EndCurrState();
+}
+
+bool FCastFireballState::CancelState()
+{
+	FAbilityState::CancelState();
+
+	APhoenixFireball* PhoenixFireball = Cast<APhoenixFireball>(Ability);
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PhoenixFireball->GetOwner());
+	Player->MULT_StopAnimMontage(PhoenixFireball->FireballCastAnimation);
+	return true;
 }
 
 

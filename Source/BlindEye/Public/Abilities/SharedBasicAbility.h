@@ -121,13 +121,16 @@ protected:
 	FTimerHandle ResetAbilityTimerHandle;
 	
 
-	virtual void TryCancelAbility() override;
+	virtual bool TryCancelAbility() override;
 	virtual void EndAbilityLogic() override;
  
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_SpawnFlockHelper(FName BoneSpawnLocation, TSubclassOf<ABasicAttackSmallFlock> FlockType, FVector StartTargetLoc);
 
 	FVector CalcFirstFlockingTarget();
+
+	UFUNCTION()
+	void TryCancelAbilityHelper();
 };
 
 

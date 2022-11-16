@@ -78,19 +78,6 @@ ABlindEyePlayerCharacter::ABlindEyePlayerCharacter(const FObjectInitializer& Obj
 	Team = TEAMS::Player;
 }
 
-void ABlindEyePlayerCharacter::FellOutOfWorld(const UDamageType& dmgType)
-{
-	// reset player to a playerStart on killz reached
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		UWorld* world = GetWorld();
-		if (world == nullptr) return;
-
-		AActor* ActorPlayerStart = UGameplayStatics::GetActorOfClass(world, APlayerStart::StaticClass());
-		SetActorLocation(ActorPlayerStart->GetActorLocation());
-	}
-}
-
 void ABlindEyePlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -137,6 +124,8 @@ void ABlindEyePlayerCharacter::BeginPlay()
 
 	HealthComponent->MarkedAddedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::MULT_OnMarked);
 	HealthComponent->MarkedRemovedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::MULT_OnUnMarked);
+
+	GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &ABlindEyePlayerCharacter::AnimMontageEnded);
 }
 
 void ABlindEyePlayerCharacter::OnEnemyMarkDetonated()
@@ -207,6 +196,11 @@ void ABlindEyePlayerCharacter::MULT_OnMarked_Implementation(AActor* MarkedPlayer
 {
 	if (MarkType == EMarkerType::Hunter)
 	{
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			AbilityManager->TryCancelCurrentAbility();
+		}
+		
 		if (!IsLocallyControlled())
 		{
 			// get owning player to notify hunter marked
@@ -976,6 +970,47 @@ bool ABlindEyePlayerCharacter::GetIsHunterAlwaysVisible()
 	return false;
 }
 
+void ABlindEyePlayerCharacter::FellOutOfWorld(const UDamageType& dmgType)
+{
+	// reset player to a playerStart on killz reached
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		UWorld* world = GetWorld();
+		if (world == nullptr) return;
+
+		AActor* ActorPlayerStart = UGameplayStatics::GetActorOfClass(world, APlayerStart::StaticClass());
+		SetActorLocation(ActorPlayerStart->GetActorLocation());
+
+		// TODO: Play animation and take damage
+		MULT_PlayAnimMontage(TeleportingBackToShrineAnim);
+
+		// Apply damage
+		UGameplayStatics::ApplyPointDamage(this, DamageFallingOffMap, FVector::ZeroVector, FHitResult(),
+		GetController(), this, UDebugDamageType::StaticClass());
+
+		// Cancel current ability to prevent deadlocking
+		AbilityManager->TryCancelCurrentAbility();
+	}
+	if (GetPlayerState()) 
+	{
+		ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState());
+		BlindEyePS->bActionsBlocked = true;
+	}
+}
+
+void ABlindEyePlayerCharacter::AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	// If fell off world animation ended, then return control back to player
+	if (Montage == TeleportingBackToShrineAnim)
+	{
+		if (GetPlayerState())
+		{
+			ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState());
+			BlindEyePS->bActionsBlocked = false;
+		}
+	}
+}
+
 void ABlindEyePlayerCharacter::HealthUpdated()
 {
 	if (IsLocallyControlled())
@@ -1151,6 +1186,7 @@ void ABlindEyePlayerCharacter::TutorialActionPerformed(TutorialInputActions::ETu
 		SER_TutorialActionPerformedHelper(TutorialAction);
 	}
 }
+
 void ABlindEyePlayerCharacter::SER_TutorialActionPerformedHelper_Implementation(
 	TutorialInputActions::ETutorialInputActions TutorialAction)
 {

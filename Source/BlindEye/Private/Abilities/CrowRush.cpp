@@ -14,7 +14,6 @@ ACrowRush::ACrowRush()
 {
 	AbilityStates.Add(new FAimingStartState(this));
 	AbilityStates.Add(new FMovingState(this));
-	AbilityStates.Add(new FEndState(this));
 	AbilityType = EAbilityTypes::Unique1;
 }
 
@@ -172,19 +171,19 @@ void ACrowRush::MULT_StartMovementHelper_Implementation(FVector StartPos, FVecto
 		if (GetLocalRole() == ROLE_Authority)
 		{
 			ApplyDamage();
+
+			// If Already on the ground, then dont play landing montage
+			if (CheckIsLandedHelper())
+			{
+				SetAsLanded();
+			}
+			// Otherwise, wait to land to play anim
+			else
+			{
+				World->GetTimerManager().SetTimer(CheckIsLandedTimerHandle, this, &ACrowRush::CheckIsLanded, 0.1, true);
+			}
 		}
 
-		// If Already on the ground, then dont play landing montage
-		if (CheckIsLandedHelper())
-		{
-			SetAsLanded();
-		}
-		// Otherwise, wait to land to play anim
-		else
-		{
-			World->GetTimerManager().SetTimer(CheckIsLandedTimerHandle, this, &ACrowRush::CheckIsLanded, 0.1, true);
-		}
-		
 		// ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
 		// Player->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		// Player->GetCharacterMovement()->PrimaryComponentTick.bCanEverTick = false;
@@ -314,6 +313,22 @@ void FAimingStartState::ExitState()
 	Ability->UseAbility(EAbilityInputTypes::None);
 }
 
+bool FAimingStartState::CancelState()
+{
+	FAbilityState::CancelState();
+	
+	ACrowRush* Rush = Cast<ACrowRush>(Ability);
+	Rush->CLI_RemoveTarget();
+	// resets camera and stops particles
+	Rush->BP_AbilityInnerState(2);
+
+	UWorld* World = Rush->GetWorld();
+	{
+		World->GetTimerManager().ClearTimer(Rush->UpdateTargetTimerHandle);
+	}
+	return true;
+}
+
 // Moving to target state ******************
 
 FMovingState::FMovingState(AAbilityBase* ability) : FAbilityState(ability) {}
@@ -343,27 +358,18 @@ void FMovingState::ExitState()
 {
 	FAbilityState::ExitState();
 	Ability->EndCurrState();
-	Ability->UseAbility(EAbilityInputTypes::None);
 }
 
-// Ending State ******************
-
-FEndState::FEndState(AAbilityBase* ability) : FAbilityState(ability) {}
-
-void FEndState::TryEnterState(EAbilityInputTypes abilityUsageType)
+bool FMovingState::CancelState()
 {
-	FAbilityState::TryEnterState(abilityUsageType);
-	RunState();
-}
+	FAbilityState::CancelState();
 
-void FEndState::RunState(EAbilityInputTypes abilityUsageType)
-{
-	FAbilityState::RunState(abilityUsageType);
-	ExitState();
-}
-
-void FEndState::ExitState()
-{
-	FAbilityState::ExitState();
-	Ability->EndCurrState();
+	ACrowRush* Rush = Cast<ACrowRush>(Ability);
+	// resets camera and stops particles
+	Rush->BP_AbilityInnerState(2);
+	UWorld* World = Rush->GetWorld();
+	{
+		World->GetTimerManager().ClearTimer(Rush->CheckIsLandedTimerHandle);
+	}
+	return true;
 }
