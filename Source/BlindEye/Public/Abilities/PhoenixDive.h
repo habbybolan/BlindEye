@@ -147,6 +147,9 @@ public:
 
 	float CachedGravityScale = 1;
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_ResetPlayerOnCancel();
+
 protected:
 	
 	void UpdateGroundTargetPosition();

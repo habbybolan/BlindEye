@@ -190,6 +190,13 @@ void APhoenixDive::LandingAnimationFinishExecuted()
 	AbilityStates[CurrState]->ExitState();
 }
 
+void APhoenixDive::MULT_ResetPlayerOnCancel_Implementation()
+{
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetOwner());
+	Player->GetCharacterMovement()->GravityScale = CachedGravityScale;
+	Player->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+}
+
 void APhoenixDive::UpdateGroundTargetPosition()
 {
 	if (GroundTarget == nullptr) return;
@@ -461,10 +468,8 @@ bool FInAirState::CancelState()
 	}
 	// Update player's state back to normal
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Ability->GetOwner());
-	Player->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
-	Player->GetCharacterMovement()->StopMovementImmediately();
+	PhoenixDive->MULT_ResetPlayerOnCancel();
 	Player->MULT_StopAnimMontage(PhoenixDive->DiveAbilityAnim);
-	Ability->BP_AbilityInnerState(2);
 	return true;
 }
 
@@ -524,8 +529,7 @@ bool FHangingState::CancelState()
 		
 		APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability);
 		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Ability->GetInstigator());
-		Player->GetCharacterMovement()->GravityScale = PhoenixDive->CachedGravityScale;
-		Player->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+		PhoenixDive->MULT_ResetPlayerOnCancel();
 		
 		Player->MULT_StopAnimMontage(PhoenixDive->DiveAbilityAnim);
 		PhoenixDive->CLI_StopGroundTarget();
@@ -535,7 +539,6 @@ bool FHangingState::CancelState()
 			World->GetTimerManager().ClearTimer(PhoenixDive->MaxHangingTimerHandle);
 		}
 		Ability->SetOnCooldown();
-		Ability->BP_AbilityInnerState(2);
 		return true;
 	}
 	// prevent cancellation when launching to ground
