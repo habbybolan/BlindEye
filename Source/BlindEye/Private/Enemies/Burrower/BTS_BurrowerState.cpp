@@ -3,14 +3,9 @@
 
 #include "Enemies/Burrower/BTS_BurrowerState.h"
 
-#include "NavigationSystem.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/Burrower/BurrowerEnemyController.h"
-#include "GameFramework/PlayerStart.h"
-#include "GameFramework/PlayerState.h"
-#include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetSystemLibrary.h"
 
 void UBTS_BurrowerState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
@@ -22,6 +17,14 @@ void UBTS_BurrowerState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Node
 	UBlackboardComponent* BBComp = OwnerComp.GetBlackboardComponent();
 	AAIController* Controller = OwnerComp.GetAIOwner();
 	ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Controller);
+	check(BurrowerController)
+
+	ABurrowerEnemy* Burrower = Cast<ABurrowerEnemy>(BurrowerController->GetPawn());
+	if (!Burrower) return;
+
+	BBComp->SetValueAsBool(IsDeadKey.SelectedKeyName, Burrower->GetIsDead());
+
+	BBComp->SetValueAsEnum(VisibilityStateKey.SelectedKeyName, (uint8)Burrower->GetVisibilityState());
 
 	// Check if attack state finished
 	if (BurrowerController->IsHidden() &&
@@ -40,7 +43,7 @@ void UBTS_BurrowerState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Node
 
 	EBurrowActionState CurrState = (EBurrowActionState)BBComp->GetValueAsEnum(StateKey.SelectedKeyName);
 
-	// Check if Spawn time should be activated / is queued up
+	// Check if surfacing time should be activated / is queued up
 	if (CurrState != EBurrowActionState::Spawning && ( bSpawnStateQueued || CurrSpawnStateTime >= SpawnStateDelay))
 	{
 		// if attacking, set spawn state as queued
@@ -78,6 +81,24 @@ void UBTS_BurrowerState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Node
 	{
 		CurrSpawnStateTime += DeltaSeconds;
 	}
+}
+
+void UBTS_BurrowerState::OnSearchStart(FBehaviorTreeSearchData& SearchData)
+{
+	UBlackboardComponent* BBComp = SearchData.OwnerComp.GetBlackboardComponent();
+
+	// Set initial values on burrower search start
+	ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(SearchData.OwnerComp.GetAIOwner());
+	if (BurrowerController->GetPawn())
+	{
+		ABurrowerEnemy* Burrower = Cast<ABurrowerEnemy>(BurrowerController->GetPawn());
+		if (Burrower)
+		{
+			// Check if burrower is tutorial burrower
+			BBComp->SetValueAsBool(IsTutorialKey.SelectedKeyName, Burrower->bIsTutorialBurrower);
+		}
+	}
+	
 }
 
 /*

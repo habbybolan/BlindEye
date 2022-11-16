@@ -5,12 +5,12 @@
 #include "CoreMinimal.h"
 #include "Abilities/HealingWell.h"
 #include "Components/ActorComponent.h"
-#include "DamageTypes/BaseDamageType.h"
 #include "DamageTypes/MarkData.h"
 #include "Interfaces/DamageInterface.h"
 #include "HealthComponent.generated.h"
 
 enum class EMarkerType : uint8;
+class ABlindEyeBaseCharacter;
 
 USTRUCT(BlueprintType)
 struct FAppliedStatusEffects 
@@ -89,20 +89,20 @@ public:
 	FBurnEndSignature BurnDelegateEnd; 
 
 	DECLARE_MULTICAST_DELEGATE(FStaggerSignature) 
-	FStaggerSignature StaggerDelegate;
+	FStaggerSignature StaggerDelegate; 
 
-	DECLARE_MULTICAST_DELEGATE_OneParam(FMarkedSignature, EMarkerType) 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMarkedSignature, AActor*, MarkedPawn, EMarkerType, MarkerType); 
 	FMarkedSignature MarkedAddedDelegate;
 	
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FUnMarkedSignature);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FUnMarkedSignature, AActor*, MarkedPawn, EMarkerType, MarkerType);
 	UPROPERTY()
 	FUnMarkedSignature MarkedRemovedDelegate; 
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDetonateSignature);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDetonateSignature, AActor*, MarkedPawn, EMarkerType, MarkerType);
 	UPROPERTY()
 	FDetonateSignature DetonateDelegate;
  
-	DECLARE_MULTICAST_DELEGATE(FRefreshSignature) 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRefreshSignature, float, RemainingTime); 
 	FRefreshSignature RefreshMarkDelegate;
 
 	DECLARE_MULTICAST_DELEGATE_TwoParams(FTauntStartSignature, float, AActor*) 
@@ -121,13 +121,14 @@ public:
 	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	// TSubclassOf<AHealingWell> HealingWellType;
 
-	void RemoveMark();
+	virtual void RemoveMark();
 	FMarkData& GetCurrMark();
 
 	virtual void KnockBack(FVector KnockBackForce, AActor* DamageCause) override;
 
 
 	// Check if enemy is marked by Hunter
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool GetIsHunterDebuff();
 
 	virtual void Stun(float StunDuration, AActor* DamageCause) override;
@@ -146,7 +147,7 @@ protected:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	void OnDeath(AActor* ActorThatKilled);
+	virtual void OnDeath(AActor* ActorThatKilled);
 
 	// cached owners health interface
 	IHealthInterface* OwnerHealth;

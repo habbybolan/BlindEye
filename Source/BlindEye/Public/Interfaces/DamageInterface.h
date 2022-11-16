@@ -5,9 +5,8 @@
 #include "CoreMinimal.h"
 #include "Components/MarkerComponent.h"
 #include "UObject/Interface.h"
+#include "BlindEyeUtils.h"
 #include "DamageInterface.generated.h"
-
-enum class EPlayerType : uint8;
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI, meta=(CannotImplementInterfaceInBlueprint))

@@ -15,7 +15,8 @@ enum class EBurrowActionState : uint8
 	Spawning,
 	Attacking,
 	Patrolling,
-	Cancelled 
+	Cancelled,
+	BurstWave
 };
 
 /**
@@ -52,10 +53,6 @@ public:
 
 	void StartSurfacing();
 	void StartHiding();
-	 
-	void SetBurrowerState(bool isHidden, bool bFollowing);
-
-	FTransform FindRandSpawnPoint();
 
 	UFUNCTION()
 	void StartWarningParticles();
@@ -69,6 +66,11 @@ public:
 	void CancelHide();
 
 	TArray<ABlindEyePlayerCharacter*> GetPlayersOnIsland();
+
+	void SetInBurstState();
+	
+	void NotifySpawningStopped();
+
 	
 protected:
 	FTimerHandle SpawnTimerHandle;
@@ -82,7 +84,7 @@ protected:
 	virtual void OnPossess(APawn* InPawn) override;
 
 	UFUNCTION()
-	void OnDetonated();
+	void OnDetonated(AActor* MarkedPawn, EMarkerType MarkerType);
 
 	UPROPERTY()
 	ABurrowerEnemy* CachedBurrower;

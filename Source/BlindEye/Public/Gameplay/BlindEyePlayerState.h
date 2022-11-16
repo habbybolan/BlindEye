@@ -29,7 +29,16 @@ public:
 	void SetIsDead(bool IsDead);
 
 	bool GetIsTutorialFinished();
-	void SetTutorialFinished();
+	void SetTutorialFinished(bool IsTutorialFinished);
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPlayerDeathSignature, ABlindEyePlayerState*, PlayerState);
+	FPlayerDeathSignature PlayerDeathDelegate;
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPlayerRevivedSignature, ABlindEyePlayerState*, PlayerState);
+	FPlayerRevivedSignature PlayerRevivedDelegate;
+
+	UPROPERTY(Replicated)
+	bool bActionsBlocked = false;
 
 protected:
 	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
@@ -47,11 +56,17 @@ protected:
 	UPROPERTY(Replicated, ReplicatedUsing="OnRep_BirdMeterUpdated")
 	float CurrBirdMeter;
  
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, ReplicatedUsing="OnRep_PlayerDeathStateUpdated")
 	bool IsDead = false;
+
+	UFUNCTION()
+	void OnRep_PlayerDeathStateUpdated();
 
 	UPROPERTY(Replicated)
 	bool bFinishedTutorial = false;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_PlayerFinishedTutorial_SER();
 
 	UFUNCTION()
 	void OnRep_BirdMeterUpdated();

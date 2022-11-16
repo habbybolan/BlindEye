@@ -30,7 +30,7 @@ UHealthComponent::UHealthComponent(const FObjectInitializer& ObjectInitializer) 
 void UHealthComponent::AddMarkerHelper(EMarkerType MarkerType)
 {
 	CurrMark.SetMark(MarkerType);
-	MarkedAddedDelegate.Broadcast(MarkerType);
+	MarkedAddedDelegate.Broadcast(GetOwner(), MarkerType);
 }
 
 const FAppliedStatusEffects& UHealthComponent::GetAppliedStatusEffect()
@@ -89,7 +89,7 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 		
 		OwnerHealth->SetHealth(OwnerHealth->GetHealth() - damageMultiplied);
 		// send callback to owning actor for any additional logic
-		OwnerHealth->MYOnTakeDamage(Damage, HitLocation, DamageType, DamageCauser->GetInstigator());
+		OwnerHealth->MYOnTakeDamage(damageMultiplied, HitLocation, DamageType, DamageCauser->GetInstigator());
 		 
 		if (OwnerHealth->GetHealth() <= 0)
 		{
@@ -202,7 +202,7 @@ void UHealthComponent::TryApplyMarker(EMarkerType MarkerType, AActor* DamageCaus
 		// If Current marker exists and is not hunter, replcae it
 		if (CurrMark.bHasMark && CurrMark.MarkerType != EMarkerType::Hunter)
 		{
-			MarkedRemovedDelegate.Broadcast();
+			MarkedRemovedDelegate.Broadcast(GetOwner(), CurrMark.MarkerType);
 			AddMarkerHelper(MarkerType);
 		}
 		else
@@ -224,7 +224,7 @@ void UHealthComponent::TryApplyMarker(EMarkerType MarkerType, AActor* DamageCaus
 		float RefreshedTime = UKismetMathLibrary::Min(TimeRemaining + RefreshMarkerAmount, MarkerDecay);
 		world->GetTimerManager().ClearTimer(MarkerDecayTimerHandle);
 		world->GetTimerManager().SetTimer(MarkerDecayTimerHandle, this, &UHealthComponent::RemoveMark, RefreshedTime, false);
-		RefreshMarkDelegate.Broadcast();
+		RefreshMarkDelegate.Broadcast(RefreshedTime);
 	} else
 	{
 		// Set the decay timer on marker
@@ -339,8 +339,8 @@ void UHealthComponent::RemoveMark()
 	if (World == nullptr)  return;
 
 	World->GetTimerManager().ClearTimer(MarkerDecayTimerHandle);
+	MarkedRemovedDelegate.Broadcast(GetOwner(), CurrMark.MarkerType);
 	CurrMark.RemoveMark();
-	MarkedRemovedDelegate.Broadcast();
 }
 
 FMarkData& UHealthComponent::GetCurrMark()
@@ -350,7 +350,7 @@ FMarkData& UHealthComponent::GetCurrMark()
 
 void UHealthComponent::DetonateMark()
 {
-	DetonateDelegate.Broadcast();
+	DetonateDelegate.Broadcast(GetOwner(), CurrMark.MarkerType);
 	CurrMark.RemoveMark();
 }
 

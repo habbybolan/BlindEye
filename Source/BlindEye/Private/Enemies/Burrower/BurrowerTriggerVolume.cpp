@@ -46,7 +46,7 @@ void UBurrowerTriggerVolume::OnBeginOverlapHelper(UPrimitiveComponent* Overlappe
 
 void UBurrowerTriggerVolume::OnEndOverlapHelper(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(OtherComp))
+	if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(OtherActor))
 	{
 		for (uint8 i = 0; i < PlayersInsideTriggerVolume.Num(); i++)
 		{

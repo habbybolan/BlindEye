@@ -5,6 +5,9 @@
 
 UBurrowerSpawnPoint::UBurrowerSpawnPoint()
 {
-	//ArrowComponent = CreateDefaultSubobject<UArrowComponent>("Arrow Component");
-	//ArrowComponent->SetupAttachment(this);
+	PrimaryComponentTick.bCanEverTick = false;
+	
+	ArrowComponent = CreateDefaultSubobject<UArrowComponent>("Arrow Component");
+	ArrowComponent->ArrowColor = FColor::Blue;
+	ArrowComponent->SetupAttachment(this);
 }

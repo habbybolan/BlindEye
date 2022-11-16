@@ -7,18 +7,28 @@
 #include "Enemies/Snapper/SnapperEnemy.h"
 #include "Enemies/Burrower/BurrowerEnemy.h"
 #include "GameFramework/Character.h"
+#include "Gameplay/BlindEyeGameState.h"
+#include "HUD/PlayerScreenIndicator.h"
+#include "HUD/ScreenIndicator.h"
+#include "HUD/W_Radar.h"
 #include "Interfaces/AbilityUserInterface.h"
-#include "Interfaces/HealthInterface.h"
+#include "HUD/TextPopupWidget.h"
+#include "BlindEyeUtils.h"
+#include "Components/IndicatorManagerComponent.h"
+#include "Components/ScaleBox.h"
+#include "Components/SizeBox.h"
+#include "HUD/EnemyTutorialTextSnippet.h"
 #include "BlindEyePlayerCharacter.generated.h"
 
+class UChecklist;
 enum class TEAMS;
 enum class EAbilityTypes : uint8;
-enum class EPlayerType : uint8;
 class UAbilityManager;
 class UHealthComponent;
 class ABlindEyePlayerState;
 
 class UMarkerComponent;
+class UTextPopupManager;
 
 UENUM(BlueprintType)
 enum class ETutorialChecklist : uint8
@@ -36,7 +46,7 @@ enum class ETutorialChecklist : uint8
 ENUM_RANGE_BY_COUNT(ETutorialChecklist, ETutorialChecklist::Count);
 
 UCLASS(config=Game)
-class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityUserInterface
+class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityUserInterface, public IIndicatorInterface
 {
 	GENERATED_BODY()
 
@@ -48,6 +58,12 @@ class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityU
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
+	UPROPERTY(EditDefaultsOnly)
+	UStaticMeshComponent* HealthbarVisibilityBounds;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UIndicatorManagerComponent* IndicatorManagerComponent;
+
 	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
 	float HunterMarkMovementAlter = 0;
 
@@ -56,6 +72,12 @@ class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityU
 
 	UPROPERTY(EditDefaultsOnly)
 	float ButtonHoldToSkipTutorial = 3.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UChecklist> ChecklistType;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UPlayerScreenIndicator> PlayerIndicatorType;
 	
 public:
 	ABlindEyePlayerCharacter(const FObjectInitializer& ObjectInitializer);
@@ -66,9 +88,6 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 
 	virtual void BeginPlay() override;
-
-	UFUNCTION(Client, Reliable)
-	void CLI_TryFinishTutorial(ETutorialChecklist CheckListItem);
 
 	void OnEnemyMarkDetonated();
 	UFUNCTION(BlueprintImplementableEvent) 
@@ -92,6 +111,8 @@ public:
 	virtual void SetHealth(float NewHealth) override;
 	
 	virtual void OnDeath(AActor* ActorThatKilled) override;
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_OnDeath(AActor* ActorThatKilled);
 
 	virtual bool TryConsumeBirdMeter(float PercentAmount) override;
 
@@ -125,7 +146,12 @@ public:
 	EPlayerType PlayerType;
  
 	UFUNCTION(BlueprintPure)
-	EPlayerType GetPlayerType(); 
+	EPlayerType GetPlayerType();
+
+	const FName PlayerIndicatorID = "PlayerIndicator";
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FTutorialActionsSignature, ABlindEyePlayerCharacter*, Player, TutorialInputActions::ETutorialInputActions, TutorialInput);
+	FTutorialActionsSignature TutorialActionsDelegate;
 
 	// Debugger Functionality *********
 
@@ -245,10 +271,6 @@ public:
 	UFUNCTION(NetMulticast, Reliable)  
 	void MULT_ResetWalkMovementToNormal();
 
-	// Called from BPs to notify player finished tutorial
-	UFUNCTION(BlueprintCallable)
-	void TutorialFinished();
-
 	// Entrance method when tutorial started
 	UFUNCTION()
 	void StartTutorial();
@@ -256,13 +278,74 @@ public:
 	// Entrance method for when main game loop starts
 	UFUNCTION()
 	void StartGame(); 
- 
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_DisplayTutorialChecklist(bool bShowChecklist);
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_PlayerRevived();
+	UFUNCTION()
+	void HealthbarBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
+	void HealthbarEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	// Event for when another player died, called from GameState
+	void OnOtherPlayerDied(ABlindEyePlayerCharacter* OtherPlayer); 
+	
+	// Event for when another player revived, called from GameState
+	void OnOtherPlayerRevived(ABlindEyePlayerCharacter* OtherPlayer);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_OnMarked(AActor* MarkedPlayer, EMarkerType MarkType); 
+	UFUNCTION(NetMulticast, Reliable) 
+	void MULT_OnUnMarked(AActor* UnMarkedPlayer, EMarkerType MarkType);
+
+	// Notify the owning client that another player was hunter marked/unmarked
+	void NotifyOtherPlayerHunterMarked();
+	void NotifyOtherPlayerHunterUnMarked();
+
+	void NotifyOfOtherPlayerExistance(ABlindEyePlayerCharacter* NewPlayer);
+
+	virtual FVector GetIndicatorPosition() override;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UEnemyTutorialTextSnippet> BurrowerSnapperTextSnippetType;
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UEnemyTutorialTextSnippet> HunterTextSnippetType;
+	UPROPERTY()
+	UEnemyTutorialTextSnippet* CurrShowingTextSnippet;
+	
+	UFUNCTION(Client, Reliable)
+	void CLI_AddEnemyTutorialTextSnippet(EEnemyTutorialType EnemyTutorialType);
+	UFUNCTION(Client, Reliable) 
+	void CLI_RemoveEnemyTutorialTextSnippet();
+
+	UFUNCTION(Client, Reliable, BlueprintCallable)
+	void CLI_AddTextPopup(const FString& Text, ETextPopupType TextPopupType, float Duration = 0);
+
+	UPROPERTY(Replicated)
+	FTutorialActionBlockers TutorialActionBlockers;
+
+	UFUNCTION(BlueprintImplementableEvent) 
+	USizeBox* BP_GetTutorialBox();
+
+	UPROPERTY()
+	UChecklist* Checklist;
+	UFUNCTION(Client, Reliable)
+	void CLI_SetupChecklist();
+	UFUNCTION(Client, Reliable)
+	void CLI_DestroyChecklist();
+	UFUNCTION(Client, Reliable)
+	void CLI_UpdateChecklist(uint8 ItemID);
+	UFUNCTION(Client, Reliable)
+	void CLI_AddChecklist(uint8 ItemID, const FString& text, uint8 MaxCount);
+
+	UFUNCTION()
+	void AddScreenIndicator(const FName& IndicatorID, TSubclassOf<UScreenIndicator> ScreenIndicatorType,
+	UObject* Target, float Duration);
+	void RemoveScreenIndicator(const FName& IndicatorID);
+
+	bool IsInTutorial();
+	void TutorialActionPerformed(TutorialInputActions::ETutorialInputActions TutorialAction);
+	UFUNCTION(Server, Reliable)
+	void SER_TutorialActionPerformedHelper(TutorialInputActions::ETutorialInputActions TutorialAction);
+	
 protected:
 
 	TSet<ETutorialChecklist> ChecklistFinishedTasks;
@@ -288,6 +371,10 @@ protected:
 	float CachedMovementSpeed;
 	float CachedAcceleration;
 
+	// Crated in BP, holds manager for dealing with all text popups
+	UPROPERTY(BlueprintReadWrite)
+	UTextPopupManager* TextPopupManager;
+
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
 
@@ -310,20 +397,24 @@ protected:
 	void OnGameLostUI();
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnGameWonUI();
-
-	UFUNCTION(Server, Reliable)
-	void SER_OnCheckAllyHealing();
+	
+	void OnCheckAllyHealing();
 	FTimerHandle AllyHealingCheckTimerHandle;
 	const float AllyHealCheckDelay = 0.2f;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(Replicated, EditDefaultsOnly)
 	float CurrRevivePercent = 0; 
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_TutorialCheckList(ETutorialChecklist TutorialChecklist);
 	
-	UFUNCTION(Server, Reliable)
-	void SER_OnRevive();
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_PlayerRevived();
+ 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_RevivePercentUpdate(float RevivePercent);
+	
+	void OnRevive();
 
 	UFUNCTION()
 	void BasicAttackPressed();
@@ -350,9 +441,6 @@ protected:
 	UFUNCTION()
 	void Unique2Released();
 
-	UFUNCTION(Server, Reliable)
-	void SER_SetTutorialFinished();
-
 	void TutorialSkipPressed();
 	void TutorialSkipReleased();
 
@@ -360,7 +448,9 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void SER_UserInputSkipTutorial();
 	FTimerHandle TutorialSkipTimerHandle;
-	
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_DisplayDefendShrineIndicator_CLI();
 
 protected:
 	// APawn interface

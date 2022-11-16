@@ -12,12 +12,11 @@
 class UHealthComponent;
 
 UCLASS()
-class BLINDEYE_API AShrine : public AActor, public IHealthInterface
+class BLINDEYE_API AShrine : public AActor, public IHealthInterface, public IIndicatorInterface
 {
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	AShrine();
 
 	UPROPERTY(EditDefaultsOnly)
@@ -28,6 +27,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UHealthComponent* HealthComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USceneComponent* IndicatorPosition;
 
 	UPROPERTY(EditDefaultsOnly)
 	float MaxShrineHealth = 100.f;
@@ -49,17 +51,30 @@ public:
 	UFUNCTION()
 	void ChannelingStarted(ABlindEyeEnemyBase* EnemyChannelling);
 	UFUNCTION()
-	void ChannellingEnded(AActor* EnemyChannelling); 
+	void ChannellingEnded(AActor* EnemyChannelling);
+
+	virtual FVector GetIndicatorPosition() override;
+ 
+	void StartWaitingForPlayersToInteract();
  
 protected:
-	// Called when the game starts or when spawned
+	
 	virtual void BeginPlay() override;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_OnGameStarted();
 
 	UPROPERTY()
 	TSet<ABlindEyeEnemyBase*> EnemiesCurrentlyChanneling;
 
 	UPROPERTY(Replicated, ReplicatedUsing="OnRep_HealthUpdated")
 	float CurrShrineHealth;
+
+	FTimerHandle ChargeUpdatingTimerHandle;
+	float ChargeUpdatingDelay = 0.1f;
+	
+	UFUNCTION()
+	void UpdateChargeUI();
 
 	UFUNCTION()
 	void OnRep_HealthUpdated();
@@ -69,6 +84,9 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_UpdateShrineCharge(float ChargePercent);
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	

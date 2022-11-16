@@ -32,10 +32,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AMarkerStaticMesh> HunterMarkType;
  
-	void RemoveMark();
+	void RemoveMark(EMarkerType MarkType);
 	void DetonateMark(EMarkerType MarkerType);
 	void AddMark(EMarkerType PlayerMarkToSet);
-	void RefreshMark(EMarkerType MarkerType);
+	void RefreshMark(EMarkerType MarkerType, float RemainingDecay);
+
+	void UpdateMarkVisibility(EMarkerType MarkerType, bool bShowMark);
 
 protected:
 	// Called when the game starts or when spawned
@@ -55,7 +57,7 @@ protected:
 	UPROPERTY() 
 	AMarkerStaticMesh* HunterMark;
 
-	AMarkerStaticMesh* GetActiveMark();
+	AMarkerStaticMesh* GetMarkMesh(EMarkerType MarkType);
 
 	bool bMarked = false;
 };

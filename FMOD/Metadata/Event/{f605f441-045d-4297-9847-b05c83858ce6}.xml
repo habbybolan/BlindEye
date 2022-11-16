@@ -96,6 +96,9 @@
 		<property name="length">
 			<value>0.14906249999999999</value>
 		</property>
+		<property name="pitch">
+			<value>-0.400000006</value>
+		</property>
 		<relationship name="modulators">
 			<destination>{ad431fc0-a6ce-4629-b9e2-4ac0377d929a}</destination>
 		</relationship>

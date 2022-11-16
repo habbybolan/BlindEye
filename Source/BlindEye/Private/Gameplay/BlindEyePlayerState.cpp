@@ -4,6 +4,9 @@
 #include "Gameplay/BlindEyePlayerState.h"
 
 #include "Characters/BlindEyePlayerCharacter.h"
+#include "Gameplay/BlindEyeGameMode.h"
+#include "Gameplay/BlindEyeGameState.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
 ABlindEyePlayerState::ABlindEyePlayerState()
@@ -58,16 +61,39 @@ bool ABlindEyePlayerState::GetIsDead()
 void ABlindEyePlayerState::SetIsDead(bool isDead)
 { 
 	IsDead = isDead;
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		OnRep_PlayerDeathStateUpdated();
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			if (isDead)
+			{
+				ABlindEyeGameMode* BlindEyeGM = Cast<ABlindEyeGameMode>(UGameplayStatics::GetGameMode(World));
+				BlindEyeGM->OnPlayerDied(this);
+			} else
+			{
+				ABlindEyeGameMode* BlindEyeGM = Cast<ABlindEyeGameMode>(UGameplayStatics::GetGameMode(World));
+				BlindEyeGM->OnPlayerRevived(this);
+			}
+		}
+	}
 }
 
 bool ABlindEyePlayerState::GetIsTutorialFinished()
 {
 	return bFinishedTutorial;
 }
-
-void ABlindEyePlayerState::SetTutorialFinished()
+ 
+void ABlindEyePlayerState::SetTutorialFinished(bool IsTutorialFinished)
 {
-	bFinishedTutorial = true;
+	if (bFinishedTutorial == IsTutorialFinished) return;
+	bFinishedTutorial = IsTutorialFinished;
+	
+	if (bFinishedTutorial)
+	{
+		BP_PlayerFinishedTutorial_SER();
+	}
 }
 
 void ABlindEyePlayerState::OnRep_HealthUpdated()
@@ -76,6 +102,20 @@ void ABlindEyePlayerState::OnRep_HealthUpdated()
 	if (BlindEyeCharacter)
 	{
 		BlindEyeCharacter->HealthUpdated();
+	}
+}
+
+void ABlindEyePlayerState::OnRep_PlayerDeathStateUpdated()
+{
+	UWorld* World = GetWorld();
+	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+	check(BlindEyeGS)
+	if (IsDead)
+	{
+		PlayerDeathDelegate.Broadcast(this);
+	} else
+	{
+		PlayerRevivedDelegate.Broadcast(this);
 	}
 }
 
@@ -94,4 +134,5 @@ void ABlindEyePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(ABlindEyePlayerState, CurrHealth);
 	DOREPLIFETIME(ABlindEyePlayerState, CurrBirdMeter);
 	DOREPLIFETIME(ABlindEyePlayerState, IsDead);
+	DOREPLIFETIME(ABlindEyePlayerState, bActionsBlocked);
 }

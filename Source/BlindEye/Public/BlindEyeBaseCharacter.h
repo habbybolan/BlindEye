@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/HealthInterface.h"
-#include "BlindEyeUtils.h"
 #include "Components/HealthComponent.h"
+#include "Interfaces/IndicatorInterface.h"
 #include "BlindEyeBaseCharacter.generated.h"
 
 class UMarkerComponent;
@@ -39,6 +39,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UHealthComponent* HealthComponent;
 
+	UPROPERTY(EditDefaultsOnly) 
+	UArrowComponent* IndicatorLocation; 
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TEAMS Team; 
 	virtual TEAMS GetTeam() override;
@@ -60,6 +63,7 @@ public:
 
 	virtual float GetMass() override;
 
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -71,29 +75,29 @@ protected:
 
 	// mark added
 	UFUNCTION()
-	virtual void OnMarkAdded(EMarkerType MarkerType);
+	virtual void OnMarkAdded(AActor* MarkedActor, EMarkerType MarkerType);
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_OnMarkAddedHelper(EMarkerType MarkerType);
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnMarkAdded(EMarkerType MarkerType);
 	// mark removed
 	UFUNCTION()
-	virtual void OnMarkRemoved();
+	virtual void OnMarkRemoved(AActor* UnmarkedActor, EMarkerType MarkerType);
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_OnMarkRemovedHelper();
+	void MULT_OnMarkRemovedHelper(EMarkerType MarkType);
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnMarkRemoved();
 	// mark detonated
 	UFUNCTION() 
-	virtual void OnMarkDetonated();
+	virtual void OnMarkDetonated(AActor* MarkedPawn, EMarkerType MarkerType);
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_OnMarkDetonatedHelper(EMarkerType MarkerType); 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnMarkDetonated(EMarkerType MarkType);
 	UFUNCTION()
-	virtual void OnMarkRefreshed();
+	virtual void OnMarkRefreshed(float RemainingDecay);
 	UFUNCTION(NetMulticast, Reliable) 
-	void MULT_OnMarkRefreshedHelper(EMarkerType MarkerType); 
+	void MULT_OnMarkRefreshedHelper(EMarkerType MarkerType, float RemainingDecay);
 public:
 	virtual float GetHealth() override;
 	virtual float GetMaxHealth() override;

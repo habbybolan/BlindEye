@@ -51,6 +51,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=Ragdoll)
 	float RagdollDuration = 2.0f;
 
+	UPROPERTY(EditDefaultsOnly, Category=Ragdoll)
+	UAnimMontage* GetupRoarAnim;
+
 	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0.1, ClampMax=1), Category=Spawning)
 	float GravityScaleAlteredOnSpawn = 0.25f;
 
@@ -60,8 +63,8 @@ public:
 	void PerformJumpAttack();
 	void PerformBasicAttack(); 
 
-	UFUNCTION(BlueprintCallable)
-	void TryRagdoll(bool SimulatePhysics);
+	UFUNCTION(BlueprintCallable) 
+	void TryRagdoll(bool SimulatePhysics, bool IsIndefiniteRagdoll = false);
 
 	void TempLaunch();
 	void LaunchSwing();
@@ -73,6 +76,8 @@ public:
 	bool GetIsSpawning(); 
 
 	void ApplyKnockBack(FVector Force);
+
+	void ManualStopRagdollTimer(float Duration); 
 
 protected:
 
@@ -91,7 +96,7 @@ protected:
 	FTimerHandle GetupAnimTimerHandle;
 
 	float AlphaBlendWeight = 1;
-
+	
 	void BeginStopRagdollTimer();
 
 	UFUNCTION(NetMulticast, Reliable)
@@ -107,8 +112,8 @@ protected:
 	// Only called from client to replicate the hip location while ragdolling
 	void UpdateHipLocation(float DeltaSeconds); 
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_StartRagdoll();
+	UFUNCTION(NetMulticast, Reliable) 
+	void MULT_StartRagdoll(bool IsIndefiniteRagdoll);
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_StopRagdoll();
 	void FinishGettingUp();
@@ -118,6 +123,9 @@ protected:
 	float BlendWeightDelay = 0.02f;
 
 	bool IsLayingOnFront();
+
+	UFUNCTION()
+	void OnAnimMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 	virtual void OnDeath(AActor* ActorThatKilled) override;
 

@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BlindEyeGameState.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "GameFramework/GameMode.h"
 #include "Islands/IslandManager.h"
+#include "Tutorial/TutorialManager.h"
 #include "BlindEyeGameMode.generated.h"
 
 namespace InProgressStates 
@@ -37,11 +39,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float TimerUntilGameWon = 60;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float DelayBetweenLevelShifts = 60.f;
-
 	UPROPERTY(EditDefaultsOnly)
 	float PulseKillDelay = 1.0f;
+
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=1))
+	float DelayInUpdatingGameState = 2;
 	
 	// called by shrine when it's destroyed
 	void OnShrineDeath();
@@ -75,17 +77,35 @@ public:
 	// Called for setting game in progress and starting the main loop
 	void StartGame();
 
+	float GetCurrRoundLength();
+ 
+	void OnPlayerDied(ABlindEyePlayerState* DeadPlayer);
+	void OnPlayerRevived(ABlindEyePlayerState* RevivedPlayer);
+
+	UFUNCTION(BlueprintCallable)
+	void SpawnTutorialBurrower();
+
+	UFUNCTION()
+	void TutorialHunterSpawned();
+
+	// For placing players in proper positions and settings game logic before entering sequence
+	UFUNCTION(BlueprintCallable)
+	void StartEnemyTutorial(EEnemyTutorialType EnemyTutorial);
+
 protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(BlueprintReadOnly)
 	AIslandManager* IslandManager;
 
-	float CurrIslandLevelTime = 0;
+	UPROPERTY()
+	ATutorialManager* TutorialManager;
+	
+	uint8 NumRounds = 3;
 
-	uint8 CurrPulseIndex = 0;
-	uint8 NumPulses = 3;
-	float TimeBetweenPulses;
+	uint8 CurrRound = 0;
+
+	uint8 PlayersConnected = 0;
 
 	FTimerHandle PulseKillDelayTimerHandle;
 
@@ -108,6 +128,22 @@ protected:
 	void PerformPulse();
  
 	float GameTimer = 0;
+	float PulseTimer = 0; 
+	float TimerForUpdatingGameState = 0;
+	virtual void InitGameState() override;
+
+	void UpdateGameStateValues();
+	void BurrowerTutorialSetup();
+	void HunterTutorialSetup();
+
+	UFUNCTION(BlueprintCallable) 
+	void PlayLevelSequence(ULevelSequence* SequenceToPlay);
+
+	UFUNCTION(BlueprintCallable)
+	void FinishEnemyTutorial();
 
 	virtual void Tick(float DeltaSeconds) override;
+
+	FTimerHandle StartingTutorialTimerHandle;
+	void DelayedStartTutorial();
 };

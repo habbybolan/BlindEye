@@ -3,17 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BurrowerSpawnPoint.h"
 #include "NiagaraComponent.h"
 #include "Chaos/PhysicalMaterials.h"
 #include "Components/TimelineComponent.h"
 #include "Enemies/BlindEyeEnemyBase.h"
+#include "Islands/Island.h"
 #include "BurrowerEnemy.generated.h"
 
-class IBurrowerSpawnManagerListener;
- 
+enum class EBurrowerVisibilityState : uint8;
+
+class IBurrowerSpawnManagerListener;  
 class ASnapperEnemy;
 class UHealthComponent;
 class ABlindEyePlayerCharacter;
+class UBaseDamageType;
 
 /**
  * 
@@ -32,11 +36,17 @@ public:
 	//
 	// void AttackAction(ABlindEyePlayerCharacter* target);
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Spawning)
 	uint8 MinSnappersSpawn = 2;
  
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Spawning)
 	uint8 MaxSnappersSpawn = 5;
+	
+	UPROPERTY(EditDefaultsOnly, Category=Spawning, meta=(ToolTip="Variability in time of snappers getting up froim ragdoll after burrower finished spawning group"))
+	float SnapperRagdollTimeVariabilityAfterGroupSpawned = 0.2f;
+     
+    UPROPERTY(EditDefaultsOnly, Category=Spawning, meta=(ToolTip="Base time for snappers to stay ragdolled after finished spawning group"))
+    float SnapperRagdollBaseTimeAfterGroupSpawned = 1.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float SpawnTimeAppearingLength = 5;
@@ -77,12 +87,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float AttackTimeAppearingLength = 2.f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UNiagaraSystem* WarningParticle;
- 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UNiagaraSystem* FollowParticle;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=SurfacingDamage)
 	TSubclassOf<UBaseDamageType> SurfacingDamageType;
 
@@ -97,7 +101,9 @@ public:
 
 	// Stored here purely for passing to Controller
 	TScriptInterface<IBurrowerSpawnManagerListener> Listener;
-	uint8 IslandID; 
+	uint8 IslandID;
+
+	bool bIsTutorialBurrower = false;
 
 	void SpawnMangerSetup(uint8 islandID, TScriptInterface<IBurrowerSpawnManagerListener> listener);
 	
@@ -105,16 +111,10 @@ public:
 	void PerformSurfacingDamage();
 	void StartHiding();
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SetBurrowerState(bool isHidden, bool bFollowing);
+	void SetVisibility(bool isHidden);
 
 	UFUNCTION()
 	void SpawnSnappers(); 
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SpawnWarningParticle();
-	UFUNCTION(NetMulticast, Reliable) 
-	void MULT_DespawnWarningParticle();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_StartSurfacingHelper();
@@ -125,9 +125,6 @@ public:
 	void CancelHide();
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_CancelHideHelper();
-
-	UPROPERTY(EditDefaultsOnly) 
-	UAnimMontage* SurfacingAnimation;
 
 	UPROPERTY(EditDefaultsOnly)  
 	UAnimMontage* SpawnSnapperAnimation;
@@ -142,18 +139,47 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_PlaySpawnSnapperAnimationHelper();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MULT_WarningStarted();
+	UFUNCTION(NetMulticast, Unreliable)
+	void MULT_WarningEnded();
+
+	UFUNCTION(BlueprintCallable)
+	EBurrowerVisibilityState GetVisibilityState();
+
+	void SubscribeToSpawnLocation(UBurrowerSpawnPoint* SpawnPoint);
+	void UnsubscribeToSpawnLocation();
+
+	void SubscribeToIsland(AIsland* Island);
+	UBurrowerSpawnPoint* GetRandUnusedSpawnPoint();
+
+	void NotifySpawningStopped();
  
 protected:
 
 	virtual void BeginPlay() override;
 
 	virtual void OnDeath(AActor* ActorThatKilled) override;
-	
-	TMap<uint32, ASnapperEnemy*> SpawnedSnappers;
 
-	bool bIsSurfaced = false;
-	bool bIsSurfacing = false;
-	bool bIsHiding = false;
+	UPROPERTY()
+	UBurrowerSpawnPoint* CurrUsedSpawnPoint = nullptr;
+
+	UPROPERTY()
+	AIsland* OwningIsland = nullptr;
+
+	// bool bIsSurfaced = false;
+	// bool bIsSurfacing = false;
+	// bool bIsHiding = false;
+	// bool bIsHidden = false;
+ 
+	UPROPERTY(Replicated, ReplicatedUsing="OnRep_VisibilityState")
+	EBurrowerVisibilityState VisibilityState; 
+ 
+	UFUNCTION()
+	void OnRep_VisibilityState(EBurrowerVisibilityState OldVisibilityState);
+	
+	bool bIsFollowing = false;
 
 	ECollisionChannel CachedCollisionObject;
 	
@@ -162,13 +188,8 @@ protected:
 	
 	TArray<FVector> GetSnapperSpawnPoints();
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_PlaySurfacingAnimation();
-
 	UPROPERTY()
-	UNiagaraComponent* SpawnedWarningParticle;
-	UPROPERTY()
-	UNiagaraComponent* SpawnedFollowParticle;
+	TArray<ASnapperEnemy*> SnappersBeingSpawned;
 
 	// UFUNCTION()
 	// void StartAttackAppearance();
@@ -204,19 +225,44 @@ protected:
 	// Used in expiring the burrower from following player forever and delay on re-emerging from ground
 	FTimerHandle AttackTimerHandle;
 	
-	void SetSurfacingHiding();
-	void SetDisappeared();
-	void SetAppeared();
-	void SetFollowing();
-	
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SpawnFollowParticle();
-	UFUNCTION(NetMulticast, Reliable) 
-	void MULT_DespawnFollowParticle();
+	// void SetSurfacingHiding();
+	// void SetDisappeared();
+	// void SetAppeared();
+	//void SetFollowing();
 
 	FVector GetHidePosition();
-	
+	 
 	virtual void Destroyed() override;
-	
-	
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_SurfacingStarted_CLI();
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_SurfacingEnded_CLI();
+	UFUNCTION(BlueprintImplementableEvent) 
+	void BP_HidingStarted_CLI();
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_HidingEnded_CLI();
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_HidingCancelled_CLI(); 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_WarningStarted_CLI(); 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_WarningEnded_CLI();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_FollowingStart_CLI();
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_FollowingEnd_CLI();
+
+	UFUNCTION(BlueprintCallable)
+	FVector GetWorldWarningParticleSpawnLocation();
+
+	UFUNCTION(BlueprintCallable) 
+	FVector GetRelativeFollowParticleSpawnLocation();
+
+	UFUNCTION()
+	void UpdateBurrowerState(EBurrowerVisibilityState NewState);
+
+	void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const;
+	 
 };

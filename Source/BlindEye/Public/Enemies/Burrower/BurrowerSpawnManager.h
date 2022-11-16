@@ -3,14 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BurrowerEnemy.h"
-#include "BurrowerSpawnPoint.h"
-#include "BurrowerTriggerVolume.h"
-#include "Islands/Island.h"
-#include "Islands/IslandManager.h"
 #include "GameFramework/Actor.h"
 #include "Interfaces/BurrowerSpawnManagerListener.h"
 #include "BurrowerSpawnManager.generated.h"
+
+class AIslandManager;
+class AIsland;
+class UBurrowerTriggerVolume;
+class UBurrowerSpawnPoint;
+class ABurrowerEnemy;
 
 UCLASS()
 class BLINDEYE_API ABurrowerSpawnManager : public AActor, public IBurrowerSpawnManagerListener
@@ -22,27 +23,35 @@ public:
 	ABurrowerSpawnManager();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float SpawnDelay = 20.f;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<ABurrowerEnemy> BurrowerType;
+
+	UPROPERTY(EditDefaultsOnly)
+	uint8 MaxNumBurrowersPerIsland = 3;
  
-	void SpawnBurrower();
+	void SpawnBurrowerRandLocation(); 
+	void SpawnBurrower(AIsland* Island);
+	void SpawnBurrowerAtBurrowerSpawnPoint(UBurrowerSpawnPoint* SpawnPoint, AIsland* Island);
+
+	// Helper for performing spawning logic of burrower at island and general location
+	ABurrowerEnemy* SpawnBurrowerHelper(FVector SpawnLocation, FRotator SpawnRotation, AIsland* Island);
  
 	TArray<ABlindEyePlayerCharacter*> GetPlayersOnIsland(uint8 islandID) override;
+
+	void SetInBurstState();
+
+	// Spawns a single burrower for intro enemy tutorial for burrowers and snappers
+	ABurrowerEnemy* TutorialBurrowerSpawn();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
-	void OnGameStarted();
+	void OnStartingTutorialEnded();
 
 	// Called after level loaded
 	UFUNCTION()
 	void Initialize();
-
-	FTimerHandle SpawnTimerHandle;
 
 	TMap<uint8, TArray<ABurrowerEnemy*>> SpawnedBurrowers;
 
@@ -51,7 +60,7 @@ protected:
 	UFUNCTION()
 	void OnBurrowerDeath(AActor* BurrowerActor);
 	
-	UBurrowerSpawnPoint* FindRandomSpawnPoint();
+	UBurrowerSpawnPoint* FindRandomUnusedSpawnPoint();
 
 	UFUNCTION()
 	void TriggerVolumeOverlapped(UPrimitiveComponent* OverlappedActor, AActor* OtherActor);

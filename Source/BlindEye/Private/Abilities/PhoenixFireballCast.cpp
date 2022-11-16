@@ -19,7 +19,7 @@ APhoenixFireballCast::APhoenixFireballCast()
 	SphereComponent->SetEnableGravity(false);
 	RootComponent = SphereComponent;
 	
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("mesh");
+	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>("mesh");
 	Mesh->SetupAttachment(RootComponent);
 	
 	Movement = CreateDefaultSubobject<UProjectileMovementComponent>("Movement");
@@ -38,13 +38,8 @@ void APhoenixFireballCast::BeginPlay()
 {
 	Super::BeginPlay();
 	Movement->Velocity = GetActorForwardVector() * FireballSpeed;
-	MULT_SpawnFireballTrail_Implementation();
 
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		SphereComponent->OnComponentHit.AddDynamic(this, &APhoenixFireballCast::OnCollision);
-	}
-	
+	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &APhoenixFireballCast::OnCollision);
 
 	UWorld* world = GetWorld();
 	if (world)
@@ -58,26 +53,16 @@ void APhoenixFireballCast::Destroyed()
 	Super::Destroyed();
 } 
 
-void APhoenixFireballCast::MULT_SpawnFireballTrail_Implementation()
-{
-	UWorld* world = GetWorld();
-	if (!world) return;
-	
-	SpawnedFireTrailParticle = UNiagaraFunctionLibrary::SpawnSystemAttached(FireTrailParticle, GetRootComponent(), NAME_None,
-		GetActorLocation(), GetActorRotation(), FVector::OneVector,
-		EAttachLocation::KeepWorldPosition, false, ENCPoolMethod::AutoRelease);
-}
-
 void APhoenixFireballCast::DelayedDestruction()
 {
 	Destroy();
 }
 
-void APhoenixFireballCast::MULT_HideFireball_Implementation()
+void APhoenixFireballCast::HideFireball() 
 {
 	SphereComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Mesh->SetHiddenInGame(true);
-	SpawnedFireTrailParticle->Deactivate();
+	BP_OnCollision_CLI();
 }
 
 
@@ -91,13 +76,12 @@ void APhoenixFireballCast::BurnLogic()
 		BurnObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true);
 	for (FHitResult Hit : OutHits)
 	{ 
-		UGameplayStatics::ApplyPointDamage(Hit.GetActor(), 0.01, FVector::ZeroVector,
+		UGameplayStatics::ApplyPointDamage(Hit.GetActor(), BurningBaseDamagePerSec * BurnDamageDelay, FVector::ZeroVector,
 			Hit, GetInstigator()->GetController(),GetInstigator(), BurnDamageType);
 	}
 }
 
-void APhoenixFireballCast::OnCollision(UPrimitiveComponent* HitComponent, AActor* OtherActor,
-                                       UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void APhoenixFireballCast::OnCollision(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	CollisionLogic();
 }
@@ -107,11 +91,11 @@ void APhoenixFireballCast::CollisionLogic()
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	BP_Explosion();
+	BP_Explosion_CLI();
 	
 	world->GetTimerManager().ClearTimer(LifespanTimerHandle);
 	
-	MULT_HideFireball();
+	HideFireball();
 
 	TArray<AActor*> ignoreActors;
 	ignoreActors.Add(this);
@@ -121,12 +105,17 @@ void APhoenixFireballCast::CollisionLogic()
 		LineTraceObjectTypes, false, ignoreActors, EDrawDebugTrace::None, HitResult, true))
 	{
 		BurnLocation = HitResult.Location;
-		BP_GroundBurning(BurnLocation, BurningDuration);
-		world->GetTimerManager().SetTimer(BurnTimerHandle, this, &APhoenixFireballCast::BurnLogic, 0.2, true);
-		
+		BP_GroundBurning_CLI(BurnLocation, BurningDuration);
+
+		// Apply burning damage
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			world->GetTimerManager().SetTimer(BurnTimerHandle, this, &APhoenixFireballCast::BurnLogic, BurnDamageDelay, true);
+		}
 	}
 
 	// Destroy after burning finished
 	world->GetTimerManager().SetTimer(DelayedDestroyTimerHandle, this, &APhoenixFireballCast::DelayedDestruction, BurningDuration, false);
+	CustomCollisionDelegate.ExecuteIfBound();
 }
 

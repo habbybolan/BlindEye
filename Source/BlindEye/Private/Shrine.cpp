@@ -3,15 +3,13 @@
 #include "Shrine.h"
 
 #include "Components/HealthComponent.h"
-#include "GameFramework/GameModeBase.h"
 #include "Gameplay/BlindEyeGameMode.h"
+#include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
-// Sets default values
 AShrine::AShrine()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 
@@ -21,8 +19,45 @@ AShrine::AShrine()
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
 	Mesh->SetupAttachment(CapsuleComponent);
 
+	IndicatorPosition = CreateDefaultSubobject<USceneComponent>("IndicatorPosition");
+	IndicatorPosition->SetupAttachment(Mesh);
+
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
-	CurrShrineHealth = MaxShrineHealth;
+	CurrShrineHealth = MaxShrineHealth; 
+}
+
+
+void AShrine::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		UWorld* World = GetWorld();
+		check(World)
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+		check(BlindEyeGS)
+		BlindEyeGS->GameStartedDelegate.AddDynamic(this, &AShrine::MULT_OnGameStarted);
+	}
+}
+
+void AShrine::MULT_OnGameStarted_Implementation()
+{
+	UWorld* World = GetWorld();
+	check(World)
+	World->GetTimerManager().SetTimer(ChargeUpdatingTimerHandle, this, &AShrine::UpdateChargeUI, ChargeUpdatingDelay, true);
+}
+
+void AShrine::UpdateChargeUI()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+		check(BlindEyeGS)
+		BP_UpdateShrineCharge(BlindEyeGS->GetGameDonePercent());
+	}
+	
 }
 
 float AShrine::GetMass()
@@ -99,10 +134,9 @@ void AShrine::ChannellingEnded(AActor* EnemyChannelling)
 	}
 }
 
-// Called when the game starts or when spawned
-void AShrine::BeginPlay()
+FVector AShrine::GetIndicatorPosition()
 {
-	Super::BeginPlay();
+	return IndicatorPosition->GetComponentLocation();
 }
 
 void AShrine::OnRep_HealthUpdated()

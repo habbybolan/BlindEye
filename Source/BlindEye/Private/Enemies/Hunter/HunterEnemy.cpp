@@ -4,13 +4,11 @@
 #include "Enemies/Hunter/HunterEnemy.h"
 
 #include "Characters/BlindEyePlayerCharacter.h"
-#include "Characters/BlindEyePlayerController.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Enemies/Hunter/HunterEnemyController.h"
 #include "Enemies/Hunter/HunterHealthComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/GameState.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -36,6 +34,13 @@ void AHunterEnemy::BeginPlay()
 	{
 		Shrine = Cast<AShrine>(ShrineActor);
 	}
+
+	GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &AHunterEnemy::AnimMontageEnded);
+}
+
+void AHunterEnemy::Despawn()
+{
+	BP_HunterDespawned_SER();
 }
 
 void AHunterEnemy::PerformChargedJump()
@@ -60,7 +65,7 @@ void AHunterEnemy::PerformChargedJump()
 void AHunterEnemy::MULT_PerformChargedJumpHelper_Implementation(FVector StartLoc, FVector EndLoc)
 {
 	PlayAnimMontage(ChargedJumpAnim);
-	ChargedJumpDuration = .74;
+	ChargedJumpDuration = 1; // Duration of the jump part of the animation 
 	// Set Start and end locations of jump for Easing
 	ChargedJumpStartLocation = StartLoc;
 	ChargedJumpTargetLocation = EndLoc;
@@ -135,9 +140,9 @@ void AHunterEnemy::SetNotCharged()
 	//World->GetTimerManager().SetTimer(ChargedCooldownTimerHandle, this, &AHunterEnemy::SetCharged, ChargedCooldown, false);
 }
 
-void AHunterEnemy::OnMarkDetonated()
+void AHunterEnemy::OnMarkDetonated(AActor* MarkedPawn, EMarkerType MarkerType)
 {
-	Super::OnMarkDetonated();
+	Super::OnMarkDetonated(MarkedPawn, MarkerType);
 	if (GetIsCharged())
 	{
 		AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(Controller);
@@ -149,9 +154,9 @@ void AHunterEnemy::OnMarkDetonated()
 	}
 }
 
-void AHunterEnemy::OnMarkAdded(EMarkerType MarkerType)
+void AHunterEnemy::OnMarkAdded(AActor* MarkedActor, EMarkerType MarkerType)
 {
-	Super::OnMarkAdded(MarkerType);
+	Super::OnMarkAdded(MarkedActor, MarkerType);
 	if (bDebugStunOnMark)
 	{
 		if (GetIsCharged())
@@ -191,6 +196,7 @@ void AHunterEnemy::RemoveHunterMarkOnPlayer()
 		}
 	}
 }
+
 void AHunterEnemy::PerformBasicAttack()
 {
 	bAttacking = true;
@@ -202,7 +208,7 @@ void AHunterEnemy::MULT_PerformBasicAttackHelper_Implementation()
 	PlayAnimMontage(BasicAttackAnimation);
 }
 
-void AHunterEnemy::OnHunterMarkDetonated()
+void AHunterEnemy::OnHunterMarkDetonated(AActor* MarkedPawn, EMarkerType MarkerType)
 {
 	GetMesh()->GetAnimInstance()->StopAllMontages(0);
 	UnsubscribeToTargetMarks();
@@ -213,7 +219,7 @@ void AHunterEnemy::OnHunterMarkDetonated()
 	HealthComponent->Stun(5, Target);
 }
 
-void AHunterEnemy::OnHunterMarkRemoved()
+void AHunterEnemy::OnHunterMarkRemoved(AActor* UnmarkedActor, EMarkerType MarkerType)
 {
 	GetMesh()->GetAnimInstance()->StopAllMontages(0);
 	UnsubscribeToTargetMarks();
@@ -298,22 +304,16 @@ bool AHunterEnemy::GetIsChannelling()
 
 void AHunterEnemy::ApplyBasicAttackDamage(FHitResult Hit, bool IfShouldApplyHunterMark)
 {
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		// base DamageType and damage amount if Hunter Charged and if marking target
-		TSubclassOf<UBaseDamageType> DamageTypeToApply = IfShouldApplyHunterMark ? BasicAttackDamageTypeWithMark : BasicAttackDamageTypeNoMark;
-		ApplyAttackDamageHelper(BasicAttackDamage, IfShouldApplyHunterMark, DamageTypeToApply, Hit);
-	}
+	// base DamageType and damage amount if Hunter Charged and if marking target
+	TSubclassOf<UBaseDamageType> DamageTypeToApply = IfShouldApplyHunterMark ? BasicAttackDamageTypeWithMark : BasicAttackDamageTypeNoMark;
+	ApplyAttackDamageHelper(BasicAttackDamage, IfShouldApplyHunterMark, DamageTypeToApply, Hit);
 }
 
 void AHunterEnemy::ApplyChargedJumpDamage(FHitResult Hit, bool IfShouldApplyHunterMark)
 {
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		// base DamageType and damage amount if Hunter Charged and if marking target
-		TSubclassOf<UBaseDamageType> DamageTypeToApply = IfShouldApplyHunterMark ? ChargedJumpDamageTypeWithMark : ChargedJumpDamageTypeNoMark;
-		ApplyAttackDamageHelper(ChargedAttackDamage, IfShouldApplyHunterMark, DamageTypeToApply, Hit);
-	}
+	// base DamageType and damage amount if Hunter Charged and if marking target
+	TSubclassOf<UBaseDamageType> DamageTypeToApply = IfShouldApplyHunterMark ? ChargedJumpDamageTypeWithMark : ChargedJumpDamageTypeNoMark;
+	ApplyAttackDamageHelper(ChargedAttackDamage, IfShouldApplyHunterMark, DamageTypeToApply, Hit);
 }
 
 void AHunterEnemy::ApplyAttackDamageHelper(float Damage, bool IfShouldApplyHunterMark,
@@ -345,6 +345,7 @@ void AHunterEnemy::MULT_StartChannelingHelper_Implementation()
 		bChannelling = true;
 		World->GetTimerManager().SetTimer(ChannellingTimerHandle, this, &AHunterEnemy::StopChanneling, ChannellingDuration, false);
 	}
+	BP_ChannelingStarted_CLI();
 }
 
 void AHunterEnemy::StopChanneling()
@@ -353,6 +354,7 @@ void AHunterEnemy::StopChanneling()
 	Shrine->ChannellingEnded(this);
 	GetMesh()->GetAnimInstance()->Montage_JumpToSection("End", ChannelingAnim);
 	// TODO: Set Channeling Anim to End section
+	BP_ChannelingEnded_CLI();
 }
 
 void AHunterEnemy::ChannelingAnimFinished()
@@ -361,10 +363,13 @@ void AHunterEnemy::ChannelingAnimFinished()
 	SetCharged();
 }
 
-void AHunterEnemy::SetAttackFinished()
+void AHunterEnemy::AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	bAttacking = false;
-	GetMesh()->GetAnimInstance()->StopAllMontages(0);
+	// If attacking animation
+	if (Montage == ChargedJumpAnim || Montage == BasicAttackAnimation)
+	{
+		bAttacking = false;
+	}
 }
 
 void AHunterEnemy::OnStunStart(float StunDuration)
@@ -381,7 +386,7 @@ bool AHunterEnemy::GetIsFleeing()
 
 void AHunterEnemy::SetPlayerMarked(AActor* NewTarget)
 {
-	
+	if (GetLocalRole() < ROLE_Authority) return;
 	AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(GetController());
 	if (!ensure(HunterController)) return;
 	
@@ -389,9 +394,19 @@ void AHunterEnemy::SetPlayerMarked(AActor* NewTarget)
 	if (ensure(BlindEyePlayerCharacter))
 	{
 		bPlayerMarked = true;
-		BlindEyePlayerCharacter->GetHealthComponent()->DetonateDelegate.AddDynamic(this, &AHunterEnemy::OnHunterMarkDetonated);
-		BlindEyePlayerCharacter->GetHealthComponent()->MarkedRemovedDelegate.AddDynamic(this, &AHunterEnemy::OnHunterMarkRemoved);
-		BlindEyePlayerCharacter->GetHealthComponent()->OnDeathDelegate.AddDynamic(this, &AHunterEnemy::OnMarkedPlayerDied);
+		if (!BlindEyePlayerCharacter->GetHealthComponent()->DetonateDelegate.Contains(this, TEXT("OnHunterMarkDetonated")))
+		{
+			BlindEyePlayerCharacter->GetHealthComponent()->DetonateDelegate.AddDynamic(this, &AHunterEnemy::OnHunterMarkDetonated);
+		}
+		if (!BlindEyePlayerCharacter->GetHealthComponent()->MarkedRemovedDelegate.Contains(this, TEXT("OnHunterMarkRemoved")))
+		{
+			BlindEyePlayerCharacter->GetHealthComponent()->MarkedRemovedDelegate.AddDynamic(this, &AHunterEnemy::OnHunterMarkRemoved);
+		}
+		if (!BlindEyePlayerCharacter->GetHealthComponent()->OnDeathDelegate.Contains(this, TEXT("OnMarkedPlayerDied")))
+		{
+			BlindEyePlayerCharacter->GetHealthComponent()->OnDeathDelegate.AddDynamic(this, &AHunterEnemy::OnMarkedPlayerDied);
+		}
+		
 		HunterController->SetBTTarget(NewTarget);
 	}
 }
@@ -399,7 +414,6 @@ void AHunterEnemy::SetPlayerMarked(AActor* NewTarget)
 void AHunterEnemy::SetFleeing()
 {
 	bFleeing = true;
-	TrySetVisibility(false);
 	RemoveHunterMarkOnPlayer();
 }
 

@@ -18,14 +18,15 @@ AFlock::AFlock()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
-	bReplicates = true;
+	bReplicates = false;
 }
  
-void AFlock::TryStartFlock()
+void AFlock::TryStartFlock(FVector spawnLocation)
 {
 	if (bFlockInitialized) return;
 	
 	bFlockInitialized = true;
+	SpawnLocation = spawnLocation;
 	InitializeFlock();
 }
 
@@ -89,11 +90,9 @@ void AFlock::AddBoid(ABoid* newBoid)
 
 void AFlock::SpawnBoidRand()
 {
-	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
-	check(OwnerCharacter);
-	FVector HandLocation = OwnerCharacter->GetMesh()->GetBoneLocation(TEXT("RightHand"));
+	AActor* OwningActor = Cast<ACharacter>(GetOwner());
 	
-	FVector location = HandLocation +
+	FVector location = SpawnLocation +
 		FVector(UKismetMathLibrary::RandomFloat() * XSpawnRange,
 				UKismetMathLibrary::RandomFloat() * YSpawnRange,
 				UKismetMathLibrary::RandomFloat() * ZSpawnRange);
@@ -101,10 +100,10 @@ void AFlock::SpawnBoidRand()
 
 	if (IsCurrTargetValid())
 	{
-		direction = (TargetList[CurrTargetIndex]->GetActorLocation() - OwnerCharacter->GetActorLocation()).Rotation();
+		direction = (TargetList[CurrTargetIndex]->GetActorLocation() - OwningActor->GetActorLocation()).Rotation();
 	} else
 	{
-		direction = OwnerCharacter->GetActorForwardVector().Rotation();
+		direction = OwningActor->GetActorForwardVector().Rotation();
 	}
 
 	// ULocalPlayer* LocalPlayer = GetGameInstance()->GetLocalPlayerByIndex(0);
@@ -310,11 +309,6 @@ void AFlock::Destroyed()
 {
 	Super::Destroyed();
 	RemoveBoids();
-}
-
-void AFlock::GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
 

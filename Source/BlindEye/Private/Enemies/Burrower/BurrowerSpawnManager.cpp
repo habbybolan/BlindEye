@@ -10,9 +10,9 @@
 #include "Enemies/Burrower/BurrowerEnemyController.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "Enemies/Burrower/BurrowerTriggerVolume.h"
+#include "Enemies/Burrower/BurrowerTutorialSpawnPoint.h"
 #include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 ABurrowerSpawnManager::ABurrowerSpawnManager()
@@ -33,11 +33,11 @@ void ABurrowerSpawnManager::BeginPlay()
 		// Initialize Burrower spawner once game set as started
 		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
 		check(BlindEyeGS)
-		BlindEyeGS->GameStartedDelegate.AddDynamic(this, &ABurrowerSpawnManager::OnGameStarted);
+		BlindEyeGS->TutorialEndedDelegate.AddDynamic(this, &ABurrowerSpawnManager::OnStartingTutorialEnded);
 	}
 }
 
-void ABurrowerSpawnManager::OnGameStarted()
+void ABurrowerSpawnManager::OnStartingTutorialEnded()
 {
 	Initialize();
 }
@@ -48,9 +48,7 @@ void ABurrowerSpawnManager::Initialize()
 
 	UWorld* world = GetWorld();
 	if (!world) return;
-
-	world->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ABurrowerSpawnManager::SpawnBurrower, SpawnDelay, true, 0.1);
-
+	
 	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(world));
 	check(BlindEyeGS)
 	IslandManager = BlindEyeGS->GetIslandManager();
@@ -109,24 +107,62 @@ void ABurrowerSpawnManager::OnBurrowerDeath(AActor* BurrowerToDelete)
 	}
 }
 
-void ABurrowerSpawnManager::SpawnBurrower()
+void ABurrowerSpawnManager::SpawnBurrowerRandLocation()
+{
+	// Find an island without max number of burrowers
+	for (AIsland* Island : IslandManager->GetActiveIslands())
+	{
+		if (SpawnedBurrowers[Island->IslandID].Num() < MaxNumBurrowersPerIsland)
+		{
+			UBurrowerSpawnPoint* SpawnPoint = Island->GetRandUnusedBurrowerSpawnPoint();
+			if (SpawnPoint)
+			{
+				SpawnBurrowerAtBurrowerSpawnPoint(SpawnPoint, Island);
+			}
+		}
+	}
+}
+
+void ABurrowerSpawnManager::SpawnBurrower(AIsland* Island)
+{
+	// prevent more spawning if max num burrowers already spawned
+	if (SpawnedBurrowers[Island->IslandID].Num() >= MaxNumBurrowersPerIsland) return;
+	
+	UBurrowerSpawnPoint* SpawnPoint = Island->GetRandUnusedBurrowerSpawnPoint();
+	if (SpawnPoint)
+	{
+		SpawnBurrowerAtBurrowerSpawnPoint(SpawnPoint, Island);
+	}
+}
+
+void ABurrowerSpawnManager::SpawnBurrowerAtBurrowerSpawnPoint(UBurrowerSpawnPoint* SpawnPoint, AIsland* Island)
+{
+	ABurrowerEnemy* Burrower = SpawnBurrowerHelper(SpawnPoint->GetComponentLocation(), SpawnPoint->GetComponentRotation(), Island);
+	if (Burrower)
+	{
+		Burrower->SubscribeToSpawnLocation(SpawnPoint);
+	}
+}
+
+ABurrowerEnemy* ABurrowerSpawnManager::SpawnBurrowerHelper(FVector SpawnLocation, FRotator SpawnRotation, AIsland* Island)
 {
 	UWorld* world = GetWorld();
-	if (!world) return;
-	
-	UBurrowerSpawnPoint* SpawnPoint = FindRandomSpawnPoint();
+
 	FActorSpawnParameters params;
 	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn; 
-	ABurrowerEnemy* SpawnedBurrower = world->SpawnActor<ABurrowerEnemy>(BurrowerType, SpawnPoint->GetComponentLocation(), SpawnPoint->GetComponentRotation(), params);
+	ABurrowerEnemy* SpawnedBurrower = world->SpawnActor<ABurrowerEnemy>(BurrowerType, SpawnLocation, SpawnRotation, params);
 	if (SpawnedBurrower)
 	{
-		SpawnedBurrower->SpawnMangerSetup(SpawnPoint->IslandID, this);
-		SpawnedBurrowers[SpawnPoint->IslandID].Add(SpawnedBurrower);
+		SpawnedBurrower->SpawnMangerSetup(Island->IslandID, this);
+		SpawnedBurrower->SubscribeToIsland(Island);
+		SpawnedBurrowers[Island->IslandID].Add(SpawnedBurrower);
 		if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(SpawnedBurrower))
 		{
 			HealthInterface->GetHealthComponent()->OnDeathDelegate.AddDynamic(this, &ABurrowerSpawnManager::OnBurrowerDeath);
-		} 
+			return SpawnedBurrower;
+		}
 	}
+	return nullptr;
 }
 
 TArray<ABlindEyePlayerCharacter*> ABurrowerSpawnManager::GetPlayersOnIsland(uint8 islandID)
@@ -138,19 +174,37 @@ TArray<ABlindEyePlayerCharacter*> ABurrowerSpawnManager::GetPlayersOnIsland(uint
 	return PlayersInTrigger;
 }
 
-UBurrowerSpawnPoint* ABurrowerSpawnManager::FindRandomSpawnPoint()
+void ABurrowerSpawnManager::SetInBurstState()
+{
+	for (TPair<uint8, TArray<ABurrowerEnemy*>> Pair : SpawnedBurrowers)
+	{
+		for (ABurrowerEnemy* Burrower : Pair.Value)
+		{
+			if (Burrower->GetController())
+			{
+				ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Burrower->GetController());
+				BurrowerController->SetInBurstState();
+			}
+		}
+	}
+}
+
+ABurrowerEnemy* ABurrowerSpawnManager::TutorialBurrowerSpawn()
 {
 	UWorld* World = GetWorld();
-	if (World)
-	{
-		uint8 randIslandIndex = UKismetMathLibrary::RandomInteger(IslandManager->GetNumOfIslands());
-		AIsland* RandIsland = IslandManager->GetActiveIslands()[randIslandIndex];
-		uint8 randIndexSpawnPoint = UKismetMathLibrary::RandomInteger(RandIsland->GetBurrowerSpawnPoints().Num());
-		UBurrowerSpawnPoint* RandSpawnPoint = RandIsland->GetBurrowerSpawnPoints()[randIndexSpawnPoint];
-	
-		return RandSpawnPoint;
-	}
-	return nullptr;
+	AActor* SpawnPoint = UGameplayStatics::GetActorOfClass(World, ABurrowerTutorialSpawnPoint::StaticClass());
+	check(SpawnPoint != nullptr);
+ 
+	AIsland* Island = IslandManager->GetActiveIslands()[0];
+	ABurrowerEnemy* Burrower = SpawnBurrowerHelper(SpawnPoint->GetActorLocation(), SpawnPoint->GetActorRotation(), Island);
+	Burrower->bIsTutorialBurrower = true;
+	return Burrower;
+}
+
+UBurrowerSpawnPoint* ABurrowerSpawnManager::FindRandomUnusedSpawnPoint()
+{
+	AIsland* RandIsland = IslandManager->GetRandIsland();
+	return RandIsland->GetRandUnusedBurrowerSpawnPoint();
 }
 
 void ABurrowerSpawnManager::TriggerVolumeOverlapped(UPrimitiveComponent* OverlappedActor, AActor* OtherActor)

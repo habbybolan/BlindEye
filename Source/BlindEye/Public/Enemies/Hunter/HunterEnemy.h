@@ -29,6 +29,7 @@ public:
 	AHunterEnemy(const FObjectInitializer& ObjectInitializer);
 
 	virtual void BeginPlay() override;
+	void Despawn();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Movement)
 	float AttackMaxWalkSpeed = 450;
@@ -140,8 +141,6 @@ public:
 
 	void ChannelingAnimFinished();
 
-	void SetAttackFinished();
-
 	void SetFleeing();
  
 protected:
@@ -175,7 +174,16 @@ protected:
 	void BP_ChargedStarted();
   
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_ChargedEnded();
+	void BP_ChargedEnded(); 
+ 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_ChannelingStarted_CLI();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_ChannelingEnded_CLI();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_HunterDespawned_SER();
 
 	void SetPlayerMarked(AActor* NewTarget);
 
@@ -183,10 +191,10 @@ protected:
 	void MULT_PerformChargedJumpHelper(FVector StartLoc, FVector EndLoc);
 
 	UFUNCTION()
-	void OnHunterMarkDetonated();
+	void OnHunterMarkDetonated(AActor* MarkedPawn, EMarkerType MarkerType);
 
 	UFUNCTION() 
-	void OnHunterMarkRemoved();
+	void OnHunterMarkRemoved(AActor* UnmarkedActor, EMarkerType MarkerType);
 
 	UFUNCTION()
 	void OnMarkedPlayerDied(AActor* PlayerDied);
@@ -214,9 +222,12 @@ protected:
 	void SetNotCharged();
 
 	void ApplyAttackDamageHelper(float Damage, bool IfShouldApplyHunterMark, TSubclassOf<UBaseDamageType> DamageType, FHitResult Hit);
-	virtual void OnMarkDetonated() override;
-	virtual void OnMarkAdded(EMarkerType MarkerType) override;
+	virtual void OnMarkDetonated(AActor* MarkedPawn, EMarkerType MarkerType) override;
+	virtual void OnMarkAdded(AActor* MarkedActor, EMarkerType MarkerType) override;
 
 	void RemoveHunterMarkOnPlayer();
+
+	UFUNCTION()
+	void AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 };
 

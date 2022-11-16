@@ -16,15 +16,18 @@ ABlindEyeBaseCharacter::ABlindEyeBaseCharacter(const FObjectInitializer& ObjectI
 	MarkerComponent->SetupAttachment(GetMesh());
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+
+	IndicatorLocation = CreateDefaultSubobject<UArrowComponent>(TEXT("IndicatorLocation"));
+	//IndicatorLocation->SetupAttachment(RootComponent); // this crashes the editor???
 }
 
 void ABlindEyeBaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	HealthComponent->MarkedAddedDelegate.AddUFunction(this, TEXT("OnMarkAdded"));
+	HealthComponent->MarkedAddedDelegate.AddDynamic(this, &ABlindEyeBaseCharacter::OnMarkAdded);
 	HealthComponent->MarkedRemovedDelegate.AddDynamic(this, &ABlindEyeBaseCharacter::OnMarkRemoved);
 	HealthComponent->DetonateDelegate.AddDynamic(this, &ABlindEyeBaseCharacter::OnMarkDetonated);
-	HealthComponent->RefreshMarkDelegate.AddUFunction(this, TEXT("OnMarkRefreshed"));
+	HealthComponent->RefreshMarkDelegate.AddDynamic(this, &ABlindEyeBaseCharacter::OnMarkRefreshed);
 }
 
 void ABlindEyeBaseCharacter::OnDeath(AActor* ActorThatKilled)
@@ -85,7 +88,7 @@ float ABlindEyeBaseCharacter::GetMass()
 	return Mass;
 }
 
-void ABlindEyeBaseCharacter::OnMarkAdded(EMarkerType MarkType)
+void ABlindEyeBaseCharacter::OnMarkAdded(AActor* MarkedActor, EMarkerType MarkType)
 {
 	BP_OnMarkAdded(MarkType);
 	MULT_OnMarkAddedHelper(MarkType);
@@ -96,18 +99,18 @@ void ABlindEyeBaseCharacter::MULT_OnMarkAddedHelper_Implementation(EMarkerType M
 	MarkerComponent->AddMark(MarkerType);
 }
 
-void ABlindEyeBaseCharacter::OnMarkRemoved()
+void ABlindEyeBaseCharacter::OnMarkRemoved(AActor* UnmarkedActor, EMarkerType MarkerType)
 {
 	BP_OnMarkRemoved();
-	MULT_OnMarkRemovedHelper();
+	MULT_OnMarkRemovedHelper(MarkerType);
 }
 
-void ABlindEyeBaseCharacter::MULT_OnMarkRemovedHelper_Implementation()
+void ABlindEyeBaseCharacter::MULT_OnMarkRemovedHelper_Implementation(EMarkerType MarkType)
 {
-	MarkerComponent->RemoveMark();
+	MarkerComponent->RemoveMark(MarkType);
 }
 
-void ABlindEyeBaseCharacter::OnMarkDetonated()
+void ABlindEyeBaseCharacter::OnMarkDetonated(AActor* MarkedPawn, EMarkerType MarkerType)
 {
 	FMarkData marker = HealthComponent->GetCurrMark();
 	if (marker.bHasMark)
@@ -122,18 +125,18 @@ void ABlindEyeBaseCharacter::MULT_OnMarkDetonatedHelper_Implementation(EMarkerTy
 	MarkerComponent->DetonateMark(MarkerType);
 }
 
-void ABlindEyeBaseCharacter::OnMarkRefreshed()
+void ABlindEyeBaseCharacter::OnMarkRefreshed(float RemainingDecay)
 {
 	FMarkData marker = HealthComponent->GetCurrMark();
 	if (marker.bHasMark)
 	{
-		MULT_OnMarkRefreshedHelper(marker.MarkerType);
+		MULT_OnMarkRefreshedHelper(marker.MarkerType, RemainingDecay);
 	}
 }
 
-void ABlindEyeBaseCharacter::MULT_OnMarkRefreshedHelper_Implementation(EMarkerType MarkerType)
+void ABlindEyeBaseCharacter::MULT_OnMarkRefreshedHelper_Implementation(EMarkerType MarkerType, float RemainingDecay)
 {
-	MarkerComponent->RefreshMark(MarkerType);
+	MarkerComponent->RefreshMark(MarkerType, RemainingDecay);
 }
 
 float ABlindEyeBaseCharacter::GetHealth()
