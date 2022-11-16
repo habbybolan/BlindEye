@@ -198,7 +198,7 @@ bool FPerformCrowFlurryState::CancelState()
 
 	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(CrowFlurry->GetOwner());
-	Player->CLI_StopAnimation(0, CrowFlurry->CrowFlurryAnimation);
+	Player->MULT_StopAnimMontage(CrowFlurry->CrowFlurryAnimation);
 	return true;
 }
 
@@ -241,7 +241,7 @@ bool FCancelCrowFlurryState::CancelState()
 	FAbilityState::CancelState();
 	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(CrowFlurry->GetOwner());
-	Player->CLI_StopAnimation(0, CrowFlurry->CrowFlurryAnimation);
+	Player->MULT_StopAnimMontage(CrowFlurry->CrowFlurryAnimation);
 
 	UWorld* World = Ability->GetWorld();
 	if(World)
@@ -288,7 +288,7 @@ bool FEndCrowFlurryState::CancelState()
 
 	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(CrowFlurry->GetOwner());
-	Player->CLI_StopAnimation(0, CrowFlurry->CrowFlurryAnimation);
+	Player->MULT_StopAnimMontage(CrowFlurry->CrowFlurryAnimation);
 	return true;
 }
 

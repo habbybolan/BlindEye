@@ -366,7 +366,7 @@ bool FStartAbilityState::CancelState()
 
 	APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability);
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Ability->GetOwner());
-	Player->CLI_StopAnimation(0, PhoenixDive->DiveAbilityAnim);
+	Player->MULT_StopAnimMontage(PhoenixDive->DiveAbilityAnim);
 	return true;
 }
 

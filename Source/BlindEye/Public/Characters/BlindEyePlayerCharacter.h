@@ -351,9 +351,6 @@ public:
 	void TutorialActionPerformed(TutorialInputActions::ETutorialInputActions TutorialAction);
 	UFUNCTION(Server, Reliable)
 	void SER_TutorialActionPerformedHelper(TutorialInputActions::ETutorialInputActions TutorialAction);
-
-	UFUNCTION(Client, Reliable)
-	void CLI_StopAnimation(float BlendOut, UAnimMontage* Anim);
 	
 protected:
 

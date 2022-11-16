@@ -203,7 +203,7 @@ bool FStartCastingAbilityState::CancelState()
 
 	APhoenixFireball* PhoenixFireball = Cast<APhoenixFireball>(Ability);
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PhoenixFireball->GetOwner());
-	Player->CLI_StopAnimation(0, PhoenixFireball->FireballCastAnimation);
+	Player->MULT_StopAnimMontage(PhoenixFireball->FireballCastAnimation);
 	return true;
 }
 
@@ -249,7 +249,7 @@ bool FCastFireballState::CancelState()
 
 	APhoenixFireball* PhoenixFireball = Cast<APhoenixFireball>(Ability);
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PhoenixFireball->GetOwner());
-	Player->CLI_StopAnimation(0, PhoenixFireball->FireballCastAnimation);
+	Player->MULT_StopAnimMontage(PhoenixFireball->FireballCastAnimation);
 	return true;
 }
 
