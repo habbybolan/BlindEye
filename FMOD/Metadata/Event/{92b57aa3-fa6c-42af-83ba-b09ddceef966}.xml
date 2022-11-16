@@ -135,6 +135,9 @@
 		<property name="length">
 			<value>17.792000000000002</value>
 		</property>
+		<property name="looping">
+			<value>true</value>
+		</property>
 		<relationship name="audioFile">
 			<destination>{43334423-a6cf-4208-b2b2-b3c6e687ed2b}</destination>
 		</relationship>
@@ -162,6 +165,9 @@
 		</property>
 		<property name="length">
 			<value>17.792000000000002</value>
+		</property>
+		<property name="looping">
+			<value>true</value>
 		</property>
 		<relationship name="audioFile">
 			<destination>{5a82d4cf-f9d3-4009-9802-015e8c6b8ebe}</destination>
@@ -191,6 +197,9 @@
 		<property name="length">
 			<value>17.792000000000002</value>
 		</property>
+		<property name="looping">
+			<value>true</value>
+		</property>
 		<relationship name="audioFile">
 			<destination>{260d96dd-4735-4931-8549-b7ba06566f71}</destination>
 		</relationship>
@@ -215,6 +224,9 @@
 		</property>
 		<property name="length">
 			<value>17.792000000000002</value>
+		</property>
+		<property name="looping">
+			<value>true</value>
 		</property>
 		<relationship name="audioFile">
 			<destination>{f3b18890-5c53-401b-8b24-cac61dd3a30f}</destination>
