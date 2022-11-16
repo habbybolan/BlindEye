@@ -88,6 +88,27 @@ void ABlindEyePlayerCharacter::FellOutOfWorld(const UDamageType& dmgType)
 
 		AActor* ActorPlayerStart = UGameplayStatics::GetActorOfClass(world, APlayerStart::StaticClass());
 		SetActorLocation(ActorPlayerStart->GetActorLocation());
+
+		// TODO: Play animation and take damage
+		MULT_PlayAnimMontage(TeleportingBackToShrineAnim);
+		if (GetPlayerState()) 
+		{
+			ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState());
+			BlindEyePS->bActionsBlocked = true;
+		}
+	}
+}
+
+void ABlindEyePlayerCharacter::AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	// If fell off world animation ended, then return control back to player
+	if (Montage == TeleportingBackToShrineAnim)
+	{
+		if (GetPlayerState())
+		{
+			ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState());
+			BlindEyePS->bActionsBlocked = false;
+		}
 	}
 }
 
@@ -137,6 +158,8 @@ void ABlindEyePlayerCharacter::BeginPlay()
 
 	HealthComponent->MarkedAddedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::MULT_OnMarked);
 	HealthComponent->MarkedRemovedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::MULT_OnUnMarked);
+
+	GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &ABlindEyePlayerCharacter::AnimMontageEnded);
 }
 
 void ABlindEyePlayerCharacter::OnEnemyMarkDetonated()

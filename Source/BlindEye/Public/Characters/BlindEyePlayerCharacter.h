@@ -107,6 +107,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UAbilityManager* AbilityManager;
 
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* TeleportingBackToShrineAnim;
+
 	virtual float GetHealth() override;
 	virtual void SetHealth(float NewHealth) override;
 	
@@ -451,6 +454,9 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_DisplayDefendShrineIndicator_CLI();
+
+	UFUNCTION()
+	void AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 protected:
 	// APawn interface
