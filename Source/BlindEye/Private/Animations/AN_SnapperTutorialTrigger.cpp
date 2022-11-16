@@ -18,7 +18,7 @@ void UAN_SnapperTutorialTrigger::Notify(USkeletalMeshComponent* MeshComp, UAnimS
 		{
 			if (BlindEyeGS->CurrEnemyTutorial == EEnemyTutorialType::BurrowerSnapper)
 			{
-				BlindEyeGS->EnemyTutorialTrigger(EEnemyTutorialType::BurrowerSnapper);
+				BlindEyeGS->SER_EnemyTutorialTrigger(EEnemyTutorialType::BurrowerSnapper);
 			}
 		}
 	}
