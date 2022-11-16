@@ -95,22 +95,22 @@ void APhoenixFireball::CastFireball()
 	}
 	
 	FireballCast = world->SpawnActor<APhoenixFireballCast>(FireballCastType, SpawnLocation, vectorRotation.Rotation(), params);
-	FireballCast->GetSphereComponent()->OnComponentHit.AddDynamic(this, &APhoenixFireball::OnFireballCastHit);
+	FireballCast->CustomCollisionDelegate.BindDynamic(this, &APhoenixFireball::OnFireballCastHit);
 }
 
-void APhoenixFireball::OnFireballCastHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void APhoenixFireball::OnFireballCastHit()
 {
+	if (GetLocalRole() < ROLE_Authority) return;
+	
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
-	if (GetLocalRole() < ROLE_Authority) return;
 	if (!FireballCast) return;
 
 	// Area damage from fireball cast colliding / expiring and exploding
 	TArray<FHitResult> OutHits;
 	UKismetSystemLibrary::SphereTraceMultiForObjects(World, FireballCast->GetActorLocation(), FireballCast->GetActorLocation() + FireballCast->GetActorForwardVector() * 5,
-		Damage, ConeTraceObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true);
-	for (FHitResult ExplosionHit : OutHits)
+		FireballExplosionRadius, ConeTraceObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true);
+	for (FHitResult ExplosionHit : OutHits) 
 	{
 		DealWithDamage(ExplosionHit.Actor.Get(), ExplosionHit.ImpactNormal, ExplosionHit, Damage);
 	}
