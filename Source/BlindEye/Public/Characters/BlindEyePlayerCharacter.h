@@ -309,6 +309,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UEnemyTutorialTextSnippet> BurrowerSnapperTextSnippetType;
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UEnemyTutorialTextSnippet> HunterTextSnippetType;
 	UPROPERTY()
 	UEnemyTutorialTextSnippet* CurrShowingTextSnippet;
 	

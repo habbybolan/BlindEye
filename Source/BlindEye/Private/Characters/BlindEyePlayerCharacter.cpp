@@ -281,12 +281,27 @@ FVector ABlindEyePlayerCharacter::GetIndicatorPosition()
 
 void ABlindEyePlayerCharacter::CLI_AddEnemyTutorialTextSnippet_Implementation(EEnemyTutorialType EnemyTutorialType)
 {
-	FString WidgetName = TEXT("BurrowerSnapperTextSnippet");
-	if (GetController())
+	// Show Burrower/Snapper text snippets
+	if (EnemyTutorialType == EEnemyTutorialType::BurrowerSnapper)
 	{
-		ABlindEyePlayerController* PlayerController = Cast<ABlindEyePlayerController>(GetController());
-		CurrShowingTextSnippet = Cast<UEnemyTutorialTextSnippet>(CreateWidget(PlayerController, BurrowerSnapperTextSnippetType, FName(*WidgetName))); 
-		CurrShowingTextSnippet->AddToPlayerScreen();
+		FString WidgetName = TEXT("BurrowerSnapperTextSnippet");
+		if (GetController())
+		{
+			ABlindEyePlayerController* PlayerController = Cast<ABlindEyePlayerController>(GetController());
+			CurrShowingTextSnippet = Cast<UEnemyTutorialTextSnippet>(CreateWidget(PlayerController, BurrowerSnapperTextSnippetType, FName(*WidgetName))); 
+			CurrShowingTextSnippet->AddToPlayerScreen();
+		}
+	}
+	// Show Hunter text snippets
+	else if (EnemyTutorialType == EEnemyTutorialType::Hunter) 
+	{
+		FString WidgetName = TEXT("HunterTextSnippet");
+		if (GetController())
+		{
+			ABlindEyePlayerController* PlayerController = Cast<ABlindEyePlayerController>(GetController());
+			CurrShowingTextSnippet = Cast<UEnemyTutorialTextSnippet>(CreateWidget(PlayerController, HunterTextSnippetType, FName(*WidgetName))); 
+			CurrShowingTextSnippet->AddToPlayerScreen();
+		}
 	}
 }
 

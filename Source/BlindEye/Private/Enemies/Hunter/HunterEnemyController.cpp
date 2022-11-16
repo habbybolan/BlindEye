@@ -10,9 +10,11 @@
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
 #include "Enemies/Burrower/BurrowerTriggerVolume.h"
 #include "Enemies/Hunter/HunterSpawnPoint.h"
+#include "Enemies/Hunter/HunterTutorialSpawnPoint.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
+#include "Gameplay/BlindEyeGameMode.h"
 #include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -348,10 +350,26 @@ void AHunterEnemyController::SpawnHunter()
 
 	bIsHunterAlive = true;
 
+	FVector SpawnLocation;
+	FRotator Rotation;
+	// If first spawn, spawn at specific location and start enemy tutorial
+	if (bIsFirstSpawn)
+	{
+		ABlindEyeGameMode* BlindEyeGM = Cast<ABlindEyeGameMode>(UGameplayStatics::GetGameMode(World));
+		BlindEyeGM->StartEnemyTutorial(EEnemyTutorialType::Hunter);
+		bIsFirstSpawn = false;
+
+		AActor* SpawnPoint = UGameplayStatics::GetActorOfClass(World, AHunterTutorialSpawnPoint::StaticClass());
+		check(SpawnPoint);
+		SpawnLocation = SpawnPoint->GetActorLocation();
+		Rotation = SpawnPoint->GetActorRotation();
+	} else
+	{
+		UHunterSpawnPoint* RandSpawnPoint = GetRandHunterSpawnPoint();
+		SpawnLocation = RandSpawnPoint->GetComponentLocation();
+		Rotation = RandSpawnPoint->GetComponentRotation();
+	}
 	
-	UHunterSpawnPoint* RandSpawnPoint = GetRandHunterSpawnPoint();
-	FVector SpawnLocation = RandSpawnPoint->GetComponentLocation();
-	FRotator Rotation = RandSpawnPoint->GetComponentRotation();
 	FActorSpawnParameters params; 
 	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 	AHunterEnemy* SpawnedHunter = World->SpawnActor<AHunterEnemy>(HunterType, SpawnLocation, Rotation, params);
