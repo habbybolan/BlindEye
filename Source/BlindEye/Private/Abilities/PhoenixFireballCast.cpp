@@ -38,13 +38,9 @@ void APhoenixFireballCast::BeginPlay()
 {
 	Super::BeginPlay();
 	Movement->Velocity = GetActorForwardVector() * FireballSpeed;
-	MULT_SpawnFireballTrail_Implementation();
+	//MULT_SpawnFireballTrail_Implementation();
 
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		SphereComponent->OnComponentHit.AddDynamic(this, &APhoenixFireballCast::OnCollision);
-	}
-	
+	SphereComponent->OnComponentHit.AddDynamic(this, &APhoenixFireballCast::OnCollision);
 
 	UWorld* world = GetWorld();
 	if (world)
@@ -63,9 +59,9 @@ void APhoenixFireballCast::MULT_SpawnFireballTrail_Implementation()
 	UWorld* world = GetWorld();
 	if (!world) return;
 	
-	SpawnedFireTrailParticle = UNiagaraFunctionLibrary::SpawnSystemAttached(FireTrailParticle, GetRootComponent(), NAME_None,
-		GetActorLocation(), GetActorRotation(), FVector::OneVector,
-		EAttachLocation::KeepWorldPosition, false, ENCPoolMethod::AutoRelease);
+	// SpawnedFireTrailParticle = UNiagaraFunctionLibrary::SpawnSystemAttached(FireTrailParticle, GetRootComponent(), NAME_None,
+	// 	GetActorLocation(), GetActorRotation(), FVector::OneVector,
+	// 	EAttachLocation::KeepWorldPosition, false, ENCPoolMethod::AutoRelease);
 }
 
 void APhoenixFireballCast::DelayedDestruction()
@@ -73,11 +69,12 @@ void APhoenixFireballCast::DelayedDestruction()
 	Destroy();
 }
 
-void APhoenixFireballCast::MULT_HideFireball_Implementation()
+void APhoenixFireballCast::HideFireball() 
 {
 	SphereComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Mesh->SetHiddenInGame(true);
-	SpawnedFireTrailParticle->Deactivate();
+	BP_OnCollision_CLI();
+	//SpawnedFireTrailParticle->Deactivate();
 }
 
 
@@ -107,11 +104,11 @@ void APhoenixFireballCast::CollisionLogic()
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	BP_Explosion();
+	BP_Explosion_CLI();
 	
 	world->GetTimerManager().ClearTimer(LifespanTimerHandle);
 	
-	MULT_HideFireball();
+	HideFireball();
 
 	TArray<AActor*> ignoreActors;
 	ignoreActors.Add(this);
@@ -121,9 +118,13 @@ void APhoenixFireballCast::CollisionLogic()
 		LineTraceObjectTypes, false, ignoreActors, EDrawDebugTrace::None, HitResult, true))
 	{
 		BurnLocation = HitResult.Location;
-		BP_GroundBurning(BurnLocation, BurningDuration);
-		world->GetTimerManager().SetTimer(BurnTimerHandle, this, &APhoenixFireballCast::BurnLogic, BurnDamageDelay, true);
-		
+		BP_GroundBurning_CLI(BurnLocation, BurningDuration);
+
+		// Apply burning damage
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			world->GetTimerManager().SetTimer(BurnTimerHandle, this, &APhoenixFireballCast::BurnLogic, BurnDamageDelay, true);
+		}
 	}
 
 	// Destroy after burning finished

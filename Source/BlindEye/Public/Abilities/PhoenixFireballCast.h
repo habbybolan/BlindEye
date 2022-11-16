@@ -25,7 +25,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UProjectileMovementComponent* Movement;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	USkeletalMeshComponent* Mesh;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -33,7 +33,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float FireballSpeed = 100;
-
 
 	UPROPERTY(EditDefaultsOnly)
 	float BurningBaseDamagePerSec = 1.f;
@@ -66,10 +65,10 @@ public:
 	USphereComponent* GetSphereComponent();
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_Explosion();
+	void BP_Explosion_CLI();
  
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_GroundBurning(FVector LocationForGroundBurn, float Duration);
+	void BP_GroundBurning_CLI(FVector LocationForGroundBurn, float Duration);
 
 protected:
 	
@@ -82,16 +81,15 @@ protected:
 	
 	UFUNCTION()
 	void DelayedDestruction();
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_HideFireball(); 
+	
+	void HideFireball(); 
 
 	// called continually until actor deleted for applying burn at location
 	UFUNCTION()
 	void BurnLogic();
 
-	UPROPERTY()
-	UNiagaraComponent* SpawnedFireTrailParticle;
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnCollision_CLI();
 
 	UFUNCTION()
 	void OnCollision(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
