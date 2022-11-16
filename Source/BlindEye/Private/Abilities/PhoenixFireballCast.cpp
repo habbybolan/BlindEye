@@ -91,7 +91,7 @@ void APhoenixFireballCast::BurnLogic()
 		BurnObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true);
 	for (FHitResult Hit : OutHits)
 	{ 
-		UGameplayStatics::ApplyPointDamage(Hit.GetActor(), 0.01, FVector::ZeroVector,
+		UGameplayStatics::ApplyPointDamage(Hit.GetActor(), BurningBaseDamagePerSec * BurnDamageDelay, FVector::ZeroVector,
 			Hit, GetInstigator()->GetController(),GetInstigator(), BurnDamageType);
 	}
 }
@@ -122,7 +122,7 @@ void APhoenixFireballCast::CollisionLogic()
 	{
 		BurnLocation = HitResult.Location;
 		BP_GroundBurning(BurnLocation, BurningDuration);
-		world->GetTimerManager().SetTimer(BurnTimerHandle, this, &APhoenixFireballCast::BurnLogic, 0.2, true);
+		world->GetTimerManager().SetTimer(BurnTimerHandle, this, &APhoenixFireballCast::BurnLogic, BurnDamageDelay, true);
 		
 	}
 
