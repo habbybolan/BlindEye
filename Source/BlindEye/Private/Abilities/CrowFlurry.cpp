@@ -192,6 +192,15 @@ void FPerformCrowFlurryState::ExitState()
 	Ability->UseAbility(EAbilityInputTypes::None);
 }
 
+void FPerformCrowFlurryState::CancelState()
+{
+	FAbilityState::CancelState();
+
+	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(CrowFlurry->GetOwner());
+	Player->GetMesh()->GetAnimInstance()->Montage_Stop(0, CrowFlurry->CrowFlurryAnimation);
+}
+
 // State to Start actually using the crow flurry *****************
 
 FCancelCrowFlurryState::FCancelCrowFlurryState(AAbilityBase* ability)  : FAbilityState(ability) {}
@@ -226,6 +235,24 @@ void FCancelCrowFlurryState::ExitState()
 	Ability->UseAbility(EAbilityInputTypes::None);
 }
 
+void FCancelCrowFlurryState::CancelState()
+{
+	FAbilityState::CancelState();
+	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(CrowFlurry->GetOwner());
+	Player->GetMesh()->GetAnimInstance()->Montage_Stop(0, CrowFlurry->CrowFlurryAnimation);
+
+	UWorld* World = Ability->GetWorld();
+	if(World)
+	{
+		World->GetTimerManager().ClearTimer(CrowFlurry->CrowFlurryTimerHandle);
+		World->GetTimerManager().ClearTimer(CrowFlurry->CalculateRotationTimerHandle);
+		World->GetTimerManager().ClearTimer(CrowFlurry->RotateFlurryTimerHandle);
+		World->GetTimerManager().ClearTimer(CrowFlurry->DurationTimerHandle);
+	}
+	
+}
+
 // State to wait for animation to end after crow flurry cancelled / stopped
 
 FEndCrowFlurryState::FEndCrowFlurryState(AAbilityBase* ability) : FAbilityState(ability) {}
@@ -243,12 +270,23 @@ void FEndCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
 	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);
 	Ability->Blockers.MovementSlowAmount = CrowFlurry->MovementSlowAfterStoppingFlurry;
 	Ability->Blockers.IsOtherAbilitiesBlocked = true;
+
+	Ability->TryCancelAbility();
 }
 
 void FEndCrowFlurryState::ExitState()
 {
 	FAbilityState::ExitState();
 	Ability->EndCurrState();
+}
+
+void FEndCrowFlurryState::CancelState()
+{
+	FAbilityState::CancelState();
+
+	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(CrowFlurry->GetOwner());
+	Player->GetMesh()->GetAnimInstance()->Montage_Stop(0, CrowFlurry->CrowFlurryAnimation);
 }
 
 
