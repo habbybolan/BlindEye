@@ -173,7 +173,8 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_DisplayTextSnippet(EEnemyTutorialType TutorialType);
 
-	void EnemyTutorialTrigger(EEnemyTutorialType TutorialType);
+	UFUNCTION(Server, Reliable)
+	void SER_EnemyTutorialTrigger(EEnemyTutorialType TutorialType);
 
 	void SetPlayerMovementBlocked(bool IsMovementBlocked);
 	

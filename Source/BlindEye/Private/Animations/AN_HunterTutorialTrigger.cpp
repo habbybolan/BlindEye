@@ -18,7 +18,7 @@ void UAN_HunterTutorialTrigger::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
 		{
 			if (BlindEyeGS->CurrEnemyTutorial == EEnemyTutorialType::Hunter)
 			{
-				BlindEyeGS->EnemyTutorialTrigger(EEnemyTutorialType::Hunter);
+				BlindEyeGS->SER_EnemyTutorialTrigger(EEnemyTutorialType::Hunter);
 			}
 		}
 	}

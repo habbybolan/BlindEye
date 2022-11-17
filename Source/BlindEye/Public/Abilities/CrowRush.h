@@ -17,6 +17,7 @@ public:
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
+	virtual bool CancelState() override;
 };
 
 // Moving to target state 
@@ -27,16 +28,7 @@ public:
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
-};
-
-// End State
-class BLINDEYE_API FEndState : public FAbilityState
-{ 
-public:
-	FEndState(AAbilityBase* ability);
-	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
-	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
-	virtual void ExitState() override;
+	virtual bool CancelState() override;
 };
 
 /**
@@ -128,6 +120,9 @@ public:
 	UFUNCTION(Client, Reliable)
 	void CLI_RemoveTarget();
 
+	FTimerHandle UpdateTargetTimerHandle;
+	FTimerHandle CheckIsLandedTimerHandle;
+
 protected:
 
 	FVector StartingPosition; 
@@ -135,12 +130,11 @@ protected:
 	float CalculatedDuration;
 
 	void UpdateTargetPosition();
-	FTimerHandle UpdateTargetTimerHandle;
-
+	
 	UFUNCTION()
 	void CheckIsLanded(); 
 	bool CheckIsLandedHelper();
-	FTimerHandle CheckIsLandedTimerHandle;
+	
 
 	FVector CalculateTargetPosition();
 

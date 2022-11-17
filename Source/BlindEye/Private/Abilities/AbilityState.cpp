@@ -34,9 +34,10 @@ void FAbilityState::RunState(EAbilityInputTypes abilityUsageType)
 	}
 }
 
-void FAbilityState::CancelState()
+bool FAbilityState::CancelState()
 {
 	ResetState();
+	return true;
 }
 
 void FAbilityState::HandleInput(EAbilityInputTypes abilityUsageType)

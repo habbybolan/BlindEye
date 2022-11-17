@@ -127,6 +127,14 @@ void UAbilityManager::RefreshAllCooldowns(float CooldownRefreshAmount)
 	}
 }
 
+void UAbilityManager::TryCancelCurrentAbility()
+{
+	if (CurrUsedAbility != nullptr)
+	{
+		CurrUsedAbility->TryCancelAbility();
+	}
+}
+
 
 // Called when the game starts
 void UAbilityManager::BeginPlay()
@@ -195,36 +203,20 @@ bool UAbilityManager::IsAbilityUnavailable(AAbilityBase* AbilityToUse) const
 	// Try to prevent using ability if hunter marked if possible
 	if (OwningPlayer->GetHealthComponent()->GetIsHunterDebuff())
 	{
-		if (CurrUsedAbility != nullptr)
-		{
-			// Allow using ability if it is a blocker (Cancelling abilities weren't fully implemented, so this is to prevent deadlocking on an ability)
-			if (!CurrUsedAbility->Blockers.IsOtherAbilitiesBlocked)
-			{
-				return false;
-			}
-			// if basic attack, cancel it and prevent attacking
-			else if (CurrUsedAbility == BasicAttack)
-			{
-				CurrUsedAbility->TryCancelAbility();
-				return true;
-			}
-		} else
-		{
-			return true;
-		}
+		return false;
 	}
 	
 	// Allow using if same ability currently in use 
 	if (CurrUsedAbility == AbilityToUse)
+	{
 		return false;  
-	
-	// If ability being used but not blocking
-	if (CurrUsedAbility != nullptr && !CurrUsedAbility->Blockers.IsOtherAbilitiesBlocked)
-	{ 
-		CurrUsedAbility->TryCancelAbility();
-		return false;
 	}
 
+	// If curr ability is basic attack, cancel that attack
+	if (CurrUsedAbility == BasicAttack)
+	{
+		CurrUsedAbility->TryCancelAbility();
+	}
 	
 	if (OwningPlayer->IsActionsBlocked() && CurrUsedAbility == nullptr)
 	{
@@ -232,8 +224,7 @@ bool UAbilityManager::IsAbilityUnavailable(AAbilityBase* AbilityToUse) const
 	}
 	
 	return	(AbilityToUse->GetIsOnCooldown() == true) ||
-			(CurrUsedAbility != nullptr &&
-			CurrUsedAbility->Blockers.IsOtherAbilitiesBlocked);
+			(CurrUsedAbility != nullptr);
 }
 
 void UAbilityManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

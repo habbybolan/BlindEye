@@ -107,6 +107,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UAbilityManager* AbilityManager;
 
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* TeleportingBackToShrineAnim;
+
+	UPROPERTY(EditDefaultsOnly)
+	float DamageFallingOffMap = 20.f;
+
 	virtual float GetHealth() override;
 	virtual void SetHealth(float NewHealth) override;
 	
@@ -404,9 +410,6 @@ protected:
 
 	UPROPERTY(Replicated, EditDefaultsOnly)
 	float CurrRevivePercent = 0; 
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_TutorialCheckList(ETutorialChecklist TutorialChecklist);
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_PlayerRevived();
@@ -451,6 +454,9 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_DisplayDefendShrineIndicator_CLI();
+
+	UFUNCTION()
+	void AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 protected:
 	// APawn interface

@@ -65,6 +65,9 @@ public:
 	
 	void RefreshAllCooldowns(float CooldownRefreshAmount);
 
+	UFUNCTION(BlueprintCallable)
+	void TryCancelCurrentAbility();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

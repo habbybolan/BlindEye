@@ -154,13 +154,10 @@ void ABlindEyeGameState::MULT_DisplayTextSnippet_Implementation(EEnemyTutorialTy
 	BP_EnemyTutorialTrigger_CLI(TutorialType);
 }
 
-void ABlindEyeGameState::EnemyTutorialTrigger(EEnemyTutorialType TutorialType)
+void ABlindEyeGameState::SER_EnemyTutorialTrigger_Implementation(EEnemyTutorialType TutorialType)
 {
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		if (bInEnemyTutorialSkippableSection) return;
-		MULT_DisplayTextSnippet(TutorialType);
-	}
+	if (bInEnemyTutorialSkippableSection) return;
+	MULT_DisplayTextSnippet(TutorialType);
 
 	for (APlayerState* PS : PlayerArray)
 	{
