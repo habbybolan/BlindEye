@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="ParameterPreset" id="{64ea70ed-a9d7-427b-9d6a-ae169cdce250}">
+		<property name="name">
+			<value>Shrine_Health</value>
+		</property>
+		<relationship name="folder">
+			<destination>{02d265e8-664c-4090-a3ed-2c68c9b6014e}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{7a3f9414-aecb-4fd3-a1c9-5cfa8f1923dd}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{7a3f9414-aecb-4fd3-a1c9-5cfa8f1923dd}">
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+	</object>
+</objects>
