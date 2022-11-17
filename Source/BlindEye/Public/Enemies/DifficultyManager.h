@@ -112,6 +112,8 @@ protected:
 
 	UFUNCTION()
 	void OnGameStarted();
+	UFUNCTION() 
+	void OnGameEnding();
 
 	UFUNCTION() 
 	void OnNewRound(uint8 CurrRound, float roundLength);

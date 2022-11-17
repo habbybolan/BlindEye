@@ -226,8 +226,10 @@ public:
 	float GetBirdMeterPercent() override;
 	virtual float GetBirdMeter() override;
 
-	void OnGameLost();
-	void OnGameWon();
+	UFUNCTION(Client, Reliable)
+	void CLI_OnGameLost();
+	UFUNCTION(Client, Reliable)
+	void CLI_OnGameWon();
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void UpdateShrineHealthUI(); 
@@ -400,9 +402,9 @@ protected:
 	void LookUpAtRate(float Rate);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnGameLostUI();
+	void BP_OnGameLostUI_CLI();
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnGameWonUI();
+	void BP_OnGameWonUI_CLI();
 	
 	void OnCheckAllyHealing();
 	FTimerHandle AllyHealingCheckTimerHandle;
