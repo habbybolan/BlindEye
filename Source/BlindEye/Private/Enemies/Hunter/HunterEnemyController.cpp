@@ -117,7 +117,7 @@ bool AHunterEnemyController::CanChargedJump(AActor* Target)
 	// TODO: Check if visible sight to player and no obstacles in the way	
 	return !Hunter->GetIsChargedJumpOnCooldown() &&
 			IsInChargedJumpRange(Target) &&
-			IsOnSameIslandAsPlayer(Target) &&
+			/*IsOnSameIslandAsPlayer(Target) &&*/
 			Hunter->GetIsCharged() &&
 			!Hunter->GetCharacterMovement()->IsFalling() &&
 			!Hunter->GetIsAttacking();
@@ -128,7 +128,7 @@ bool AHunterEnemyController::CanBasicAttack(AActor* Target)
 	if (Hunter == nullptr) return false;
 	
 	return  IsInBasicAttackRange(Target) &&
-			IsOnSameIslandAsPlayer(Target) &&
+			/*IsOnSameIslandAsPlayer(Target) &&*/
 			!Hunter->GetIsAttacking();
 }
 

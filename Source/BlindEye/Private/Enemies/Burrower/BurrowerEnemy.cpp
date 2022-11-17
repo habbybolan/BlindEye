@@ -154,7 +154,7 @@ void ABurrowerEnemy::SpawnSnappers()
 	FActorSpawnParameters params;
 	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	FVector location = GetMesh()->GetBoneLocation(TEXT("Mouth"));
-	FRotator rotation = GetMesh()->GetBoneQuaternion(TEXT("Mouth")).Rotator();
+	FRotator rotation = -1 * GetMesh()->GetBoneQuaternion(TEXT("Mouth")).Rotator();
 	
 	ASnapperEnemy* Snapper = World->SpawnActor<ASnapperEnemy>(SnapperType, location, rotation, params);
 	SnappersBeingSpawned.Add(Snapper);

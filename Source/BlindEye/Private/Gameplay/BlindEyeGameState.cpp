@@ -193,7 +193,7 @@ void ABlindEyeGameState::MULT_PlayLevelSequence_Implementation(ULevelSequence* S
 { 
 	UWorld* World = GetWorld();
 	FMovieSceneSequencePlaybackSettings Settings;
-	//Settings.bPauseAtEnd = true;
+	Settings.bPauseAtEnd = true;
 	Settings.bHideHud = true;
 	ALevelSequenceActor* OutActor; 
 	CurrSequencePlaying = ULevelSequencePlayer::CreateLevelSequencePlayer(World, SequenceToPlay, Settings, OutActor);
@@ -345,7 +345,10 @@ void ABlindEyeGameState::OnRep_InProgressMatchState()
 	}
 	else if (InProgressMatchState == InProgressStates::GameEnding)
 	{
-		// TODO:?
+		GameEndingState();
+	} else if (InProgressMatchState == InProgressStates::GameEnded)
+	{
+		GameEndedState();
 	}
 }
 
@@ -394,6 +397,34 @@ void ABlindEyeGameState::GameInProgressState()
 	if (World)
 	{
 		World->GetTimerManager().SetTimer(MainGameLoopTimer, this, &ABlindEyeGameState::RunMainGameLoopTimers, MainGameLoopDelay, true);
+	}
+}
+
+void ABlindEyeGameState::GameEndingState()
+{
+	BP_GameEnding_SER(GameOverState);
+	// TODO: Players looking around animation
+
+	GameEndingDelegate.Broadcast();
+	SetPlayerMovementBlocked(true);
+}
+
+void ABlindEyeGameState::GameEndedState()
+{
+	for (APlayerState* PS : PlayerArray)
+	{
+		if (PS->GetPawn())
+		{
+			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
+			if (GameOverState == EGameOverState::Lost)
+			{
+				Player->CLI_OnGameLost();
+			}
+			else if (GameOverState == EGameOverState::Won)
+			{
+				Player->CLI_OnGameWon();
+			}
+		}
 	}
 }
 

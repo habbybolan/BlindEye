@@ -67,7 +67,7 @@ void ABlindEyePlayerController::CLI_GameLost_Implementation()
 	if (GetPawn() == nullptr) return;
 	if (ABlindEyePlayerCharacter* BlindEyeCharacter = Cast<ABlindEyePlayerCharacter>(GetPawn()))
 	{
-		BlindEyeCharacter->OnGameLost();
+		BlindEyeCharacter->CLI_OnGameLost();
 	}
 }
 
@@ -88,6 +88,6 @@ void ABlindEyePlayerController::CLI_GameWon_Implementation()
 	if (GetPawn() == nullptr) return;
 	if (ABlindEyePlayerCharacter* BlindEyeCharacter = Cast<ABlindEyePlayerCharacter>(GetPawn()))
 	{
-		BlindEyeCharacter->OnGameWon();
+		BlindEyeCharacter->CLI_OnGameWon();
 	}
 }
