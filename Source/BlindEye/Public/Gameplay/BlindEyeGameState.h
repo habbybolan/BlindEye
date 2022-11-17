@@ -58,6 +58,9 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGameStartedSignature);
 	FGameStartedSignature GameStartedDelegate;
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGameEndingSignature);
+	FGameEndingSignature GameEndingDelegate;  
+
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FGameTimeSkippedSignature, float, TimeJumpedForwards);
 	FGameTimeSkippedSignature FGameTimeSkippedDelegate;   
 

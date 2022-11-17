@@ -41,6 +41,7 @@ void ADifficultyManager::BeginPlay()
 		BlindEyeGS->PulseDelegate.AddDynamic(this, &ADifficultyManager::OnNewRound);
 
 		BlindEyeGS->GameStartedDelegate.AddDynamic(this, &ADifficultyManager::OnGameStarted);
+		BlindEyeGS->GameEndingDelegate.AddDynamic(this, &ADifficultyManager::OnGameEnding);
 
 		IslandManager = Cast<AIslandManager>(UGameplayStatics::GetActorOfClass(World, AIslandManager::StaticClass()));
 		check(IslandManager);
@@ -71,7 +72,20 @@ void ADifficultyManager::OnGameStarted()
 	OnNewRound(0, BlindEyeGS->GetCurrRoundLength());
 	PlayHunterSpawnTimeline();
 }
- 
+
+void ADifficultyManager::OnGameEnding()
+{
+	// Spawning hunters and burrowers
+	CurrBurrowerSpawnMultTimeline->Deactivate();
+	HunterSpawnMultTimeline->Deactivate();
+	
+	// Hide and destroy all burrowers
+	if (BurrowerSpawnManager)
+	{
+		BurrowerSpawnManager->KillAllBurrowers();
+	}
+}
+
 void ADifficultyManager::OnNewRound(uint8 CurrRound, float roundLength)
 {
 	StopBurstWave();
@@ -86,7 +100,7 @@ void ADifficultyManager::OnNewRound(uint8 CurrRound, float roundLength)
 
 	UWorld* World = GetWorld();
 	if (ensure(World))
-	{
+	{ 
 		World->GetTimerManager().SetTimer(BurstWaveTimerHandle, this, &ADifficultyManager::PerformBurstWave,
 			roundLength - BurstWaveDurationPerRound[CurrRound], false);
 	}

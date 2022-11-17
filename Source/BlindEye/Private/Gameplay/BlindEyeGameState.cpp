@@ -404,6 +404,8 @@ void ABlindEyeGameState::GameEndingState()
 {
 	BP_GameEnding_SER(GameOverState);
 	// TODO: Players looking around animation
+
+	GameEndingDelegate.Broadcast();
 }
 
 void ABlindEyeGameState::GameEndedState()
