@@ -17,6 +17,7 @@ namespace InProgressStates
 	const FName Tutorial = FName(TEXT("Tutorial"));						
 	const FName GameInProgress = FName(TEXT("GameInProgress"));						
 	const FName GameEnding = FName(TEXT("GameEnding"));				
+	const FName GameEnded = FName(TEXT("GameEnded"));				
 }
 
 class AHunterEnemyController;
@@ -114,16 +115,22 @@ protected:
 	UFUNCTION()
 	void RunMainGameLoop();
 
+	// Called during sequence from blueprints
+	UFUNCTION(BlueprintCallable)
+	void SetGameEnded();
+
 	// states **********
 
 	void TutorialState();
 	void GameInProgressState();
 	void GameEndingState();
+	void GameEndedState();
 
 	// States Ended ****
 	
 	void OnGameEnded();
 	void OnGameWon();
+	void SetGameFinished(EGameOverState GameEndState);
 
 	void PerformPulse();
  
@@ -146,4 +153,7 @@ protected:
 
 	FTimerHandle StartingTutorialTimerHandle;
 	void DelayedStartTutorial();
+
+	UFUNCTION(BlueprintCallable)
+	void PerformGameWonPulse();
 };

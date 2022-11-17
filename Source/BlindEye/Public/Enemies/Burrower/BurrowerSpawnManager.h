@@ -42,6 +42,8 @@ public:
 	// Spawns a single burrower for intro enemy tutorial for burrowers and snappers
 	ABurrowerEnemy* TutorialBurrowerSpawn();
 
+	void KillAllBurrowers();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

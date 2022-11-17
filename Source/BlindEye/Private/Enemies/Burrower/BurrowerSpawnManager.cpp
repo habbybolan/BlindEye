@@ -201,6 +201,21 @@ ABurrowerEnemy* ABurrowerSpawnManager::TutorialBurrowerSpawn()
 	return Burrower;
 }
 
+void ABurrowerSpawnManager::KillAllBurrowers()
+{
+	for (TPair<uint8, TArray<ABurrowerEnemy*>> BurrowersAtIsland : SpawnedBurrowers)
+	{
+		for (ABurrowerEnemy* Burrower : BurrowersAtIsland.Value)
+		{
+			if (Burrower)
+			{
+				// TODO: some way to not show damage numbers?
+				Burrower->GetHealthComponent()->Kill();
+			}
+		}
+	}
+}
+
 UBurrowerSpawnPoint* ABurrowerSpawnManager::FindRandomUnusedSpawnPoint()
 {
 	AIsland* RandIsland = IslandManager->GetRandIsland();
