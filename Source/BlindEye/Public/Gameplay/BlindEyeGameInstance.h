@@ -6,7 +6,7 @@
 #include "Engine/GameInstance.h"
 #include "Interfaces/OnlineSessionInterface.h"
 #include "Interfaces/SessionMenuInterface.h"
-#include "UI/MainMenu.h"
+#include "UI/LobbyScreenBase.h"
 #include "BlindEyeGameInstance.generated.h"
 
 /**
@@ -19,16 +19,23 @@ class BLINDEYE_API UBlindEyeGameInstance : public UGameInstance, public ISession
 
 public:
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ULobbyScreenBase> CreateLobbyType;
 	UFUNCTION(BlueprintCallable)
-	void LoadMainMenu();
+	void LoadCreateLobby();
+
+	UPROPERTY(EditDefaultsOnly) 
+	TSubclassOf<ULobbyScreenBase> JoinLobbyType;
+	UFUNCTION(BlueprintCallable)
+	void LoadJoinLobby();
 
 	IOnlineSessionPtr SessionInterface;
 
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<UMainMenu> MainMenuType;
+	TSubclassOf<ULobbyScreenBase> MainMenuType;
 	
 	UPROPERTY()
-	UMainMenu* MainMenu;
+	ULobbyScreenBase* LobbyScreenBase;
 
 	// Shareable pointer to the session
 	TSharedPtr<FOnlineSessionSearch> SessionSearch;

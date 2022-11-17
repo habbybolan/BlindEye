@@ -12,12 +12,20 @@
 const static FName SESSION_NAME = TEXT("BlindEyeGame");
 const static FName SERVER_NAME_SETTINGS_KEY = TEXT("ServerName");
 
-void UBlindEyeGameInstance::LoadMainMenu()
+void UBlindEyeGameInstance::LoadCreateLobby()
 {
 	UWorld* World = GetWorld();
-	MainMenu = CreateWidget<UMainMenu>(GetLocalPlayerByIndex(0)->GetPlayerController(World), MainMenuType);
-	MainMenu->AddToViewport();
-	MainMenu->SessionMenuInterface = this;
+	LobbyScreenBase = CreateWidget<ULobbyScreenBase>(GetLocalPlayerByIndex(0)->GetPlayerController(World), CreateLobbyType);
+	LobbyScreenBase->AddToViewport();
+	LobbyScreenBase->SessionMenuInterface = this;
+}
+
+void UBlindEyeGameInstance::LoadJoinLobby()
+{
+	UWorld* World = GetWorld();
+	LobbyScreenBase = CreateWidget<ULobbyScreenBase>(GetLocalPlayerByIndex(0)->GetPlayerController(World), JoinLobbyType);
+	LobbyScreenBase->AddToViewport();
+	LobbyScreenBase->SessionMenuInterface = this;
 }
 
 void UBlindEyeGameInstance::Init()
@@ -79,9 +87,9 @@ void UBlindEyeGameInstance::OnCreateSessionComplete(FName SessionName, bool Succ
 	UE_LOG(LogTemp, Warning, TEXT("[UBlindEyeGameInstance::OnCreateSessionComplete] SUCESS SessionName: %s"), *SessionName.ToString());
 
 	// Teardown Menu and change levels
-	if (MainMenu != nullptr)
+	if (LobbyScreenBase != nullptr)
 	{
-		MainMenu->TearDown();
+		LobbyScreenBase->TearDown();
 	}
 
 	UEngine* Engine = GetEngine();
@@ -158,7 +166,7 @@ void UBlindEyeGameInstance::OnFindSessionsComplete(bool Success)
 				ServerData.Add(Data);
 			}
 			// Send the information back to the menu
-			MainMenu->InitializeSessionList(ServerData);
+			LobbyScreenBase->InitializeSessionList(ServerData);
 		}
 	}
 }
