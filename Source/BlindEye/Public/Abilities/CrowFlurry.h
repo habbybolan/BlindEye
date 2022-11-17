@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Abilities/AbilityBase.h"
 #include "DamageTypes/BaseDamageType.h"
+#include "Enemies/BlindEyeEnemyBase.h"
 #include "CrowFlurry.generated.h"
 
 class BLINDEYE_API FPerformCrowFlurryState : public FAbilityState
@@ -75,7 +76,10 @@ public:
 	float InitialCostPercent = 5; 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UBaseDamageType> DamageType;
+	TSubclassOf<UBaseDamageType> FirstHitDamageType;
+ 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UBaseDamageType> AlreadyHitDamageType;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0, ClampMax=1))
 	float CrowFlurryLerpSpeed = 0.15;
@@ -117,6 +121,8 @@ protected:
 
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	FRotator CurrFlurryRotation;
+
+	TSet<TWeakObjectPtr<AActor>> MarkedEnemies;
 
 	UFUNCTION()
 	void CrowFlurryDurationEnd();

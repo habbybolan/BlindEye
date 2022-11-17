@@ -111,8 +111,20 @@ void ACrowFlurry::PerformCrowFlurry()
 	
 	for (FHitResult Hit : OutHits)
 	{
-		UGameplayStatics::ApplyPointDamage(Hit.GetActor(), DamagePerSec * CrowFlurryDamageDelay, FVector::ZeroVector,
-					FHitResult(), GetInstigator()->Controller, this, DamageType);
+		// On first hit, apply mark
+		if (!MarkedEnemies.Contains(Hit.Actor))
+		{
+			UGameplayStatics::ApplyPointDamage(Hit.GetActor(), DamagePerSec * CrowFlurryDamageDelay, FVector::ZeroVector,
+						FHitResult(), GetInstigator()->Controller, this, FirstHitDamageType);
+			MarkedEnemies.Add(Hit.Actor);
+		}
+		// Otherwise, only damage
+		else
+		{
+			UGameplayStatics::ApplyPointDamage(Hit.GetActor(), DamagePerSec * CrowFlurryDamageDelay, FVector::ZeroVector,
+						FHitResult(), GetInstigator()->Controller, this, AlreadyHitDamageType);
+		}
+		
 	}
 
 	// consume bird meter
@@ -143,6 +155,7 @@ void ACrowFlurry::EndAbilityLogic()
 	{
 		BlindEyePlayerCharacter->CLI_ResetRotationRateToNormal();
 	}
+	MarkedEnemies.Empty();
 }
 
 // **** States *******
