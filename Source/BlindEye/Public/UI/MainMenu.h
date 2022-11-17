@@ -21,6 +21,7 @@ class ISessionMenuInterface;
 class USessionMenuInterface;
 class UButton;
 class USessionRow;
+class UScrollBox;
 
 /**
  * 
@@ -52,14 +53,20 @@ public:
 	UFUNCTION()
 	void OnJoinSelectedSession();
 
+	UFUNCTION()
+	void OnRefreshSessionList();
+
 	void TearDown();
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	class UButton* JoinSelectedSessionButton;
+	UButton* JoinSelectedSessionButton;
 
 	UPROPERTY(meta = (BindWidget))
-	class UScrollBox* ScrollSessionList;
+	UButton* RefreshListButton; 
+
+	UPROPERTY(meta = (BindWidget))
+	UScrollBox* ScrollSessionList;
 	
 	TOptional<uint32> SelectedScrollIndex = 0;
 	

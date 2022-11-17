@@ -12,8 +12,6 @@
 void UMainMenu::NativeConstruct()
 {
 	Super::NativeConstruct();
-
-	
 }
 
 bool UMainMenu::Initialize()
@@ -23,6 +21,7 @@ bool UMainMenu::Initialize()
 
 	NewSessionButton->OnClicked.AddDynamic(this, &UMainMenu::OnNewSessionPressed);
 	JoinSelectedSessionButton->OnClicked.AddDynamic(this, &UMainMenu::OnJoinSelectedSession);
+	RefreshListButton->OnClicked.AddDynamic(this, &UMainMenu::OnRefreshSessionList);
 	return true;
 }
 
@@ -65,7 +64,13 @@ void UMainMenu::OnJoinSelectedSession()
 {
 	// Calling the method Join Session with a specific index
 	// SelectedScrollIndex is an uint32 representing the row on a scroll // rect
-	SessionMenuInterface->JoinSession(SelectedScrollIndex.IsSet());
+	SessionMenuInterface->JoinSession(0);
+}
+
+void UMainMenu::OnRefreshSessionList()
+{
+	// reload list of sessions
+	SessionMenuInterface->RefreshSessionList();
 }
 
 void UMainMenu::TearDown()

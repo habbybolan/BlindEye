@@ -39,7 +39,7 @@ public:
 	virtual void JoinSession(uint32 Index) override;
 	virtual void EndSession() override;
 
-	virtual void OpenSessionListMenu() override;
+	virtual void RefreshSessionList() override;
 
 	void OnFindSessionsComplete(bool success);
 	void OnCreateSessionComplete(FName SessionName, bool Success);

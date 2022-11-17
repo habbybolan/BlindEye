@@ -72,11 +72,11 @@ void UBlindEyeGameInstance::OnCreateSessionComplete(FName SessionName, bool Succ
 	// It will not be success if there are more than one session with the same name already created
 	if (!Success)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[UCoopPuzzleGameInstance::OnCreateSessionComplete] UNSUCESS"));
+		UE_LOG(LogTemp, Warning, TEXT("[UBlindEyeGameInstance::OnCreateSessionComplete] UNSUCESS"));
 		return;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("[UNetTileMazeGameInstance::OnCreateSessionComplete] SUCESS SessionName: %s"), *SessionName.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("[UBlindEyeGameInstance::OnCreateSessionComplete] SUCESS SessionName: %s"), *SessionName.ToString());
 
 	// Teardown Menu and change levels
 	if (MainMenu != nullptr)
@@ -105,8 +105,10 @@ void UBlindEyeGameInstance::JoinSession(uint32 Index)
 {
 	// SESSION_NAME is a constant for the sessions
 	// const static FName SESSION_NAME = TEXT("CoopPuzzleGameSession");
+	UE_LOG(LogTemp, Warning, TEXT("[BlindEyeGameInstance::JoinSession] Checking if valid index: %i"), Index);
 	if (Index < (uint32)(SessionSearch->SearchResults.Num()))
 	{
+		UE_LOG(LogTemp, Warning, TEXT("[BlindEyeGameInstance::JoinSession] Joining a session"));
 		SessionInterface->JoinSession(0, SESSION_NAME, SessionSearch->SearchResults[Index]);
 	}
 }
@@ -116,34 +118,37 @@ void UBlindEyeGameInstance::EndSession()
 	
 }
 
-void UBlindEyeGameInstance::OpenSessionListMenu()
+void UBlindEyeGameInstance::RefreshSessionList()
 {
 	// Create the pointer  
 	SessionSearch = MakeShareable(new FOnlineSessionSearch());
 	if (SessionSearch.IsValid())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("[BlindEyeGameInstance::OpenSessionListMenu] Start finding session lists"));
 		// Set properties
 		SessionSearch->MaxSearchResults = 100;
 		SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true,
 								  EOnlineComparisonOp::Equals);
-		SessionInterface->FindSessions(0,
-			SessionSearch.ToSharedRef());
+		SessionInterface->FindSessions(0,SessionSearch.ToSharedRef());
 	}
 }
 
 void UBlindEyeGameInstance::OnFindSessionsComplete(bool Success)
 {
+	UE_LOG(LogTemp, Warning, TEXT("[BlindEyeGameInstance::OnFindSessionsComplete] Started"));
 	if (Success && SessionSearch.IsValid())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("[BlindEyeGameInstance::OnFindSessionsComplete] Success"));
 		if (SessionSearch->SearchResults.Num() > 0)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("[BlindEyeGameInstance::OnFindSessionsComplete] Num Sessions: %s"), *FString::FromInt((uint8)SessionSearch->SearchResults.Num()));
 			TArray<FServerData> ServerData;
 			for (const FOnlineSessionSearchResult& SearchResult : 
 									   SessionSearch->SearchResults)
 			{
 				FServerData Data;
 				FString ServerName;
-				if (SearchResult.Session.SessionSettings.Get("SERVER_NAME_SETTINGS_KEY", ServerName))
+				if (SearchResult.Session.SessionSettings.Get(SERVER_NAME_SETTINGS_KEY, ServerName))
 				{
 					Data.Name = ServerName;
 				}
@@ -166,6 +171,7 @@ void UBlindEyeGameInstance::OnJoinSessionsComplete(FName SessionName, EOnJoinSes
 	{
 		return;
 	}
+	UE_LOG(LogTemp, Warning, TEXT("[BlindEyeGameInstance::JoinSession] Travelling to joined session"));
 	// The player controller travels to that url on that specific session
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
 	PlayerController->ClientTravel(Url, ETravelType::TRAVEL_Absolute);
@@ -173,7 +179,7 @@ void UBlindEyeGameInstance::OnJoinSessionsComplete(FName SessionName, EOnJoinSes
 
 void UBlindEyeGameInstance::CreateSession()
 {
-	UE_LOG(LogTemp, Warning, TEXT("[UCoopPuzzleGameInstance::CreateSession] Creating %s"), *SESSION_NAME.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("[UBlindEyeGameInstance::CreateSession] Creating %s"), *SESSION_NAME.ToString());
 
 	if (SessionInterface.IsValid())
 	{
