@@ -45,6 +45,12 @@ void ABlindEyeGameMode::DelayedStartTutorial()
 	SetInProgressMatchState(InProgressStates::Tutorial);
 }
 
+void ABlindEyeGameMode::PerformGameWonPulse()
+{
+	BP_Pulse(3);
+	// TODO: Play characters cheering animation?
+}
+
 void ABlindEyeGameMode::BeginPlay()
 {
 	Super::BeginPlay();
@@ -97,43 +103,32 @@ void ABlindEyeGameMode::GameInProgressState()
 void ABlindEyeGameMode::GameEndingState()
 {
 	// TODO:
-	SetMatchState(MatchState::WaitingPostMatch);
+}
+
+void ABlindEyeGameMode::GameEndedState()
+{
+	// TODO:
 }
 
 void ABlindEyeGameMode::OnGameEnded()
 {
-	UWorld* World = GetWorld();
-	if (!World) return;
-
-	ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState);
-	BlindEyeGameState->GameOverState = EGameOverState::Lost;
-	
-	for (FConstPlayerControllerIterator Iterator = World->GetPlayerControllerIterator(); Iterator; ++Iterator)
-	{
-		APlayerController* PlayerController = Iterator->Get();
-		if (ABlindEyePlayerController* BlindEyePlayerController = Cast<ABlindEyePlayerController>(PlayerController))
-		{
-			BlindEyePlayerController->CLI_GameLost();
-		}
-	}
+	SetGameFinished(EGameOverState::Lost);
 }
 
 void ABlindEyeGameMode::OnGameWon()
 {
+	SetGameFinished(EGameOverState::Won);
+}
+
+void ABlindEyeGameMode::SetGameFinished(EGameOverState GameEndState)
+{
 	UWorld* World = GetWorld();
 	if (!World) return;
 
+	World->GetTimerManager().ClearTimer(MainGameLoopTimerHandle);
 	ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState);
-	BlindEyeGameState->GameOverState = EGameOverState::Won;
-	
-	for (FConstPlayerControllerIterator Iterator = World->GetPlayerControllerIterator(); Iterator; ++Iterator)
-	{
-		APlayerController* PlayerController = Iterator->Get();
-		if (ABlindEyePlayerController* BlindEyePlayerController = Cast<ABlindEyePlayerController>(PlayerController))
-		{
-			BlindEyePlayerController->CLI_GameWon();
-		}
-	}
+	BlindEyeGameState->GameOverState = GameEndState;
+	SetInProgressMatchState(InProgressStates::GameEnding);
 }
 
 void ABlindEyeGameMode::PerformPulse()
@@ -200,6 +195,9 @@ void ABlindEyeGameMode::OnBlindEyeMatchStateSet()
 	else if (InProgressMatchState == InProgressStates::GameEnding)
 	{
 		GameEndingState();
+	} else if (InProgressMatchState == InProgressStates::GameEnded)
+	{
+		GameEndedState();
 	}
 }
 
@@ -387,12 +385,23 @@ void ABlindEyeGameMode::OnPlayerRevived(ABlindEyePlayerState* RevivedPlayer)
 void ABlindEyeGameMode::RunMainGameLoop()
 {
 	ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState);
+	if (BlindEyeGameState->GameOverState > EGameOverState::InProgress) return;
 
 	// Increment game timer if not paused
 	if (!BlindEyeGameState->bWinConditionPaused)
 	{
 		GameTimer += MainGameLoopDelay;
 		PulseTimer += MainGameLoopDelay;
+	}
+
+	// Won condition check
+	if (BlindEyeGameState->GameOverState == EGameOverState::InProgress)
+	{
+		if (GameTimer > TimerUntilGameWon)
+		{
+			OnGameWon();
+			return;
+		}
 	}
 
 	// Check for pulse events
@@ -416,21 +425,17 @@ void ABlindEyeGameMode::RunMainGameLoop()
 		}
 	}
 
-	// Won condition check
-	if (BlindEyeGameState->GameOverState == EGameOverState::InProgress)
-	{
-		if (GameTimer > TimerUntilGameWon)
-		{
-			OnGameWon();
-		}
-	}
-
 	TimerForUpdatingGameState += MainGameLoopDelay;
 	if (TimerForUpdatingGameState >= DelayInUpdatingGameState)
 	{
 		TimerForUpdatingGameState = 0;
 		UpdateGameStateValues();
 	}
+}
+
+void ABlindEyeGameMode::SetGameEnded()
+{
+	SetInProgressMatchState(InProgressStates::GameEnded);
 }
 
 void ABlindEyeGameMode::InitGameState()

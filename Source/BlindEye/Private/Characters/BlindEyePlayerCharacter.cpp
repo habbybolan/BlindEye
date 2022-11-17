@@ -1055,14 +1055,14 @@ float ABlindEyePlayerCharacter::GetBirdMeter()
 	return 0;
 }
 
-void ABlindEyePlayerCharacter::OnGameLost()
+void ABlindEyePlayerCharacter::CLI_OnGameLost_Implementation()
 {
-	OnGameLostUI();
+	BP_OnGameLostUI_CLI();
 }
 
-void ABlindEyePlayerCharacter::OnGameWon()
-{
-	OnGameWonUI();
+void ABlindEyePlayerCharacter::CLI_OnGameWon_Implementation()
+{ 
+	BP_OnGameWonUI_CLI();
 }
 
 float ABlindEyePlayerCharacter::GetHealthPercent()

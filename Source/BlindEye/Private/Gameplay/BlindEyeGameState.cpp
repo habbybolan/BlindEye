@@ -345,7 +345,10 @@ void ABlindEyeGameState::OnRep_InProgressMatchState()
 	}
 	else if (InProgressMatchState == InProgressStates::GameEnding)
 	{
-		// TODO:?
+		GameEndingState();
+	} else if (InProgressMatchState == InProgressStates::GameEnded)
+	{
+		GameEndedState();
 	}
 }
 
@@ -394,6 +397,31 @@ void ABlindEyeGameState::GameInProgressState()
 	if (World)
 	{
 		World->GetTimerManager().SetTimer(MainGameLoopTimer, this, &ABlindEyeGameState::RunMainGameLoopTimers, MainGameLoopDelay, true);
+	}
+}
+
+void ABlindEyeGameState::GameEndingState()
+{
+	BP_GameEnding_SER(GameOverState);
+	// TODO: Players looking around animation
+}
+
+void ABlindEyeGameState::GameEndedState()
+{
+	for (APlayerState* PS : PlayerArray)
+	{
+		if (PS->GetPawn())
+		{
+			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
+			if (GameOverState == EGameOverState::Lost)
+			{
+				Player->CLI_OnGameLost();
+			}
+			else if (GameOverState == EGameOverState::Won)
+			{
+				Player->CLI_OnGameWon();
+			}
+		}
 	}
 }
 

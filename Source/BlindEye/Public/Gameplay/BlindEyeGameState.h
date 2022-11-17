@@ -183,7 +183,10 @@ public:
 	
 	void StartEnemyTutorial(EEnemyTutorialType TutorialType);
 
-protected:
+	UFUNCTION(BlueprintImplementableEvent, meta=(ToolTip="When game is starting to end, event where cutscene is played.")) 
+	void BP_GameEnding_SER(EGameOverState GameEndState);
+
+protected: 
 
 	UPROPERTY(Replicated)
 	TWeakObjectPtr<AShrine> Shrine;
@@ -210,6 +213,8 @@ protected:
 	void EnemyDied(AActor* Enemy);
 
 	void GameInProgressState();
+	void GameEndingState();
+	void GameEndedState();
 	UFUNCTION()
 	virtual void OnRep_InProgressMatchState();
 
