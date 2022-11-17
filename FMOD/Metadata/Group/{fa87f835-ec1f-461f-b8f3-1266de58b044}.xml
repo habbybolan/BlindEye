@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="MixerGroup" id="{fa87f835-ec1f-461f-b8f3-1266de58b044}">
+		<property name="name">
+			<value>Shrine</value>
+		</property>
+		<relationship name="effectChain">
+			<destination>{faa51354-8e87-476b-a691-5f0dc9362d70}</destination>
+		</relationship>
+		<relationship name="panner">
+			<destination>{2fe70435-0001-4218-af07-c48b5390d2fd}</destination>
+		</relationship>
+		<relationship name="output">
+			<destination>{1ec36a00-7ade-43e1-9fa7-9a0a387d4a81}</destination>
+		</relationship>
+	</object>
+	<object class="MixerBusEffectChain" id="{faa51354-8e87-476b-a691-5f0dc9362d70}">
+		<relationship name="effects">
+			<destination>{8d9774dd-6a3a-4e83-9d39-b9f2bbd0747a}</destination>
+		</relationship>
+	</object>
+	<object class="MixerBusPanner" id="{2fe70435-0001-4218-af07-c48b5390d2fd}" />
+	<object class="MixerBusFader" id="{8d9774dd-6a3a-4e83-9d39-b9f2bbd0747a}" />
+</objects>
