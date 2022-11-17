@@ -10,8 +10,8 @@
 
 bool UJoinLobbyScreen::Initialize()
 {
-	//JoinSelectedSessionButton->OnClicked.AddDynamic(this, &UJoinLobbyScreen::OnJoinSelectedSession);
-	//RefreshListButton->OnClicked.AddDynamic(this, &UJoinLobbyScreen::OnRefreshSessionList);
+	JoinSelectedSessionButton->OnClicked.AddDynamic(this, &UJoinLobbyScreen::OnJoinSelectedSession);
+	RefreshListButton->OnClicked.AddDynamic(this, &UJoinLobbyScreen::OnRefreshSessionList);
 	return true;
 }
 
