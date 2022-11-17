@@ -406,6 +406,7 @@ void ABlindEyeGameState::GameEndingState()
 	// TODO: Players looking around animation
 
 	GameEndingDelegate.Broadcast();
+	SetPlayerMovementBlocked(true);
 }
 
 void ABlindEyeGameState::GameEndedState()
