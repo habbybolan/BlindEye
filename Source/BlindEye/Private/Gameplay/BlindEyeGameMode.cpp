@@ -80,7 +80,11 @@ FTransform ABlindEyeGameMode::GetSpawnPoint() const
 
 void ABlindEyeGameMode::OnShrineDeath()
 {
-	OnGameEnded();
+	// End game if game in progress
+	if (InProgressMatchState == InProgressStates::GameInProgress)
+	{
+		OnGameEnded();
+	}
 }
 
 void ABlindEyeGameMode::HandleMatchHasStarted() 
@@ -370,9 +374,13 @@ void ABlindEyeGameMode::OnPlayerDied(ABlindEyePlayerState* DeadPlayer)
 	ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState);
 	BlindEyeGameState->OnPlayerDied(DeadPlayer);
 
+	// End match if all players died and game in progress
 	if (BlindEyeGameState->DeadPlayers.Num() >= BlindEyeGameState->PlayerArray.Num())
 	{
-		OnGameEnded();
+		if (InProgressMatchState == InProgressStates::GameInProgress)
+		{
+			OnGameEnded();
+		}
 	}
 }
 
