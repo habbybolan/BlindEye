@@ -47,7 +47,8 @@ void ABlindEyeGameMode::DelayedStartTutorial()
 
 void ABlindEyeGameMode::PerformGameWonPulse()
 {
-	BP_Pulse(3);
+	PerformPulse();
+	BP_Pulse(3); 
 	// TODO: Play characters cheering animation?
 }
 
