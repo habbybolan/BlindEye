@@ -23,7 +23,7 @@ Blind Eye is a two player, 3D, third person, cooperative battle arena defense ga
 
 [Level Design Factors](<https://docs.google.com/document/d/1ATU7krTRZixEQwd1cCI7gx1cGhSRb6L6npKrDVWEvss/edit?usp=sharing>)
 
-[Fresh Eyes Playtest Feedback Form](<https://docs.google.com/forms/d/1EpBZoUvKfLMMF3GaZU68zBlcoBp9yx0hS8Al0QKMMKw/edit?usp=sharing>)
+[Fresh Eyes Playtest Feedback Form](<https://docs.google.com/forms/d/e/1FAIpQLSdNNzGahPK0Pr8U_5arUTuBf6J3kEpPAI5OYpb1MMlBAThgdA/viewform?usp=sharing>)
 
 [Meda Design Document](<https://miro.com/app/board/uXjVOpPOsmM=/?share_link_id=994276187786>)
 
