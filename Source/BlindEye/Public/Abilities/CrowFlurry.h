@@ -91,6 +91,9 @@ public:
 	float CrowFlurryDamageDelay = 0.2f;
  
 	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
+	float MovementSlowDuringFlurry = 0.5;
+	
+	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
 	float MovementSlowAfterStoppingFlurry = 0.5;
  
 	UPROPERTY(EditDefaultsOnly)

@@ -194,7 +194,8 @@ void FPerformCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
 	// wait for ability startup to goto end state
 	CrowFlurry->PlayAbilityAnimation();
 
-	Ability->Blockers.IsMovementBlocked = true;
+	Ability->Blockers.IsMovementSlowBlocked = true;
+	Ability->Blockers.MovementSlowAmount = CrowFlurry->MovementSlowDuringFlurry;
 	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 }
 
@@ -232,7 +233,8 @@ void FCancelCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
 	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);
 	if (CrowFlurry == nullptr) return;
 
-	Ability->Blockers.IsMovementBlocked = true;
+	Ability->Blockers.IsMovementSlowBlocked = true;
+	Ability->Blockers.MovementSlowAmount = CrowFlurry->MovementSlowDuringFlurry;
 	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 	
 	if (abilityUsageType == EAbilityInputTypes::Pressed)
