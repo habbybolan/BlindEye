@@ -134,16 +134,9 @@ void ASnapperEnemy::MULT_PerformBasicAttackHelper_Implementation()
 
 void ASnapperEnemy::TempLaunch()
 {
-	if (ABlindEyeEnemyController* BlindEyeController = Cast<ABlindEyeEnemyController>(GetController()))
-	{
-		if (AActor* Target = BlindEyeController->GetBTTarget())
-		{
-			FVector Direction = Target->GetActorLocation() - GetActorLocation();
-			Direction.Normalize();
-			Direction += FVector::UpVector * .4f;
-			GetCharacterMovement()->AddImpulse(Direction * 50000);
-		}
-	}
+	GetCharacterMovement()->StopMovementImmediately();
+	GetCharacterMovement()->AddImpulse(GetActorForwardVector() * 50000 + FVector::UpVector * 50000);
+	GetCharacterMovement()->SetMovementMode(MOVE_Falling);
 }
 
 void ASnapperEnemy::LaunchSwing()
@@ -319,13 +312,12 @@ void ASnapperEnemy::OnAnimMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 
 	if (Montage == JumpAttackAnim)
 	{
-		TempLaunch();
 		LaunchSwing();
 		IsJumpAttackOnDelay = true;
 		TryRagdoll(true);
 		GetWorldTimerManager().SetTimer(JumpAttackDelayTimerHandle, this, &ASnapperEnemy::SetCanJumpAttack, JumpAttackDelay, false);
 
-		GetWorldTimerManager().ClearTimer(PerformingJumpAttackTimerHandle);
+		//GetWorldTimerManager().ClearTimer(PerformingJumpAttackTimerHandle);
 		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	}
@@ -368,11 +360,11 @@ bool ASnapperEnemy::IsLayingOnFront()
 
 void ASnapperEnemy::MULT_PerformJumpAttackHelper_Implementation()
 {
+	//GetMesh()->GetAnimInstance()->StopAllMontages(0);
 	PlayAnimMontage(JumpAttackAnim);
-	
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None); 
+	TempLaunch();
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	GetWorldTimerManager().SetTimer(PerformingJumpAttackTimerHandle, this, &ASnapperEnemy::PerformingJumpAttack, JumpAttackTimerDelay, true);
+	//GetWorldTimerManager().SetTimer(PerformingJumpAttackTimerHandle, this, &ASnapperEnemy::PerformingJumpAttack, JumpAttackTimerDelay, true);
 }
 
 void ASnapperEnemy::PerformingJumpAttack()
