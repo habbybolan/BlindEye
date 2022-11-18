@@ -59,7 +59,13 @@ public:
 	TSubclassOf<UBaseDamageType> BasicAttackDamageTypeWithMark;
 
 	UPROPERTY(EditDefaultsOnly, Category=BasicAttack) 
-	UAnimMontage* BasicAttackAnimation;
+	UAnimMontage* BasicAttackRightAnimation;
+ 
+	UPROPERTY(EditDefaultsOnly, Category=BasicAttack) 
+	UAnimMontage* BasicAttackLeftAnimation;
+
+	UPROPERTY(EditDefaultsOnly, Category=BasicAttack, meta=(ClampMin=0, ClampMax=1))
+	float MovementSlowOnBasicAttack = 0.5;
 
 	UPROPERTY(EditDefaultsOnly, Category=Charged, meta=(ClampMin=1))
 	float ChargedCooldown = 15.f;

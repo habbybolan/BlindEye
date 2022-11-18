@@ -205,7 +205,9 @@ void AHunterEnemy::PerformBasicAttack()
 
 void AHunterEnemy::MULT_PerformBasicAttackHelper_Implementation()
 {
-	PlayAnimMontage(BasicAttackAnimation);
+	GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed * MovementSlowOnBasicAttack;
+	uint8 RandAnim = UKismetMathLibrary::RandomIntegerInRange(0, 1);
+	PlayAnimMontage(RandAnim == 0 ? BasicAttackLeftAnimation : BasicAttackRightAnimation);
 }
 
 void AHunterEnemy::OnHunterMarkDetonated(AActor* MarkedPawn, EMarkerType MarkerType)
@@ -363,12 +365,13 @@ void AHunterEnemy::ChannelingAnimFinished()
 	SetCharged();
 }
 
-void AHunterEnemy::AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+void AHunterEnemy::AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted) 
 {
 	// If attacking animation
-	if (Montage == ChargedJumpAnim || Montage == BasicAttackAnimation)
+	if (Montage == ChargedJumpAnim || Montage == BasicAttackLeftAnimation || Montage == BasicAttackRightAnimation )
 	{
 		bAttacking = false;
+		GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed;
 	}
 }
 

@@ -22,6 +22,9 @@ class BLINDEYE_API UANS_HunterBasicAttack : public UANS_BaseHunterAttack
 	UPROPERTY(EditDefaultsOnly)
 	float Radius = 10.f;
 
+	UPROPERTY(EditDefaultsOnly)
+	bool bLeftArmSwing = true;
+
 	virtual void NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime) override;
 
 	virtual void ApplyHit(FHitResult Hit, bool bApplyMark) override;
