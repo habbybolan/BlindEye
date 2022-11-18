@@ -16,7 +16,7 @@ ACrowFlurry::ACrowFlurry()
 	AbilityStates.Add(new FPerformCrowFlurryState(this));
 	AbilityStates.Add(new FCancelCrowFlurryState(this));
 	AbilityStates.Add(new FEndCrowFlurryState(this));
-	AbilityType = EAbilityTypes::Unique2;
+	AbilityType = EAbilityTypes::Unique1;
 }
 
 void ACrowFlurry::BeginPlay()
