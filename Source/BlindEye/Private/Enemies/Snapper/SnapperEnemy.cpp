@@ -102,38 +102,34 @@ void ASnapperEnemy::MULT_OnSpawnCollisionHelper_Implementation()
 void ASnapperEnemy::PerformJumpAttack()
 {
 	if (bRagdolling) return;
-	TempLaunch();
-	GetWorldTimerManager().SetTimer(LaunchSwingTimerHandle, this, &ASnapperEnemy::LaunchSwing, 0.2, false);
+	
+	IsJumpAttackOnDelay = true;
+	MULT_PerformJumpAttackHelper();
+}
+
+void ASnapperEnemy::SetCanJumpAttack()
+{
+	IsJumpAttackOnDelay = false;
+}
+
+void ASnapperEnemy::SetCanBasicAttack()
+{
+	IsBasicAttackOnDelay = false;
 }
 
 void ASnapperEnemy::PerformBasicAttack()
 {
 	if (bRagdolling) return;
-
-	UWorld* world = GetWorld();
-	if (!world) return;
-
-	ABlindEyeEnemyController* BlindEyeController = Cast<ABlindEyeEnemyController>(GetController());
-	if (BlindEyeController == nullptr) return;
-
-	AActor* Target = BlindEyeController->GetBTTarget();
-	if (Target == nullptr) return;
-
-	FVector Direction = Target->GetActorLocation() - GetActorLocation();
-	Direction.Normalize();
-	
-	TArray<FHitResult> OutHits;
-	UKismetSystemLibrary::BoxTraceMultiForObjects(world, GetActorLocation(), GetActorForwardVector() * 300, FVector(0, 100 / 2, 100 / 2),
-		GetActorRotation(), ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true);
-	
-	for (FHitResult Hit : OutHits)
+	if (!IsBasicAttackOnDelay)
 	{
-		AActor* HitActor = Hit.GetActor();
-		if (!HitActor) continue;
-	
-		UGameplayStatics::ApplyPointDamage(HitActor, BasicAttackDamage
-			, Hit.ImpactNormal, Hit, GetController(), this, JumpAttackDamageType);
+		IsBasicAttackOnDelay = true;
+		MULT_PerformBasicAttackHelper();
 	}
+}
+
+void ASnapperEnemy::MULT_PerformBasicAttackHelper_Implementation()
+{
+	PlayAnimMontage(BasicAttackAnim);
 }
 
 void ASnapperEnemy::TempLaunch()
@@ -166,7 +162,7 @@ void ASnapperEnemy::LaunchSwing()
 	
 	TArray<FHitResult> OutHits;
 	UKismetSystemLibrary::BoxTraceMultiForObjects(world, GetActorLocation(), GetActorLocation() + Direction * 300, FVector(0, 100 / 2, 100 / 2),
-		GetActorRotation(), ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true);
+		GetActorRotation(), PlayerObjectType, false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true);
 	
 	for (FHitResult Hit : OutHits)
 	{
@@ -175,8 +171,6 @@ void ASnapperEnemy::LaunchSwing()
 	
 		UGameplayStatics::ApplyPointDamage(HitActor, JumpAttackDamage, Hit.ImpactNormal, Hit, GetController(), this, JumpAttackDamageType);
 	}
-
-	TryRagdoll(true);
 }
 
 bool ASnapperEnemy::GetIsRagdolling()
@@ -322,6 +316,24 @@ void ASnapperEnemy::OnAnimMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 		bGettingUp = false;
 		bRagdolling = false;
 	}
+
+	if (Montage == JumpAttackAnim)
+	{
+		TempLaunch();
+		LaunchSwing();
+		IsJumpAttackOnDelay = true;
+		TryRagdoll(true);
+		GetWorldTimerManager().SetTimer(JumpAttackDelayTimerHandle, this, &ASnapperEnemy::SetCanJumpAttack, JumpAttackDelay, false);
+
+		GetWorldTimerManager().ClearTimer(PerformingJumpAttackTimerHandle);
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	}
+
+	if (Montage == BasicAttackAnim)
+	{
+		GetWorldTimerManager().SetTimer(BasicAttackDelayTimerHandle, this, &ASnapperEnemy::SetCanBasicAttack, BasicAttackDelay, false);
+	}
 }
 
 void ASnapperEnemy::SetPhysicsBlendWeight()
@@ -352,6 +364,21 @@ bool ASnapperEnemy::IsLayingOnFront()
 	FHitResult OutHit; 
 	return UKismetSystemLibrary::LineTraceSingle(World, HipsLocation, HipsLocation + ProperFwd * 50, ETraceTypeQuery::TraceTypeQuery1, false, TArray<AActor*>(),
 		EDrawDebugTrace::None, OutHit, true);
+}
+
+void ASnapperEnemy::MULT_PerformJumpAttackHelper_Implementation()
+{
+	PlayAnimMontage(JumpAttackAnim);
+	
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None); 
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GetWorldTimerManager().SetTimer(PerformingJumpAttackTimerHandle, this, &ASnapperEnemy::PerformingJumpAttack, JumpAttackTimerDelay, true);
+}
+
+void ASnapperEnemy::PerformingJumpAttack()
+{
+	FVector ForwardEase = GetActorLocation() + GetActorForwardVector() * JumpForwardSpeed * JumpAttackTimerDelay;
+	SetActorLocation(ForwardEase /*+ UpEase*/);
 }
 
 void ASnapperEnemy::OnDeath(AActor* ActorThatKilled)

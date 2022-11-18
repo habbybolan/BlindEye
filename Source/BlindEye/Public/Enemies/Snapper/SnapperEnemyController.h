@@ -20,18 +20,6 @@ class BLINDEYE_API ASnapperEnemyController : public ABlindEyeEnemyController
 public:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump Attack")
-	float DistanceToJumpAttack = 200.f;
- 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump Attack")
-	float JumpAttackDelay = 3.f;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
-	float DistanceToBasicAttack = 200.f;
-    	  
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
-	float BasicAttackDelay = 3.f;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float DelayUntilAttackShrineAgain = 3.0f;
 
@@ -56,12 +44,6 @@ public:
 	
 protected:
 
-	bool IsJumpAttackOnDelay = false;
-	FTimerHandle JumpAttackDelayTimerHandle;
-
-	bool IsBasicAttackOnDelay = false;
-	FTimerHandle BasicAttackDelayTimerHandle;
-
 	FTimerHandle CooldownToAttackShrineTimerHandle;
 
 	void SetShrineAsTarget();
@@ -73,8 +55,6 @@ protected:
 	ASnapperEnemy* Snapper;
 
 	virtual void OnPossess(APawn* InPawn) override;
-	void SetCanJumpAttack();
-	void SetCanBasicAttack();
 
 	virtual void OnTauntStart(float Duration, AActor* Taunter) override;
 	virtual void OnTauntEnd() override;

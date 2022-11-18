@@ -28,7 +28,7 @@ void ASnapperEnemyController::SetTargetEnemy(AActor* target)
 
 bool ASnapperEnemyController::CanJumpAttack(AActor* target)
 { 
-	return !IsJumpAttackOnDelay && IsInJumpAttackRange(target);
+	return !Snapper->IsJumpAttackOnDelay && IsInJumpAttackRange(target);
 }
 
 bool ASnapperEnemyController::IsInJumpAttackRange(AActor* Target) 
@@ -38,7 +38,7 @@ bool ASnapperEnemyController::IsInJumpAttackRange(AActor* Target)
 		FVector TargetLocation = Target->GetActorLocation();
 
 		if (!Snapper) return false;
-		return FVector::Distance(TargetLocation, Snapper->GetActorLocation()) < DistanceToJumpAttack;
+		return FVector::Distance(TargetLocation, Snapper->GetActorLocation()) < Snapper->DistanceToJumpAttack;
 	}
 	return false;
 }
@@ -46,13 +46,11 @@ bool ASnapperEnemyController::IsInJumpAttackRange(AActor* Target)
 void ASnapperEnemyController::PerformJumpAttack()
 {
 	Snapper->PerformJumpAttack();
-	IsJumpAttackOnDelay = true;
-	GetWorldTimerManager().SetTimer(JumpAttackDelayTimerHandle, this, &ASnapperEnemyController::SetCanJumpAttack, JumpAttackDelay, false);
 }
 
 bool ASnapperEnemyController::CanBasicAttack(AActor* target)
 {
-	return !IsBasicAttackOnDelay && IsInBasicAttackRange(target);
+	return !Snapper->IsBasicAttackOnDelay && IsInBasicAttackRange(target);
 }
 
 bool ASnapperEnemyController::IsInBasicAttackRange(AActor* Target)
@@ -103,8 +101,6 @@ void ASnapperEnemyController::OnSnapperDeath()
 void ASnapperEnemyController::PerformBasicAttack()
 {
 	Snapper->PerformBasicAttack();
-	IsBasicAttackOnDelay = true;
-	GetWorldTimerManager().SetTimer(BasicAttackDelayTimerHandle, this, &ASnapperEnemyController::SetCanBasicAttack, BasicAttackDelay, false);
 }
 
 void ASnapperEnemyController::SetShrineAsTarget()
@@ -124,16 +120,6 @@ void ASnapperEnemyController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 	Snapper = Cast<ASnapperEnemy>(InPawn);
-}
-
-void ASnapperEnemyController::SetCanJumpAttack()
-{
-	IsJumpAttackOnDelay = false;
-}
-
-void ASnapperEnemyController::SetCanBasicAttack()
-{
-	IsBasicAttackOnDelay = false;
 }
 
 void ASnapperEnemyController::OnTauntStart(float Duration, AActor* Taunter)
