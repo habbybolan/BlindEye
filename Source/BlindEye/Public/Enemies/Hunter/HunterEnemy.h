@@ -10,6 +10,7 @@
 UENUM(BlueprintType)
 enum class EHunterAttacks : uint8
 {
+	None,
 	BasicAttack,
 	ChargedJump
 };
@@ -129,6 +130,7 @@ public:
 	bool GetIsChargedJumpOnCooldown();
 	
 	bool GetIsAttacking();
+	EHunterAttacks GetCurrAttack();
 
 	bool GetIsCharged(); 
 	bool GetIsChannelling();
@@ -151,7 +153,6 @@ public:
  
 protected:
 
-	bool bAttacking = false;
 	bool bPlayerMarked = false;
  
 	bool bFleeing = false;
@@ -172,6 +173,9 @@ protected:
 
 	UPROPERTY()
 	AShrine* Shrine;
+
+	UPROPERTY()
+	EHunterAttacks CurrAttack = EHunterAttacks::None;
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_PerformBasicAttackHelper();
