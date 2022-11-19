@@ -42,7 +42,8 @@ protected:
 	UFUNCTION()
 	void OnRefreshSessionList();
 
-	void SelectSession(uint8 SessionIndex);
+	UFUNCTION()
+	void SelectSession(USessionRow* SelectedSession);
 
 	USessionRow* GetSessionAtIndex(uint8 SessionIndex);
 	

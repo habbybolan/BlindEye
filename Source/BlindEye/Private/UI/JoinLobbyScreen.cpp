@@ -36,15 +36,10 @@ void UJoinLobbyScreen::InitializeSessionList(TArray<FServerData> ServerDataList)
 		USessionRow* Row = CreateWidget<USessionRow>(World, SessionRowType);
 		if (Row == nullptr) return;
 
-		Row->ServerName->SetText(FText::FromString(ServerData.Name));
-		// Row->HostUser->SetText(FText::FromString(ServerData.HostUsername));
-		//
-		// FString FractionText = FString::Printf(TEXT("%d/%d"), ServerData.CurrentPlayers, ServerData.MaxPlayers);
-		// Row->ConnectionFraction->SetText(FText::FromString(FractionText));
-		//
-		// Row->Setup(this, IndexRow);
-		++IndexRow;
+		Row->InitializeData(ServerData, IndexRow);
+		Row->SessionRowSelectedDelegate.BindDynamic(this, &UJoinLobbyScreen::SelectSession);
 		ScrollSessionList->AddChild(Row);
+		++IndexRow;
 	}
 }
 
@@ -82,15 +77,19 @@ void UJoinLobbyScreen::OnRefreshSessionList()
 	if ((ScrollSessionList == nullptr) && (SessionMenuInterface == nullptr)) return;
 }
 
-void UJoinLobbyScreen::SelectSession(uint8 SessionIndex)
+void UJoinLobbyScreen::SelectSession(USessionRow* SelectedSession)
 {
-	if (SelectedScrollIndex.IsSet())
+	uint8 SelectedIndex = SelectedSession->RowIndex;
+
+	// If session is selected and not the already selected one
+	if (SelectedScrollIndex.IsSet() && SelectedIndex != SelectedScrollIndex.GetValue())
 	{
 		USessionRow* CurrSelectedSession = GetSessionAtIndex(SelectedScrollIndex.GetValue());
 		CurrSelectedSession->SetSelected(false);
 	}
-	USessionRow* Session = GetSessionAtIndex(SessionIndex);
-	Session->SetSelected(true);
+
+	SelectedScrollIndex = SelectedIndex;
+	SelectedSession->SetSelected(true);
 }
 
 USessionRow* UJoinLobbyScreen::GetSessionAtIndex(uint8 SessionIndex)
