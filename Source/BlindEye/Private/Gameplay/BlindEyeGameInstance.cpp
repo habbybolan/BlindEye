@@ -22,7 +22,6 @@ void UBlindEyeGameInstance::LoadCreateLobby()
 
 void UBlindEyeGameInstance::LoadJoinLobby()
 {
-	UWorld* World = GetWorld();
 	LobbyScreenBase = CreateWidget<ULobbyScreenBase>(this, JoinLobbyType);
 	LobbyScreenBase->AddToViewport();
 	LobbyScreenBase->SessionMenuInterface = this;

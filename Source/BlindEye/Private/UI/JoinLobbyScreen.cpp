@@ -46,27 +46,24 @@ void UJoinLobbyScreen::InitializeSessionList(TArray<FServerData> ServerDataList)
 void UJoinLobbyScreen::OnJoinSelectedSession()
 {
 	// Try joining the currently selected session index
-	// TODO:
-	//SessionMenuInterface->JoinSession(0);
-
-	// if (SelectedScrollIndex.IsSet())
-	// {
-	// 	int32 ScrollCount = ScrollSessionList->GetChildrenCount();
-	// 	int32 SelectedIndex = (int32)SelectedScrollIndex.GetValue();
-	// 	if ((ScrollCount > 0) && (SelectedIndex >= 0) && (SelectedIndex < ScrollCount))
-	// 	{
-	// 		SessionMenuInterface->JoinSession(SelectedScrollIndex.GetValue());
-	// 	}
-	// 	else
-	// 	{
-	// 		UE_LOG(LogTemp, Warning, TEXT("[UMainMenu::InitializeSessionsList] No sessions available"));
-	// 	}
-	// 	
-	// }
-	// else
-	// {
-	// 	UE_LOG(LogTemp, Warning, TEXT("[UMainMenu::InitializeSessionsList] Unable to Join Session"));
-	// }
+	if (SelectedScrollIndex.IsSet())
+	{
+		int32 ScrollCount = ScrollSessionList->GetChildrenCount();
+		int32 SelectedIndex = (int32)SelectedScrollIndex.GetValue();
+		if ((ScrollCount > 0) && (SelectedIndex >= 0) && (SelectedIndex < ScrollCount))
+		{
+			SessionMenuInterface->JoinSession(SelectedScrollIndex.GetValue());
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[UMainMenu::InitializeSessionsList] No sessions available"));
+		}
+		
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[UMainMenu::InitializeSessionsList] Unable to Join Session"));
+	}
 }
 
 void UJoinLobbyScreen::OnRefreshSessionList()
