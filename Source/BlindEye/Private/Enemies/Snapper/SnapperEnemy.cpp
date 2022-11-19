@@ -183,24 +183,19 @@ bool ASnapperEnemy::GetIsSpawning()
 
 void ASnapperEnemy::ApplyKnockBack(FVector Force)
 {
-	// if (bRagdolling)
-	// {
-	// 	GetMesh()->AddImpulse(Force);
-	// } else
-	// {
-	// 	if (Force.Size() < 500)
-	// 	{
-	// 		GetCharacterMovement()->AddImpulse(Force);
-	// 	} else
-	// 	{
-	// 		TryRagdoll(true);
-	// 		GetMesh()->AddImpulse(Force);
-	// 	}
-	// }
-
-	if (!bRagdolling)
+	if (bRagdolling)
+	{
+		GetMesh()->AddImpulseAtLocation(Force, GetMesh()->GetBoneLocation("Hips"), "Hips");
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			// reset ragdoll timer if force applied
+			GetWorldTimerManager().SetTimer(StopRagdollTimerHandle, this, &ASnapperEnemy::MULT_StopRagdoll, RagdollDuration, false);
+		}
+	} else
 	{
 		TryRagdoll(true);
+		GetMesh()->AddImpulseAtLocation(Force, GetMesh()->GetBoneLocation("Hips"), "Hips");
 	}
 } 
 
