@@ -41,5 +41,9 @@ protected:
 
 	UFUNCTION()
 	void OnRefreshSessionList();
+
+	void SelectSession(uint8 SessionIndex);
+
+	USessionRow* GetSessionAtIndex(uint8 SessionIndex);
 	
 };

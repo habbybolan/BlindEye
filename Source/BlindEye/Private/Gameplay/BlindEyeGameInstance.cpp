@@ -15,7 +15,7 @@ const static FName SERVER_NAME_SETTINGS_KEY = TEXT("ServerName");
 void UBlindEyeGameInstance::LoadCreateLobby()
 {
 	UWorld* World = GetWorld();
-	LobbyScreenBase = CreateWidget<ULobbyScreenBase>(GetLocalPlayerByIndex(0)->GetPlayerController(World), CreateLobbyType);
+	LobbyScreenBase = CreateWidget<ULobbyScreenBase>(this, CreateLobbyType);
 	LobbyScreenBase->AddToViewport();
 	LobbyScreenBase->SessionMenuInterface = this;
 }
@@ -23,7 +23,7 @@ void UBlindEyeGameInstance::LoadCreateLobby()
 void UBlindEyeGameInstance::LoadJoinLobby()
 {
 	UWorld* World = GetWorld();
-	LobbyScreenBase = CreateWidget<ULobbyScreenBase>(GetLocalPlayerByIndex(0)->GetPlayerController(World), JoinLobbyType);
+	LobbyScreenBase = CreateWidget<ULobbyScreenBase>(this, JoinLobbyType);
 	LobbyScreenBase->AddToViewport();
 	LobbyScreenBase->SessionMenuInterface = this;
 }

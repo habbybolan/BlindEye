@@ -10,6 +10,10 @@
 
 bool UJoinLobbyScreen::Initialize()
 {
+	if (!Super::Initialize())
+	{
+		return false;
+	}
 	JoinSelectedSessionButton->OnClicked.AddDynamic(this, &UJoinLobbyScreen::OnJoinSelectedSession);
 	RefreshListButton->OnClicked.AddDynamic(this, &UJoinLobbyScreen::OnRefreshSessionList);
 	return true;
@@ -47,11 +51,52 @@ void UJoinLobbyScreen::InitializeSessionList(TArray<FServerData> ServerDataList)
 void UJoinLobbyScreen::OnJoinSelectedSession()
 {
 	// Try joining the currently selected session index
-	SessionMenuInterface->JoinSession(0);
+	// TODO:
+	//SessionMenuInterface->JoinSession(0);
+
+	// if (SelectedScrollIndex.IsSet())
+	// {
+	// 	int32 ScrollCount = ScrollSessionList->GetChildrenCount();
+	// 	int32 SelectedIndex = (int32)SelectedScrollIndex.GetValue();
+	// 	if ((ScrollCount > 0) && (SelectedIndex >= 0) && (SelectedIndex < ScrollCount))
+	// 	{
+	// 		SessionMenuInterface->JoinSession(SelectedScrollIndex.GetValue());
+	// 	}
+	// 	else
+	// 	{
+	// 		UE_LOG(LogTemp, Warning, TEXT("[UMainMenu::InitializeSessionsList] No sessions available"));
+	// 	}
+	// 	
+	// }
+	// else
+	// {
+	// 	UE_LOG(LogTemp, Warning, TEXT("[UMainMenu::InitializeSessionsList] Unable to Join Session"));
+	// }
 }
 
 void UJoinLobbyScreen::OnRefreshSessionList()
 {
 	// reload list of sessions
 	SessionMenuInterface->RefreshSessionList();
+
+	if ((ScrollSessionList == nullptr) && (SessionMenuInterface == nullptr)) return;
+}
+
+void UJoinLobbyScreen::SelectSession(uint8 SessionIndex)
+{
+	if (SelectedScrollIndex.IsSet())
+	{
+		USessionRow* CurrSelectedSession = GetSessionAtIndex(SelectedScrollIndex.GetValue());
+		CurrSelectedSession->SetSelected(false);
+	}
+	USessionRow* Session = GetSessionAtIndex(SessionIndex);
+	Session->SetSelected(true);
+}
+
+USessionRow* UJoinLobbyScreen::GetSessionAtIndex(uint8 SessionIndex)
+{
+	check(SessionIndex < ScrollSessionList->GetChildrenCount())
+	USessionRow* SessionRow = Cast<USessionRow>(ScrollSessionList->GetChildAt(SessionIndex));
+	check(SessionRow)
+	return SessionRow;
 }

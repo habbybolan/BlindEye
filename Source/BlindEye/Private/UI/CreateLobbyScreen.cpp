@@ -8,8 +8,10 @@
 
 bool UCreateLobbyScreen::Initialize()
 {
-	bool Success = Super::Initialize();
-	if (!Success) return false;
+	if (!Super::Initialize())
+	{
+		return false;
+	}
 
 	NewSessionButton->OnClicked.AddDynamic(this, &UCreateLobbyScreen::OnNewSessionPressed);
 	return true;

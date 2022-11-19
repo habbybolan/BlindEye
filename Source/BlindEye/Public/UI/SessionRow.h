@@ -20,5 +20,15 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, meta=(BindWidget))
 	UTextBlock* ServerName;
+
+	void SetSelected(bool IsSelected);
+
+protected:
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsSelected = false;
+ 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_SetSelected(bool IsSelected);
 	
 };
