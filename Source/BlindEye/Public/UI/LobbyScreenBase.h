@@ -42,8 +42,7 @@ public:
 
 	virtual void InitializeSessionList(TArray<FServerData> ServerDataList);
 
+	UFUNCTION(BlueprintCallable)
 	void TearDown();
-
-protected:
 	
 };
