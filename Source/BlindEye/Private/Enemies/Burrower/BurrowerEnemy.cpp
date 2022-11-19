@@ -157,6 +157,8 @@ void ABurrowerEnemy::SpawnSnappers()
 	FRotator rotation = -1 * GetMesh()->GetBoneQuaternion(TEXT("Mouth")).Rotator();
 	
 	ASnapperEnemy* Snapper = World->SpawnActor<ASnapperEnemy>(SnapperType, location, rotation, params);
+	Snapper->ApplyKnockBack(GetMesh()->GetBoneQuaternion(TEXT("Mouth")).Vector() * ForwardSnapperSpawnForce);
+	
 	SnappersBeingSpawned.Add(Snapper);
 }
 

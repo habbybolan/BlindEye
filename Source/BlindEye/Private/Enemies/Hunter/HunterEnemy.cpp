@@ -49,7 +49,7 @@ void AHunterEnemy::PerformChargedJump()
 	{
 		if (AActor* Target = BlindEyeController->GetBTTarget())
 		{
-			bAttacking = true;
+			CurrAttack = EHunterAttacks::ChargedJump;
 			bChargeAttackCooldown = true;
 			// Have target position land before the target
 			FVector DirectionVec = Target->GetActorLocation() - GetActorLocation();
@@ -199,13 +199,15 @@ void AHunterEnemy::RemoveHunterMarkOnPlayer()
 
 void AHunterEnemy::PerformBasicAttack()
 {
-	bAttacking = true;
+	CurrAttack = EHunterAttacks::BasicAttack;
 	MULT_PerformBasicAttackHelper();
 }
 
 void AHunterEnemy::MULT_PerformBasicAttackHelper_Implementation()
 {
-	PlayAnimMontage(BasicAttackAnimation);
+	GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed * MovementSlowOnBasicAttack;
+	uint8 RandAnim = UKismetMathLibrary::RandomIntegerInRange(0, 1);
+	PlayAnimMontage(RandAnim == 0 ? BasicAttackLeftAnimation : BasicAttackRightAnimation);
 }
 
 void AHunterEnemy::OnHunterMarkDetonated(AActor* MarkedPawn, EMarkerType MarkerType)
@@ -289,7 +291,12 @@ bool AHunterEnemy::GetIsChargedJumpOnCooldown()
 
 bool AHunterEnemy::GetIsAttacking()
 {
-	return bAttacking;
+	return CurrAttack > EHunterAttacks::None;
+}
+
+EHunterAttacks AHunterEnemy::GetCurrAttack()
+{
+	return CurrAttack;
 }
 
 bool AHunterEnemy::GetIsCharged()
@@ -363,12 +370,13 @@ void AHunterEnemy::ChannelingAnimFinished()
 	SetCharged();
 }
 
-void AHunterEnemy::AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+void AHunterEnemy::AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted) 
 {
 	// If attacking animation
-	if (Montage == ChargedJumpAnim || Montage == BasicAttackAnimation)
+	if (Montage == ChargedJumpAnim || Montage == BasicAttackLeftAnimation || Montage == BasicAttackRightAnimation )
 	{
-		bAttacking = false;
+		CurrAttack = EHunterAttacks::None;
+		GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed;
 	}
 }
 
