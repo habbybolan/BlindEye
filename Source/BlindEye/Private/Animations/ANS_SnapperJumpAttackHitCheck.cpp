@@ -29,7 +29,7 @@ void UANS_SnapperJumpAttackHitCheck::NotifyTick(USkeletalMeshComponent* MeshComp
 	TArray<FHitResult> OutHits;
 	UKismetSystemLibrary::BoxTraceMultiForObjects(world, Snapper->GetActorLocation(),Snapper->GetActorLocation() + Snapper->GetActorForwardVector() * AttackTraceBoxLength,
 		FVector(0, AttackTraceBoxWidth, AttackTraceBoxWidth),
-		Snapper->GetActorRotation(), PlayerObjectType, false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, OutHits, true);
+		Snapper->GetActorRotation(), PlayerObjectType, false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true);
 
 	// If hit player, stop jumping attack and apply damage
 	for (FHitResult Hit : OutHits)

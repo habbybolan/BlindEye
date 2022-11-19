@@ -13,7 +13,7 @@ AActor* ABlindEyeEnemyController::GetBTTarget()
 	check(BBComp);
 
 	UObject* ObjectActor = BBComp->GetValueAsObject("EnemyActor");
-	check(ObjectActor);
+	//check(ObjectActor);
 
 	return Cast<AActor>(ObjectActor);
 }

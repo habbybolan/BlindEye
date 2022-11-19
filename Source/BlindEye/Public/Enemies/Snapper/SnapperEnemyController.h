@@ -46,7 +46,8 @@ protected:
 
 	FTimerHandle CooldownToAttackShrineTimerHandle;
 
-	void SetShrineAsTarget();
+	void SetupShrineReference();
+	void SetAttackingShrine();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TEnumAsByte<	EObjectTypeQuery>> ObjectTypes;

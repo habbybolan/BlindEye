@@ -327,7 +327,7 @@ void ASnapperEnemy::OnAnimMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 
 	if (Montage == BasicAttackAnim)
 	{
-		if (CurrAttack == ESnapperAttacks::JumpAttack)
+		if (CurrAttack == ESnapperAttacks::BasicAttack)
 		{
 			StopBasicAttack();
 		}
@@ -389,6 +389,7 @@ bool ASnapperEnemy::IsLayingOnFront()
 
 void ASnapperEnemy::MULT_PerformJumpAttackHelper_Implementation()
 {
+	GetMesh()->GetAnimInstance()->StopAllMontages(0);
 	PlayAnimMontage(JumpAttackAnim);
 	TempLaunch();
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);

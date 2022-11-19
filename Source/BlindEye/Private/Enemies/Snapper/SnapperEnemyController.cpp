@@ -15,7 +15,7 @@ void ASnapperEnemyController::BeginPlay()
 	Super::BeginPlay();
 
 	InitializeBehaviorTree();
-	SetShrineAsTarget();
+	SetupShrineReference();
 }
 
 void ASnapperEnemyController::SetTargetEnemy(AActor* target)
@@ -75,21 +75,19 @@ void ASnapperEnemyController::DamageTaken(float Damage, FVector HitLocation, con
 	if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(DamageCauser))
 	{
 		AActor* BBTarget = GetBTTarget();
+		if (!Snapper) return;
 
 		// if targeting shrine or no target selected
-		ABlindEyePlayerCharacter* TargetPlayer = Cast<ABlindEyePlayerCharacter>(BBTarget);
-		if (BBTarget == nullptr || TargetPlayer == nullptr)
+		if (Snapper->IsAttackingShrine == true && BBTarget == nullptr)
 		{
 			SetTargetEnemy(DamageCauser);
+			Snapper->IsAttackingShrine = false;
 		}
-		// if different player hitting snapper
-		else if (BBTarget != BlindEyePlayer)
-		{
-			return;
-		}
+		// Other player attack snapper while 
+		else { return; }
 		
 		GetWorldTimerManager().SetTimer(CooldownToAttackShrineTimerHandle,
-			this, &ASnapperEnemyController::SetShrineAsTarget, DelayUntilAttackShrineAgain, false);
+			this, &ASnapperEnemyController::SetupShrineReference, DelayUntilAttackShrineAgain, false);
 	}
 }
 
@@ -100,10 +98,13 @@ void ASnapperEnemyController::OnSnapperDeath()
 
 void ASnapperEnemyController::PerformBasicAttack()
 {
-	Snapper->PerformBasicAttack();
+	if (Snapper)
+	{
+		Snapper->PerformBasicAttack();
+	}
 }
 
-void ASnapperEnemyController::SetShrineAsTarget()
+void ASnapperEnemyController::SetupShrineReference()
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
@@ -112,7 +113,18 @@ void ASnapperEnemyController::SetShrineAsTarget()
 	
 	if (ShrineActor)
 	{
-		SetTargetEnemy(ShrineActor);
+		UBlackboardComponent* BlackboardComp = GetBlackboardComponent();
+		if (BlackboardComp == nullptr) return;
+	 
+		GetBlackboardComponent()->SetValueAsObject(TEXT("ShrineActor"), ShrineActor);
+	}
+}
+
+void ASnapperEnemyController::SetAttackingShrine()
+{
+	if (Snapper)
+	{
+		Snapper->IsAttackingShrine = true;
 	}
 }
 

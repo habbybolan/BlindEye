@@ -22,6 +22,7 @@ void UBTS_SnapperState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 
 			BBComp->SetValueAsBool(IsRagdolling.SelectedKeyName, Snapper->GetIsRagdolling());
 			BBComp->SetValueAsEnum(AttackState.SelectedKeyName, (uint8)Snapper->CurrAttack);
+			BBComp->SetValueAsBool(IsAttackingShrine.SelectedKeyName, Snapper->IsAttackingShrine);
 		}
 	}
 }

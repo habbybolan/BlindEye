@@ -100,6 +100,8 @@ public:
 	void MULT_StopJumpAttackHelper();
 	void StopBasicAttack();
 
+	bool IsAttackingShrine = true;
+	
 protected:
 
 	UPROPERTY(Replicated)
