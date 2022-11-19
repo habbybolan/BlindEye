@@ -203,7 +203,7 @@ bool UAbilityManager::IsAbilityUnavailable(AAbilityBase* AbilityToUse) const
 	// Try to prevent using ability if hunter marked if possible
 	if (OwningPlayer->GetHealthComponent()->GetIsHunterDebuff())
 	{
-		return false;
+		return true;
 	}
 	
 	// Allow using if same ability currently in use 

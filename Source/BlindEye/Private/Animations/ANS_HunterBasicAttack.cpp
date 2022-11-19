@@ -15,8 +15,14 @@ void UANS_HunterBasicAttack::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimS
 
 	if (!Hunter.IsValid()) return;
 
-	PerformSwing(TEXT("RightHand"), TEXT("RightForeArm"), MeshComp);
-	PerformSwing(TEXT("LeftHand"), TEXT("LeftForeArm"), MeshComp);
+	// choose which arm is swinging
+	if (bLeftArmSwing)
+	{
+		PerformSwing(TEXT("LeftHand"), TEXT("LeftForeArm"), MeshComp);
+	} else
+	{
+		PerformSwing(TEXT("RightHand"), TEXT("RightForeArm"), MeshComp);
+	}
 }
 
 void UANS_HunterBasicAttack::ApplyHit(FHitResult Hit, bool bApplyMark)
