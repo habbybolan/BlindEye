@@ -14,7 +14,6 @@ const static FName SERVER_NAME_SETTINGS_KEY = TEXT("ServerName");
 
 void UBlindEyeGameInstance::LoadCreateLobby()
 {
-	UWorld* World = GetWorld();
 	LobbyScreenBase = CreateWidget<ULobbyScreenBase>(this, CreateLobbyType);
 	LobbyScreenBase->AddToViewport();
 	LobbyScreenBase->SessionMenuInterface = this;
@@ -104,7 +103,7 @@ void UBlindEyeGameInstance::OnCreateSessionComplete(FName SessionName, bool Succ
 	if (World == nullptr) return;
  
 	//bUseSeamlessTravel = true;
-	World->ServerTravel("/Game/Maps/WhiteBox?listen");
+	World->ServerTravel("/Game/Maps/CharacterSelectMap?listen");
 }
 
 
