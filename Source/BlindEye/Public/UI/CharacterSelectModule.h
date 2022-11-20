@@ -42,7 +42,7 @@ public:
 	DECLARE_DYNAMIC_DELEGATE_OneParam(FPlayerReadySiganture, EPlayerType, SelectedPlayerType);
 	FPlayerReadySiganture PlayerReadyDelegate;
 	
-	void NotifyPlayerSelectedModule(ULocalPlayer* LocalPlayer);
+	void NotifyPlayerSelectedModule(APlayerState* LocalPlayer);
 	void NotifyPlayerUnSelectedModule();
 
 protected:
@@ -50,7 +50,7 @@ protected:
 	FLinearColor BaseAccentColor;
 
 	UPROPERTY()
-	ULocalPlayer* PlayerThatSelected = nullptr;
+	APlayerState* PlayerThatSelected = nullptr;
 	
 	UFUNCTION()
 	void OnReadyButtonSelected();

@@ -26,7 +26,10 @@ public:
 
 	virtual bool Initialize() override;
 
-	void PlayerSelectionUpdated(EPlayerType PlayerTypeSelected, ULocalPlayer* PlayerThatSelected);
+	void PlayerSelectionUpdated(EPlayerType PlayerTypeSelected, APlayerState* PlayerThatSelected);
+
+	DECLARE_DYNAMIC_DELEGATE_OneParam(FPlayerSelectionSignature, EPlayerType, PlayerTypeSelected);
+	FPlayerSelectionSignature PlayerSelectionDelegate;
 
 protected:
 

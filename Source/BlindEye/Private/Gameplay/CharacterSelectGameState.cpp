@@ -17,7 +17,7 @@ void ACharacterSelectGameState::OnRep_CrowPlayerSelected()
 	PlayerSelected(EPlayerType::CrowPlayer, CrowPlayer);
 }
 
-void ACharacterSelectGameState::PlayerSelected(EPlayerType PlayerType, ULocalPlayer* PlayerThatSelected)
+void ACharacterSelectGameState::PlayerSelected(EPlayerType PlayerType, APlayerState* PlayerThatSelected)
 {
 	if (ACharacterSelectPlayerController* CharacterSelectPC = GetOwnerPlayerController())
 	{
@@ -42,30 +42,27 @@ ACharacterSelectPlayerController* ACharacterSelectGameState::GetOwnerPlayerContr
 	}
 	return nullptr;
 }
-
-void ACharacterSelectGameState::PlayerTrySelect(EPlayerType PlayerType, ULocalPlayer* LocalPlayer)
+ 
+void ACharacterSelectGameState::PlayerTrySelect(EPlayerType PlayerType, ACharacterSelectPlayerController* ControllerThatSelected)
 {
 	// Update the character the has selected/unselected current character
 	if (PlayerType == EPlayerType::CrowPlayer)
 	{
-		SER_TrySelectHelper(PlayerType, LocalPlayer);
+		TrySelectHelper(PlayerType, ControllerThatSelected->PlayerState);
 	} else
 	{
-		SER_TrySelectHelper(PlayerType, LocalPlayer);
+		TrySelectHelper(PlayerType, ControllerThatSelected->PlayerState);
 	}
 
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		PlayerSelected(PlayerType, PlayerType == EPlayerType::CrowPlayer ? CrowPlayer : PhoenixPlayer);
-	}
-
+	PlayerSelected(PlayerType, PlayerType == EPlayerType::CrowPlayer ? CrowPlayer : PhoenixPlayer);
 	UpdateReadyState();
 }
 
 
-void ACharacterSelectGameState::SER_TrySelectHelper_Implementation(EPlayerType PlayerType, ULocalPlayer* PlayerThatActioned)
+void ACharacterSelectGameState::TrySelectHelper(EPlayerType PlayerType, APlayerState* PlayerThatActioned)
 {
-	ULocalPlayer** PlayerReferenceToSelectedCharacter = PlayerType == EPlayerType::CrowPlayer ? &CrowPlayer : &PhoenixPlayer;
+	if (PlayerThatActioned == nullptr) return;
+	APlayerState** PlayerReferenceToSelectedCharacter = PlayerType == EPlayerType::CrowPlayer ? &CrowPlayer : &PhoenixPlayer;
 	if (*PlayerReferenceToSelectedCharacter == PlayerThatActioned)
 	{
 		*PlayerReferenceToSelectedCharacter = nullptr;
@@ -76,7 +73,7 @@ void ACharacterSelectGameState::SER_TrySelectHelper_Implementation(EPlayerType P
 	}
 }
 
-bool ACharacterSelectGameState::IsPlayerSelectedCharacter(ULocalPlayer* Player)
+bool ACharacterSelectGameState::IsPlayerSelectedCharacter(APlayerState* Player)
 {
 	return CrowPlayer == Player || PhoenixPlayer == Player;
 }

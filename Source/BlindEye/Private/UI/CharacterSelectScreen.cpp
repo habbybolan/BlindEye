@@ -20,14 +20,10 @@ bool UCharacterSelectScreen::Initialize()
 
 void UCharacterSelectScreen::TrySelectPlayer(EPlayerType PlayerSelected)
 {
-	if (UWorld* World = GetWorld())
-	{
-		ACharacterSelectGameState* CharacterSelectGS = Cast<ACharacterSelectGameState>(UGameplayStatics::GetGameState(World));
-		CharacterSelectGS->PlayerTrySelect(PlayerSelected, GetOwningLocalPlayer());
-	}
+	PlayerSelectionDelegate.ExecuteIfBound(PlayerSelected);
 }
 
-void UCharacterSelectScreen::PlayerSelectionUpdated(EPlayerType PlayerTypeSelected, ULocalPlayer* PlayerThatSelected)
+void UCharacterSelectScreen::PlayerSelectionUpdated(EPlayerType PlayerTypeSelected, APlayerState* PlayerThatSelected)
 {
 	if (PlayerTypeSelected == EPlayerType::CrowPlayer)
 	{

@@ -19,12 +19,12 @@ class BLINDEYE_API ACharacterSelectGameState : public AGameStateBase
 public:
 
 	UPROPERTY(Replicated, ReplicatedUsing="OnRep_PhoenixPlayerSelected")
-	ULocalPlayer* PhoenixPlayer = nullptr;
+	APlayerState* PhoenixPlayer = nullptr;
 	UPROPERTY(Replicated, ReplicatedUsing="OnRep_CrowPlayerSelected")
-	ULocalPlayer* CrowPlayer = nullptr;
+	APlayerState* CrowPlayer = nullptr;
 
 	// Local player trying to select a specific character
-	void PlayerTrySelect(EPlayerType PlayerType, ULocalPlayer* LocalPlayer);
+	void PlayerTrySelect(EPlayerType PlayerType, ACharacterSelectPlayerController* LocalPlayer);
 	
 
 protected:
@@ -34,13 +34,11 @@ protected:
 	void OnRep_PhoenixPlayerSelected();
 	UFUNCTION()
 	void OnRep_CrowPlayerSelected();
-	void PlayerSelected(EPlayerType PlayerType, ULocalPlayer* PlayerThatSelected);
+	void PlayerSelected(EPlayerType PlayerType, APlayerState* PlayerThatSelected);
 
 	void UpdateReadyState();
-
-	UFUNCTION(Server, Reliable)
-	void SER_TrySelectHelper(EPlayerType PlayerType, ULocalPlayer* PlayerThatActioned);
-	bool IsPlayerSelectedCharacter(ULocalPlayer* Player);
+	void TrySelectHelper(EPlayerType PlayerType, APlayerState* PlayerThatActioned);
+	bool IsPlayerSelectedCharacter(APlayerState* Player);
 
 	ACharacterSelectPlayerController* GetOwnerPlayerController();
 };

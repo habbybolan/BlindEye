@@ -22,12 +22,19 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UCharacterSelectScreen> CharacterSelectScreenType;
  
-	void UpdatePlayerSelectedCharacter(EPlayerType PlayerTypeSelected, ULocalPlayer* PlayerThatSelected);
+	void UpdatePlayerSelectedCharacter(EPlayerType PlayerTypeSelected, APlayerState* PlayerThatSelected);
 	void UpdateReadyState(bool IsReady);
+
+	UFUNCTION(Client, Reliable)
+	void CLI_InitializeUI();
 
 protected:
 
 	UPROPERTY()
 	UCharacterSelectScreen* CharacterSelectScreen;
-	
+
+	UFUNCTION()
+	void PlayerSelection(EPlayerType CharacterSelected);
+	UFUNCTION(Server, Reliable) 
+	void SER_PlayerSelection(EPlayerType CharacterSelected);
 };

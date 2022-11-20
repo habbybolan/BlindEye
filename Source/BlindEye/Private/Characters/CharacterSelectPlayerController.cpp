@@ -3,18 +3,16 @@
 
 #include "Characters/CharacterSelectPlayerController.h"
 
+#include "Gameplay/CharacterSelectGameState.h"
+#include "Kismet/GameplayStatics.h"
+
 void ACharacterSelectPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
-	CharacterSelectScreen = Cast<UCharacterSelectScreen>(CreateWidget(this, CharacterSelectScreenType));
-	CharacterSelectScreen->AddToViewport();
-
-	SetShowMouseCursor(true);
 }
 
 void ACharacterSelectPlayerController::UpdatePlayerSelectedCharacter(EPlayerType PlayerTypeSelected,
-	ULocalPlayer* PlayerThatSelected)
+	APlayerState* PlayerThatSelected)
 {
 	CharacterSelectScreen->PlayerSelectionUpdated(PlayerTypeSelected, PlayerThatSelected);
 }
@@ -22,4 +20,28 @@ void ACharacterSelectPlayerController::UpdatePlayerSelectedCharacter(EPlayerType
 void ACharacterSelectPlayerController::UpdateReadyState(bool IsReady)
 {
 	// TODO:
+}
+
+void ACharacterSelectPlayerController::PlayerSelection(EPlayerType CharacterSelected)
+{
+	SER_PlayerSelection(CharacterSelected);
+}
+
+void ACharacterSelectPlayerController::SER_PlayerSelection_Implementation(EPlayerType CharacterSelected)
+{
+	if (UWorld* World = GetWorld())
+	{
+		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Green, "[CharacterSelectPlayerController::PlayerSelection] Make selection");
+		ACharacterSelectGameState* CharacterSelectGS = Cast<ACharacterSelectGameState>(UGameplayStatics::GetGameState(World));
+		CharacterSelectGS->PlayerTrySelect(CharacterSelected, this);
+	}
+}
+
+void ACharacterSelectPlayerController::CLI_InitializeUI_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Green, "INITIALIZE UI");
+	CharacterSelectScreen = Cast<UCharacterSelectScreen>(CreateWidget(this, CharacterSelectScreenType));
+	CharacterSelectScreen->AddToViewport();
+
+	CharacterSelectScreen->PlayerSelectionDelegate.BindDynamic(this, &ACharacterSelectPlayerController::PlayerSelection);
 }

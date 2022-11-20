@@ -3,6 +3,8 @@
 
 #include "UI/CharacterSelectModule.h"
 
+#include "GameFramework/PlayerState.h"
+
 bool UCharacterSelectModule::Initialize()
 {
 	if (!Super::Initialize())
@@ -17,12 +19,12 @@ bool UCharacterSelectModule::Initialize()
 	return true;
 }
 
-void UCharacterSelectModule::NotifyPlayerSelectedModule(ULocalPlayer* LocalPlayer)
+void UCharacterSelectModule::NotifyPlayerSelectedModule(APlayerState* LocalPlayer)
 {
 	PlayerThatSelected = LocalPlayer;
 	PlayerNameText->Text = FText::FromString(LocalPlayer->GetName());
 	
-	if (LocalPlayer == GetOwningLocalPlayer())
+	if (LocalPlayer == GetOwningPlayerState())
 	{
 		BP_OwningPlayerSelected();
 		SelectCharacterButton->SetBackgroundColor(FLinearColor(AccentColor));
