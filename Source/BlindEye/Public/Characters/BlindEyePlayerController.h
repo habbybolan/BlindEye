@@ -36,4 +36,4 @@ private:
 };
 
 // TODO: Temporary for test spawning
-static bool IsServer = true;
+//static bool IsServer = true;

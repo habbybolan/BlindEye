@@ -220,3 +220,10 @@ void UBlindEyeGameInstance::EnterGame(uint32 crowPlayerID, uint32 phoenixPlayerI
 		World->ServerTravel("/Game/Maps/WhiteBox?listen");
 	}
 }
+
+EPlayerType UBlindEyeGameInstance::GetPlayerType(uint32 PlayerID)
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Green, "[UBlindEyeGameInstance::GetPlayerType] ID " + FString::FromInt(PlayerID));
+	if (CrowPlayerID == PlayerID) return EPlayerType::CrowPlayer;
+	else return EPlayerType::PhoenixPlayer;
+}

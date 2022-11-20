@@ -8,6 +8,8 @@
 #include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "BlindEyeUtils.h"
+#include "GameFramework/PlayerState.h"
+#include "Gameplay/BlindEyeGameInstance.h"
 
 class ABlindEyeGameState;
 
@@ -27,18 +29,31 @@ void ABlindEyePlayerController::SER_SpawnPlayer_Implementation()
 	TSubclassOf<ABlindEyePlayerCharacter> PlayerClassType;
 	EPlayerType playerType;
 
-	// TODO: Temporary for test spawning
-	if (IsServer)
+	UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
+
+	check(PlayerState)
+
+	playerType = BlindEyeGI->GetPlayerType(PlayerState->GetPlayerId());
+	if (playerType == EPlayerType::CrowPlayer)
 	{
-		PlayerClassType = BlindEyeGameMode->PlayerClassTypes[0];
-		playerType = EPlayerType::CrowPlayer;
-		IsServer = !IsServer;
+		PlayerClassType = BlindEyeGameMode->CrowClassType;
 	} else
 	{
-		PlayerClassType = BlindEyeGameMode->PlayerClassTypes[1];
-		playerType = EPlayerType::PhoenixPlayer;
-		IsServer = !IsServer;
+		PlayerClassType = BlindEyeGameMode->PhoenixClassType;
 	}
+
+	// TODO: Temporary for test spawning
+	// if (IsServer)
+	// {
+	// 	PlayerClassType = BlindEyeGameMode->PlayerClassTypes[0];
+	// 	playerType = EPlayerType::CrowPlayer;
+	// 	IsServer = !IsServer;
+	// } else
+	// {
+	// 	PlayerClassType = BlindEyeGameMode->PlayerClassTypes[1];
+	// 	playerType = EPlayerType::PhoenixPlayer;
+	// 	IsServer = !IsServer;
+	// }
 		
 	OwningCharacter = Cast<ABlindEyePlayerCharacter>(world->SpawnActor<ABlindEyePlayerCharacter>(PlayerClassType, spawnTransform, spawnParams));
 	if (OwningCharacter)

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BlindEyeBaseCharacter.h"
 #include "Engine/GameInstance.h"
 #include "Interfaces/OnlineSessionInterface.h"
 #include "Interfaces/SessionMenuInterface.h"
@@ -58,6 +59,8 @@ public:
 	void EnterGame(uint32 crowPlayerID, uint32 phoenixPlayerID);
 
 	const FName SESSION_NAME = TEXT("BlindEyeServer");
+
+	EPlayerType GetPlayerType(uint32 PlayerID);
 
 protected:
  
