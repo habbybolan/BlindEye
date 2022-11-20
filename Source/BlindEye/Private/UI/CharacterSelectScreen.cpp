@@ -13,8 +13,8 @@ bool UCharacterSelectScreen::Initialize()
 		return false;
 	}
 
-	//PhoenixSelectModule->CharacterSelectDelegate.BindDynamic(this, &UCharacterSelectScreen::TrySelectPlayer);
-	//CrowSelectModule->CharacterSelectDelegate.BindDynamic(this, &UCharacterSelectScreen::TrySelectPlayer);
+	PhoenixSelectModule->CharacterSelectDelegate.BindDynamic(this, &UCharacterSelectScreen::TrySelectPlayer);
+	CrowSelectModule->CharacterSelectDelegate.BindDynamic(this, &UCharacterSelectScreen::TrySelectPlayer);
 	return true;
 }
 
@@ -23,7 +23,7 @@ void UCharacterSelectScreen::TrySelectPlayer(EPlayerType PlayerSelected)
 	if (UWorld* World = GetWorld())
 	{
 		ACharacterSelectGameState* CharacterSelectGS = Cast<ACharacterSelectGameState>(UGameplayStatics::GetGameState(World));
-		CharacterSelectGS->SER_PlayerTrySelect(PlayerSelected, GetOwningLocalPlayer());
+		CharacterSelectGS->PlayerTrySelect(PlayerSelected, GetOwningLocalPlayer());
 	}
 }
 
@@ -31,9 +31,27 @@ void UCharacterSelectScreen::PlayerSelectionUpdated(EPlayerType PlayerTypeSelect
 {
 	if (PlayerTypeSelected == EPlayerType::CrowPlayer)
 	{
-		CrowSelectModule->NotifyPlayerSelectedModule(PlayerThatSelected);
+		// player unselected crow
+		if (PlayerThatSelected == nullptr)
+		{
+			CrowSelectModule->NotifyPlayerUnSelectedModule();
+		}
+		// Player selected crow
+		else
+		{
+			CrowSelectModule->NotifyPlayerSelectedModule(PlayerThatSelected);
+		}
 	} else
 	{
-		PhoenixSelectModule->NotifyPlayerSelectedModule(PlayerThatSelected);
+		// player unselected Phoenix
+		if (PlayerThatSelected == nullptr)
+		{
+			PhoenixSelectModule->NotifyPlayerUnSelectedModule();
+		}
+		// Player selected phoenix
+		else
+		{
+			PhoenixSelectModule->NotifyPlayerSelectedModule(PlayerThatSelected);
+		}
 	}
 }

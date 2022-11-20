@@ -25,7 +25,13 @@ public:
 	UButton* ReadyButton;
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	UButton* SelectCharacterButton;
+
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	UTextBlock* PlayerNameText;
+
+	UPROPERTY(EditDefaultsOnly)
+	FColor AccentColor;
 
 	UPROPERTY(EditDefaultsOnly)
 	EPlayerType PlayerType;
@@ -33,13 +39,32 @@ public:
 	DECLARE_DYNAMIC_DELEGATE_OneParam(FCharacterSelectedSignature, EPlayerType, SelectedPlayerType);
 	FCharacterSelectedSignature CharacterSelectDelegate;
 
+	DECLARE_DYNAMIC_DELEGATE_OneParam(FPlayerReadySiganture, EPlayerType, SelectedPlayerType);
+	FPlayerReadySiganture PlayerReadyDelegate;
+	
 	void NotifyPlayerSelectedModule(ULocalPlayer* LocalPlayer);
-
-	UFUNCTION()
-	void OnReadyButtonSelected();
+	void NotifyPlayerUnSelectedModule();
 
 protected:
 
-	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	FLinearColor BaseAccentColor;
+
+	UPROPERTY()
+	ULocalPlayer* PlayerThatSelected = nullptr;
+	
+	UFUNCTION()
+	void OnReadyButtonSelected();
+
+	UFUNCTION()
+	void OnCharacterSelected();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OtherPlayerSelected();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OwningPlayerSelected();
+ 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_PlayerUnSelected();
 	
 };

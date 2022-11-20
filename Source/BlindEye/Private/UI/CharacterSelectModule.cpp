@@ -9,28 +9,44 @@ bool UCharacterSelectModule::Initialize()
 	{
 		return false;
 	}
-
-	//ReadyButton->OnClicked.AddDynamic(this, &UCharacterSelectModule::OnReadyButtonSelected);
+	
+	ReadyButton->OnClicked.AddDynamic(this, &UCharacterSelectModule::OnReadyButtonSelected);
+	SelectCharacterButton->OnClicked.AddDynamic(this, &UCharacterSelectModule::OnCharacterSelected);
+	
+	BaseAccentColor = ReadyButton->BackgroundColor;
 	return true;
 }
 
 void UCharacterSelectModule::NotifyPlayerSelectedModule(ULocalPlayer* LocalPlayer)
 {
+	PlayerThatSelected = LocalPlayer;
+	PlayerNameText->Text = FText::FromString(LocalPlayer->GetName());
+	
 	if (LocalPlayer == GetOwningLocalPlayer())
 	{
-		// TODO: Show different visuals if you selected the character
+		BP_OwningPlayerSelected();
+		SelectCharacterButton->SetBackgroundColor(FLinearColor(AccentColor));
 	} else
 	{
-		// TODO: Otherwise other player selected character, show their username om module
+		BP_OtherPlayerSelected();
+		SelectCharacterButton->SetBackgroundColor(FLinearColor(AccentColor));
 	}
+}
+
+void UCharacterSelectModule::NotifyPlayerUnSelectedModule()
+{
+	PlayerThatSelected = nullptr;
+	SelectCharacterButton->SetBackgroundColor(FLinearColor(BaseAccentColor));
+	BP_PlayerUnSelected();
 }
 
 void UCharacterSelectModule::OnReadyButtonSelected()
 {
+	PlayerReadyDelegate.ExecuteIfBound(PlayerType);
 }
 
-FReply UCharacterSelectModule::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+void UCharacterSelectModule::OnCharacterSelected()
 {
+	// TODO: wait for NotifyPlayerSelectedModule call to actually select, notify character select occurred.
 	CharacterSelectDelegate.ExecuteIfBound(PlayerType);
-	return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 }

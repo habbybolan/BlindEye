@@ -9,6 +9,8 @@ void ACharacterSelectPlayerController::BeginPlay()
 
 	CharacterSelectScreen = Cast<UCharacterSelectScreen>(CreateWidget(this, CharacterSelectScreenType));
 	CharacterSelectScreen->AddToViewport();
+
+	SetShowMouseCursor(true);
 }
 
 void ACharacterSelectPlayerController::UpdatePlayerSelectedCharacter(EPlayerType PlayerTypeSelected,
