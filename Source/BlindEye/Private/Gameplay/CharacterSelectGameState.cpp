@@ -26,11 +26,6 @@ void ACharacterSelectGameState::PlayerSelected(EPlayerType PlayerType, APlayerSt
 	}
 }
 
-void ACharacterSelectGameState::UpdateReadyState()
-{
-	// TODO:
-}
-
 ACharacterSelectPlayerController* ACharacterSelectGameState::GetOwnerPlayerController()
 {
 	if (UWorld* World = GetWorld())
@@ -53,8 +48,6 @@ void ACharacterSelectGameState::PlayerTrySelect(EPlayerType PlayerType, ACharact
 	{
 		TrySelectHelper(PlayerType, ControllerThatSelected->PlayerState);
 	}
-	
-	UpdateReadyState();
 }
 
 void ACharacterSelectGameState::TrySelectHelper(EPlayerType PlayerType, APlayerState* PlayerThatActioned)

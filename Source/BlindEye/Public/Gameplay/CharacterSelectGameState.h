@@ -41,7 +41,6 @@ protected:
 	void OnRep_CrowPlayerSelected();
 	void PlayerSelected(EPlayerType PlayerType, APlayerState* PlayerThatSelected);
 
-	void UpdateReadyState();
 	void TrySelectHelper(EPlayerType PlayerType, APlayerState* PlayerThatActioned);
 	bool IsPlayerSelectedCharacter(APlayerState* Player);
 
