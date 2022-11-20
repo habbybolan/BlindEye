@@ -87,10 +87,10 @@ void ACharacterSelectGameState::PlayerTryReady(ACharacterSelectPlayerController*
 		if (IsAllPlayersReady())
 		{
 			GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Green,
-				TEXT("[ACharacterSelectGameState::PlayerTryReady] CrowID: " + FString::FromInt(CrowPlayer->GetPlayerId()) +
-					" PhoenixID: " + FString::FromInt(PhoenixPlayer->GetPlayerId())));
+				TEXT("[ACharacterSelectGameState::PlayerTryReady] CrowID: " + CrowPlayer->GetUniqueId().ToString() +
+					" PhoenixID: " + PhoenixPlayer->GetUniqueId().ToString()));
 			UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
-			BlindEyeGI->EnterGame(CrowPlayer->GetPlayerId(), PhoenixPlayer->GetPlayerId());
+			BlindEyeGI->EnterGame(CrowPlayer->GetUniqueId().ToString(), PhoenixPlayer->GetUniqueId().ToString());
 		}
 		else
 		{

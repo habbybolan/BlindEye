@@ -211,7 +211,7 @@ void UBlindEyeGameInstance::CreateSession()
 	}
 }
 
-void UBlindEyeGameInstance::EnterGame(uint32 crowPlayerID, uint32 phoenixPlayerID)
+void UBlindEyeGameInstance::EnterGame(FString crowPlayerID, FString phoenixPlayerID)
 {
 	CrowPlayerID = crowPlayerID;
 	PhoenixPlayerID = phoenixPlayerID;
@@ -221,9 +221,9 @@ void UBlindEyeGameInstance::EnterGame(uint32 crowPlayerID, uint32 phoenixPlayerI
 	}
 }
 
-EPlayerType UBlindEyeGameInstance::GetPlayerType(uint32 PlayerID)
+EPlayerType UBlindEyeGameInstance::GetPlayerType(FString PlayerID)
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Green, "[UBlindEyeGameInstance::GetPlayerType] ID " + FString::FromInt(PlayerID));
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Green, "[UBlindEyeGameInstance::GetPlayerType] ID " + PlayerID);
 	if (CrowPlayerID == PlayerID) return EPlayerType::CrowPlayer;
 	else return EPlayerType::PhoenixPlayer;
 }

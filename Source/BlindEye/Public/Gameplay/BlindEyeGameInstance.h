@@ -56,14 +56,14 @@ public:
 	void CreateSession(); 
 
 	// Enter game from character select screen
-	void EnterGame(uint32 crowPlayerID, uint32 phoenixPlayerID);
+	void EnterGame(FString crowPlayerID, FString phoenixPlayerID);
 
 	const FName SESSION_NAME = TEXT("BlindEyeServer");
 
-	EPlayerType GetPlayerType(uint32 PlayerID);
+	EPlayerType GetPlayerType(FString PlayerID);
 
 protected:
  
-	uint32 CrowPlayerID;
-	uint32 PhoenixPlayerID;
+	FString CrowPlayerID;
+	FString PhoenixPlayerID;
 };
