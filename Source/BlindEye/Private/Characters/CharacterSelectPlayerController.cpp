@@ -37,6 +37,16 @@ void ACharacterSelectPlayerController::SER_PlayerSelection_Implementation(EPlaye
 	}
 }
 
+void ACharacterSelectPlayerController::SER_ReadyUp_Implementation()
+{
+	if (UWorld* World = GetWorld())
+	{
+		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Green, "[CharacterSelectPlayerController::PlayerSelection] Make selection");
+		ACharacterSelectGameState* CharacterSelectGS = Cast<ACharacterSelectGameState>(UGameplayStatics::GetGameState(World));
+		CharacterSelectGS->PlayerTryReady(this);
+	}
+}
+
 void ACharacterSelectPlayerController::CLI_InitializeUI_Implementation()
 {
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Green, "INITIALIZE UI");
@@ -44,4 +54,5 @@ void ACharacterSelectPlayerController::CLI_InitializeUI_Implementation()
 	CharacterSelectScreen->AddToViewport();
 
 	CharacterSelectScreen->PlayerSelectionDelegate.BindDynamic(this, &ACharacterSelectPlayerController::PlayerSelection);
+	CharacterSelectScreen->PlayerReadyDelegate.BindDynamic(this, &ACharacterSelectPlayerController::SER_ReadyUp);
 }

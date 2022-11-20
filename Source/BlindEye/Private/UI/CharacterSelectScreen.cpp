@@ -15,6 +15,8 @@ bool UCharacterSelectScreen::Initialize()
 
 	PhoenixSelectModule->CharacterSelectDelegate.BindDynamic(this, &UCharacterSelectScreen::TrySelectPlayer);
 	CrowSelectModule->CharacterSelectDelegate.BindDynamic(this, &UCharacterSelectScreen::TrySelectPlayer);
+	
+	ReadyButton->OnClicked.AddDynamic(this, &UCharacterSelectScreen::TryReady);
 	return true;
 }
 
@@ -50,4 +52,9 @@ void UCharacterSelectScreen::PlayerSelectionUpdated(EPlayerType PlayerTypeSelect
 			PhoenixSelectModule->NotifyPlayerSelectedModule(PlayerThatSelected);
 		}
 	}
+}
+
+void UCharacterSelectScreen::TryReady()
+{
+	PlayerReadyDelegate.ExecuteIfBound();
 }

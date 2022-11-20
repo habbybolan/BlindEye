@@ -12,27 +12,24 @@ bool UCharacterSelectModule::Initialize()
 		return false;
 	}
 	
-	ReadyButton->OnClicked.AddDynamic(this, &UCharacterSelectModule::OnReadyButtonSelected);
 	SelectCharacterButton->OnClicked.AddDynamic(this, &UCharacterSelectModule::OnCharacterSelected);
-	
-	BaseAccentColor = ReadyButton->BackgroundColor;
+	BaseAccentColor = FColor::White;
 	return true;
 }
 
 void UCharacterSelectModule::NotifyPlayerSelectedModule(APlayerState* LocalPlayer)
 {
 	PlayerThatSelected = LocalPlayer;
-	PlayerNameText->Text = FText::FromString(LocalPlayer->GetName());
 	
 	if (LocalPlayer == GetOwningPlayerState())
 	{
 		BP_OwningPlayerSelected();
-		SelectCharacterButton->SetBackgroundColor(FLinearColor(AccentColor));
 	} else
 	{
 		BP_OtherPlayerSelected();
-		SelectCharacterButton->SetBackgroundColor(FLinearColor(AccentColor));
 	}
+	SelectCharacterButton->SetBackgroundColor(FLinearColor(AccentColor));
+	PlayerNameText->Text = FText::FromString(LocalPlayer->GetName());
 }
 
 void UCharacterSelectModule::NotifyPlayerUnSelectedModule()

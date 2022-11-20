@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "BlindEyeBaseCharacter.h"
 #include "Characters/CharacterSelectPlayerController.h"
+#include "Characters/CharacterSelectPlayerState.h"
 #include "GameFramework/GameStateBase.h"
 #include "CharacterSelectGameState.generated.h"
 
@@ -19,14 +20,18 @@ class BLINDEYE_API ACharacterSelectGameState : public AGameStateBase
 public:
 
 	UPROPERTY(Replicated, ReplicatedUsing="OnRep_PhoenixPlayerSelected")
-	APlayerState* PhoenixPlayer = nullptr;
+	ACharacterSelectPlayerState* PhoenixPlayer = nullptr;
 	UPROPERTY(Replicated, ReplicatedUsing="OnRep_CrowPlayerSelected")
-	APlayerState* CrowPlayer = nullptr;
+	ACharacterSelectPlayerState* CrowPlayer = nullptr;
 
 	// Local player trying to select a specific character
 	void PlayerTrySelect(EPlayerType PlayerType, ACharacterSelectPlayerController* LocalPlayer);
-	
 
+	// Player readying up
+	void PlayerTryReady(ACharacterSelectPlayerController* LocalPlayer);
+	
+	bool IsAllPlayersReady();
+	
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 

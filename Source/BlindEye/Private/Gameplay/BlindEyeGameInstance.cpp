@@ -210,3 +210,13 @@ void UBlindEyeGameInstance::CreateSession()
 		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings);
 	}
 }
+
+void UBlindEyeGameInstance::EnterGame(uint32 crowPlayerID, uint32 phoenixPlayerID)
+{
+	CrowPlayerID = crowPlayerID;
+	PhoenixPlayerID = phoenixPlayerID;
+	if (UWorld* World = GetWorld())
+	{
+		World->ServerTravel("/Game/Maps/WhiteBox?listen");
+	}
+}

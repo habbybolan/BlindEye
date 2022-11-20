@@ -22,9 +22,6 @@ public:
 	virtual bool Initialize() override;
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	UButton* ReadyButton;
-
-	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	UButton* SelectCharacterButton;
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))

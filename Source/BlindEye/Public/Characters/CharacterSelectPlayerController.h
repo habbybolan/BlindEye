@@ -35,6 +35,8 @@ protected:
 
 	UFUNCTION()
 	void PlayerSelection(EPlayerType CharacterSelected);
+	UFUNCTION(Server, Reliable)
+	void SER_ReadyUp();
 	UFUNCTION(Server, Reliable) 
 	void SER_PlayerSelection(EPlayerType CharacterSelected);
 };

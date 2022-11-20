@@ -5,6 +5,7 @@
 
 #include "Characters/CharacterSelectPlayerController.h"
 #include "GameFramework/PlayerState.h"
+#include "Gameplay/BlindEyeGameInstance.h"
 #include "Net/UnrealNetwork.h"
 
 void ACharacterSelectGameState::OnRep_PhoenixPlayerSelected()
@@ -21,7 +22,6 @@ void ACharacterSelectGameState::PlayerSelected(EPlayerType PlayerType, APlayerSt
 {
 	if (ACharacterSelectPlayerController* CharacterSelectPC = GetOwnerPlayerController())
 	{
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Cyan, "[CharacterSelectGameState:PlayerSelected]: Player selected");
 		CharacterSelectPC->UpdatePlayerSelectedCharacter(PlayerType, PlayerThatSelected);
 	}
 }
@@ -53,24 +53,60 @@ void ACharacterSelectGameState::PlayerTrySelect(EPlayerType PlayerType, ACharact
 	{
 		TrySelectHelper(PlayerType, ControllerThatSelected->PlayerState);
 	}
-
-	PlayerSelected(PlayerType, PlayerType == EPlayerType::CrowPlayer ? CrowPlayer : PhoenixPlayer);
+	
 	UpdateReadyState();
 }
-
 
 void ACharacterSelectGameState::TrySelectHelper(EPlayerType PlayerType, APlayerState* PlayerThatActioned)
 {
 	if (PlayerThatActioned == nullptr) return;
-	APlayerState** PlayerReferenceToSelectedCharacter = PlayerType == EPlayerType::CrowPlayer ? &CrowPlayer : &PhoenixPlayer;
+	ACharacterSelectPlayerState** PlayerReferenceToSelectedCharacter = PlayerType == EPlayerType::CrowPlayer ? &CrowPlayer : &PhoenixPlayer;
+	// Unselecting character
 	if (*PlayerReferenceToSelectedCharacter == PlayerThatActioned)
 	{
 		*PlayerReferenceToSelectedCharacter = nullptr;
+		PlayerSelected(PlayerType, nullptr);
 	}
+	// Selecting character
 	else if (*PlayerReferenceToSelectedCharacter == nullptr && !IsPlayerSelectedCharacter(PlayerThatActioned))
 	{
-		*PlayerReferenceToSelectedCharacter = PlayerThatActioned;
+		*PlayerReferenceToSelectedCharacter = Cast<ACharacterSelectPlayerState>(PlayerThatActioned);
+		PlayerSelected(PlayerType, *PlayerReferenceToSelectedCharacter);
 	}
+}
+
+void ACharacterSelectGameState::PlayerTryReady(ACharacterSelectPlayerController* PlayerReadied)
+{
+	bool bPlayerReadied = false;
+	// Ready up player if valid
+	if (PlayerReadied->PlayerState)
+	{
+		if (IsPlayerSelectedCharacter(PlayerReadied->PlayerState))
+		{
+			ACharacterSelectPlayerState* CharacterSelectPS = Cast<ACharacterSelectPlayerState>(PlayerReadied->PlayerState);
+			CharacterSelectPS->bReady = true;
+			bPlayerReadied = true;
+		}
+	}
+
+	if (bPlayerReadied)
+	{
+		if (IsAllPlayersReady())
+		{
+			UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
+			BlindEyeGI->EnterGame(CrowPlayer->GetUniqueID(), PhoenixPlayer->GetUniqueID());
+		}
+		else
+		{
+			// TODO: Notify Players that player is waiting/ready
+		}
+	}
+}
+
+bool ACharacterSelectGameState::IsAllPlayersReady()
+{
+	return CrowPlayer != nullptr && CrowPlayer->bReady &&
+		PhoenixPlayer != nullptr && PhoenixPlayer->bReady;
 }
 
 bool ACharacterSelectGameState::IsPlayerSelectedCharacter(APlayerState* Player)

@@ -52,7 +52,15 @@ public:
 	void OnCreateSessionComplete(FName SessionName, bool Success);
 	void OnJoinSessionsComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 
-	void CreateSession();
+	void CreateSession(); 
+
+	// Enter game from character select screen
+	void EnterGame(uint32 crowPlayerID, uint32 phoenixPlayerID);
 
 	const FName SESSION_NAME = TEXT("BlindEyeServer");
+
+protected:
+ 
+	uint32 CrowPlayerID;
+	uint32 PhoenixPlayerID;
 };
