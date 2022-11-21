@@ -38,6 +38,9 @@ public:
 	 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Spawning)
 	float ForwardSnapperSpawnForce = 30000.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Spawning)
+	float SnapperSpawnAngleToLeft = 15.f;
 	
 	UPROPERTY(EditDefaultsOnly, Category=Spawning, meta=(ToolTip="Variability in time of snappers getting up froim ragdoll after burrower finished spawning group"))
 	float SnapperRagdollTimeVariabilityAfterGroupSpawned = 0.2f;

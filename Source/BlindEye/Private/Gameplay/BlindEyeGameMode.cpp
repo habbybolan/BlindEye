@@ -48,8 +48,10 @@ void ABlindEyeGameMode::DelayedStartTutorial()
 void ABlindEyeGameMode::PerformGameWonPulse()
 {
 	PerformPulse();
-	BP_Pulse(3); 
-	// TODO: Play characters cheering animation?
+	if (ABlindEyeGameState* BLindEyeGS = Cast<ABlindEyeGameState>(GameState))
+	{
+		BLindEyeGS->PerformPulse(3);
+	}
 }
 
 void ABlindEyeGameMode::BeginPlay()
@@ -420,7 +422,7 @@ void ABlindEyeGameMode::RunMainGameLoop()
 		CurrRound++;
 		if (CurrRound < NumRounds)
 		{
-			BP_Pulse(CurrRound);
+			BlindEyeGameState->PerformPulse(CurrRound);
 			BlindEyeGameState->OnPulse(CurrRound, GetCurrRoundLength());
 			BP_LevelShift();
 			BlindEyeGameState->OnLevelShift();

@@ -29,6 +29,8 @@ public:
 
 	AHunterEnemy(const FObjectInitializer& ObjectInitializer);
 
+	virtual void Tick(float DeltaSeconds) override;
+
 	virtual void BeginPlay() override;
 	void Despawn();
 
@@ -88,6 +90,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category=Charged)
 	UAnimMontage* RoarAnimation;
+
+	UPROPERTY(EditDefaultsOnly, Category=Charged, meta=(ClampMin=0, ClampMax=1))
+	float MovementSpeedSlowWhenCloseToMarkedPlayer = 0.5;
+
+	UPROPERTY(EditDefaultsOnly, Category=Charged)
+	float DistToMarkedPlayerToSlowDown = 100.f;
  
 	UPROPERTY(EditDefaultsOnly, Category=ChargedJump)
 	float ChargedJumpCooldown = 10.f;
@@ -115,6 +123,18 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
 	float ChargedJumpLandingDistanceBeforeTarget = 70.f;
+
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
+	float ChargedJumpMaxPeakHeight = 500.f;
+ 
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
+	float ChargedJumpMinPeakHeight = 50.f;
+
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
+	float ChargedJumpRInterpSpeed = 5.f;
+
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump, meta=(ClampMin=0.01)) 
+	float ChargedJumpCalcDelay = 0.02f;
 
 	UPROPERTY(BlueprintReadWrite)
 	bool IsVisible = false;
@@ -150,6 +170,8 @@ public:
 	void ChannelingAnimFinished();
 
 	void SetFleeing();
+
+	bool IsTargetMarked();
  
 protected:
 
@@ -178,7 +200,7 @@ protected:
 	EHunterAttacks CurrAttack = EHunterAttacks::None;
 	
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_PerformBasicAttackHelper();
+	void MULT_PerformBasicAttackHelper(UAnimMontage* AnimToPlay);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_ChargedStarted();
@@ -217,9 +239,15 @@ protected:
 
 	float CurrTimeOfChargedJump = 0;	// Keeps track of how long of the jump the charged attack has been performed for
 	FVector ChargedJumpTargetLocation;
-	FVector ChargedJumpStartLocation; 
+	FVector ChargedJumpStartLocation;
 	FTimerHandle PerformingChargedJumpTimerHandle;
 	void PerformingJumpAttack();
+
+	FTimerHandle ChargedJumpRotationTimerHandle; 
+	UFUNCTION()
+	void RotateDuringChargedAttack();
+
+	float ChargedJumpPeakHeight; // Calculated peak height for charged jump based on distance to player
 
 	// Intermediary method to make RPC call to blueprint implementable method
 	UFUNCTION(NetMulticast, Reliable)
@@ -239,5 +267,7 @@ protected:
 
 	UFUNCTION()
 	void AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	bool bLeftBasicAttack = true;
 };
 

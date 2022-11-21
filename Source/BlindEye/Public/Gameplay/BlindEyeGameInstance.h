@@ -68,6 +68,9 @@ public:
 
 	bool GetIsLAN();
 
+	// if game being played in editor (No Sessions created)
+	bool bInEditor = true;
+
 protected:
  
 	FString CrowPlayerID;

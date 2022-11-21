@@ -90,6 +90,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=Target)
 	TSubclassOf<ACrowRushTarget> TargetType;
 
+	UPROPERTY(EditDefaultsOnly, Category=Target)
+	float StepSize = 50;
+ 
+	UPROPERTY(EditDefaultsOnly, Category=Target)
+	float StepOffsetTowardsPlayer = 50;
+
 	UPROPERTY(EditDefaultsOnly)
 	float DamageAmount = 20;
 
@@ -149,6 +155,8 @@ protected:
 	void SetLandingAnimFinished(UAnimMontage* Montage, bool bInterrupted);
 
 	virtual void EndAbilityLogic() override;
+
+	bool FindValidTargetLocation(FVector& CurrLoc, FVector EndLoc, FVector DirBackAlongLine, uint8 StepNum);
 
 	UPROPERTY()
 	ACrowRushTarget* Target;
