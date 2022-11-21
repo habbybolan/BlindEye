@@ -112,33 +112,70 @@ FVector ACrowRush::CalculateTargetPosition()
 		GetInstigator()->GetController()->GetPlayerViewPoint(OUT ViewportLocation, OUT ViewportRotation);
 
 		FVector EndLocation = ViewportLocation + ViewportRotation.Vector() * MaxDistance;
-		
+
+		bool bValidLocation = false;
 		FHitResult HitTargetLocation;
 		// if Hit point
 		if (UKismetSystemLibrary::LineTraceSingleForObjects(World, ViewportLocation, EndLocation, TargetObjectBlocker,
 			false, TArray<AActor*>(), EDrawDebugTrace::None, HitTargetLocation, true))
 		{
 			TargetPosition = HitTargetLocation.Location;
+			bValidLocation = true;
 		}
 		// Otherwise, set to furthest endpoint
 		else
 		{
 			TargetPosition = EndLocation;
+			FVector DirBackAlongLine = ViewportLocation - TargetPosition;
+			DirBackAlongLine.Normalize();
+
+			// Find point along line to target that has ground underneath
+			if (FindValidTargetLocation(TargetPosition, ViewportLocation, DirBackAlongLine, 1))
+			{
+				bValidLocation = true;
+			}
 		}
- 
-		FHitResult HitTargetBelow;
-		// Move target position off ground based on player height
-		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
-		float PlayerHeight = Player->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-		if (UKismetSystemLibrary::LineTraceSingleForObjects(World, TargetPosition, TargetPosition + FVector::DownVector * PlayerHeight, TargetObjectBlocker,
-			false, TArray<AActor*>(), EDrawDebugTrace::None, HitTargetBelow, true))
+
+		if (bValidLocation)
 		{
-			// Move target based on the different between player height and how close it's to the ground
-			float DistFromGround = FVector::Distance(HitTargetBelow.Location, TargetPosition);
-			TargetPosition += FVector::UpVector * FMath::Abs(DistFromGround - PlayerHeight) + FVector::UpVector * TargetPositionOffset;
+			FHitResult HitTargetBelow;
+			// Move target position off ground based on player height
+			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+			float PlayerHeight = Player->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+			if (UKismetSystemLibrary::LineTraceSingleForObjects(World, TargetPosition, TargetPosition + FVector::DownVector * PlayerHeight, TargetObjectBlocker,
+				false, TArray<AActor*>(), EDrawDebugTrace::None, HitTargetBelow, true))
+			{
+				// Move target based on the different between player height and how close it's to the ground
+				float DistFromGround = FVector::Distance(HitTargetBelow.Location, TargetPosition);
+				TargetPosition += FVector::UpVector * FMath::Abs(DistFromGround - PlayerHeight) + FVector::UpVector * TargetPositionOffset;
+			}
+		} else
+		{
+			// No valid location, just teleport to max distance
+			TargetPosition = EndLocation;
 		}
 	}
 	return TargetPosition;
+}
+ 
+bool ACrowRush::FindValidTargetLocation(FVector& CurrLoc, FVector EndLoc, FVector DirBackAlongLine, uint8 StepNum)
+{ 
+	if (StepNum * StepSize > MaxDistance) return false;
+
+	// TODO: Incr. max distance by amount (when aiming straight up)
+	FHitResult HitTargetBelow;
+	// If valid ground below, then set as target point
+	if (UKismetSystemLibrary::LineTraceSingleForObjects(GetWorld(), CurrLoc, CurrLoc + FVector::DownVector * MaxDistance, TargetObjectBlocker,
+			false, TArray<AActor*>(), EDrawDebugTrace::None, HitTargetBelow, true))
+	{
+		return true;
+	}
+	// Otherwise, continue stepping along line
+	else
+	{
+		CurrLoc += DirBackAlongLine * StepNum * StepSize;
+		return FindValidTargetLocation(CurrLoc, EndLoc, DirBackAlongLine, ++StepNum);
+	}
 }
 
 void ACrowRush::EndAbilityLogic()
