@@ -65,7 +65,6 @@ void ASnapperEnemy::BeginPlay()
 
 	CachedCollisionObject = GetCapsuleComponent()->GetCollisionObjectType();
 	
-	GetCapsuleComponent()->SetCapsuleHalfHeight(GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * ColliderHeightAlteredOnSpawn);
 	GetCharacterMovement()->GravityScale *= GravityScaleAlteredOnSpawn;
 
 	if (GetLocalRole() == ROLE_Authority)
@@ -98,7 +97,6 @@ void ASnapperEnemy::MULT_OnSpawnCollisionHelper_Implementation()
 	bIsSpawning = false;
 	
 	// Update values back to normal
-	GetCapsuleComponent()->SetCapsuleHalfHeight(GetCapsuleComponent()->GetScaledCapsuleHalfHeight() / ColliderHeightAlteredOnSpawn);
 	GetCharacterMovement()->GravityScale /= GravityScaleAlteredOnSpawn;
 }
 
@@ -232,7 +230,7 @@ void ASnapperEnemy::TeleportColliderToMesh(float DeltaSeconds)
 {
 	FVector TargetLocation = GetMesh()->GetSocketLocation(TEXT("Hips")) + FVector::UpVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 	
-	FVector TeleportLocation = UKismetMathLibrary::VInterpTo(TargetLocation, GetCapsuleComponent()->GetComponentLocation(), DeltaSeconds, 1);
+	FVector TeleportLocation = UKismetMathLibrary::VInterpTo(GetCapsuleComponent()->GetComponentLocation(), TargetLocation, DeltaSeconds, 5);
 	GetCapsuleComponent()->SetWorldLocation(TeleportLocation);
 	FRotator SocketRotation = GetMesh()->GetSocketRotation(TEXT("Hips"));
 	GetCapsuleComponent()->SetWorldRotation(FRotator(0, SocketRotation.Yaw, 0));
