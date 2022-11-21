@@ -15,7 +15,7 @@ void ASnapperEnemyController::BeginPlay()
 	Super::BeginPlay();
 
 	InitializeBehaviorTree();
-	SetShrineAsTarget();
+	SetupShrineReference();
 }
 
 void ASnapperEnemyController::SetTargetEnemy(AActor* target)
@@ -28,7 +28,7 @@ void ASnapperEnemyController::SetTargetEnemy(AActor* target)
 
 bool ASnapperEnemyController::CanJumpAttack(AActor* target)
 { 
-	return !IsJumpAttackOnDelay && IsInJumpAttackRange(target);
+	return !Snapper->IsJumpAttackOnDelay && IsInJumpAttackRange(target);
 }
 
 bool ASnapperEnemyController::IsInJumpAttackRange(AActor* Target) 
@@ -38,7 +38,7 @@ bool ASnapperEnemyController::IsInJumpAttackRange(AActor* Target)
 		FVector TargetLocation = Target->GetActorLocation();
 
 		if (!Snapper) return false;
-		return FVector::Distance(TargetLocation, Snapper->GetActorLocation()) < DistanceToJumpAttack;
+		return FVector::Distance(TargetLocation, Snapper->GetActorLocation()) < Snapper->DistanceToJumpAttack;
 	}
 	return false;
 }
@@ -46,13 +46,11 @@ bool ASnapperEnemyController::IsInJumpAttackRange(AActor* Target)
 void ASnapperEnemyController::PerformJumpAttack()
 {
 	Snapper->PerformJumpAttack();
-	IsJumpAttackOnDelay = true;
-	GetWorldTimerManager().SetTimer(JumpAttackDelayTimerHandle, this, &ASnapperEnemyController::SetCanJumpAttack, JumpAttackDelay, false);
 }
 
 bool ASnapperEnemyController::CanBasicAttack(AActor* target)
 {
-	return !IsBasicAttackOnDelay && IsInBasicAttackRange(target);
+	return !Snapper->IsBasicAttackOnDelay && IsInBasicAttackRange(target);
 }
 
 bool ASnapperEnemyController::IsInBasicAttackRange(AActor* Target)
@@ -77,21 +75,19 @@ void ASnapperEnemyController::DamageTaken(float Damage, FVector HitLocation, con
 	if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(DamageCauser))
 	{
 		AActor* BBTarget = GetBTTarget();
+		if (!Snapper) return;
 
 		// if targeting shrine or no target selected
-		ABlindEyePlayerCharacter* TargetPlayer = Cast<ABlindEyePlayerCharacter>(BBTarget);
-		if (BBTarget == nullptr || TargetPlayer == nullptr)
+		if (Snapper->IsAttackingShrine == true && BBTarget == nullptr)
 		{
 			SetTargetEnemy(DamageCauser);
+			Snapper->IsAttackingShrine = false;
 		}
-		// if different player hitting snapper
-		else if (BBTarget != BlindEyePlayer)
-		{
-			return;
-		}
+		// Other player attack snapper while 
+		else { return; }
 		
 		GetWorldTimerManager().SetTimer(CooldownToAttackShrineTimerHandle,
-			this, &ASnapperEnemyController::SetShrineAsTarget, DelayUntilAttackShrineAgain, false);
+			this, &ASnapperEnemyController::SetupShrineReference, DelayUntilAttackShrineAgain, false);
 	}
 }
 
@@ -102,12 +98,13 @@ void ASnapperEnemyController::OnSnapperDeath()
 
 void ASnapperEnemyController::PerformBasicAttack()
 {
-	Snapper->PerformBasicAttack();
-	IsBasicAttackOnDelay = true;
-	GetWorldTimerManager().SetTimer(BasicAttackDelayTimerHandle, this, &ASnapperEnemyController::SetCanBasicAttack, BasicAttackDelay, false);
+	if (Snapper)
+	{
+		Snapper->PerformBasicAttack();
+	}
 }
 
-void ASnapperEnemyController::SetShrineAsTarget()
+void ASnapperEnemyController::SetupShrineReference()
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
@@ -116,7 +113,18 @@ void ASnapperEnemyController::SetShrineAsTarget()
 	
 	if (ShrineActor)
 	{
-		SetTargetEnemy(ShrineActor);
+		UBlackboardComponent* BlackboardComp = GetBlackboardComponent();
+		if (BlackboardComp == nullptr) return;
+	 
+		GetBlackboardComponent()->SetValueAsObject(TEXT("ShrineActor"), ShrineActor);
+	}
+}
+
+void ASnapperEnemyController::SetAttackingShrine()
+{
+	if (Snapper)
+	{
+		Snapper->IsAttackingShrine = true;
 	}
 }
 
@@ -124,16 +132,6 @@ void ASnapperEnemyController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 	Snapper = Cast<ASnapperEnemy>(InPawn);
-}
-
-void ASnapperEnemyController::SetCanJumpAttack()
-{
-	IsJumpAttackOnDelay = false;
-}
-
-void ASnapperEnemyController::SetCanBasicAttack()
-{
-	IsBasicAttackOnDelay = false;
 }
 
 void ASnapperEnemyController::OnTauntStart(float Duration, AActor* Taunter)

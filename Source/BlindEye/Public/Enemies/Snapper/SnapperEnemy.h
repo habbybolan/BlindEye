@@ -7,6 +7,14 @@
 #include "Enemies/BlindEyeEnemyBase.h"
 #include "SnapperEnemy.generated.h"
 
+UENUM(BlueprintType) 
+enum class ESnapperAttacks : uint8
+{
+	None,
+	BasicAttack, 
+	JumpAttack
+};
+
 /**
  * 
  */
@@ -21,26 +29,29 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	virtual void BeginPlay() override;
+ 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump Attack")
+	float JumpAttackDelay = 3.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump Attack")
+	UAnimMontage* JumpAttackAnim;
+
+	UPROPERTY(EditDefaultsOnly, Category="Jump Attack")
+	float DistanceToJumpAttack = 200.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
+	float DistanceToBasicAttack = 200.f;
+    	  
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
+	float BasicAttackDelay = 3.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basic Attack")
+	UAnimMontage* BasicAttackAnim;
 	
 	virtual void MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
 
 	UPROPERTY(EditDefaultsOnly)
 	UCapsuleComponent* RagdollCapsule;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<TEnumAsByte<	EObjectTypeQuery>> ObjectTypes;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float JumpAttackDamage = 5;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UBaseDamageType> JumpAttackDamageType;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float BasicAttackDamage = 5; 
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UBaseDamageType> BasicAttackDamageType;
 
 	UPROPERTY(EditDefaultsOnly, Category=Ragdoll)
 	UAnimMontage* GetUpFromBehindMontage;
@@ -58,7 +69,12 @@ public:
 	float GravityScaleAlteredOnSpawn = 0.25f;
 
 	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0.1, ClampMax=1), Category=Spawning)
-	float ColliderHeightAlteredOnSpawn = 0.5f; 
+	float ColliderHeightAlteredOnSpawn = 0.5f;
+
+	bool IsBasicAttackOnDelay = false;
+	bool IsJumpAttackOnDelay = false;
+
+	ESnapperAttacks CurrAttack = ESnapperAttacks::None;
 
 	void PerformJumpAttack();
 	void PerformBasicAttack(); 
@@ -77,8 +93,15 @@ public:
 
 	void ApplyKnockBack(FVector Force);
 
-	void ManualStopRagdollTimer(float Duration); 
+	void ManualStopRagdollTimer(float Duration);
 
+	void StopJumpAttack();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_StopJumpAttackHelper();
+	void StopBasicAttack();
+
+	bool IsAttackingShrine = true;
+	
 protected:
 
 	UPROPERTY(Replicated)
@@ -89,11 +112,14 @@ protected:
 	UPROPERTY(Replicated)
 	bool bIsSpawning = true;
 	UFUNCTION()
-	void SpawnCollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	void CollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 	
 	FTimerHandle LaunchSwingTimerHandle;
 	FTimerHandle StopRagdollTimerHandle;
 	FTimerHandle GetupAnimTimerHandle;
+	
+	FTimerHandle JumpAttackDelayTimerHandle;
+	FTimerHandle BasicAttackDelayTimerHandle;
 
 	float AlphaBlendWeight = 1;
 	
@@ -101,6 +127,9 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_OnSpawnCollisionHelper();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_PerformBasicAttackHelper();
 	
 	ECollisionChannel CachedCollisionObject;
 
@@ -124,10 +153,16 @@ protected:
 
 	bool IsLayingOnFront();
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_PerformJumpAttackHelper();
+
 	UFUNCTION()
 	void OnAnimMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 	virtual void OnDeath(AActor* ActorThatKilled) override;
+
+	void SetCanJumpAttack();
+	void SetCanBasicAttack();
 
 	void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const;
 	

@@ -35,12 +35,12 @@ public:
 	// void SpawnAction(FTransform SpawnLocation);
 	//
 	// void AttackAction(ABlindEyePlayerCharacter* target);
-	
+	 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Spawning)
-	uint8 MinSnappersSpawn = 2;
- 
+	float ForwardSnapperSpawnForce = 30000.f;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Spawning)
-	uint8 MaxSnappersSpawn = 5;
+	float SnapperSpawnAngleToLeft = 15.f;
 	
 	UPROPERTY(EditDefaultsOnly, Category=Spawning, meta=(ToolTip="Variability in time of snappers getting up froim ragdoll after burrower finished spawning group"))
 	float SnapperRagdollTimeVariabilityAfterGroupSpawned = 0.2f;

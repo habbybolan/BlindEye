@@ -558,6 +558,7 @@ void ABlindEyePlayerCharacter::OnRevive()
 		BlindEyePS->SetHealth(BlindEyePS->GetMaxHealth() * HealthPercentOnRevive);
 		BlindEyePS->SetIsDead(false);
 		GetWorldTimerManager().ClearTimer(AllyHealingCheckTimerHandle);
+		UpdatePlayerHealthUI();
 		CurrRevivePercent = 0;
 	}
 

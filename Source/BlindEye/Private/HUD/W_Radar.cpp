@@ -3,6 +3,7 @@
 
 #include "HUD/W_Radar.h"
 
+#include "Enemies/Snapper/SnapperEnemy.h"
 #include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -25,6 +26,9 @@ void UW_Radar::UpdateRadar()
 		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
 		for (ABlindEyeEnemyBase* Actor : BlindEyeGS->GetAllEnemies())
 		{
+			// dont show snappers on radar
+			if (ASnapperEnemy* Snapper = Cast<ASnapperEnemy>(Actor)) continue;
+			
 			int8 RadarIndex = GetRadarIndex(Actor, PlayerController);
 			if (RadarIndex >= 0)
 			{

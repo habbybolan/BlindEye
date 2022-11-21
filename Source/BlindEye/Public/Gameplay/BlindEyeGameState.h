@@ -189,6 +189,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, meta=(ToolTip="When game is starting to end, event where cutscene is played.")) 
 	void BP_GameEnding_SER(EGameOverState GameEndState);
 
+	void PerformPulse(uint8 PulseIndex);
+
 protected: 
 
 	UPROPERTY(Replicated)
@@ -250,4 +252,7 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_EnemyTutorialTextSkipped_SER(EEnemyTutorialType TutorialType);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_PerformPulse_SER(uint8 PulseIndex);
 };

@@ -35,7 +35,9 @@ public:
 	FTransform GetSpawnPoint() const;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<TSubclassOf<ABlindEyePlayerCharacter>> PlayerClassTypes;
+	TSubclassOf<ABlindEyePlayerCharacter> CrowClassType;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<ABlindEyePlayerCharacter> PhoenixClassType;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float TimerUntilGameWon = 60;
@@ -66,9 +68,6 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_LevelShift();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_Pulse(uint8 PulseIndex);
 
 	// Player notifies game mode when they finished the mechanics tutorial
 	void TutorialFinished(ABlindEyePlayerCharacter* Player);
