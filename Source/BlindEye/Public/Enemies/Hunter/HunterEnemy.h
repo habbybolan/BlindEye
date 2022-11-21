@@ -135,6 +135,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category=ChargedJump, meta=(ClampMin=0.01)) 
 	float ChargedJumpCalcDelay = 0.02f;
+ 
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
+	TArray<TEnumAsByte<EObjectTypeQuery>> ChargedJumpLOSBlockers;
 
 	UPROPERTY(BlueprintReadWrite)
 	bool IsVisible = false;

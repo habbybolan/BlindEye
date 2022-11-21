@@ -78,15 +78,30 @@ void AHunterEnemy::PerformChargedJump()
 	{
 		if (AActor* Target = BlindEyeController->GetBTTarget())
 		{
-			CurrAttack = EHunterAttacks::ChargedJump;
-			bChargeAttackCooldown = true;
 			// Have target position land before the target
 			FVector DirectionVec = Target->GetActorLocation() - GetActorLocation();
 			DirectionVec.Normalize();
 			DirectionVec *= ChargedJumpLandingDistanceBeforeTarget;
+
+			FVector JumpTargetLocation = Target->GetActorLocation() - DirectionVec;
 			
-			GetWorldTimerManager().SetTimer(ChargedJumpCooldownTimerHandle, this, &AHunterEnemy::SetChargedJumpOffCooldown, ChargedJumpCooldown, false);
-			MULT_PerformChargedJumpHelper(GetActorLocation(), Target->GetActorLocation() - DirectionVec);
+			if (UWorld* World = GetWorld())
+			{
+				TArray<AActor*> ActorsToIgnore;
+				ActorsToIgnore.Add(Target);
+				FHitResult HitResult;
+				
+				// If no environment blocking LOS, then perform jump
+				if (!UKismetSystemLibrary::LineTraceSingleForObjects(World, GetActorLocation(), JumpTargetLocation, ChargedJumpLOSBlockers, false,
+					ActorsToIgnore, EDrawDebugTrace::ForDuration, HitResult, true))
+				{
+					CurrAttack = EHunterAttacks::ChargedJump;
+					bChargeAttackCooldown = true;
+			
+					GetWorldTimerManager().SetTimer(ChargedJumpCooldownTimerHandle, this, &AHunterEnemy::SetChargedJumpOffCooldown, ChargedJumpCooldown, false);
+					MULT_PerformChargedJumpHelper(GetActorLocation(), JumpTargetLocation);
+				}
+			}
 		}
 	}
 }
