@@ -182,6 +182,11 @@ void ABlindEyeGameState::StartEnemyTutorial(EEnemyTutorialType TutorialType)
 	BP_EnemyTutorialStarted_SER(TutorialType);
 }
 
+void ABlindEyeGameState::PerformPulse(uint8 PulseIndex)
+{
+	BP_PerformPulse_SER(PulseIndex);
+}
+
 void ABlindEyeGameState::TutorialFinished()
 {
 	bInBeginningTutorial = false;
