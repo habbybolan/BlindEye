@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BurrowerProjectile.h"
 #include "BurrowerSpawnPoint.h"
 #include "NiagaraComponent.h"
 #include "Chaos/PhysicalMaterials.h"
@@ -99,6 +100,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=SurfacingDamage)
 	float SurfacingDamage = 20.f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Projectile)
+	float ProjectileTargetRange = 2000.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Projectile)  
+	TArray<TEnumAsByte<EObjectTypeQuery>> PlayerObjectTypes;
+
 	// Stored here purely for passing to Controller
 	TScriptInterface<IBurrowerSpawnManagerListener> Listener;
 	uint8 IslandID;
@@ -155,6 +162,11 @@ public:
 	UBurrowerSpawnPoint* GetRandUnusedSpawnPoint();
 
 	void NotifySpawningStopped();
+
+	AActor* GetProjectileTargetActor();
+	void ShootProjectile();
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ABurrowerProjectile> BurrowerProjectileType;
  
 protected:
 

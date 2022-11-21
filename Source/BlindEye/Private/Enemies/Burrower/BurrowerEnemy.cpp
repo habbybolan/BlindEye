@@ -5,6 +5,8 @@
 
 #include "NavigationSystem.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Shrine.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/HealthComponent.h"
 #include "Enemies/Snapper/SnapperEnemy.h"
@@ -255,6 +257,51 @@ void ABurrowerEnemy::NotifySpawningStopped()
 		Snapper->ManualStopRagdollTimer(SnapperRagdollBaseTimeAfterGroupSpawned + RandVariability);
 	}
 	SnappersBeingSpawned.Empty();
+}
+
+AActor* ABurrowerEnemy::GetProjectileTargetActor()
+{
+	UWorld* World = GetWorld();
+	check(World)
+
+	TArray<AActor*> OutActors;
+	if (UKismetSystemLibrary::SphereOverlapActors(World, GetActorLocation(), ProjectileTargetRange, PlayerObjectTypes, nullptr,
+		TArray<AActor*>(), OutActors))
+	{
+		AActor* ProjectileTarget = OutActors[UKismetMathLibrary::RandomIntegerInRange(0, OutActors.Num() - 1)];
+		return ProjectileTarget;
+	} else
+	{
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+		return BlindEyeGS->GetShrine();
+	}
+}
+
+void ABurrowerEnemy::ShootProjectile()
+{
+	if (ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(GetController()))
+	{
+		if (UBlackboardComponent* BBComp = BurrowerController->GetBlackboardComponent())
+		{
+			if (UObject* ObjectActor = BBComp->GetValueAsObject("ProjectileTarget"))
+			{
+				AActor* ProjectileTarget = Cast<AActor>(ObjectActor);
+
+				if (UWorld* World = GetWorld())
+				{
+					FActorSpawnParameters Params;
+					Params.Owner = this;
+					Params.Instigator = this;
+					Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+					ABurrowerProjectile* Projectile = World->SpawnActor<ABurrowerProjectile>(BurrowerProjectileType, GetMesh()->GetBoneLocation("Mouth"), FRotator::ZeroRotator, Params);
+					if (Projectile)
+					{
+						Projectile->LaunchProjectile(ProjectileTarget->GetActorLocation());
+					}
+				}
+			}
+		}
+	}
 }
 
 void ABurrowerEnemy::OnRep_VisibilityState(EBurrowerVisibilityState OldVisibilityState) 

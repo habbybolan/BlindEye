@@ -16,7 +16,8 @@ enum class EBurrowActionState : uint8
 	Attacking,
 	Patrolling,
 	Cancelled,
-	BurstWave
+	BurstWave,
+	Projectile
 };
 
 /**

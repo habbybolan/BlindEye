@@ -75,11 +75,18 @@ void UBTS_BurrowerState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Node
 			}
 		}
 	}
+
+	if (CurrState == EBurrowActionState::Patrolling && CurrProjectileStateTime >= ProjectileStateDelay)
+	{
+		CurrProjectileStateTime = 0;
+		BBComp->SetValueAsEnum(StateKey.SelectedKeyName, (uint8)EBurrowActionState::Projectile);
+	}
 	
 	// Check if time to spawn
 	if (CurrState != EBurrowActionState::Spawning)
 	{
 		CurrSpawnStateTime += DeltaSeconds;
+		CurrProjectileStateTime += DeltaSeconds;
 	}
 }
 

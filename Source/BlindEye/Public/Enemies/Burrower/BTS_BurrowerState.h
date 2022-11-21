@@ -32,11 +32,15 @@ class BLINDEYE_API UBTS_BurrowerState : public UBTService
 	UPROPERTY(EditAnywhere)
 	float SpawnStateDelay = 15.f;
 
+	UPROPERTY(EditAnywhere) 
+	float ProjectileStateDelay = 5.f;
+
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 	virtual void OnSearchStart(FBehaviorTreeSearchData& SearchData) override;
 
-	float CurrSpawnStateTime = 0;
+	float CurrSpawnStateTime = 0; 
+	float CurrProjectileStateTime = 0;
 	bool bSpawnStateQueued = false;
 	
 	
