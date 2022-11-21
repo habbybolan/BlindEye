@@ -219,12 +219,14 @@ void UBlindEyeGameInstance::EnterGame(FString crowPlayerID, FString phoenixPlaye
 	PhoenixPlayerID = phoenixPlayerID;
 	if (UWorld* World = GetWorld())
 	{
+		bInEditor = false;
 		World->ServerTravel("/Game/Maps/WhiteBox?listen");
 	}
 }
 
 void UBlindEyeGameInstance::EnterGameLAN(EPlayerType hostType, EPlayerType clientType)
 {
+	bInEditor = false;
 	HostType = hostType;
 	ClientType = clientType;
 	

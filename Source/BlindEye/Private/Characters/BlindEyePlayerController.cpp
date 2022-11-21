@@ -42,18 +42,22 @@ void ABlindEyePlayerController::SER_SpawnPlayer_Implementation()
 		PlayerClassType = BlindEyeGameMode->PhoenixClassType;
 	}
 
-	// TODO: Temporary for test spawning
-	// if (IsServer)
-	// {
-	// 	PlayerClassType = BlindEyeGameMode->PlayerClassTypes[0];
-	// 	playerType = EPlayerType::CrowPlayer;
-	// 	IsServer = !IsServer;
-	// } else
-	// {
-	// 	PlayerClassType = BlindEyeGameMode->PlayerClassTypes[1];
-	// 	playerType = EPlayerType::PhoenixPlayer;
-	// 	IsServer = !IsServer;
-	// }
+	// For stupid spawning when playing in editor
+	if (BlindEyeGI->bInEditor)
+	{
+		if (IsServer)
+		{
+			PlayerClassType = BlindEyeGameMode->CrowClassType;
+			playerType = EPlayerType::CrowPlayer;
+			IsServer = !IsServer;
+		} else
+		{
+			PlayerClassType = BlindEyeGameMode->PhoenixClassType;
+			playerType = EPlayerType::PhoenixPlayer;
+			IsServer = !IsServer;
+		}
+	}
+	
 		
 	OwningCharacter = Cast<ABlindEyePlayerCharacter>(world->SpawnActor<ABlindEyePlayerCharacter>(PlayerClassType, spawnTransform, spawnParams));
 	if (OwningCharacter)
