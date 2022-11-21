@@ -3,6 +3,7 @@
 
 #include "Enemies/Hunter/HunterEnemy.h"
 
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -17,7 +18,35 @@ AHunterEnemy::AHunterEnemy(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UHunterHealthComponent>(TEXT("HealthComponent")))
 {
 	bReplicates = true;
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
+}
+
+void AHunterEnemy::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	// Slow movement if close to target and target is marked
+	bool bMovementUpdated = false;
+	if (IsTargetMarked())
+	{
+		if (AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(GetController()))
+		{
+			if (AActor* Target = HunterController->GetBTTarget())
+			{
+				if (FVector::Distance(Target->GetActorLocation(), GetActorLocation()) < DistToMarkedPlayerToSlowDown)
+				{
+					bMovementUpdated = true;
+					GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed * MovementSpeedSlowWhenCloseToMarkedPlayer;
+				}
+			}
+		}
+	}
+	
+	// To make sure it doesn't get stuck on slow speed
+	if (!bMovementUpdated)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed;
+	}
 }
 
 void AHunterEnemy::BeginPlay()
@@ -77,7 +106,8 @@ void AHunterEnemy::MULT_PerformChargedJumpHelper_Implementation(FVector StartLoc
 	
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	GetWorldTimerManager().SetTimer(PerformingChargedJumpTimerHandle, this, &AHunterEnemy::PerformingJumpAttack, 0.02, true);
+	GetWorldTimerManager().SetTimer(PerformingChargedJumpTimerHandle, this, &AHunterEnemy::PerformingJumpAttack, ChargedJumpCalcDelay, true);
+	GetWorldTimerManager().SetTimer(ChargedJumpRotationTimerHandle, this, &AHunterEnemy::RotateDuringChargedAttack, ChargedJumpCalcDelay, true);
 }
 
 void AHunterEnemy::PerformingJumpAttack()
@@ -108,10 +138,20 @@ void AHunterEnemy::PerformingJumpAttack()
 	if (CurrTimeOfChargedJump >= ChargedJumpDuration)
 	{
 		GetWorldTimerManager().ClearTimer(PerformingChargedJumpTimerHandle);
+		GetWorldTimerManager().ClearTimer(ChargedJumpRotationTimerHandle);
 		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		CurrTimeOfChargedJump = 0;
 	}
+}
+
+void AHunterEnemy::RotateDuringChargedAttack()
+{
+	FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ChargedJumpTargetLocation);
+	FRotator NewRotation = UKismetMathLibrary::RInterpTo(GetActorRotation(), TargetRotation, ChargedJumpCalcDelay, ChargedJumpRInterpSpeed);
+	NewRotation.Roll = 0;
+	NewRotation.Pitch = 0;
+	SetActorRotation(NewRotation);
 }
 
 void AHunterEnemy::SetCharged()
@@ -428,6 +468,25 @@ void AHunterEnemy::SetFleeing()
 {
 	bFleeing = true;
 	RemoveHunterMarkOnPlayer();
+}
+
+bool AHunterEnemy::IsTargetMarked()
+{
+	if (AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(GetController()))
+	{
+		if (AActor* Target = HunterController->GetBTTarget())
+		{
+			if (ABlindEyeBaseCharacter* Player = Cast<ABlindEyePlayerCharacter>(Target))
+			{
+				FMarkData MarkerData = Player->GetHealthComponent()->GetCurrMark();
+				if (MarkerData.bHasMark)
+				{
+					return MarkerData.MarkerType == EMarkerType::Hunter;
+				}
+			}
+		}
+	}
+	return false;
 }
 
 
