@@ -148,7 +148,7 @@ void AHunterEnemy::PerformingJumpAttack()
 	}
 
 	SetActorLocation(ForwardEase + UpEase);
-	CurrTimeOfChargedJump += 0.02;
+	CurrTimeOfChargedJump += ChargedJumpCalcDelay;
 
 	if (CurrTimeOfChargedJump >= ChargedJumpDuration)
 	{
