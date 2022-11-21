@@ -200,7 +200,7 @@ protected:
 	EHunterAttacks CurrAttack = EHunterAttacks::None;
 	
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_PerformBasicAttackHelper();
+	void MULT_PerformBasicAttackHelper(UAnimMontage* AnimToPlay);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_ChargedStarted();
@@ -267,5 +267,7 @@ protected:
 
 	UFUNCTION()
 	void AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	bool bLeftBasicAttack = true;
 };
 

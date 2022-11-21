@@ -245,14 +245,13 @@ void AHunterEnemy::RemoveHunterMarkOnPlayer()
 void AHunterEnemy::PerformBasicAttack()
 {
 	CurrAttack = EHunterAttacks::BasicAttack;
-	MULT_PerformBasicAttackHelper();
+	MULT_PerformBasicAttackHelper(bLeftBasicAttack ? BasicAttackLeftAnimation : BasicAttackRightAnimation);
+	bLeftBasicAttack = !bLeftBasicAttack;
 }
 
-void AHunterEnemy::MULT_PerformBasicAttackHelper_Implementation()
+void AHunterEnemy::MULT_PerformBasicAttackHelper_Implementation(UAnimMontage* AnimToPlay)
 {
-	GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed * MovementSlowOnBasicAttack;
-	uint8 RandAnim = UKismetMathLibrary::RandomIntegerInRange(0, 1);
-	PlayAnimMontage(RandAnim == 0 ? BasicAttackLeftAnimation : BasicAttackRightAnimation);
+	PlayAnimMontage(AnimToPlay);
 }
 
 void AHunterEnemy::OnHunterMarkDetonated(AActor* MarkedPawn, EMarkerType MarkerType)
