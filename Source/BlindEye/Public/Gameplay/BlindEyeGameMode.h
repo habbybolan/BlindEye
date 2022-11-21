@@ -35,7 +35,9 @@ public:
 	FTransform GetSpawnPoint() const;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<TSubclassOf<ABlindEyePlayerCharacter>> PlayerClassTypes;
+	TSubclassOf<ABlindEyePlayerCharacter> CrowClassType;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<ABlindEyePlayerCharacter> PhoenixClassType;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float TimerUntilGameWon = 60;
