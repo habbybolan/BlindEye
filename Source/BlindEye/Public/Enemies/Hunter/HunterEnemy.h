@@ -116,6 +116,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
 	float ChargedJumpLandingDistanceBeforeTarget = 70.f;
 
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
+	float ChargedJumpMaxPeakHeight = 500.f;
+ 
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
+	float ChargedJumpMinPeakHeight = 50.f;
+
 	UPROPERTY(BlueprintReadWrite)
 	bool IsVisible = false;
 	
@@ -220,6 +226,8 @@ protected:
 	FVector ChargedJumpStartLocation; 
 	FTimerHandle PerformingChargedJumpTimerHandle;
 	void PerformingJumpAttack();
+
+	float ChargedJumpPeakHeight; // Calculated peak height for charged jump based on distance to player
 
 	// Intermediary method to make RPC call to blueprint implementable method
 	UFUNCTION(NetMulticast, Reliable)

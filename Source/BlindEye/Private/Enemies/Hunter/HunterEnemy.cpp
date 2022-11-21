@@ -69,6 +69,11 @@ void AHunterEnemy::MULT_PerformChargedJumpHelper_Implementation(FVector StartLoc
 	// Set Start and end locations of jump for Easing
 	ChargedJumpStartLocation = StartLoc;
 	ChargedJumpTargetLocation = EndLoc;
+
+	float JumpDistance = FVector::Distance(StartLoc, EndLoc);
+	// Calculate the height of the jump attack based on dist. to player
+	ChargedJumpPeakHeight = UKismetMathLibrary::Max(ChargedJumpMaxPeakHeight *
+		((JumpDistance - MinDistanceToChargeJump) / (MaxDistanceToChargeJump - MinDistanceToChargeJump)), ChargedJumpMinPeakHeight);
 	
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -81,7 +86,7 @@ void AHunterEnemy::PerformingJumpAttack()
 		ChargedJumpTargetLocation* FVector(1, 1, 0), CurrTimeOfChargedJump / ChargedJumpDuration, EEasingFunc::Linear);
 
 	FVector UpEase;
-	FVector HalfDirectionToTarget = (ChargedJumpTargetLocation - ChargedJumpStartLocation) / 2 + FVector::UpVector * 200;
+	FVector HalfDirectionToTarget = (ChargedJumpTargetLocation - ChargedJumpStartLocation) / 2 + FVector::UpVector * ChargedJumpPeakHeight;
 	float HalfChargedAttackDuration = ChargedJumpDuration / 2;
 	// If at first half of jump, jump from starting Z to jump Z-Peak
 	if (CurrTimeOfChargedJump / ChargedJumpDuration <= 0.5)
