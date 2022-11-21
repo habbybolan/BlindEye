@@ -239,7 +239,7 @@ protected:
 
 	float CurrTimeOfChargedJump = 0;	// Keeps track of how long of the jump the charged attack has been performed for
 	FVector ChargedJumpTargetLocation;
-	FVector ChargedJumpStartLocation; 
+	FVector ChargedJumpStartLocation;
 	FTimerHandle PerformingChargedJumpTimerHandle;
 	void PerformingJumpAttack();
 
