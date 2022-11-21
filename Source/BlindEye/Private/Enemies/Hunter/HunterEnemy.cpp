@@ -340,7 +340,7 @@ void AHunterEnemy::SetChargedJumpOffCooldown()
 
 void AHunterEnemy::MULT_TurnVisible_Implementation(bool visibility)
 {
-	TrySetVisibiltiyHelper(visibility);
+	BP_SetVisibility_CLI(visibility);
 }
 
 bool AHunterEnemy::GetIsChargedJumpOnCooldown()

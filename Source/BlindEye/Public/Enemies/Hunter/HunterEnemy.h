@@ -257,7 +257,7 @@ protected:
 	void MULT_TurnVisible(bool visibility);
  
 	UFUNCTION(BlueprintImplementableEvent)
-	void TrySetVisibiltiyHelper(bool visibility);
+	void BP_SetVisibility_CLI(bool visibility);
 
 	void SetCharged();
 	void SetNotCharged();
