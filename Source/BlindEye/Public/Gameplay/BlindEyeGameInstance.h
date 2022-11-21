@@ -10,6 +10,7 @@
 #include "UI/LobbyScreenBase.h"
 #include "BlindEyeGameInstance.generated.h"
 
+class UCreateSessionCallbackProxy;
 /**
  * 
  */
@@ -53,17 +54,26 @@ public:
 	void OnCreateSessionComplete(FName SessionName, bool Success);
 	void OnJoinSessionsComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 
-	void CreateSession(); 
+	void CreateSession();  
 
 	// Enter game from character select screen
 	void EnterGame(FString crowPlayerID, FString phoenixPlayerID);
+	void EnterGameLAN(EPlayerType hostType, EPlayerType clientType); 
+	 
+	void SetGameAsLan(bool IsLan);
 
 	const FName SESSION_NAME = TEXT("BlindEyeServer");
 
-	EPlayerType GetPlayerType(FString PlayerID);
+	EPlayerType GetPlayerType(APlayerState* PlayerState);
+
+	bool GetIsLAN();
 
 protected:
  
 	FString CrowPlayerID;
 	FString PhoenixPlayerID;
+
+	bool bIsLanGame = false;
+	EPlayerType HostType;
+	EPlayerType ClientType;
 };

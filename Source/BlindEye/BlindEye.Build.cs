@@ -10,7 +10,7 @@ public class BlindEye : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "AIModule", 
 			"GameplayTasks", "Niagara", "NavigationSystem", "UMG", "LevelSequence", "MovieScene",
-			"OnlineSubsystem", "OnlineSubsystemSteam"
+			"OnlineSubsystem", "OnlineSubsystemSteam", "OnlineSubsystemUtils"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "VaRest" });

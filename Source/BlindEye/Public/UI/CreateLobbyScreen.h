@@ -18,6 +18,9 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UButton* NewSessionButton;
+ 
+	UPROPERTY(meta = (BindWidget))
+	UButton* LANButton;
 
 	virtual bool Initialize() override;
 
@@ -25,5 +28,8 @@ protected:
 
 	UFUNCTION()
 	void OnNewSessionPressed();
+ 
+	UFUNCTION()
+	void OnLANPressed();
 	
 };

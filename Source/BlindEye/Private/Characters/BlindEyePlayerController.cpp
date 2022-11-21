@@ -33,7 +33,7 @@ void ABlindEyePlayerController::SER_SpawnPlayer_Implementation()
 
 	check(PlayerState)
 
-	playerType = BlindEyeGI->GetPlayerType(PlayerState->GetUniqueId().ToString());
+	playerType = BlindEyeGI->GetPlayerType(PlayerState);
 	if (playerType == EPlayerType::CrowPlayer)
 	{
 		PlayerClassType = BlindEyeGameMode->CrowClassType;

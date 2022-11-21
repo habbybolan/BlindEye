@@ -6,6 +6,8 @@
 #include "../../Engine/Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlineSessionInterface.h"
 #include "../../Engine/Plugins/Online/OnlineSubsystem/Source/Public/OnlineSessionSettings.h"
 #include "../../Engine/Plugins/Online/OnlineSubsystem/Source/Public/OnlineSubsystemTypes.h"
+#include "../../Engine/Plugins/Online/OnlineSubsystemUtils/Source/OnlineSubsystemUtils/Classes/CreateSessionCallbackProxy.h"
+#include "GameFramework/PlayerState.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -221,9 +223,42 @@ void UBlindEyeGameInstance::EnterGame(FString crowPlayerID, FString phoenixPlaye
 	}
 }
 
-EPlayerType UBlindEyeGameInstance::GetPlayerType(FString PlayerID)
+void UBlindEyeGameInstance::EnterGameLAN(EPlayerType hostType, EPlayerType clientType)
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Green, "[UBlindEyeGameInstance::GetPlayerType] ID " + PlayerID);
-	if (CrowPlayerID == PlayerID) return EPlayerType::CrowPlayer;
-	else return EPlayerType::PhoenixPlayer;
+	HostType = hostType;
+	ClientType = clientType;
+	
+}
+
+void UBlindEyeGameInstance::SetGameAsLan(bool IsLand)
+{
+	bIsLanGame = IsLand;
+}
+
+EPlayerType UBlindEyeGameInstance::GetPlayerType(APlayerState* PlayerState)
+{
+	// If online, get type based on SteamID
+	if (!bIsLanGame)
+	{
+		FString PlayerID = PlayerState->GetUniqueId().ToString();
+		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Green, "[UBlindEyeGameInstance::GetPlayerType] ID " + PlayerID);
+		if (CrowPlayerID == PlayerID) return EPlayerType::CrowPlayer;
+		else return EPlayerType::PhoenixPlayer;
+	}
+	// If LAN, get type based on Host/CLient
+	else
+	{
+		if (PlayerState->GetLocalRole() == ROLE_Authority)
+		{
+			return HostType;
+		} else
+		{
+			return ClientType;
+		}
+	}
+}
+
+bool UBlindEyeGameInstance::GetIsLAN()
+{
+	return bIsLanGame;
 }

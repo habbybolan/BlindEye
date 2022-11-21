@@ -90,7 +90,22 @@ void ACharacterSelectGameState::PlayerTryReady(ACharacterSelectPlayerController*
 				TEXT("[ACharacterSelectGameState::PlayerTryReady] CrowID: " + CrowPlayer->GetUniqueId().ToString() +
 					" PhoenixID: " + PhoenixPlayer->GetUniqueId().ToString()));
 			UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
-			BlindEyeGI->EnterGame(CrowPlayer->GetUniqueId().ToString(), PhoenixPlayer->GetUniqueId().ToString());
+			
+			// HardCoded to 2 players in LAN, using Host/Client as identifiers for character for simplicity
+			if (BlindEyeGI->GetIsLAN())
+			{
+				if (CrowPlayer->GetLocalRole() == ROLE_Authority)
+				{
+					BlindEyeGI->EnterGameLAN(EPlayerType::CrowPlayer, EPlayerType::PhoenixPlayer);
+				} else {
+					BlindEyeGI->EnterGameLAN(EPlayerType::PhoenixPlayer, EPlayerType::CrowPlayer);
+				}
+			}
+			// Online game, use SteamID as character identifiers
+			else
+			{
+				BlindEyeGI->EnterGame(CrowPlayer->GetUniqueId().ToString(), PhoenixPlayer->GetUniqueId().ToString());
+			}
 		}
 		else
 		{
