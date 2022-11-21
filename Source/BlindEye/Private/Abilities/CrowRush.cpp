@@ -168,6 +168,13 @@ bool ACrowRush::FindValidTargetLocation(FVector& CurrLoc, FVector EndLoc, FVecto
 	if (UKismetSystemLibrary::LineTraceSingleForObjects(GetWorld(), CurrLoc, CurrLoc + FVector::DownVector * MaxDistance, TargetObjectBlocker,
 			false, TArray<AActor*>(), EDrawDebugTrace::None, HitTargetBelow, true))
 	{
+		// Apply step offset if still on island to prevent being on very edge
+		if (UKismetSystemLibrary::LineTraceSingleForObjects(GetWorld(), CurrLoc + DirBackAlongLine * StepOffsetTowardsPlayer,
+			CurrLoc + DirBackAlongLine * StepOffsetTowardsPlayer + FVector::DownVector * MaxDistance, TargetObjectBlocker,
+			false, TArray<AActor*>(), EDrawDebugTrace::None, HitTargetBelow, true))
+		{
+			CurrLoc += DirBackAlongLine * StepOffsetTowardsPlayer;
+		}
 		return true;
 	}
 	// Otherwise, continue stepping along line
@@ -196,6 +203,9 @@ void ACrowRush::StartMovement()
  
 void ACrowRush::MULT_StartMovementHelper_Implementation(FVector StartPos, FVector CalculatedEndPos) 
 {
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+	Player->GetMovementComponent()->StopMovementImmediately();
+	
 	UWorld* World = GetWorld();
 	if (World)
 	{ 

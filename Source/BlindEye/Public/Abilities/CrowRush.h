@@ -92,6 +92,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category=Target)
 	float StepSize = 50;
+ 
+	UPROPERTY(EditDefaultsOnly, Category=Target)
+	float StepOffsetTowardsPlayer = 50;
 
 	UPROPERTY(EditDefaultsOnly)
 	float DamageAmount = 20;
