@@ -3,6 +3,7 @@
 
 #include "Enemies/Hunter/HunterEnemy.h"
 
+#include "NavigationSystem.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Components/CapsuleComponent.h"
@@ -498,6 +499,21 @@ bool AHunterEnemy::IsTargetMarked()
 					return MarkerData.MarkerType == EMarkerType::Hunter;
 				}
 			}
+		}
+	}
+	return false;
+}
+
+bool AHunterEnemy::IsTargetOnNavigableGround()
+{
+	if (AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(GetController()))
+	{
+		if (AActor* Target = HunterController->GetBTTarget())
+		{
+			FNavLocation ProjectedLocation;
+			UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+			const FNavAgentProperties& AgentProps = GetNavAgentPropertiesRef();
+			return NavSys->ProjectPointToNavigation(Target->GetActorLocation(), ProjectedLocation, INVALID_NAVEXTENT, &AgentProps);
 		}
 	}
 	return false;

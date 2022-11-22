@@ -175,6 +175,8 @@ public:
 	void SetFleeing();
 
 	bool IsTargetMarked();
+
+	bool IsTargetOnNavigableGround();
  
 protected:
 
