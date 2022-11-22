@@ -14,7 +14,7 @@ ACrowRush::ACrowRush()
 {
 	AbilityStates.Add(new FAimingStartState(this));
 	AbilityStates.Add(new FMovingState(this));
-	AbilityType = EAbilityTypes::Unique1;
+	AbilityType = EAbilityTypes::Unique2;
 }
 
 void ACrowRush::ApplyDamage()

@@ -73,6 +73,8 @@ void ASnapperEnemy::BeginPlay()
 	}
 
 	GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &ASnapperEnemy::OnAnimMontageEnded);
+
+	ApplyKnockBack(QueuedSpawnForce);
 }
 
 void ASnapperEnemy::CollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
@@ -409,4 +411,5 @@ void ASnapperEnemy::GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & Ou
 	DOREPLIFETIME( ASnapperEnemy, HipLocation );
 	DOREPLIFETIME( ASnapperEnemy, bGettingUp );
 	DOREPLIFETIME( ASnapperEnemy, bIsSpawning );
+	DOREPLIFETIME_CONDITION( ASnapperEnemy, QueuedSpawnForce, COND_InitialOnly );
 }

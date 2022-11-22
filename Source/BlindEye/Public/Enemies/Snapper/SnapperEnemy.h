@@ -100,7 +100,10 @@ public:
 	void MULT_StopJumpAttackHelper();
 	void StopBasicAttack();
 
-	bool IsAttackingShrine = true;
+	bool IsAttackingShrine = true; 
+
+	UPROPERTY(Replicated)
+	FVector QueuedSpawnForce;
 	
 protected:
 
