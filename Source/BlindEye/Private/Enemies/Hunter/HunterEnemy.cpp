@@ -14,6 +14,7 @@
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 AHunterEnemy::AHunterEnemy(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UHunterHealthComponent>(TEXT("HealthComponent")))
@@ -66,6 +67,7 @@ void AHunterEnemy::BeginPlay()
 	}
 
 	GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &AHunterEnemy::AnimMontageEnded);
+	Material = GetMesh()->CreateDynamicMaterialInstance(0, DissolveMaterial);
 }
 
 void AHunterEnemy::Despawn()
@@ -313,10 +315,13 @@ void AHunterEnemy::UnsubscribeToTargetMarks()
 
 void AHunterEnemy::TrySetVisibility(bool visibility)
 {
-	if (IsVisible == visibility) return;
-
 	IsVisible = visibility;
-	MULT_TurnVisible(visibility);
+	OnRep_IsVisible();
+}
+
+void AHunterEnemy::OnRep_IsVisible()
+{
+	BP_SetVisibility_CLI(IsVisible);
 }
  
 void AHunterEnemy::OnDeath(AActor* ActorThatKilled)
@@ -337,11 +342,6 @@ void AHunterEnemy::SetChargedJumpOffCooldown()
 	
 	UWorld* World = GetWorld();
 	if (World) World->GetTimerManager().ClearTimer(ChargedJumpCooldownTimerHandle);
-}
-
-void AHunterEnemy::MULT_TurnVisible_Implementation(bool visibility)
-{
-	BP_SetVisibility_CLI(visibility);
 }
 
 bool AHunterEnemy::GetIsChargedJumpOnCooldown()
@@ -517,6 +517,12 @@ bool AHunterEnemy::IsTargetOnNavigableGround()
 		}
 	}
 	return false;
+}
+
+void AHunterEnemy::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AHunterEnemy, IsVisible)
 }
 
 

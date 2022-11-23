@@ -139,8 +139,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
 	TArray<TEnumAsByte<EObjectTypeQuery>> ChargedJumpLOSBlockers;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(Replicated, ReplicatedUsing="OnRep_IsVisible", BlueprintReadOnly)
 	bool IsVisible = false;
+
+	UPROPERTY(EditDefaultsOnly)
+	UMaterialInstance* DissolveMaterial;
+
+	UFUNCTION()
+	void OnRep_IsVisible();
 	
 	void PerformChargedJump();
 	 
@@ -198,6 +204,9 @@ protected:
 
 	FTimerHandle ChannellingTimerHandle;
 
+	UPROPERTY(BlueprintReadWrite)
+	UMaterialInstanceDynamic* Material;
+
 	UPROPERTY()
 	AShrine* Shrine;
 
@@ -253,10 +262,6 @@ protected:
 	void RotateDuringChargedAttack();
 
 	float ChargedJumpPeakHeight; // Calculated peak height for charged jump based on distance to player
-
-	// Intermediary method to make RPC call to blueprint implementable method
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_TurnVisible(bool visibility);
  
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_SetVisibility_CLI(bool visibility);
@@ -274,5 +279,7 @@ protected:
 	void AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 	bool bLeftBasicAttack = true;
+
+	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
 };
 
