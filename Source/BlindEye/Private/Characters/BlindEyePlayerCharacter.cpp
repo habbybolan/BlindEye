@@ -127,7 +127,7 @@ void ABlindEyePlayerCharacter::StartTutorial(const TArray<FTutorialInfo>& Tutori
 {
 	UWorld* World = GetWorld();
 	if (World)
-	{ 
+	{
 		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
 		check(BlindEyeGS)
 		BlindEyeGS->GameStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::CLI_StartGame);

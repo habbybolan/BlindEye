@@ -11,8 +11,8 @@
 ATutorialManager::ATutorialManager()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	bReplicates = true;
-	bNetLoadOnClient = true;
+	bReplicates = false;
+	bNetLoadOnClient = false;
 }
 
 void ATutorialManager::BeginPlay()
@@ -137,7 +137,6 @@ void ATutorialManager::PlayerEnteredTutorial(AGameModeBase* GameModeBase, APlaye
 				{
 					AllTutorials[CurrTutorialIndex]->PlayerEnteredTutorial(NewPlayer->GetPawn()->GetPlayerState());
 				}
-				InitializePlayerForTutorial(NewPlayer);
 			}
 		}
 	}
