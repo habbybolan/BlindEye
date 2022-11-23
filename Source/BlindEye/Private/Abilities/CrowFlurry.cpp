@@ -16,7 +16,7 @@ ACrowFlurry::ACrowFlurry()
 	AbilityStates.Add(new FPerformCrowFlurryState(this));
 	AbilityStates.Add(new FCancelCrowFlurryState(this));
 	AbilityStates.Add(new FEndCrowFlurryState(this));
-	AbilityType = EAbilityTypes::Unique2;
+	AbilityType = EAbilityTypes::Unique1;
 }
 
 void ACrowFlurry::BeginPlay()
@@ -111,8 +111,20 @@ void ACrowFlurry::PerformCrowFlurry()
 	
 	for (FHitResult Hit : OutHits)
 	{
-		UGameplayStatics::ApplyPointDamage(Hit.GetActor(), DamagePerSec * CrowFlurryDamageDelay, FVector::ZeroVector,
-					FHitResult(), GetInstigator()->Controller, this, DamageType);
+		// On first hit, apply mark
+		if (!MarkedEnemies.Contains(Hit.Actor))
+		{
+			UGameplayStatics::ApplyPointDamage(Hit.GetActor(), DamagePerSec * CrowFlurryDamageDelay, FVector::ZeroVector,
+						FHitResult(), GetInstigator()->Controller, this, FirstHitDamageType);
+			MarkedEnemies.Add(Hit.Actor);
+		}
+		// Otherwise, only damage
+		else
+		{
+			UGameplayStatics::ApplyPointDamage(Hit.GetActor(), DamagePerSec * CrowFlurryDamageDelay, FVector::ZeroVector,
+						FHitResult(), GetInstigator()->Controller, this, AlreadyHitDamageType);
+		}
+		
 	}
 
 	// consume bird meter
@@ -143,6 +155,7 @@ void ACrowFlurry::EndAbilityLogic()
 	{
 		BlindEyePlayerCharacter->CLI_ResetRotationRateToNormal();
 	}
+	MarkedEnemies.Empty();
 }
 
 // **** States *******
@@ -181,7 +194,8 @@ void FPerformCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
 	// wait for ability startup to goto end state
 	CrowFlurry->PlayAbilityAnimation();
 
-	Ability->Blockers.IsMovementBlocked = true;
+	Ability->Blockers.IsMovementSlowBlocked = true;
+	Ability->Blockers.MovementSlowAmount = CrowFlurry->MovementSlowDuringFlurry;
 	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 }
 
@@ -219,7 +233,8 @@ void FCancelCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
 	ACrowFlurry* CrowFlurry = Cast<ACrowFlurry>(Ability);
 	if (CrowFlurry == nullptr) return;
 
-	Ability->Blockers.IsMovementBlocked = true;
+	Ability->Blockers.IsMovementSlowBlocked = true;
+	Ability->Blockers.MovementSlowAmount = CrowFlurry->MovementSlowDuringFlurry;
 	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 	
 	if (abilityUsageType == EAbilityInputTypes::Pressed)
