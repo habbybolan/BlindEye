@@ -13,6 +13,7 @@ class AIslandManager;
 class ABlindEyePlayerState;
 class AShrine;
 class ABlindEyeEnemyBase;
+class ATutorialManager;
 enum class EPlayerType : uint8;
 enum class EMarkerType : uint8;
 
@@ -191,6 +192,8 @@ public:
 
 	void PerformPulse(uint8 PulseIndex);
 
+	ATutorialManager* GetTutorialManager();
+
 protected: 
 
 	UPROPERTY(Replicated)
@@ -204,6 +207,9 @@ protected:
 
 	UPROPERTY()
 	AIslandManager* IslandManager;
+
+	UPROPERTY()
+	ATutorialManager* TutorialManager;
 	
 	FTimerHandle MainGameLoopTimer;
 	float MainGameLoopDelay = 0.1;

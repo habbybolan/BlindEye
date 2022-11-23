@@ -31,6 +31,8 @@ class BLINDEYE_API ABasicAttackTutorial : public ATutorialBase
 	GENERATED_BODY()
 
 public:
+
+	virtual void BeginPlay() override;
 	
 	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=1))
 	uint8 ComboCount = 2;
@@ -43,6 +45,8 @@ public:
 	
 	virtual void SetupTutorial() override;
 	virtual void EndTutorial() override;
+
+	virtual void PlayerEnteredTutorialHelper(ABlindEyePlayerCharacter* Player) override;
 
 protected:
 
