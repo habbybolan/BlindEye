@@ -20,14 +20,14 @@ void ATutorialBase::SetupTutorial()
 	BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
 	check(BlindEyeGS)
 
-	// for (APlayerState* PlayerState : BlindEyeGS->PlayerArray)
-	// {
-	// 	if (PlayerState->GetPawn())
-	// 	{
-	// 		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerState->GetPawn());
-	// 		Player->CLI_SetupChecklist();
-	// 	}
-	// }
+	for (APlayerState* PlayerState : BlindEyeGS->PlayerArray)
+	{
+		if (PlayerState->GetPawn())
+		{
+			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerState->GetPawn());
+			PlayerEnteredTutorial(Player);
+		}
+	}
 }
 
 void ATutorialBase::EndTutorial()

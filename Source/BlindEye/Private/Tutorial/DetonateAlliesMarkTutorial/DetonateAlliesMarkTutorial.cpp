@@ -81,7 +81,7 @@ void ADetonateAlliesMarkTutorial::OnMarkDetonated(AActor* MarkedPawn, EMarkerTyp
 	}
 }
 
-void ADetonateAlliesMarkTutorial::OnPlayerConnected(ABlindEyePlayerCharacter* Player)
+void ADetonateAlliesMarkTutorial::PlayerEnteredTutorial(ABlindEyePlayerCharacter* Player)
 {
 	
 }

@@ -51,7 +51,7 @@ public:
 
 	TArray<FTutorialInfo>& GetPlayerTutorialArray(EPlayerType PlayerType);
 
-	virtual void OnPlayerConnected(ABlindEyePlayerCharacter* Player) PURE_VIRTUAL(OnPlayerConnected,);
+	virtual void PlayerEnteredTutorial(ABlindEyePlayerCharacter* Player) PURE_VIRTUAL(OnPlayerConnected,);
 
 protected:
 

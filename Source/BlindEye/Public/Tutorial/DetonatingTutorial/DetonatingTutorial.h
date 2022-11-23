@@ -33,7 +33,7 @@ public:
 	UFUNCTION()
 	void OnMarkDetonated(AActor* MarkedPawn, EMarkerType MarkerType);
 
-	virtual void OnPlayerConnected(ABlindEyePlayerCharacter* Player) override;
+	virtual void PlayerEnteredTutorial(ABlindEyePlayerCharacter* Player) override;
 
 protected:
 	

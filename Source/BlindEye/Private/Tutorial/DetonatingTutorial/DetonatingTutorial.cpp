@@ -102,7 +102,7 @@ void ADetonatingTutorial::OnMarkDetonated(AActor* MarkedPawn, EMarkerType Marker
 	}
 }
 
-void ADetonatingTutorial::OnPlayerConnected(ABlindEyePlayerCharacter* Player) {}
+void ADetonatingTutorial::PlayerEnteredTutorial(ABlindEyePlayerCharacter* Player) {}
 
 void ADetonatingTutorial::SetPlayerFinishedTutorial(EPlayerType PlayerThatFinished)
 {

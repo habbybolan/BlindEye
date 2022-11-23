@@ -57,7 +57,7 @@ void ABasicAttackTutorial::EndTutorial()
 	}
 }
 
-void ABasicAttackTutorial::OnPlayerConnected(ABlindEyePlayerCharacter* Player)
+void ABasicAttackTutorial::PlayerEnteredTutorial(ABlindEyePlayerCharacter* Player)
 {
 	Player->TutorialActionsDelegate.AddDynamic(this, &ABasicAttackTutorial::OnPlayerAction);
 	Player->TutorialActionBlockers.bUnique2blocked = true;
