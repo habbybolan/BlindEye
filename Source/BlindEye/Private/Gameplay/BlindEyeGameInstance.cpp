@@ -196,10 +196,12 @@ void UBlindEyeGameInstance::CreateSession()
 		// Switch between bIsLANMatch when using NULL subsystem
 		if (IOnlineSubsystem::Get()->GetSubsystemName().ToString() == "NULL")
 		{
+			GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Cyan, "[UBlindEyeGameInstance::CreateSession]: LAN");
 			SessionSettings.bIsLANMatch = true;
 		}
 		else
 		{
+			GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Cyan, "[UBlindEyeGameInstance::CreateSession]: ONLINE");
 			SessionSettings.bIsLANMatch = false;
 		}
 
@@ -207,6 +209,7 @@ void UBlindEyeGameInstance::CreateSession()
 		SessionSettings.NumPublicConnections = 2;
 		SessionSettings.bShouldAdvertise = true;
 		SessionSettings.bUsesPresence = true;
+		SessionSettings.bUseLobbiesIfAvailable = true;
 		SessionSettings.Set(SERVER_NAME_SETTINGS_KEY, DesiredServerName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
 		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings);
