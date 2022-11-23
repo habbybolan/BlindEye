@@ -22,8 +22,11 @@ struct FTutorialInfo
 		MaxCount = maxCount;
 	}
 
+	UPROPERTY()
 	uint8 ID;
+	UPROPERTY()
 	FString TextToDisplay;
+	UPROPERTY()
 	uint8 MaxCount;
 };
 
