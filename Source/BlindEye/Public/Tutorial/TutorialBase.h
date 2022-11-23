@@ -46,7 +46,7 @@ public:
 	TArray<FTutorialInfo> PhoenixTutorialInfo;
 	TArray<FTutorialInfo> CrowTutorialInfo;
 
-	TArray<FTutorialInfo> GetPlayerTutorialArray(EPlayerType PlayerType);
+	TArray<FTutorialInfo>& GetPlayerTutorialArray(EPlayerType PlayerType);
 
 	virtual void OnPlayerConnected(ABlindEyePlayerCharacter* Player) PURE_VIRTUAL(OnPlayerConnected,);
 

@@ -46,7 +46,7 @@ void ATutorialBase::EndTutorial()
 	TutorialFinishedDelegate.ExecuteIfBound();
 }
 
-TArray<FTutorialInfo> ATutorialBase::GetPlayerTutorialArray(EPlayerType PlayerType)
+TArray<FTutorialInfo>& ATutorialBase::GetPlayerTutorialArray(EPlayerType PlayerType)
 {
 	if (PlayerType == EPlayerType::CrowPlayer) return CrowTutorialInfo;
 	else return PhoenixTutorialInfo;

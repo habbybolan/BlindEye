@@ -12,25 +12,29 @@ ATutorialManager::ATutorialManager()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
+	bNetLoadOnClient = true;
 }
 
 void ATutorialManager::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UWorld* World = GetWorld();
-	// Create all tutorial actors 
-	for (TSubclassOf<ATutorialBase> Tutorial : TutorialTypes)
+	if (GetLocalRole() == ROLE_Authority)
 	{
-		ATutorialBase* tutorial = World->SpawnActor<ATutorialBase>(Tutorial);
-		if (tutorial)
+		UWorld* World = GetWorld();
+		// Create all tutorial actors 
+		for (TSubclassOf<ATutorialBase> Tutorial : TutorialTypes)
 		{
-			tutorial->TutorialFinishedDelegate.BindDynamic(this, &ATutorialManager::GotoNextTutorial);
-			AllTutorials.Add(tutorial);
+			ATutorialBase* tutorial = World->SpawnActor<ATutorialBase>(Tutorial);
+			if (tutorial)
+			{
+				tutorial->TutorialFinishedDelegate.BindDynamic(this, &ATutorialManager::GotoNextTutorial);
+				AllTutorials.Add(tutorial);
+			}
 		}
-	}
 
-	FGameModeEvents::GameModePostLoginEvent.AddUFunction(this, "NewPlayerJoined");
+		FGameModeEvents::GameModePostLoginEvent.AddUFunction(this, "PlayerEnteredTutorial");
+	}
 }
 
 void ATutorialManager::StartTutorials()
@@ -46,8 +50,13 @@ void ATutorialManager::StartTutorials()
 		{
 			if (PlayerState->GetPawn())
 			{
-				ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerState->GetPawn());
-				Player->StartTutorial();
+				if (PlayerState->GetPawn()->GetController())
+				{
+					if (APlayerController* PlayerController = Cast<APlayerController>(PlayerState->GetPawn()->GetController()))
+					{
+						PlayerEnteredTutorial(UGameplayStatics::GetGameMode(World), PlayerController);
+					}
+				}
 			}
 		} 
 	}
@@ -92,24 +101,42 @@ TArray<FTutorialInfo> ATutorialManager::GetCurrentTutorialInfo(EPlayerType Playe
 void ATutorialManager::StartNextTutorial()
 {
 	AllTutorials[CurrTutorialIndex]->SetupTutorial();
-	NextTutorialStartedDelegate.Broadcast();
+	
+	MULT_NotifyNextTutorial(AllTutorials[CurrTutorialIndex]->GetPlayerTutorialArray(EPlayerType::CrowPlayer),
+		AllTutorials[CurrTutorialIndex]->GetPlayerTutorialArray(EPlayerType::PhoenixPlayer));
 }
 
-void ATutorialManager::NewPlayerJoined(AGameModeBase* GameModeBase, APlayerController* NewPlayer)
+void ATutorialManager::MULT_NotifyNextTutorial_Implementation(const TArray<FTutorialInfo>& CrowChecklist, const TArray<FTutorialInfo>& PhoenixChecklist)
+{
+	if (UWorld* World = GetWorld())
+	{
+		if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(World, 0))
+		{
+			if (PlayerController->GetPawn())
+			{
+				ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerController->GetPawn());
+				if (Player->IsLocallyControlled())
+				{
+					NextTutorialStartedDelegate.Broadcast(Player->PlayerType == EPlayerType::CrowPlayer ? CrowChecklist : PhoenixChecklist);
+				}
+			}
+		}
+	}
+}
+
+void ATutorialManager::PlayerEnteredTutorial(AGameModeBase* GameModeBase, APlayerController* NewPlayer)
 {
 	if (!bTutorialsRunning) return;
 	
 	if (UWorld* World = GetWorld())
 	{
-		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(World);
-		if (BlindEyeGS->IsBlindEyeMatchTutorial())
+		if (bTutorialsRunning)
 		{
 			if (NewPlayer->GetPawn())
 			{
 				ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(NewPlayer->GetPawn());
-				Player->CLI_SetupChecklist();
 				AllTutorials[CurrTutorialIndex]->OnPlayerConnected(Player);
-				Player->StartTutorial();
+				Player->CLI_StartTutorial(AllTutorials[CurrTutorialIndex]->GetPlayerTutorialArray(Player->PlayerType));
 			}
 		}
 	}

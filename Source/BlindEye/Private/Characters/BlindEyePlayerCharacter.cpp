@@ -123,7 +123,7 @@ void ABlindEyePlayerCharacter::OnEnemyMarkDetonated()
 	BP_CooldownRefreshed(CooldownRefreshAmount);
 }
 
-void ABlindEyePlayerCharacter::StartTutorial()
+void ABlindEyePlayerCharacter::CLI_StartTutorial_Implementation(const TArray<FTutorialInfo>& TutorialsInfoChecklist) 
 {
 	UWorld* World = GetWorld();
 	if (World)
@@ -136,7 +136,8 @@ void ABlindEyePlayerCharacter::StartTutorial()
 		check(TutorialManager)
 		TutorialManager->NextTutorialStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::OnNewTutorialStarted);
 
-		OnNewTutorialStarted();
+		SetupChecklist();
+		OnNewTutorialStarted(TutorialsInfoChecklist);
 	}
 }
 
@@ -411,7 +412,7 @@ void ABlindEyePlayerCharacter::CLI_AddTextPopup_Implementation(const FString& Te
 	TextPopupManager->AddTextPopup(Text, TextPopupType, Duration);
 }
 
-void ABlindEyePlayerCharacter::CLI_SetupChecklist_Implementation()
+void ABlindEyePlayerCharacter::SetupChecklist()
 {
 	USizeBox* ChecklistContainer = BP_GetTutorialBox();
 	if (ChecklistContainer->HasAnyChildren()) return;
@@ -994,22 +995,13 @@ void ABlindEyePlayerCharacter::AnimMontageEnded(UAnimMontage* Montage, bool bInt
 	}
 }
 
-void ABlindEyePlayerCharacter::OnNewTutorialStarted()
+void ABlindEyePlayerCharacter::OnNewTutorialStarted(const TArray<FTutorialInfo>& TutorialsInfoChecklist)
 {
 	check(Checklist);
 	
-	if (UWorld* World = GetWorld())
+	for (FTutorialInfo TutorialInfo : TutorialsInfoChecklist)
 	{
-		if (ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World)))
-		{
-			ATutorialManager* TutorialManager = BlindEyeGS->GetTutorialManager();
-			check(TutorialManager)
-			TArray<FTutorialInfo> TutorialInfoList = TutorialManager->GetCurrentTutorialInfo(PlayerType);
-			for (FTutorialInfo TutorialInfo : TutorialInfoList)
-			{
-				Checklist->AddChecklistItem(TutorialInfo.ID, TutorialInfo.TextToDisplay, TutorialInfo.MaxCount);
-			}
-		}
+		Checklist->AddChecklistItem(TutorialInfo.ID, TutorialInfo.TextToDisplay, TutorialInfo.MaxCount);
 	}
 }
 

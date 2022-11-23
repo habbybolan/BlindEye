@@ -25,7 +25,7 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TArray<TSubclassOf<ATutorialBase>> TutorialTypes;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FNextTutorialStarted);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FNextTutorialStarted, const TArray<FTutorialInfo>&, TutorialInfoChecklist);
 	FNextTutorialStarted NextTutorialStartedDelegate;
 
 	void StartTutorials();
@@ -52,6 +52,9 @@ protected:
 	void StartNextTutorial();
 
 	UFUNCTION()
-	void NewPlayerJoined(AGameModeBase* GameModeBase, APlayerController* NewPlayer);
+	void PlayerEnteredTutorial(AGameModeBase* GameModeBase, APlayerController* NewPlayer);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_NotifyNextTutorial(const TArray<FTutorialInfo>& CrowChecklist, const TArray<FTutorialInfo>& PhoenixChecklist);
 
 };

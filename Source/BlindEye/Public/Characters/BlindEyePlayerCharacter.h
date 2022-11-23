@@ -18,6 +18,7 @@
 #include "Components/ScaleBox.h"
 #include "Components/SizeBox.h"
 #include "HUD/EnemyTutorialTextSnippet.h"
+#include "Tutorial/TutorialBase.h"
 #include "BlindEyePlayerCharacter.generated.h"
 
 class UChecklist;
@@ -280,8 +281,8 @@ public:
 	void MULT_ResetWalkMovementToNormal();
 
 	// Entrance method when tutorial started
-	UFUNCTION()
-	void StartTutorial();
+	UFUNCTION(Client, Reliable)
+	void CLI_StartTutorial(const TArray<FTutorialInfo>& TutorialsInfoChecklist);
 
 	// Entrance method for when main game loop starts
 	UFUNCTION()
@@ -335,8 +336,8 @@ public:
 
 	UPROPERTY()
 	UChecklist* Checklist;
-	UFUNCTION(Client, Reliable)
-	void CLI_SetupChecklist();
+	UFUNCTION()
+	void SetupChecklist();
 	UFUNCTION(Client, Reliable)
 	void CLI_DestroyChecklist();
 	UFUNCTION(Client, Reliable)
@@ -460,7 +461,7 @@ protected:
 
 	// Update checklist to fit new tutorial
 	UFUNCTION()
-	void OnNewTutorialStarted();
+	void OnNewTutorialStarted(const TArray<FTutorialInfo>& TutorialsInfoChecklist);
 	
 
 protected:
