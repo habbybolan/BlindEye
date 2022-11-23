@@ -10,16 +10,21 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-void AGotoShrineTutorial::SetupTutorial()
+void AGotoShrineTutorial::BeginPlay()
 {
-	Super::SetupTutorial();
-	StartWaitingForPlayersToInteract();
+	Super::BeginPlay();
 
 	FString PhoenixText = TEXT("When you're ready, go to the shrine");
 	AddChecklistItem(EPlayerType::PhoenixPlayer, 0, PhoenixText, 0);
 	 
 	FString CrowText = TEXT("When you're ready, go to the shrine");
 	AddChecklistItem(EPlayerType::CrowPlayer, 0, CrowText, 0);
+}
+
+void AGotoShrineTutorial::SetupTutorial()
+{
+	Super::SetupTutorial();
+	StartWaitingForPlayersToInteract();
 }
 
 void AGotoShrineTutorial::EndTutorial()
@@ -42,6 +47,11 @@ void AGotoShrineTutorial::EndTutorial()
 	}
 }
 
+void AGotoShrineTutorial::PlayerEnteredTutorialHelper(ABlindEyePlayerCharacter* Player)
+{
+	Player->AddScreenIndicator(GotoShrineIndicatorID, GotoShrineIndicator, BlindEyeGS->GetShrine(), 0);
+}
+
 void AGotoShrineTutorial::StartWaitingForPlayersToInteract()
 {
 	UWorld* World = GetWorld();
@@ -50,16 +60,6 @@ void AGotoShrineTutorial::StartWaitingForPlayersToInteract()
 		ShrineActor = UGameplayStatics::GetActorOfClass(World, AShrine::StaticClass());
 		check(ShrineActor)
 		World->GetTimerManager().SetTimer(CheckPlayersNearTimerHandle, this, &AGotoShrineTutorial::CheckPlayersNearbyHelper, 0.5, true);
-	}
-
-	check(BlindEyeGS)
-	for (APlayerState* PS : BlindEyeGS->PlayerArray)
-	{
-		if (PS->GetPawn())
-		{
-			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
-			Player->AddScreenIndicator(GotoShrineIndicatorID, GotoShrineIndicator, BlindEyeGS->GetShrine(), 0);
-		}
 	}
 }
 

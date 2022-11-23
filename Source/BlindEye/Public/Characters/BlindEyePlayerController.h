@@ -29,6 +29,8 @@ public:
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void SER_RestartLevel();
 
+	virtual void OnPossess(APawn* InPawn) override;
+
 private:
 	UPROPERTY()
 	ABlindEyePlayerCharacter* OwningCharacter;
