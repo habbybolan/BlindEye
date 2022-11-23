@@ -135,8 +135,7 @@ void ABlindEyePlayerCharacter::CLI_StartTutorial_Implementation(const TArray<FTu
 		ATutorialManager* TutorialManager = BlindEyeGS->GetTutorialManager();
 		check(TutorialManager)
 		TutorialManager->NextTutorialStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::OnNewTutorialStarted);
-
-		SetupChecklist();
+		
 		OnNewTutorialStarted(TutorialsInfoChecklist);
 	}
 }
@@ -997,7 +996,7 @@ void ABlindEyePlayerCharacter::AnimMontageEnded(UAnimMontage* Montage, bool bInt
 
 void ABlindEyePlayerCharacter::OnNewTutorialStarted(const TArray<FTutorialInfo>& TutorialsInfoChecklist)
 {
-	check(Checklist);
+	SetupChecklist();
 	
 	for (FTutorialInfo TutorialInfo : TutorialsInfoChecklist)
 	{
