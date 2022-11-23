@@ -22,10 +22,20 @@ void ATutorialBase::SetupTutorial()
 
 	for (APlayerState* PlayerState : BlindEyeGS->PlayerArray)
 	{
+		PlayerEnteredTutorial(PlayerState);
+	}
+}
+
+inline void ATutorialBase::PlayerEnteredTutorial(APlayerState* PlayerState)
+{
+	// prevent player for entering tutorial multiple times
+	if (!IsPlayerAlreadyInTutorial(PlayerState))
+	{
 		if (PlayerState->GetPawn())
 		{
+			PlayerIDAlreadyBinded.Add(PlayerState->GetPlayerId());
 			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerState->GetPawn());
-			PlayerEnteredTutorial(Player);
+			PlayerEnteredTutorialHelper(Player);
 		}
 	}
 }
@@ -50,6 +60,11 @@ TArray<FTutorialInfo>& ATutorialBase::GetPlayerTutorialArray(EPlayerType PlayerT
 {
 	if (PlayerType == EPlayerType::CrowPlayer) return CrowTutorialInfo;
 	else return PhoenixTutorialInfo;
+}
+
+bool ATutorialBase::IsPlayerAlreadyInTutorial(APlayerState* Player)
+{
+	return PlayerIDAlreadyBinded.Contains(Player->GetPlayerId());
 }
 
 void ATutorialBase::UpdateChecklistOfPlayer(EPlayerType PlayerType, uint8 ItemID)

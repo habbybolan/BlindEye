@@ -46,7 +46,7 @@ void ALocomotionTutorial::EndTutorial()
 	Super::EndTutorial();
 }
 
-void ALocomotionTutorial::PlayerEnteredTutorial(ABlindEyePlayerCharacter* Player)
+void ALocomotionTutorial::PlayerEnteredTutorialHelper(ABlindEyePlayerCharacter* Player)
 {
 	Player->TutorialActionsDelegate.AddDynamic(this, &ALocomotionTutorial::OnPlayerAction);
 	Player->TutorialActionBlockers.bUnique2blocked = true;

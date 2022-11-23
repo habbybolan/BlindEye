@@ -47,7 +47,7 @@ void AGotoShrineTutorial::EndTutorial()
 	}
 }
 
-void AGotoShrineTutorial::PlayerEnteredTutorial(ABlindEyePlayerCharacter* Player)
+void AGotoShrineTutorial::PlayerEnteredTutorialHelper(ABlindEyePlayerCharacter* Player)
 {
 	Player->AddScreenIndicator(GotoShrineIndicatorID, GotoShrineIndicator, BlindEyeGS->GetShrine(), 0);
 }

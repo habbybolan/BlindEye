@@ -123,24 +123,24 @@ void ABlindEyePlayerCharacter::OnEnemyMarkDetonated()
 	BP_CooldownRefreshed(CooldownRefreshAmount);
 }
 
-void ABlindEyePlayerCharacter::CLI_StartTutorial_Implementation(const TArray<FTutorialInfo>& TutorialsInfoChecklist) 
+void ABlindEyePlayerCharacter::StartTutorial(const TArray<FTutorialInfo>& TutorialsInfoChecklist) 
 {
 	UWorld* World = GetWorld();
 	if (World)
 	{ 
 		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
 		check(BlindEyeGS)
-		BlindEyeGS->GameStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::StartGame);
+		BlindEyeGS->GameStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::CLI_StartGame);
 
 		ATutorialManager* TutorialManager = BlindEyeGS->GetTutorialManager();
 		check(TutorialManager)
-		TutorialManager->NextTutorialStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::OnNewTutorialStarted);
+		TutorialManager->NextTutorialStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::CLI_OnNewTutorialStarted);
 		
-		OnNewTutorialStarted(TutorialsInfoChecklist);
+		CLI_OnNewTutorialStarted(TutorialsInfoChecklist);
 	}
 }
 
-void ABlindEyePlayerCharacter::StartGame()
+void ABlindEyePlayerCharacter::CLI_StartGame_Implementation()
 {
 	BP_DisplayDefendShrineIndicator_CLI();
 }
@@ -994,7 +994,7 @@ void ABlindEyePlayerCharacter::AnimMontageEnded(UAnimMontage* Montage, bool bInt
 	}
 }
 
-void ABlindEyePlayerCharacter::OnNewTutorialStarted(const TArray<FTutorialInfo>& TutorialsInfoChecklist)
+void ABlindEyePlayerCharacter::CLI_OnNewTutorialStarted_Implementation(const TArray<FTutorialInfo>& TutorialsInfoChecklist)
 {
 	SetupChecklist();
 	

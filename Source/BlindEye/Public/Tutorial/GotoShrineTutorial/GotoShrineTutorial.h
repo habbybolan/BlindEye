@@ -28,7 +28,7 @@ public:
 	virtual void SetupTutorial() override;
 	virtual void EndTutorial() override;
 
-	virtual void PlayerEnteredTutorial(ABlindEyePlayerCharacter* Player) override;
+	virtual void PlayerEnteredTutorialHelper(ABlindEyePlayerCharacter* Player) override;
 
 protected:
 

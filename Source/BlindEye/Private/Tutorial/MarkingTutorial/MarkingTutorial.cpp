@@ -62,7 +62,7 @@ void AMarkingTutorial::EndTutorial()
 	}
 }
 
-void AMarkingTutorial::PlayerEnteredTutorial(ABlindEyePlayerCharacter* Player)
+void AMarkingTutorial::PlayerEnteredTutorialHelper(ABlindEyePlayerCharacter* Player)
 {
 	Player->TutorialActionBlockers.bUnique2blocked = true;
 }

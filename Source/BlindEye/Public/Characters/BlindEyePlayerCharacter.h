@@ -281,12 +281,11 @@ public:
 	void MULT_ResetWalkMovementToNormal();
 
 	// Entrance method when tutorial started
-	UFUNCTION(Client, Reliable)
-	void CLI_StartTutorial(const TArray<FTutorialInfo>& TutorialsInfoChecklist);
+	void StartTutorial(const TArray<FTutorialInfo>& TutorialsInfoChecklist);
 
 	// Entrance method for when main game loop starts
-	UFUNCTION()
-	void StartGame(); 
+	UFUNCTION(Client, Reliable)
+	void CLI_StartGame(); 
 
 	UFUNCTION()
 	void HealthbarBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -460,8 +459,8 @@ protected:
 	void AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 	// Update checklist to fit new tutorial
-	UFUNCTION()
-	void OnNewTutorialStarted(const TArray<FTutorialInfo>& TutorialsInfoChecklist);
+	UFUNCTION(Client, Reliable)
+	void CLI_OnNewTutorialStarted(const TArray<FTutorialInfo>& TutorialsInfoChecklist);
 	
 
 protected:

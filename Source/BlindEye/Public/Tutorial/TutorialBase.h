@@ -51,7 +51,11 @@ public:
 
 	TArray<FTutorialInfo>& GetPlayerTutorialArray(EPlayerType PlayerType);
 
-	virtual void PlayerEnteredTutorial(ABlindEyePlayerCharacter* Player) PURE_VIRTUAL(OnPlayerConnected,);
+	void PlayerEnteredTutorial(APlayerState* Player);
+
+	TSet<uint32> PlayerIDAlreadyBinded;
+
+	bool IsPlayerAlreadyInTutorial(APlayerState* Player);
 
 protected:
 
@@ -62,4 +66,6 @@ protected:
  
 	void UpdateChecklistOfPlayer(EPlayerType PlayerType, uint8 ItemID);
 	void AddChecklistItem(EPlayerType PlayerType, uint8 ItemID, FString& text, uint8 MaxCount);
+
+	virtual void PlayerEnteredTutorialHelper(ABlindEyePlayerCharacter* Player) PURE_VIRTUAL(OnPlayerConnected,);
 };
