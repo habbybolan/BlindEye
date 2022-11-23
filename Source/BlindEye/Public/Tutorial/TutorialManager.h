@@ -37,6 +37,10 @@ public:
 	// Player requesting player type info of currently active tutorial
 	TArray<FTutorialInfo> GetCurrentTutorialInfo(EPlayerType PlayerType);
 
+	// Player notified tutorial when they're ready
+	UFUNCTION()
+	void SubscribePlayerToTUtorial(ABlindEyePlayerCharacter* NewPlayer);
+
 protected:
 
 	UPROPERTY()
@@ -47,14 +51,13 @@ protected:
 
 	bool bTutorialEnded = false;
 
+	TArray<TWeakObjectPtr<ABlindEyePlayerCharacter>> SubscribedPlayers;
+
 	FTimerHandle DelayBetweenTutorialsTimerHandle;
 
 	void StartNextTutorial();
 
-	UFUNCTION()
-	void PlayerEnteredTutorial(AGameModeBase* GameModeBase, APlayerController* NewPlayer);
-
-	void InitializePlayerForTutorial(APlayerController* NewPlayer);
+	void InitializePlayerForTutorial(ABlindEyePlayerCharacter* NewPlayer);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_NotifyNextTutorial(const TArray<FTutorialInfo>& CrowChecklist, const TArray<FTutorialInfo>& PhoenixChecklist);

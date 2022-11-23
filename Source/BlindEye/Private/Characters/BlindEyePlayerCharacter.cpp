@@ -88,9 +88,6 @@ void ABlindEyePlayerCharacter::BeginPlay()
 	CachedAcceleration = GetCharacterMovement()->MaxAcceleration;
 	
 	if (world == nullptr) return;
-
-	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(world));
-	check(BlindEyeGS);
 	
 	if (IsLocallyControlled())
 	{
@@ -100,6 +97,16 @@ void ABlindEyePlayerCharacter::BeginPlay()
 			AShrine* Shrine = Cast<AShrine>(ShrineActor);
 			Shrine->ShrineHealthChange.AddUFunction(this, TEXT("UpdateShrineHealthUI"));
 		}
+
+		APlayerController* PlayerController = Cast<APlayerController>(UGameplayStatics::GetPlayerController(world, 0));
+		GameplayHud = CreateWidget(PlayerController, GameplayHudType);
+		GameplayHud->AddToViewport();
+		UpdatePlayerHealthUI();
+
+		TextPopupManager = CreateWidget<UTextPopupManager>(PlayerController, TextPopupManagerType);
+		TextPopupManager->AddToViewport();
+
+		SER_ClientFullyInitialized();
 	}
 
 	if (GetLocalRole() == ROLE_Authority)
@@ -115,6 +122,24 @@ void ABlindEyePlayerCharacter::BeginPlay()
 	HealthComponent->MarkedRemovedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::MULT_OnUnMarked);
 
 	GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &ABlindEyePlayerCharacter::AnimMontageEnded);
+
+	UE_LOG(LogTemp, Warning, TEXT("[ABlindEyePlayerCharacter::BeginPlay] %s beginPlay finished"), *GetName());
+}
+
+void ABlindEyePlayerCharacter::SER_ClientFullyInitialized_Implementation()
+{
+	if (UWorld* World = GetWorld())
+	{
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+		ATutorialManager* TutorialManager = BlindEyeGS->GetTutorialManager();
+		check(TutorialManager)
+		TutorialManager->SubscribePlayerToTUtorial(this);
+	} 
+}
+
+void ABlindEyePlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
 }
 
 void ABlindEyePlayerCharacter::OnEnemyMarkDetonated()
@@ -480,11 +505,6 @@ void ABlindEyePlayerCharacter::RegenHealth()
 			BlindEyePlayerState->GetMaxHealth()); 
 		BlindEyePlayerState->SetHealth(NewHealth);
 	}
-}
-
-void ABlindEyePlayerCharacter::PossessedBy(AController* NewController)
-{
-	Super::PossessedBy(NewController);
 }
 
 void ABlindEyePlayerCharacter::TurnAtRate(float Rate)

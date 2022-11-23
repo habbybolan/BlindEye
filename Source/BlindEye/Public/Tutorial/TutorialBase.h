@@ -51,7 +51,7 @@ public:
 
 	TArray<FTutorialInfo>& GetPlayerTutorialArray(EPlayerType PlayerType);
 
-	void PlayerEnteredTutorial(APlayerState* Player);
+	void InitializePlayerForTutorial(APlayerState* Player);
 
 	TSet<uint32> PlayerIDAlreadyBinded;
 

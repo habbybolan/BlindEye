@@ -33,7 +33,7 @@ void ATutorialManager::BeginPlay()
 			}
 		}
 
-		FGameModeEvents::GameModePostLoginEvent.AddUFunction(this, "PlayerEnteredTutorial");
+		//FGameModeEvents::GameModePostLoginEvent.AddUFunction(this, "PlayerEnteredTutorial");
 	}
 }
 
@@ -43,24 +43,34 @@ void ATutorialManager::StartTutorials()
 	bTutorialsRunning = true;
 	StartNextTutorial();
 
-	if (UWorld* World = GetWorld())
+	for (TWeakObjectPtr<ABlindEyePlayerCharacter> Player : SubscribedPlayers)
 	{
-		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
-		for (APlayerState* PlayerState : BlindEyeGS->PlayerArray)
+		if (Player.IsValid())
 		{
-			if (PlayerState->GetPawn())
-			{
-				if (PlayerState->GetPawn()->GetController())
-				{
-					if (APlayerController* PlayerController = Cast<APlayerController>(PlayerState->GetPawn()->GetController()))
-					{
-						InitializePlayerForTutorial(PlayerController);
-						PlayerEnteredTutorial(UGameplayStatics::GetGameMode(World), PlayerController);
-					}
-				}
-			}
-		} 
+			UE_LOG(LogTemp, Warning, TEXT("[ATutorialManager::StartTutorials] Initialized after subscribed %s"), *Player.Get()->GetName());
+			InitializePlayerForTutorial(Player.Get());
+		}
 	}
+
+	// if (UWorld* World = GetWorld())
+	// {
+	// 	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+	// 	for (APlayerState* PlayerState : BlindEyeGS->PlayerArray)
+	// 	{
+	// 		if (PlayerState->GetPawn())
+	// 		{
+	// 			if (PlayerState->GetPawn()->GetController())
+	// 			{
+	// 				if (APlayerController* PlayerController = Cast<APlayerController>(PlayerState->GetPawn()->GetController()))
+	// 				{
+	// 					InitializePlayerForTutorial(PlayerController);
+	// 					ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerState->GetPawn());
+	// 					PlayerEnteredTutorial(Player);
+	// 				}
+	// 			}
+	// 		}
+	// 	} 
+	// }
 }
 
 void ATutorialManager::GotoNextTutorial()
@@ -125,30 +135,19 @@ void ATutorialManager::MULT_NotifyNextTutorial_Implementation(const TArray<FTuto
 	}
 }
 
-void ATutorialManager::PlayerEnteredTutorial(AGameModeBase* GameModeBase, APlayerController* NewPlayer)
+void ATutorialManager::SubscribePlayerToTUtorial(ABlindEyePlayerCharacter* Player)
 {
+	SubscribedPlayers.Add(MakeWeakObjectPtr(Player));
 	if (bTutorialsRunning)
 	{
-		if (NewPlayer->IsLocalController())
-		{
-			if (NewPlayer->GetPawn())
-			{
-				if (NewPlayer->GetPawn()->GetPlayerState())
-				{
-					AllTutorials[CurrTutorialIndex]->PlayerEnteredTutorial(NewPlayer->GetPawn()->GetPlayerState());
-				}
-			}
-		}
+		UE_LOG(LogTemp, Warning, TEXT("[ATutorialManager::StartTutorials] Initialized On subscribed %s"), *Player->GetName());
+		InitializePlayerForTutorial(Player);
 	}
 }
 
-void ATutorialManager::InitializePlayerForTutorial(APlayerController* NewPlayer)
+void ATutorialManager::InitializePlayerForTutorial(ABlindEyePlayerCharacter* Player)
 {
-	if (NewPlayer->GetPawn())
-	{
-		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(NewPlayer->GetPawn());
-		Player->StartTutorial(AllTutorials[CurrTutorialIndex]->GetPlayerTutorialArray(Player->PlayerType));
-	}
-	
+	Player->StartTutorial(AllTutorials[CurrTutorialIndex]->GetPlayerTutorialArray(Player->PlayerType));
+	AllTutorials[CurrTutorialIndex]->InitializePlayerForTutorial(Player->GetPlayerState());
 }
 

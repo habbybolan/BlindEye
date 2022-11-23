@@ -35,7 +35,7 @@ void ABlindEyeGameMode::PostLogin(APlayerController* NewPlayer)
 	{
 		if (InProgressMatchState == InProgressStates::WaitingLoadingPhase)
 		{
-			GetWorldTimerManager().SetTimer(StartingTutorialTimerHandle, this, &ABlindEyeGameMode::DelayedStartTutorial, 10, false);
+			GetWorldTimerManager().SetTimer(StartingTutorialTimerHandle, this, &ABlindEyeGameMode::DelayedStartTutorial, 2, false);
 		}
 	}
 }

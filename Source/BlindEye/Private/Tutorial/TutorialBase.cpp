@@ -22,11 +22,11 @@ void ATutorialBase::SetupTutorial()
 
 	for (APlayerState* PlayerState : BlindEyeGS->PlayerArray)
 	{
-		PlayerEnteredTutorial(PlayerState);
+		InitializePlayerForTutorial(PlayerState);
 	}
 }
 
-inline void ATutorialBase::PlayerEnteredTutorial(APlayerState* PlayerState)
+void ATutorialBase::InitializePlayerForTutorial(APlayerState* PlayerState)
 {
 	// prevent player for entering tutorial multiple times
 	if (!IsPlayerAlreadyInTutorial(PlayerState))

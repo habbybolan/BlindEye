@@ -151,6 +151,16 @@ public:
 
 	UPROPERTY(Replicated, BlueprintGetter=GetPlayerType)
 	EPlayerType PlayerType;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UUserWidget> GameplayHudType;
+	UPROPERTY(BlueprintReadWrite)
+	UUserWidget* GameplayHud;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UTextPopupManager> TextPopupManagerType;
+	UPROPERTY(BlueprintReadWrite)
+	UTextPopupManager* TextPopupManager;
  
 	UFUNCTION(BlueprintPure)
 	EPlayerType GetPlayerType();
@@ -351,6 +361,8 @@ public:
 	void TutorialActionPerformed(TutorialInputActions::ETutorialInputActions TutorialAction);
 	UFUNCTION(Server, Reliable)
 	void SER_TutorialActionPerformedHelper(TutorialInputActions::ETutorialInputActions TutorialAction);
+
+	void InitializeUI();
 	
 protected:
 
@@ -376,10 +388,6 @@ protected:
 
 	float CachedMovementSpeed;
 	float CachedAcceleration;
-
-	// Crated in BP, holds manager for dealing with all text popups
-	UPROPERTY(BlueprintReadWrite)
-	UTextPopupManager* TextPopupManager;
 
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
@@ -461,6 +469,9 @@ protected:
 	// Update checklist to fit new tutorial
 	UFUNCTION(Client, Reliable)
 	void CLI_OnNewTutorialStarted(const TArray<FTutorialInfo>& TutorialsInfoChecklist);
+
+	UFUNCTION(Server, Reliable)
+	void SER_ClientFullyInitialized();
 	
 
 protected:
