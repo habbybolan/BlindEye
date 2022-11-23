@@ -32,6 +32,8 @@ class BLINDEYE_API ALocomotionTutorial : public ATutorialBase
 
 public:
 
+	virtual void BeginPlay() override;
+	
 	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=1))
 	uint8 JumpCount = 2;
 
@@ -40,6 +42,8 @@ public:
 	
 	virtual void SetupTutorial() override;
 	virtual void EndTutorial() override;
+
+	virtual void OnPlayerConnected(ABlindEyePlayerCharacter* Player) override;
 
 protected:
 

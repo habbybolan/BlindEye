@@ -100,17 +100,6 @@ void ABlindEyePlayerCharacter::BeginPlay()
 			AShrine* Shrine = Cast<AShrine>(ShrineActor);
 			Shrine->ShrineHealthChange.AddUFunction(this, TEXT("UpdateShrineHealthUI"));
 		}
-		
-		// Check if state is Tutorial
-		if (BlindEyeGS->IsBlindEyeMatchTutorial())
-		{
-			StartTutorial();
-		}
-		// Check if waiting for players, subscribe to tutorial starting event
-		else 
-		{
-			BlindEyeGS->TutorialStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::StartTutorial);
-		}
 	}
 
 	if (GetLocalRole() == ROLE_Authority)
@@ -138,10 +127,16 @@ void ABlindEyePlayerCharacter::StartTutorial()
 {
 	UWorld* World = GetWorld();
 	if (World)
-	{
+	{ 
 		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
 		check(BlindEyeGS)
 		BlindEyeGS->GameStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::StartGame);
+
+		ATutorialManager* TutorialManager = BlindEyeGS->GetTutorialManager();
+		check(TutorialManager)
+		TutorialManager->NextTutorialStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::OnNewTutorialStarted);
+
+		OnNewTutorialStarted();
 	}
 }
 
@@ -424,12 +419,7 @@ void ABlindEyePlayerCharacter::CLI_SetupChecklist_Implementation()
 	if (Checklist != nullptr) return;
 	
 	Checklist = Cast<UChecklist>( UUserWidget::CreateWidgetInstance(*ChecklistContainer, ChecklistType, TEXT("CheckList")));
-	//ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(GetController());
-	//check(BlindEyeController)
-	//Checklist = CreateWidget<UChecklist>(BlindEyeController, ChecklistType);
-	//ChecklistContainer->AddChild(Checklist);
 	ChecklistContainer->AddChild(Checklist);
-	//->AddToPlayerScreen();
 }
 
 void ABlindEyePlayerCharacter::CLI_DestroyChecklist_Implementation() 
@@ -446,14 +436,6 @@ void ABlindEyePlayerCharacter::CLI_UpdateChecklist_Implementation(uint8 ItemID)
 	if (Checklist)
 	{
 		Checklist->UpdateChecklistItem(ItemID);
-	}
-}
-
-void ABlindEyePlayerCharacter::CLI_AddChecklist_Implementation(uint8 ItemID, const FString& text, uint8 MaxCount)
-{
-	if (Checklist)
-	{
-		Checklist->AddChecklistItem(ItemID, text, MaxCount);
 	}
 }
 
@@ -1008,6 +990,25 @@ void ABlindEyePlayerCharacter::AnimMontageEnded(UAnimMontage* Montage, bool bInt
 		{
 			ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState());
 			BlindEyePS->bActionsBlocked = false;
+		}
+	}
+}
+
+void ABlindEyePlayerCharacter::OnNewTutorialStarted()
+{
+	check(Checklist);
+	
+	if (UWorld* World = GetWorld())
+	{
+		if (ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World)))
+		{
+			ATutorialManager* TutorialManager = BlindEyeGS->GetTutorialManager();
+			check(TutorialManager)
+			TArray<FTutorialInfo> TutorialInfoList = TutorialManager->GetCurrentTutorialInfo(PlayerType);
+			for (FTutorialInfo TutorialInfo : TutorialInfoList)
+			{
+				Checklist->AddChecklistItem(TutorialInfo.ID, TutorialInfo.TextToDisplay, TutorialInfo.MaxCount);
+			}
 		}
 	}
 }

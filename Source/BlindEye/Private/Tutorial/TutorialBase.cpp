@@ -20,14 +20,14 @@ void ATutorialBase::SetupTutorial()
 	BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
 	check(BlindEyeGS)
 
-	for (APlayerState* PlayerState : BlindEyeGS->PlayerArray)
-	{
-		if (PlayerState->GetPawn())
-		{
-			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerState->GetPawn());
-			Player->CLI_SetupChecklist();
-		}
-	}
+	// for (APlayerState* PlayerState : BlindEyeGS->PlayerArray)
+	// {
+	// 	if (PlayerState->GetPawn())
+	// 	{
+	// 		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerState->GetPawn());
+	// 		Player->CLI_SetupChecklist();
+	// 	}
+	// }
 }
 
 void ATutorialBase::EndTutorial()
@@ -46,6 +46,12 @@ void ATutorialBase::EndTutorial()
 	TutorialFinishedDelegate.ExecuteIfBound();
 }
 
+TArray<FTutorialInfo> ATutorialBase::GetPlayerTutorialArray(EPlayerType PlayerType)
+{
+	if (PlayerType == EPlayerType::CrowPlayer) return CrowTutorialInfo;
+	else return PhoenixTutorialInfo;
+}
+
 void ATutorialBase::UpdateChecklistOfPlayer(EPlayerType PlayerType, uint8 ItemID)
 {
 	if (ABlindEyePlayerCharacter* Player = BlindEyeGS->GetPlayer(PlayerType))
@@ -56,10 +62,9 @@ void ATutorialBase::UpdateChecklistOfPlayer(EPlayerType PlayerType, uint8 ItemID
 
 void ATutorialBase::AddChecklistItem(EPlayerType PlayerType, uint8 ItemID, FString& text, uint8 MaxCount)
 {
-	if (ABlindEyePlayerCharacter* Player = BlindEyeGS->GetPlayer(PlayerType))
-	{
-		Player->CLI_AddChecklist(ItemID, text, MaxCount);
-	}
+	FTutorialInfo TutorialInfo = FTutorialInfo();
+	TutorialInfo.Init(ItemID, text, MaxCount);
+	GetPlayerTutorialArray(PlayerType).Add(TutorialInfo);
 }
 
 

@@ -9,6 +9,18 @@
 #include "Kismet/GameplayStatics.h"
 #include "Tutorial/DummySpawnPoint.h"
 
+void ADetonatingTutorial::BeginPlay()
+{
+	Super::BeginPlay();
+
+	FString PhoenixText = TEXT("Use Detonation ability with <E> to detonate allies' crow marks");
+	AddChecklistItem(EPlayerType::PhoenixPlayer, 0, PhoenixText, NumCrowMarksToDetonate);
+	 
+	FString CrowText = TEXT("Use Detonation ability with <E> to detonate allies' phoenix marks");
+	AddChecklistItem(EPlayerType::CrowPlayer, 0, CrowText, NumPhoenixMarksToDetonate);
+	
+}
+
 void ADetonatingTutorial::SetupTutorial()
 {
 	Super::SetupTutorial();
@@ -52,12 +64,6 @@ void ADetonatingTutorial::SetupTutorial()
 			Player->TutorialActionBlockers.bUnique1Blocked = true;
 		}
 	}
-
-	FString PhoenixText = TEXT("Use Detonation ability with <E> to detonate allies' crow marks");
-	AddChecklistItem(EPlayerType::PhoenixPlayer, 0, PhoenixText, NumCrowMarksToDetonate);
-	 
-	FString CrowText = TEXT("Use Detonation ability with <E> to detonate allies' phoenix marks");
-	AddChecklistItem(EPlayerType::CrowPlayer, 0, CrowText, NumPhoenixMarksToDetonate);
 }
 
 void ADetonatingTutorial::EndTutorial()
@@ -95,6 +101,8 @@ void ADetonatingTutorial::OnMarkDetonated(AActor* MarkedPawn, EMarkerType Marker
 		UpdateChecklistOfPlayer(EPlayerType::CrowPlayer, 0);
 	}
 }
+
+void ADetonatingTutorial::OnPlayerConnected(ABlindEyePlayerCharacter* Player) {}
 
 void ADetonatingTutorial::SetPlayerFinishedTutorial(EPlayerType PlayerThatFinished)
 {

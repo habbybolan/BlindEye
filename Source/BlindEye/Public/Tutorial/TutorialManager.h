@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "TutorialBase.h"
 #include "GameFramework/Actor.h"
 #include "TutorialManager.generated.h"
 
@@ -24,11 +25,17 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TArray<TSubclassOf<ATutorialBase>> TutorialTypes;
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FNextTutorialStarted);
+	FNextTutorialStarted NextTutorialStartedDelegate;
+
 	void StartTutorials();
 	UFUNCTION()
 	void GotoNextTutorial();
 
 	void SetFinishTutorials();
+
+	// Player requesting player type info of currently active tutorial
+	TArray<FTutorialInfo> GetCurrentTutorialInfo(EPlayerType PlayerType);
 
 protected:
 
@@ -43,5 +50,8 @@ protected:
 	FTimerHandle DelayBetweenTutorialsTimerHandle;
 
 	void StartNextTutorial();
+
+	UFUNCTION()
+	void NewPlayerJoined(AGameModeBase* GameModeBase, APlayerController* NewPlayer);
 
 };

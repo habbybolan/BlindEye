@@ -10,6 +10,17 @@
 #include "Tutorial/DummySpawnPoint.h"
 #include "Tutorial/MarkingTutorial/MarkingDummyEnemy.h"
 
+void AMarkingTutorial::BeginPlay()
+{
+	Super::BeginPlay();
+
+	FString PhoenixText = TEXT("Use Marking ability with <Q> to mark enemies with your phoenix mark");
+	AddChecklistItem(EPlayerType::PhoenixPlayer, 0, PhoenixText, NumTimesForEachPlayerToMark);
+	 
+	FString CrowText = TEXT("Use Marking ability with <Q> to mark enemies with your crow mark");
+	AddChecklistItem(EPlayerType::CrowPlayer, 0, CrowText, NumTimesForEachPlayerToMark);
+}
+
 void AMarkingTutorial::SetupTutorial()
 {
 	Super::SetupTutorial();
@@ -36,23 +47,6 @@ void AMarkingTutorial::SetupTutorial()
 	// Set tutorial end condition
 	NumDummiesForCrowToMark = NumTimesForEachPlayerToMark;
 	NumDummiesForPhoenixToMark = NumTimesForEachPlayerToMark;
-
-	// Set ability 2 as blocked
-	for (APlayerState* PS : BlindEyeGS->PlayerArray)
-	{
-		if (PS->GetPawn())
-		{
-			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
-			check(Player)
-			Player->TutorialActionBlockers.bUnique2blocked = true;
-		}
-	}
-
-	FString PhoenixText = TEXT("Use Marking ability with <Q> to mark enemies with your phoenix mark");
-	AddChecklistItem(EPlayerType::PhoenixPlayer, 0, PhoenixText, NumTimesForEachPlayerToMark);
-	 
-	FString CrowText = TEXT("Use Marking ability with <Q> to mark enemies with your crow mark");
-	AddChecklistItem(EPlayerType::CrowPlayer, 0, CrowText, NumTimesForEachPlayerToMark);
 }
 
 void AMarkingTutorial::EndTutorial()
@@ -66,6 +60,11 @@ void AMarkingTutorial::EndTutorial()
 	{
 		Dummy->Destroy();
 	}
+}
+
+void AMarkingTutorial::OnPlayerConnected(ABlindEyePlayerCharacter* Player)
+{
+	Player->TutorialActionBlockers.bUnique2blocked = true;
 }
 
 void AMarkingTutorial::OnDummyMarked(AActor* MarkedPawn, EMarkerType MarkerType)

@@ -9,21 +9,17 @@
 #include "Tutorial/DummyEnemy.h"
 #include "Tutorial/DummySpawnPoint.h"
 
+void ABasicAttackTutorial::BeginPlay()
+{
+	Super::BeginPlay();
+
+	SetupCheckboxes(EPlayerType::CrowPlayer);
+	SetupCheckboxes(EPlayerType::PhoenixPlayer);
+}
+
 void ABasicAttackTutorial::SetupTutorial()
 {
 	Super::SetupTutorial();
-
-	// subscribe to tutorial actions from all players
-	for (APlayerState* PS : BlindEyeGS->PlayerArray)
-	{
-		if (PS->GetPawn())
-		{
-			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
-			Player->TutorialActionsDelegate.AddDynamic(this, &ABasicAttackTutorial::OnPlayerAction);
-			Player->TutorialActionBlockers.bUnique2blocked = true;
-			Player->TutorialActionBlockers.bUnique1Blocked = true;
-		}
-	}
 
 	UWorld* World = GetWorld();
 	TArray<AActor*> SpawnPoints;
@@ -46,9 +42,6 @@ void ABasicAttackTutorial::SetupTutorial()
 		FinishedTasks.MaxComboCount = ComboCount;
 		PlayersFinishedTasks[i] = FinishedTasks;
 	}
-
-	SetupCheckboxes(EPlayerType::CrowPlayer);
-	SetupCheckboxes(EPlayerType::PhoenixPlayer);
 }
 
 void ABasicAttackTutorial::EndTutorial()
@@ -64,13 +57,19 @@ void ABasicAttackTutorial::EndTutorial()
 	}
 }
 
+void ABasicAttackTutorial::OnPlayerConnected(ABlindEyePlayerCharacter* Player)
+{
+	Player->TutorialActionsDelegate.AddDynamic(this, &ABasicAttackTutorial::OnPlayerAction);
+	Player->TutorialActionBlockers.bUnique2blocked = true;
+	Player->TutorialActionBlockers.bUnique1Blocked = true;
+}
+
 void ABasicAttackTutorial::SetupCheckboxes(EPlayerType PlayerType)
 {
-	FString MoveText = TEXT("<Left Click> to perform your basic attack");
-	AddChecklistItem(PlayerType, 0, MoveText, 0);
-	
-	FString SpaceText = TEXT("<Left Click> 3 times in a row to perform a combo and do more damage");
-	AddChecklistItem(PlayerType, 1, SpaceText, ComboCount);
+	FString Text1 = TEXT("<Left Click> to perform your basic attack");
+	AddChecklistItem(PlayerType, 0, Text1, 0);
+	FString Text2 = TEXT("<Left Click> 3 times in a row to perform a combo and do more damage");
+	AddChecklistItem(PlayerType, 1, Text2, ComboCount);
 }
 
 void ABasicAttackTutorial::OnPlayerAction(ABlindEyePlayerCharacter* Player,

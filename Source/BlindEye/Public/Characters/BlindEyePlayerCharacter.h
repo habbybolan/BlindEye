@@ -341,8 +341,6 @@ public:
 	void CLI_DestroyChecklist();
 	UFUNCTION(Client, Reliable)
 	void CLI_UpdateChecklist(uint8 ItemID);
-	UFUNCTION(Client, Reliable)
-	void CLI_AddChecklist(uint8 ItemID, const FString& text, uint8 MaxCount);
 
 	UFUNCTION()
 	void AddScreenIndicator(const FName& IndicatorID, TSubclassOf<UScreenIndicator> ScreenIndicatorType,
@@ -459,6 +457,11 @@ protected:
 
 	UFUNCTION()
 	void AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	// Update checklist to fit new tutorial
+	UFUNCTION()
+	void OnNewTutorialStarted();
+	
 
 protected:
 	// APawn interface

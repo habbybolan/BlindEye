@@ -6,6 +6,17 @@
 #include "Kismet/GameplayStatics.h"
 #include "Tutorial/DummySpawnPoint.h"
 
+void ADetonateAlliesMarkTutorial::BeginPlay()
+{
+	Super::BeginPlay();
+
+	FString PhoenixText = TEXT("Combine what you've learned to mark and detonate enemies with your ally");
+	AddChecklistItem(EPlayerType::PhoenixPlayer, 0, PhoenixText, NumTimesForEachPlayerToDetonate);
+	 
+	FString CrowText = TEXT("Combine what you've learned to mark and detonate enemies with your ally");
+	AddChecklistItem(EPlayerType::CrowPlayer, 0, CrowText, NumTimesForEachPlayerToDetonate);
+}
+
 void ADetonateAlliesMarkTutorial::SetupTutorial()
 {
 	Super::SetupTutorial();
@@ -32,12 +43,6 @@ void ADetonateAlliesMarkTutorial::SetupTutorial()
 		NumCrowMarksToDetonate = NumTimesForEachPlayerToDetonate;
 		NumPhoenixMarksToDetonate = NumTimesForEachPlayerToDetonate;
 	}
-
-	FString PhoenixText = TEXT("Combine what you've learned to mark and detonate enemies with your ally");
-	AddChecklistItem(EPlayerType::PhoenixPlayer, 0, PhoenixText, NumTimesForEachPlayerToDetonate);
-	 
-	FString CrowText = TEXT("Combine what you've learned to mark and detonate enemies with your ally");
-	AddChecklistItem(EPlayerType::CrowPlayer, 0, CrowText, NumTimesForEachPlayerToDetonate);
 }
 
 void ADetonateAlliesMarkTutorial::EndTutorial()
@@ -74,6 +79,11 @@ void ADetonateAlliesMarkTutorial::OnMarkDetonated(AActor* MarkedPawn, EMarkerTyp
 		}
 		UpdateChecklistOfPlayer(EPlayerType::CrowPlayer, 0);
 	}
+}
+
+void ADetonateAlliesMarkTutorial::OnPlayerConnected(ABlindEyePlayerCharacter* Player)
+{
+	
 }
 
 void ADetonateAlliesMarkTutorial::SetPlayerFinishedTutorial(EPlayerType PlayerThatFinished)

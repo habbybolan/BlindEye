@@ -10,6 +10,23 @@
 class UScaleBox;
 class ABlindEyeGameState;
 
+USTRUCT()
+struct FTutorialInfo
+{
+	GENERATED_BODY()
+ 
+	void Init(uint8 id, FString textToDislay, uint8 maxCount)
+	{
+		ID = id;
+		TextToDisplay = textToDislay;
+		MaxCount = maxCount;
+	}
+
+	uint8 ID;
+	FString TextToDisplay;
+	uint8 MaxCount;
+};
+
 UCLASS(Abstract)
 class BLINDEYE_API ATutorialBase : public AActor
 {
@@ -25,6 +42,13 @@ public:
 	virtual void EndTutorial();
 
 	// TODO: Logic for player joining in middle of tutorial, update their states?
+
+	TArray<FTutorialInfo> PhoenixTutorialInfo;
+	TArray<FTutorialInfo> CrowTutorialInfo;
+
+	TArray<FTutorialInfo> GetPlayerTutorialArray(EPlayerType PlayerType);
+
+	virtual void OnPlayerConnected(ABlindEyePlayerCharacter* Player) PURE_VIRTUAL(OnPlayerConnected,);
 
 protected:
 
