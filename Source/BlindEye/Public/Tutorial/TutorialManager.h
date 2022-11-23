@@ -54,6 +54,8 @@ protected:
 	UFUNCTION()
 	void PlayerEnteredTutorial(AGameModeBase* GameModeBase, APlayerController* NewPlayer);
 
+	void InitializePlayerForTutorial(APlayerController* NewPlayer);
+
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_NotifyNextTutorial(const TArray<FTutorialInfo>& CrowChecklist, const TArray<FTutorialInfo>& PhoenixChecklist);
 

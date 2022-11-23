@@ -54,7 +54,7 @@ void ATutorialManager::StartTutorials()
 				{
 					if (APlayerController* PlayerController = Cast<APlayerController>(PlayerState->GetPawn()->GetController()))
 					{
-						PlayerEnteredTutorial(UGameplayStatics::GetGameMode(World), PlayerController);
+						InitializePlayerForTutorial(PlayerController);
 					}
 				}
 			}
@@ -132,8 +132,18 @@ void ATutorialManager::PlayerEnteredTutorial(AGameModeBase* GameModeBase, APlaye
 		{
 			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(NewPlayer->GetPawn());
 			AllTutorials[CurrTutorialIndex]->PlayerEnteredTutorial(Player);
-			Player->CLI_StartTutorial(AllTutorials[CurrTutorialIndex]->GetPlayerTutorialArray(Player->PlayerType));
+			InitializePlayerForTutorial(NewPlayer);
 		}
 	}
+}
+
+void ATutorialManager::InitializePlayerForTutorial(APlayerController* NewPlayer)
+{
+	if (NewPlayer->GetPawn())
+	{
+		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(NewPlayer->GetPawn());
+		Player->CLI_StartTutorial(AllTutorials[CurrTutorialIndex]->GetPlayerTutorialArray(Player->PlayerType));
+	}
+	
 }
 
