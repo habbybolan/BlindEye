@@ -37,10 +37,12 @@ void AHunterEnemy::Tick(float DeltaSeconds)
 		{
 			if (AActor* Target = HunterController->GetBTTarget())
 			{
-				if (FVector::Distance(Target->GetActorLocation(), GetActorLocation()) < DistToMarkedPlayerToSlowDown)
+				float DistToTarget = FVector::Distance(Target->GetActorLocation(), GetActorLocation());
+				if (DistToTarget < DistToMarkedPlayerToSlowDown)
 				{
+					float PercentOfSlow = DistToTarget / DistToMarkedPlayerToSlowDown;
 					bMovementUpdated = true;
-					GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed * MovementSpeedSlowWhenCloseToMarkedPlayer;
+					GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed * (MaxSlowAlterWhenCloseToPlayer - (1 - MaxSlowAlterWhenCloseToPlayer * PercentOfSlow));
 				}
 			}
 		}

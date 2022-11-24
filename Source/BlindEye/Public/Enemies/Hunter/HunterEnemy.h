@@ -93,11 +93,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=Charged)
 	UAnimMontage* RoarAnimation;
 
-	UPROPERTY(EditDefaultsOnly, Category=Charged, meta=(ClampMin=0, ClampMax=1))
-	float MovementSpeedSlowWhenCloseToMarkedPlayer = 0.5;
+	UPROPERTY(EditDefaultsOnly, Category=Charged, meta=(ToolTip="Applied when right on player, scaled with DistToMarkedPlayerToSlowDown", ClampMin=0, ClampMax=1))
+	float MaxSlowAlterWhenCloseToPlayer = 0.5;
 
 	UPROPERTY(EditDefaultsOnly, Category=Charged)
-	float DistToMarkedPlayerToSlowDown = 100.f;
+	float DistToMarkedPlayerToSlowDown = 300.f;
  
 	UPROPERTY(EditDefaultsOnly, Category=ChargedJump)
 	float ChargedJumpCooldown = 10.f;
