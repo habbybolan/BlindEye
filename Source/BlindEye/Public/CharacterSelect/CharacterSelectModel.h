@@ -32,12 +32,15 @@ struct FCharacterSelectedInfo
 };
 
 UCLASS()
-class BLINDEYE_API ACharacterSelectModel : public AActor
+class BLINDEYE_API ACharacterSelectModel : public APawn
 {
 	GENERATED_BODY()
 	
 public:	
 	ACharacterSelectModel();
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsReady = false;
 
 	UPROPERTY(EditDefaultsOnly)
 	USkeletalMeshComponent* Mesh;

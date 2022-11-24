@@ -26,6 +26,7 @@ void ACharacterSelectModel::SelectCharacter(FString PlayerName)
 	{
 		UCharacterSelectWidget* CSWidget = Cast<UCharacterSelectWidget>(CharacterSelectWidgetComponent->GetWidget());
 		CSWidget->UpdateInfo(CharacterSelectInfo);
+		bIsReady = true;
 	}
 }
 
@@ -36,6 +37,7 @@ void ACharacterSelectModel::UnSelectCharacter()
 	{
 		UCharacterSelectWidget* CSWidget = Cast<UCharacterSelectWidget>(CharacterSelectWidgetComponent->GetWidget());
 		CSWidget->UpdateInfo(CharacterSelectInfo);
+		bIsReady = false;
 	}
 }
 
