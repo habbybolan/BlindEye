@@ -8,15 +8,12 @@ ACharacterSelectModel::ACharacterSelectModel()
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
 
-	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>("Mesh");
-	RootComponent = Mesh;
-
 	BoxSelection = CreateDefaultSubobject<UCharacterSelectBox>("BoxSelect");
-	BoxSelection->SetupAttachment(Mesh);
+	BoxSelection->SetupAttachment(GetMesh());
 
 	CharacterSelectWidgetComponent = CreateDefaultSubobject<UWidgetComponent>("CharacterSelectWidget");
 	CharacterSelectWidgetComponent->SetWidgetClass(UCharacterSelectWidget::StaticClass());
-	CharacterSelectWidgetComponent->SetupAttachment(BoxSelection);
+	CharacterSelectWidgetComponent->SetupAttachment(GetMesh());
 }
 
 void ACharacterSelectModel::SelectCharacter(FString PlayerName)

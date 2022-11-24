@@ -32,7 +32,7 @@ struct FCharacterSelectedInfo
 };
 
 UCLASS()
-class BLINDEYE_API ACharacterSelectModel : public APawn
+class BLINDEYE_API ACharacterSelectModel : public ACharacter
 {
 	GENERATED_BODY()
 	
@@ -41,9 +41,6 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsReady = false;
-
-	UPROPERTY(EditDefaultsOnly)
-	USkeletalMeshComponent* Mesh;
 
 	UPROPERTY(EditDefaultsOnly)
 	UCharacterSelectBox* BoxSelection;
