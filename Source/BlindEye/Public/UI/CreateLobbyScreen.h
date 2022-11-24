@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/CheckBox.h"
+#include "Components/EditableText.h"
 #include "UI/LobbyScreenBase.h"
 #include "CreateLobbyScreen.generated.h"
 
@@ -18,9 +20,12 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UButton* NewSessionButton;
- 
+
 	UPROPERTY(meta = (BindWidget))
-	UButton* LANButton;
+	UCheckBox* SetAsLANCheckbox;
+
+	UPROPERTY(meta = (BindWidget))
+	UEditableText* LobbyNameEditText;
 
 	virtual bool Initialize() override;
 
@@ -29,7 +34,7 @@ protected:
 	UFUNCTION()
 	void OnNewSessionPressed();
  
-	UFUNCTION()
-	void OnLANPressed();
+	UFUNCTION() 
+	void OnLANCheckboxSelected(bool IsChecked);
 	
 };

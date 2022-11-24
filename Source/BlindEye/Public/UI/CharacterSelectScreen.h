@@ -8,6 +8,7 @@
 #include "Blueprint/UserWidget.h"
 #include "CharacterSelectScreen.generated.h"
 
+class ISessionMenuInterface;
 /**
  * 
  */
@@ -19,29 +20,28 @@ class BLINDEYE_API UCharacterSelectScreen : public UUserWidget
 public:
 
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
-	UCharacterSelectModule* PhoenixSelectModule;
- 
-	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
-	UCharacterSelectModule* CrowSelectModule;
-
-	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
 	UButton* ReadyButton;
+
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* LobbyNameText;
+
+	UPROPERTY(meta=(BindWidget))
+	UButton* LeaveLobbyButton;
 
 	virtual bool Initialize() override;
 
-	void PlayerSelectionUpdated(EPlayerType PlayerTypeSelected, APlayerState* PlayerThatSelected);
+	void SetSessionMenuInterface(TScriptInterface<ISessionMenuInterface> SessionMenuInterface);
 
-	DECLARE_DYNAMIC_DELEGATE_OneParam(FPlayerSelectionSignature, EPlayerType, PlayerTypeSelected);
-	FPlayerSelectionSignature PlayerSelectionDelegate;
 	
-	DECLARE_DYNAMIC_DELEGATE(FPlayerReadySignature);
-	FPlayerReadySignature PlayerReadyDelegate;
 
 protected:
 
-	UFUNCTION()
-	void TrySelectPlayer(EPlayerType PlayerSelected);
-
 	UFUNCTION() 
 	void TryReady();
+
+	UFUNCTION()
+	void LeaveCharacterSelect();
+
+	UPROPERTY()
+	TScriptInterface<ISessionMenuInterface> SessionMenuInterface;
 };
