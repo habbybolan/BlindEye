@@ -85,6 +85,9 @@
 		</relationship>
 	</object>
 	<object class="EventMixerMaster" id="{ffc38499-b408-4ed5-a039-631c278d3e33}">
+		<relationship name="modulators">
+			<destination>{0c03f662-dc0f-4575-8ddf-d286d1356d7b}</destination>
+		</relationship>
 		<relationship name="effectChain">
 			<destination>{fb46178f-4bb2-48bf-a928-8d4c71a8fe3d}</destination>
 		</relationship>
@@ -197,6 +200,23 @@
 			<destination>{af0ad762-1204-4985-8077-d14bac57a1fa}</destination>
 		</relationship>
 	</object>
+	<object class="ADSRModulator" id="{0c03f662-dc0f-4575-8ddf-d286d1356d7b}">
+		<property name="nameOfPropertyBeingModulated">
+			<value>volume</value>
+		</property>
+		<property name="initialValue">
+			<value>-80</value>
+		</property>
+		<property name="attackTime">
+			<value>371.794891</value>
+		</property>
+		<property name="peakValue">
+			<value>0.577777863</value>
+		</property>
+		<property name="finalValue">
+			<value>-80</value>
+		</property>
+	</object>
 	<object class="MixerBusEffectChain" id="{fb46178f-4bb2-48bf-a928-8d4c71a8fe3d}">
 		<relationship name="effects">
 			<destination>{29ffc753-67b9-4702-8b86-bb24e70c29bd}</destination>
@@ -252,7 +272,7 @@
 			<value>1</value>
 		</property>
 		<property name="curveShape">
-			<value>0.25471893</value>
+			<value>-0.292893261</value>
 		</property>
 	</object>
 	<object class="AutomationPoint" id="{7e594428-1684-4cbc-a567-f4f58d441573}">
