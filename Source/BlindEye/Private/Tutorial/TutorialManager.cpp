@@ -3,6 +3,7 @@
 
 #include "Tutorial/TutorialManager.h"
 
+#include "GameFramework/PlayerState.h"
 #include "Gameplay/BlindEyeGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "Tutorial/TutorialBase.h"
@@ -10,23 +11,29 @@
 ATutorialManager::ATutorialManager()
 {
 	PrimaryActorTick.bCanEverTick = false;
-
+	bReplicates = false;
+	bNetLoadOnClient = false;
 }
 
 void ATutorialManager::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UWorld* World = GetWorld();
-	// Create all tutorial actors 
-	for (TSubclassOf<ATutorialBase> Tutorial : TutorialTypes)
+	if (GetLocalRole() == ROLE_Authority)
 	{
-		ATutorialBase* tutorial = World->SpawnActor<ATutorialBase>(Tutorial);
-		if (tutorial)
+		UWorld* World = GetWorld();
+		// Create all tutorial actors 
+		for (TSubclassOf<ATutorialBase> Tutorial : TutorialTypes)
 		{
-			tutorial->TutorialFinishedDelegate.BindDynamic(this, &ATutorialManager::GotoNextTutorial);
-			AllTutorials.Add(tutorial);
+			ATutorialBase* tutorial = World->SpawnActor<ATutorialBase>(Tutorial);
+			if (tutorial)
+			{
+				tutorial->TutorialFinishedDelegate.BindDynamic(this, &ATutorialManager::GotoNextTutorial);
+				AllTutorials.Add(tutorial);
+			}
 		}
+
+		//FGameModeEvents::GameModePostLoginEvent.AddUFunction(this, "PlayerEnteredTutorial");
 	}
 }
 
@@ -35,6 +42,35 @@ void ATutorialManager::StartTutorials()
 	check(AllTutorials.Num() > 0);
 	bTutorialsRunning = true;
 	StartNextTutorial();
+
+	for (TWeakObjectPtr<ABlindEyePlayerCharacter> Player : SubscribedPlayers)
+	{
+		if (Player.IsValid())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[ATutorialManager::StartTutorials] Initialized after subscribed %s"), *Player.Get()->GetName());
+			InitializePlayerForTutorial(Player.Get());
+		}
+	}
+
+	// if (UWorld* World = GetWorld())
+	// {
+	// 	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+	// 	for (APlayerState* PlayerState : BlindEyeGS->PlayerArray)
+	// 	{
+	// 		if (PlayerState->GetPawn())
+	// 		{
+	// 			if (PlayerState->GetPawn()->GetController())
+	// 			{
+	// 				if (APlayerController* PlayerController = Cast<APlayerController>(PlayerState->GetPawn()->GetController()))
+	// 				{
+	// 					InitializePlayerForTutorial(PlayerController);
+	// 					ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerState->GetPawn());
+	// 					PlayerEnteredTutorial(Player);
+	// 				}
+	// 			}
+	// 		}
+	// 	} 
+	// }
 }
 
 void ATutorialManager::GotoNextTutorial()
@@ -64,8 +100,54 @@ void ATutorialManager::SetFinishTutorials()
 	bTutorialsRunning = false;
 }
 
+TArray<FTutorialInfo> ATutorialManager::GetCurrentTutorialInfo(EPlayerType PlayerType)
+{
+	if (PlayerType == EPlayerType::CrowPlayer)
+	{
+		return AllTutorials[CurrTutorialIndex]->CrowTutorialInfo;
+	}
+	return AllTutorials[CurrTutorialIndex]->PhoenixTutorialInfo;
+}
+
 void ATutorialManager::StartNextTutorial()
 {
 	AllTutorials[CurrTutorialIndex]->SetupTutorial();
+	
+	MULT_NotifyNextTutorial(AllTutorials[CurrTutorialIndex]->GetPlayerTutorialArray(EPlayerType::CrowPlayer),
+		AllTutorials[CurrTutorialIndex]->GetPlayerTutorialArray(EPlayerType::PhoenixPlayer));
+}
+
+void ATutorialManager::MULT_NotifyNextTutorial_Implementation(const TArray<FTutorialInfo>& CrowChecklist, const TArray<FTutorialInfo>& PhoenixChecklist)
+{
+	if (UWorld* World = GetWorld())
+	{
+		if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(World, 0))
+		{
+			if (PlayerController->GetPawn())
+			{
+				ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerController->GetPawn());
+				if (Player->IsLocallyControlled())
+				{
+					NextTutorialStartedDelegate.Broadcast(Player->PlayerType == EPlayerType::CrowPlayer ? CrowChecklist : PhoenixChecklist);
+				}
+			}
+		}
+	}
+}
+
+void ATutorialManager::SubscribePlayerToTUtorial(ABlindEyePlayerCharacter* Player)
+{
+	SubscribedPlayers.Add(MakeWeakObjectPtr(Player));
+	if (bTutorialsRunning)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[ATutorialManager::StartTutorials] Initialized On subscribed %s"), *Player->GetName());
+		InitializePlayerForTutorial(Player);
+	}
+}
+
+void ATutorialManager::InitializePlayerForTutorial(ABlindEyePlayerCharacter* Player)
+{
+	Player->StartTutorial(AllTutorials[CurrTutorialIndex]->GetPlayerTutorialArray(Player->PlayerType));
+	AllTutorials[CurrTutorialIndex]->InitializePlayerForTutorial(Player->GetPlayerState());
 }
 

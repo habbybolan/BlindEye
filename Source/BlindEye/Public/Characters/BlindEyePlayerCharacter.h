@@ -18,6 +18,7 @@
 #include "Components/ScaleBox.h"
 #include "Components/SizeBox.h"
 #include "HUD/EnemyTutorialTextSnippet.h"
+#include "Tutorial/TutorialBase.h"
 #include "BlindEyePlayerCharacter.generated.h"
 
 class UChecklist;
@@ -150,6 +151,16 @@ public:
 
 	UPROPERTY(Replicated, BlueprintGetter=GetPlayerType)
 	EPlayerType PlayerType;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UUserWidget> GameplayHudType;
+	UPROPERTY(BlueprintReadWrite)
+	UUserWidget* GameplayHud;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UTextPopupManager> TextPopupManagerType;
+	UPROPERTY(BlueprintReadWrite)
+	UTextPopupManager* TextPopupManager;
  
 	UFUNCTION(BlueprintPure)
 	EPlayerType GetPlayerType();
@@ -280,12 +291,11 @@ public:
 	void MULT_ResetWalkMovementToNormal();
 
 	// Entrance method when tutorial started
-	UFUNCTION()
-	void StartTutorial();
+	void StartTutorial(const TArray<FTutorialInfo>& TutorialsInfoChecklist);
 
 	// Entrance method for when main game loop starts
-	UFUNCTION()
-	void StartGame(); 
+	UFUNCTION(Client, Reliable)
+	void CLI_StartGame(); 
 
 	UFUNCTION()
 	void HealthbarBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -335,14 +345,12 @@ public:
 
 	UPROPERTY()
 	UChecklist* Checklist;
-	UFUNCTION(Client, Reliable)
-	void CLI_SetupChecklist();
+	UFUNCTION()
+	void SetupChecklist();
 	UFUNCTION(Client, Reliable)
 	void CLI_DestroyChecklist();
 	UFUNCTION(Client, Reliable)
 	void CLI_UpdateChecklist(uint8 ItemID);
-	UFUNCTION(Client, Reliable)
-	void CLI_AddChecklist(uint8 ItemID, const FString& text, uint8 MaxCount);
 
 	UFUNCTION()
 	void AddScreenIndicator(const FName& IndicatorID, TSubclassOf<UScreenIndicator> ScreenIndicatorType,
@@ -353,6 +361,8 @@ public:
 	void TutorialActionPerformed(TutorialInputActions::ETutorialInputActions TutorialAction);
 	UFUNCTION(Server, Reliable)
 	void SER_TutorialActionPerformedHelper(TutorialInputActions::ETutorialInputActions TutorialAction);
+
+	void InitializeUI();
 	
 protected:
 
@@ -378,10 +388,6 @@ protected:
 
 	float CachedMovementSpeed;
 	float CachedAcceleration;
-
-	// Crated in BP, holds manager for dealing with all text popups
-	UPROPERTY(BlueprintReadWrite)
-	UTextPopupManager* TextPopupManager;
 
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
@@ -459,6 +465,14 @@ protected:
 
 	UFUNCTION()
 	void AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	// Update checklist to fit new tutorial
+	UFUNCTION(Client, Reliable)
+	void CLI_OnNewTutorialStarted(const TArray<FTutorialInfo>& TutorialsInfoChecklist);
+
+	UFUNCTION(Server, Reliable)
+	void SER_ClientFullyInitialized();
+	
 
 protected:
 	// APawn interface

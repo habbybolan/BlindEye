@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "TutorialBase.h"
 #include "GameFramework/Actor.h"
 #include "TutorialManager.generated.h"
 
@@ -24,11 +25,21 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TArray<TSubclassOf<ATutorialBase>> TutorialTypes;
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FNextTutorialStarted, const TArray<FTutorialInfo>&, TutorialInfoChecklist);
+	FNextTutorialStarted NextTutorialStartedDelegate;
+
 	void StartTutorials();
 	UFUNCTION()
 	void GotoNextTutorial();
 
 	void SetFinishTutorials();
+
+	// Player requesting player type info of currently active tutorial
+	TArray<FTutorialInfo> GetCurrentTutorialInfo(EPlayerType PlayerType);
+
+	// Player notified tutorial when they're ready
+	UFUNCTION()
+	void SubscribePlayerToTUtorial(ABlindEyePlayerCharacter* NewPlayer);
 
 protected:
 
@@ -40,8 +51,15 @@ protected:
 
 	bool bTutorialEnded = false;
 
+	TArray<TWeakObjectPtr<ABlindEyePlayerCharacter>> SubscribedPlayers;
+
 	FTimerHandle DelayBetweenTutorialsTimerHandle;
 
 	void StartNextTutorial();
+
+	void InitializePlayerForTutorial(ABlindEyePlayerCharacter* NewPlayer);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_NotifyNextTutorial(const TArray<FTutorialInfo>& CrowChecklist, const TArray<FTutorialInfo>& PhoenixChecklist);
 
 };

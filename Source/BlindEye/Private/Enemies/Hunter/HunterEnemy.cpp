@@ -3,6 +3,7 @@
 
 #include "Enemies/Hunter/HunterEnemy.h"
 
+#include "NavigationSystem.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Components/CapsuleComponent.h"
@@ -13,12 +14,15 @@
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 AHunterEnemy::AHunterEnemy(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UHunterHealthComponent>(TEXT("HealthComponent")))
 {
 	bReplicates = true;
 	PrimaryActorTick.bCanEverTick = true;
+
+	InvisTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("InvisTimeline"));
 }
 
 void AHunterEnemy::Tick(float DeltaSeconds)
@@ -33,10 +37,12 @@ void AHunterEnemy::Tick(float DeltaSeconds)
 		{
 			if (AActor* Target = HunterController->GetBTTarget())
 			{
-				if (FVector::Distance(Target->GetActorLocation(), GetActorLocation()) < DistToMarkedPlayerToSlowDown)
+				float DistToTarget = FVector::Distance(Target->GetActorLocation(), GetActorLocation());
+				if (DistToTarget < DistToMarkedPlayerToSlowDown)
 				{
+					float PercentOfSlow = DistToTarget / DistToMarkedPlayerToSlowDown;
 					bMovementUpdated = true;
-					GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed * MovementSpeedSlowWhenCloseToMarkedPlayer;
+					GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed * (MaxSlowAlterWhenCloseToPlayer - (1 - MaxSlowAlterWhenCloseToPlayer * PercentOfSlow));
 				}
 			}
 		}
@@ -65,6 +71,13 @@ void AHunterEnemy::BeginPlay()
 	}
 
 	GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &AHunterEnemy::AnimMontageEnded);
+	Material = GetMesh()->CreateDynamicMaterialInstance(0, DissolveMaterial);
+	Material->SetScalarParameterValue("Opacity", 0);
+
+	// Timeline for changing hunter visibility
+	InvisUpdateEvent.BindUFunction(this, FName("TimelineInvisUpdate"));
+	InvisTimelineComponent->AddInterpFloat(InvisCurve, InvisUpdateEvent);
+	InvisTimelineComponent->SetTimelineLength(1);
 }
 
 void AHunterEnemy::Despawn()
@@ -78,15 +91,30 @@ void AHunterEnemy::PerformChargedJump()
 	{
 		if (AActor* Target = BlindEyeController->GetBTTarget())
 		{
-			CurrAttack = EHunterAttacks::ChargedJump;
-			bChargeAttackCooldown = true;
 			// Have target position land before the target
 			FVector DirectionVec = Target->GetActorLocation() - GetActorLocation();
 			DirectionVec.Normalize();
 			DirectionVec *= ChargedJumpLandingDistanceBeforeTarget;
+
+			FVector JumpTargetLocation = Target->GetActorLocation() - DirectionVec;
 			
-			GetWorldTimerManager().SetTimer(ChargedJumpCooldownTimerHandle, this, &AHunterEnemy::SetChargedJumpOffCooldown, ChargedJumpCooldown, false);
-			MULT_PerformChargedJumpHelper(GetActorLocation(), Target->GetActorLocation() - DirectionVec);
+			if (UWorld* World = GetWorld())
+			{
+				TArray<AActor*> ActorsToIgnore;
+				ActorsToIgnore.Add(Target);
+				FHitResult HitResult;
+				
+				// If no environment blocking LOS, then perform jump
+				if (!UKismetSystemLibrary::LineTraceSingleForObjects(World, GetActorLocation(), JumpTargetLocation, ChargedJumpLOSBlockers, false,
+					ActorsToIgnore, EDrawDebugTrace::ForDuration, HitResult, true))
+				{
+					CurrAttack = EHunterAttacks::ChargedJump;
+					bChargeAttackCooldown = true;
+			
+					GetWorldTimerManager().SetTimer(ChargedJumpCooldownTimerHandle, this, &AHunterEnemy::SetChargedJumpOffCooldown, ChargedJumpCooldown, false);
+					MULT_PerformChargedJumpHelper(GetActorLocation(), JumpTargetLocation);
+				}
+			}
 		}
 	}
 }
@@ -122,18 +150,18 @@ void AHunterEnemy::PerformingJumpAttack()
 	if (CurrTimeOfChargedJump / ChargedJumpDuration <= 0.5)
 	{
 		 UpEase = UKismetMathLibrary::VEase(ChargedJumpStartLocation * FVector::UpVector,
-			(ChargedJumpTargetLocation + HalfDirectionToTarget) * FVector::UpVector, CurrTimeOfChargedJump / HalfChargedAttackDuration, EEasingFunc::CircularOut);
+			(ChargedJumpTargetLocation + HalfDirectionToTarget) * FVector::UpVector, CurrTimeOfChargedJump / HalfChargedAttackDuration, EEasingFunc::Linear);
 	}
 	// Other latter half of jump, Go from Jump Z-Peak to end point Z
 	else
 	{
 		UpEase = UKismetMathLibrary::VEase((ChargedJumpTargetLocation + HalfDirectionToTarget) * FVector::UpVector,
 		   ChargedJumpTargetLocation * FVector::UpVector,
-		   (CurrTimeOfChargedJump - HalfChargedAttackDuration) / (ChargedJumpDuration - HalfChargedAttackDuration), EEasingFunc::CircularIn);
+		   (CurrTimeOfChargedJump - HalfChargedAttackDuration) / (ChargedJumpDuration - HalfChargedAttackDuration), EEasingFunc::Linear);
 	}
 
 	SetActorLocation(ForwardEase + UpEase);
-	CurrTimeOfChargedJump += 0.02;
+	CurrTimeOfChargedJump += ChargedJumpCalcDelay;
 
 	if (CurrTimeOfChargedJump >= ChargedJumpDuration)
 	{
@@ -273,7 +301,6 @@ void AHunterEnemy::OnHunterMarkRemoved(AActor* UnmarkedActor, EMarkerType Marker
 
 void AHunterEnemy::OnMarkedPlayerDied(AActor* PlayerKilled)
 {
-	PlayAnimMontage(RoarAnimation);
 	AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(Controller);
 	ensure(HunterController);
 	HunterController->OnMarkedPlayerDeath();
@@ -297,10 +324,24 @@ void AHunterEnemy::UnsubscribeToTargetMarks()
 
 void AHunterEnemy::TrySetVisibility(bool visibility)
 {
-	if (IsVisible == visibility) return;
-
 	IsVisible = visibility;
-	MULT_TurnVisible(visibility);
+	OnRep_IsVisible();
+}
+
+void AHunterEnemy::OnRep_IsVisible()
+{
+	BP_SetVisibility_CLI(IsVisible);
+	// Turn visible
+	if (IsVisible)
+	{
+		InvisTimelineComponent->Play();
+	}
+	// Turn invisibile
+	else
+	{
+		InvisTimelineComponent->Reverse();
+	}
+	
 }
  
 void AHunterEnemy::OnDeath(AActor* ActorThatKilled)
@@ -321,11 +362,6 @@ void AHunterEnemy::SetChargedJumpOffCooldown()
 	
 	UWorld* World = GetWorld();
 	if (World) World->GetTimerManager().ClearTimer(ChargedJumpCooldownTimerHandle);
-}
-
-void AHunterEnemy::MULT_TurnVisible_Implementation(bool visibility)
-{
-	TrySetVisibiltiyHelper(visibility);
 }
 
 bool AHunterEnemy::GetIsChargedJumpOnCooldown()
@@ -486,6 +522,33 @@ bool AHunterEnemy::IsTargetMarked()
 		}
 	}
 	return false;
+}
+
+bool AHunterEnemy::IsTargetOnNavigableGround()
+{
+	if (AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(GetController()))
+	{
+		if (AActor* Target = HunterController->GetBTTarget())
+		{
+			FNavLocation ProjectedLocation;
+			UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+			const FNavAgentProperties& AgentProps = GetNavAgentPropertiesRef();
+			return NavSys->ProjectPointToNavigation(Target->GetActorLocation(), ProjectedLocation, INVALID_NAVEXTENT, &AgentProps);
+		}
+	}
+	return false;
+}
+
+void AHunterEnemy::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AHunterEnemy, IsVisible)
+}
+
+void AHunterEnemy::TimelineInvisUpdate(float Value)
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0.5f, FColor::Blue, FString::SanitizeFloat(Value));
+	Material->SetScalarParameterValue("Opacity", Value);
 }
 
 

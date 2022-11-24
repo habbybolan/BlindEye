@@ -17,6 +17,8 @@ class BLINDEYE_API AGotoShrineTutorial : public ATutorialBase
 
 public:
 
+	virtual void BeginPlay() override;
+
 	UPROPERTY(EditDefaultsOnly)
 	float CheckTutorialPlayersRadius = 500;
 
@@ -25,6 +27,8 @@ public:
 
 	virtual void SetupTutorial() override;
 	virtual void EndTutorial() override;
+
+	virtual void PlayerEnteredTutorialHelper(ABlindEyePlayerCharacter* Player) override;
 
 protected:
 
