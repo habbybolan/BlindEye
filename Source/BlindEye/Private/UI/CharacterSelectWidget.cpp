@@ -19,7 +19,7 @@ void UCharacterSelectWidget::UpdateInfo(FCharacterSelectedInfo CharacterSelectIn
 	if (CharacterSelectInfo.bIsSelected)
 	{
 		SetVisibility(ESlateVisibility::Visible);
-		PlayerNameText->Text = FText::FromString(CharacterSelectInfo.PlayerName);
+		PlayerNameText->SetText(FText::FromString(CharacterSelectInfo.PlayerName)); 
 	} else
 	{
 		SetVisibility(ESlateVisibility::Hidden);
