@@ -15,6 +15,7 @@ bool UCharacterSelectScreen::Initialize()
 	}
 	
 	ReadyButton->OnClicked.AddDynamic(this, &UCharacterSelectScreen::TryReady);
+	LeaveLobbyButton->OnClicked.AddDynamic(this, &UCharacterSelectScreen::LeaveCharacterSelect);
 	return true;
 }
 
@@ -28,4 +29,9 @@ void UCharacterSelectScreen::TryReady()
 {
 	ACharacterSelectPlayerController* PlayerController = Cast<ACharacterSelectPlayerController>(GetOwningPlayer());
 	PlayerController->SER_SetPlayerReadied();
+}
+
+void UCharacterSelectScreen::LeaveCharacterSelect()
+{
+	SessionMenuInterface->EndSession();
 }

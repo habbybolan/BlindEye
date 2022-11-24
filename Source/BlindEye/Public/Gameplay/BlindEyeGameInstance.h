@@ -62,6 +62,8 @@ public:
 	void OnFindSessionsComplete(bool success);
 	void OnCreateSessionComplete(FName SessionName, bool Success);
 	void OnJoinSessionsComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
+	UFUNCTION()
+	void OnDestroySessionComplete(FName SessionName, bool SuccessfullyClosed);
 
 	void CreateSession();
 
@@ -79,6 +81,9 @@ public:
 
 	// if game being played in editor (No Sessions created)
 	bool bInEditor = true;
+	bool bIsHost = false;
+
+	FOnDestroySessionCompleteDelegate DestroyDelegate;
 
 protected:
  

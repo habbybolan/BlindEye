@@ -47,10 +47,12 @@ void UBlindEyeGameInstance::Init()
 	{
 		// Subscribe to minimum events to handling sessions
 		SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UBlindEyeGameInstance::OnCreateSessionComplete);
-		//SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UBlindEyeGameInstance::OnDestroySessionComplete);
+		SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UBlindEyeGameInstance::OnDestroySessionComplete);
 		SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UBlindEyeGameInstance::OnFindSessionsComplete);     
 		SessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UBlindEyeGameInstance::OnJoinSessionsComplete);
 	}
+
+	DestroyDelegate.BindUObject(this, &UBlindEyeGameInstance::OnDestroySessionComplete);
 }
 
 void UBlindEyeGameInstance::Host(FString ServerName)
@@ -111,7 +113,8 @@ void UBlindEyeGameInstance::OnCreateSessionComplete(FName SessionName, bool Succ
 	UWorld* World = GetWorld();
 
 	if (World == nullptr) return;
- 
+
+	bIsHost = true;
 	//bUseSeamlessTravel = true;
 	World->ServerTravel("/Game/Maps/CharacterSelectMap?listen");
 }
@@ -132,7 +135,9 @@ void UBlindEyeGameInstance::JoinSession(uint32 Index)
 
 void UBlindEyeGameInstance::EndSession()
 {
-	
+	APlayerController* PlayerController = GetFirstLocalPlayerController();
+	SessionInterface->DestroySession(*JoinedSessionName, DestroyDelegate);
+	PlayerController->ClientTravel("/Game/Maps/MainMenu", ETravelType::TRAVEL_Absolute);
 }
 
 void UBlindEyeGameInstance::RefreshSessionList()
@@ -191,7 +196,14 @@ void UBlindEyeGameInstance::OnJoinSessionsComplete(FName SessionName, EOnJoinSes
 	UE_LOG(LogTemp, Warning, TEXT("[BlindEyeGameInstance::JoinSession] Travelling to joined session"));
 	// The player controller travels to that url on that specific session
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
+	bIsHost = false;
 	PlayerController->ClientTravel(Url, ETravelType::TRAVEL_Absolute);
+}
+
+void UBlindEyeGameInstance::OnDestroySessionComplete(FName SessionName, bool SuccessfullyClosed)
+{
+	APlayerController* PlayerController = GetFirstLocalPlayerController();
+	PlayerController->ClientTravel("/Game/Maps/MainMenu", ETravelType::TRAVEL_Absolute);
 }
 
 void UBlindEyeGameInstance::CreateSession()

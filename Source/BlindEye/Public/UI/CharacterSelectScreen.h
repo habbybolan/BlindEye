@@ -25,6 +25,9 @@ public:
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* LobbyNameText;
 
+	UPROPERTY(meta=(BindWidget))
+	UButton* LeaveLobbyButton;
+
 	virtual bool Initialize() override;
 
 	void SetSessionMenuInterface(TScriptInterface<ISessionMenuInterface> SessionMenuInterface);
@@ -35,6 +38,9 @@ protected:
 
 	UFUNCTION() 
 	void TryReady();
+
+	UFUNCTION()
+	void LeaveCharacterSelect();
 
 	UPROPERTY()
 	TScriptInterface<ISessionMenuInterface> SessionMenuInterface;
