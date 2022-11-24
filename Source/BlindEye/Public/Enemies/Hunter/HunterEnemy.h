@@ -4,9 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Shrine.h"
+#include "Components/TimelineComponent.h"
 #include "Enemies/BlindEyeEnemyBase.h"
 #include "HunterEnemy.generated.h"
 
+class UTimelineComponent;
 UENUM(BlueprintType)
 enum class EHunterAttacks : uint8
 {
@@ -145,6 +147,12 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	UMaterialInstance* DissolveMaterial;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UTimelineComponent* InvisTimelineComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UCurveFloat* InvisCurve;
+
 	UFUNCTION()
 	void OnRep_IsVisible();
 	
@@ -212,6 +220,8 @@ protected:
 
 	UPROPERTY()
 	EHunterAttacks CurrAttack = EHunterAttacks::None;
+
+	FOnTimelineFloat InvisUpdateEvent; 
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_PerformBasicAttackHelper(UAnimMontage* AnimToPlay);
@@ -281,5 +291,8 @@ protected:
 	bool bLeftBasicAttack = true;
 
 	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
+
+	UFUNCTION()
+	void TimelineInvisUpdate(float Value);
 };
 

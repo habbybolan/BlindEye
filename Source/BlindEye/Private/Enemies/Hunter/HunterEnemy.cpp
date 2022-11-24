@@ -21,6 +21,8 @@ AHunterEnemy::AHunterEnemy(const FObjectInitializer& ObjectInitializer)
 {
 	bReplicates = true;
 	PrimaryActorTick.bCanEverTick = true;
+
+	InvisTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("InvisTimeline"));
 }
 
 void AHunterEnemy::Tick(float DeltaSeconds)
@@ -68,6 +70,12 @@ void AHunterEnemy::BeginPlay()
 
 	GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &AHunterEnemy::AnimMontageEnded);
 	Material = GetMesh()->CreateDynamicMaterialInstance(0, DissolveMaterial);
+	Material->SetScalarParameterValue("Opacity", 0);
+
+	// Timeline for changing hunter visibility
+	InvisUpdateEvent.BindUFunction(this, FName("TimelineInvisUpdate"));
+	InvisTimelineComponent->AddInterpFloat(InvisCurve, InvisUpdateEvent);
+	InvisTimelineComponent->SetTimelineLength(1);
 }
 
 void AHunterEnemy::Despawn()
@@ -140,14 +148,14 @@ void AHunterEnemy::PerformingJumpAttack()
 	if (CurrTimeOfChargedJump / ChargedJumpDuration <= 0.5)
 	{
 		 UpEase = UKismetMathLibrary::VEase(ChargedJumpStartLocation * FVector::UpVector,
-			(ChargedJumpTargetLocation + HalfDirectionToTarget) * FVector::UpVector, CurrTimeOfChargedJump / HalfChargedAttackDuration, EEasingFunc::CircularOut);
+			(ChargedJumpTargetLocation + HalfDirectionToTarget) * FVector::UpVector, CurrTimeOfChargedJump / HalfChargedAttackDuration, EEasingFunc::Linear);
 	}
 	// Other latter half of jump, Go from Jump Z-Peak to end point Z
 	else
 	{
 		UpEase = UKismetMathLibrary::VEase((ChargedJumpTargetLocation + HalfDirectionToTarget) * FVector::UpVector,
 		   ChargedJumpTargetLocation * FVector::UpVector,
-		   (CurrTimeOfChargedJump - HalfChargedAttackDuration) / (ChargedJumpDuration - HalfChargedAttackDuration), EEasingFunc::CircularIn);
+		   (CurrTimeOfChargedJump - HalfChargedAttackDuration) / (ChargedJumpDuration - HalfChargedAttackDuration), EEasingFunc::Linear);
 	}
 
 	SetActorLocation(ForwardEase + UpEase);
@@ -322,6 +330,17 @@ void AHunterEnemy::TrySetVisibility(bool visibility)
 void AHunterEnemy::OnRep_IsVisible()
 {
 	BP_SetVisibility_CLI(IsVisible);
+	// Turn visible
+	if (IsVisible)
+	{
+		InvisTimelineComponent->Play();
+	}
+	// Turn invisibile
+	else
+	{
+		InvisTimelineComponent->Reverse();
+	}
+	
 }
  
 void AHunterEnemy::OnDeath(AActor* ActorThatKilled)
@@ -523,6 +542,12 @@ void AHunterEnemy::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AHunterEnemy, IsVisible)
+}
+
+void AHunterEnemy::TimelineInvisUpdate(float Value)
+{
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0.5f, FColor::Blue, FString::SanitizeFloat(Value));
+	Material->SetScalarParameterValue("Opacity", Value);
 }
 
 
