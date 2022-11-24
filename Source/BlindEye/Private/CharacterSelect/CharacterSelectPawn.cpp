@@ -8,6 +8,7 @@
 #include "CharacterSelect/CharacterSelectModel.h"
 #include "CharacterSelect/CharacterSelectPlayerController.h"
 #include "CharacterSelect/CharacterSelectPlayerState.h"
+#include "GameFramework/PlayerStart.h"
 #include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -22,6 +23,14 @@ ACharacterSelectPawn::ACharacterSelectPawn()
 void ACharacterSelectPawn::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (UWorld* World = GetWorld())
+	{
+		if (AActor* PlayerStart = UGameplayStatics::GetActorOfClass(World, APlayerStart::StaticClass()))
+		{
+			SetActorTransform(PlayerStart->GetTransform());
+		}
+	}
 }
 
 void ACharacterSelectPawn::PlayerTrySelectCharacter()
