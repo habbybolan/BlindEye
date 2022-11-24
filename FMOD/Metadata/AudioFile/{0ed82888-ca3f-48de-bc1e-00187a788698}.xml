@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <objects serializationModel="Studio.02.02.00">
-	<object class="AudioFile" id="{17da9daf-ef4c-4be1-9e02-5bbbcc451d7e}">
+	<object class="AudioFile" id="{0ed82888-ca3f-48de-bc1e-00187a788698}">
 		<property name="assetPath">
-			<value>Fight, Impact, Punch, Fat, Only Impact x5 02 SND44916 2.wav</value>
+			<value>SFX_ALL/Music/POKE_065_TK105_FOR_IRELAND_Lawrence_Edward_Magee_Edmond_Khabouth_POKE_MUSIC_LTD.mp3</value>
+		</property>
+		<property name="isStreaming">
+			<value>true</value>
 		</property>
 		<property name="frequencyInKHz">
-			<value>96</value>
+			<value>44.0999985</value>
 		</property>
 		<property name="channelCount">
-			<value>1</value>
+			<value>2</value>
 		</property>
 		<property name="length">
-			<value>0.54433333333333334</value>
+			<value>11.232653061224489</value>
 		</property>
 		<relationship name="masterAssetFolder">
 			<destination>{ac5f5264-6d3e-4c54-93a0-f535a51777e4}</destination>
