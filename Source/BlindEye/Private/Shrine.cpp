@@ -23,13 +23,14 @@ AShrine::AShrine()
 	IndicatorPosition->SetupAttachment(Mesh);
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
-	CurrShrineHealth = MaxShrineHealth; 
 }
 
 
 void AShrine::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CurrShrineHealth = MaxShrineHealth; 
 
 	if (GetLocalRole() == ROLE_Authority)
 	{
