@@ -299,7 +299,6 @@ void AHunterEnemy::OnHunterMarkRemoved(AActor* UnmarkedActor, EMarkerType Marker
 
 void AHunterEnemy::OnMarkedPlayerDied(AActor* PlayerKilled)
 {
-	PlayAnimMontage(RoarAnimation);
 	AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(Controller);
 	ensure(HunterController);
 	HunterController->OnMarkedPlayerDeath();
