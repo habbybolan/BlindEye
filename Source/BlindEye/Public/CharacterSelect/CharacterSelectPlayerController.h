@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CharacterSelectModel.h"
 #include "GameFramework/PlayerController.h"
 #include "UI/CharacterSelectScreen.h"
 #include "CharacterSelectPlayerController.generated.h"

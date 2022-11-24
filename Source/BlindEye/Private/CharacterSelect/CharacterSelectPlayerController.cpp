@@ -1,20 +1,22 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
-#include "Characters/CharacterSelectPlayerController.h"
+#include "CharacterSelect/CharacterSelectPlayerController.h"
 
-#include "Gameplay/CharacterSelectGameState.h"
+#include "CharacterSelect/CharacterSelectGameState.h"
 #include "Kismet/GameplayStatics.h"
 
 void ACharacterSelectPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	bShowMouseCursor = true;
 }
 
 void ACharacterSelectPlayerController::UpdatePlayerSelectedCharacter(EPlayerType PlayerTypeSelected,
 	APlayerState* PlayerThatSelected)
 {
-	CharacterSelectScreen->PlayerSelectionUpdated(PlayerTypeSelected, PlayerThatSelected);
+	//CharacterSelectScreen->PlayerSelectionUpdated(PlayerTypeSelected, PlayerThatSelected);
 }
 
 void ACharacterSelectPlayerController::UpdateReadyState(bool IsReady)

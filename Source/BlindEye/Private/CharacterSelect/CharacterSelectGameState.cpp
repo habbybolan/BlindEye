@@ -1,11 +1,12 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
-#include "Gameplay/CharacterSelectGameState.h"
+#include "CharacterSelect/CharacterSelectGameState.h"
 
-#include "Characters/CharacterSelectPlayerController.h"
+#include "CharacterSelect/CharacterSelectPlayerController.h"
 #include "GameFramework/PlayerState.h"
 #include "Gameplay/BlindEyeGameInstance.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
 void ACharacterSelectGameState::OnRep_PhoenixPlayerSelected()
@@ -19,11 +20,19 @@ void ACharacterSelectGameState::OnRep_CrowPlayerSelected()
 }
 
 void ACharacterSelectGameState::PlayerSelected(EPlayerType PlayerType, APlayerState* PlayerThatSelected)
-{
-	if (ACharacterSelectPlayerController* CharacterSelectPC = GetOwnerPlayerController())
+{ 
+	ACharacterSelectModel* CharacterSelectModelSelected = PlayerType == EPlayerType::CrowPlayer ? CrowModel : PhoenixModel;
+	if (PlayerThatSelected == nullptr)
 	{
-		CharacterSelectPC->UpdatePlayerSelectedCharacter(PlayerType, PlayerThatSelected);
+		CharacterSelectModelSelected->UnSelectCharacter();
+	} else
+	{
+		CharacterSelectModelSelected->SelectCharacter(PlayerThatSelected->GetPlayerName());
 	}
+	// if (ACharacterSelectPlayerController* CharacterSelectPC = GetOwnerPlayerController())
+	// {
+	// 	CharacterSelectPC->UpdatePlayerSelectedCharacter(PlayerType, PlayerThatSelected);
+	// }
 }
 
 ACharacterSelectPlayerController* ACharacterSelectGameState::GetOwnerPlayerController()
@@ -37,7 +46,30 @@ ACharacterSelectPlayerController* ACharacterSelectGameState::GetOwnerPlayerContr
 	}
 	return nullptr;
 }
- 
+
+void ACharacterSelectGameState::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (UWorld* World = GetWorld())
+	{
+		// Cache both player models
+		TArray<AActor*> OutCSModels;
+		UGameplayStatics::GetAllActorsOfClass(World, ACharacterSelectModel::StaticClass(), OutCSModels);
+		for (AActor* CSModelActor : OutCSModels)
+		{
+			ACharacterSelectModel* CSModel = Cast<ACharacterSelectModel>(CSModelActor);
+			if (CSModel->PlayerType == EPlayerType::CrowPlayer)
+			{
+				CrowModel = CSModel;
+			} else
+			{
+				PhoenixModel = CSModel;
+			}
+		}
+	}
+}
+
 void ACharacterSelectGameState::PlayerTrySelect(EPlayerType PlayerType, ACharacterSelectPlayerController* ControllerThatSelected)
 {
 	// Update the character the has selected/unselected current character

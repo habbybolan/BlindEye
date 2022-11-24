@@ -1,9 +1,9 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
-#include "Gameplay/CharacterSelectGameMode.h"
+#include "CharacterSelect/CharacterSelectGameMode.h"
 
-#include "Characters/CharacterSelectPlayerController.h"
+#include "CharacterSelect/CharacterSelectPlayerController.h"
 
 void ACharacterSelectGameMode::PostLogin(APlayerController* NewPlayer)
 {
