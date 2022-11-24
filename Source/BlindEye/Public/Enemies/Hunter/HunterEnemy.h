@@ -4,9 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Shrine.h"
+#include "Components/TimelineComponent.h"
 #include "Enemies/BlindEyeEnemyBase.h"
 #include "HunterEnemy.generated.h"
 
+class UTimelineComponent;
 UENUM(BlueprintType)
 enum class EHunterAttacks : uint8
 {
@@ -91,11 +93,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=Charged)
 	UAnimMontage* RoarAnimation;
 
-	UPROPERTY(EditDefaultsOnly, Category=Charged, meta=(ClampMin=0, ClampMax=1))
-	float MovementSpeedSlowWhenCloseToMarkedPlayer = 0.5;
+	UPROPERTY(EditDefaultsOnly, Category=Charged, meta=(ToolTip="Applied when right on player, scaled with DistToMarkedPlayerToSlowDown", ClampMin=0, ClampMax=1))
+	float MaxSlowAlterWhenCloseToPlayer = 0.5;
 
 	UPROPERTY(EditDefaultsOnly, Category=Charged)
-	float DistToMarkedPlayerToSlowDown = 100.f;
+	float DistToMarkedPlayerToSlowDown = 300.f;
  
 	UPROPERTY(EditDefaultsOnly, Category=ChargedJump)
 	float ChargedJumpCooldown = 10.f;
@@ -135,9 +137,24 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category=ChargedJump, meta=(ClampMin=0.01)) 
 	float ChargedJumpCalcDelay = 0.02f;
+ 
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
+	TArray<TEnumAsByte<EObjectTypeQuery>> ChargedJumpLOSBlockers;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(Replicated, ReplicatedUsing="OnRep_IsVisible", BlueprintReadOnly)
 	bool IsVisible = false;
+
+	UPROPERTY(EditDefaultsOnly)
+	UMaterialInstance* DissolveMaterial;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UTimelineComponent* InvisTimelineComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UCurveFloat* InvisCurve;
+
+	UFUNCTION()
+	void OnRep_IsVisible();
 	
 	void PerformChargedJump();
 	 
@@ -172,6 +189,8 @@ public:
 	void SetFleeing();
 
 	bool IsTargetMarked();
+
+	bool IsTargetOnNavigableGround();
  
 protected:
 
@@ -193,11 +212,16 @@ protected:
 
 	FTimerHandle ChannellingTimerHandle;
 
+	UPROPERTY(BlueprintReadWrite)
+	UMaterialInstanceDynamic* Material;
+
 	UPROPERTY()
 	AShrine* Shrine;
 
 	UPROPERTY()
 	EHunterAttacks CurrAttack = EHunterAttacks::None;
+
+	FOnTimelineFloat InvisUpdateEvent; 
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_PerformBasicAttackHelper(UAnimMontage* AnimToPlay);
@@ -248,13 +272,9 @@ protected:
 	void RotateDuringChargedAttack();
 
 	float ChargedJumpPeakHeight; // Calculated peak height for charged jump based on distance to player
-
-	// Intermediary method to make RPC call to blueprint implementable method
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_TurnVisible(bool visibility);
  
 	UFUNCTION(BlueprintImplementableEvent)
-	void TrySetVisibiltiyHelper(bool visibility);
+	void BP_SetVisibility_CLI(bool visibility);
 
 	void SetCharged();
 	void SetNotCharged();
@@ -269,5 +289,10 @@ protected:
 	void AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 	bool bLeftBasicAttack = true;
+
+	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
+
+	UFUNCTION()
+	void TimelineInvisUpdate(float Value);
 };
 

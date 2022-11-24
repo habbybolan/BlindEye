@@ -120,7 +120,8 @@ bool AHunterEnemyController::CanChargedJump(AActor* Target)
 			/*IsOnSameIslandAsPlayer(Target) &&*/
 			Hunter->GetIsCharged() &&
 			!Hunter->GetCharacterMovement()->IsFalling() &&
-			!Hunter->GetIsAttacking();
+			!Hunter->GetIsAttacking() &&
+			Hunter->IsTargetOnNavigableGround();
 }
 
 bool AHunterEnemyController::CanBasicAttack(AActor* Target)
