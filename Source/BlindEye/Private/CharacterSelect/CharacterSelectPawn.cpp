@@ -29,11 +29,7 @@ void ACharacterSelectPawn::PlayerTrySelectCharacter()
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
 
-	AGameStateBase* GameStateBase = UGameplayStatics::GetGameState(World);
-	if (GameStateBase == nullptr) return;
-
 	// Linecast from screen to check if player trying to select one of the characters
-	ACharacterSelectGameState* CharacterSelectGS = Cast<ACharacterSelectGameState>(GameStateBase);
 	if (GetController()) 
 	{
 		ACharacterSelectPlayerController* PlayerController = Cast<ACharacterSelectPlayerController>(GetController());
@@ -47,9 +43,26 @@ void ACharacterSelectPawn::PlayerTrySelectCharacter()
 		{
 			// Set character as selected
 			ACharacterSelectModel* CSModel = Cast<ACharacterSelectModel>(OutModels[0].Actor);
-			CharacterSelectGS->PlayerTrySelect(CSModel->PlayerType, PlayerController);
+			SER_PlayerSelectHelper(CSModel->PlayerType);
+			
 		}
 	}	
+}
+
+void ACharacterSelectPawn::SER_PlayerSelectHelper_Implementation(EPlayerType CharacterSelected)
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	AGameStateBase* GameStateBase = UGameplayStatics::GetGameState(World);
+	if (GameStateBase == nullptr) return;
+	ACharacterSelectGameState* CharacterSelectGS = Cast<ACharacterSelectGameState>(GameStateBase);
+
+	if (GetController())
+	{
+		ACharacterSelectPlayerController* PlayerController = Cast<ACharacterSelectPlayerController>(GetController());
+		CharacterSelectGS->PlayerTrySelect(CharacterSelected, PlayerController);
+	}
 }
 
 void ACharacterSelectPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

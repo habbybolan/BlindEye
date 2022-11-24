@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BlindEyeBaseCharacter.h"
 #include "GameFramework/Pawn.h"
 #include "CharacterSelectPawn.generated.h"
 
@@ -25,6 +26,9 @@ protected:
 
 	UFUNCTION()
 	void PlayerTrySelectCharacter();
+
+	UFUNCTION(Server, Reliable)
+	void SER_PlayerSelectHelper(EPlayerType CharacterSelected);
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
