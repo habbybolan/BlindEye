@@ -15,21 +15,19 @@ bool UCreateLobbyScreen::Initialize()
 	}
 
 	NewSessionButton->OnClicked.AddDynamic(this, &UCreateLobbyScreen::OnNewSessionPressed);
-	LANButton->OnClicked.AddDynamic(this, &UCreateLobbyScreen::OnLANPressed);
+	SetAsLANCheckbox->OnCheckStateChanged.AddDynamic(this, &UCreateLobbyScreen::OnLANCheckboxSelected);
 	return true;
 }
 
 void UCreateLobbyScreen::OnNewSessionPressed()
 {
-	UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
-	BlindEyeGI->SetGameAsLan(false);
-	
 	if (SessionMenuInterface == nullptr) return;
-	SessionMenuInterface->Host("BlindEyeServer");
+	FString LobbyName = LobbyNameEditText->GetText().IsEmpty() ? "BlindEyeServer" : LobbyNameEditText->GetText().ToString();
+	SessionMenuInterface->Host(LobbyName);
 }
 
-void UCreateLobbyScreen::OnLANPressed()
+void UCreateLobbyScreen::OnLANCheckboxSelected(bool IsChecked)
 {
-	UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
-	BlindEyeGI->SetGameAsLan(true);
+	if (SessionMenuInterface == nullptr) return;
+	SessionMenuInterface->SetIsLAN(IsChecked);
 }

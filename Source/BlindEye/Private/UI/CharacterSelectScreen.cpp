@@ -3,7 +3,8 @@
 
 #include "UI/CharacterSelectScreen.h"
 
-#include "Gameplay/CharacterSelectGameState.h"
+#include "CharacterSelect/CharacterSelectGameState.h"
+#include "Interfaces/SessionMenuInterface.h"
 #include "Kismet/GameplayStatics.h"
 
 bool UCharacterSelectScreen::Initialize()
@@ -12,49 +13,25 @@ bool UCharacterSelectScreen::Initialize()
 	{
 		return false;
 	}
-
-	PhoenixSelectModule->CharacterSelectDelegate.BindDynamic(this, &UCharacterSelectScreen::TrySelectPlayer);
-	CrowSelectModule->CharacterSelectDelegate.BindDynamic(this, &UCharacterSelectScreen::TrySelectPlayer);
 	
 	ReadyButton->OnClicked.AddDynamic(this, &UCharacterSelectScreen::TryReady);
+	LeaveLobbyButton->OnClicked.AddDynamic(this, &UCharacterSelectScreen::LeaveCharacterSelect);
 	return true;
 }
 
-void UCharacterSelectScreen::TrySelectPlayer(EPlayerType PlayerSelected)
+void UCharacterSelectScreen::SetSessionMenuInterface(TScriptInterface<ISessionMenuInterface> sessionMenuInterface)
 {
-	PlayerSelectionDelegate.ExecuteIfBound(PlayerSelected);
-}
-
-void UCharacterSelectScreen::PlayerSelectionUpdated(EPlayerType PlayerTypeSelected, APlayerState* PlayerThatSelected)
-{
-	if (PlayerTypeSelected == EPlayerType::CrowPlayer)
-	{
-		// player unselected crow
-		if (PlayerThatSelected == nullptr)
-		{
-			CrowSelectModule->NotifyPlayerUnSelectedModule();
-		}
-		// Player selected crow
-		else
-		{
-			CrowSelectModule->NotifyPlayerSelectedModule(PlayerThatSelected);
-		}
-	} else
-	{
-		// player unselected Phoenix
-		if (PlayerThatSelected == nullptr)
-		{
-			PhoenixSelectModule->NotifyPlayerUnSelectedModule();
-		}
-		// Player selected phoenix
-		else
-		{
-			PhoenixSelectModule->NotifyPlayerSelectedModule(PlayerThatSelected);
-		}
-	}
+	SessionMenuInterface = sessionMenuInterface;
+	LobbyNameText->SetText(FText::FromString(SessionMenuInterface->GetLobbyName()));
 }
 
 void UCharacterSelectScreen::TryReady()
 {
-	PlayerReadyDelegate.ExecuteIfBound();
+	ACharacterSelectPlayerController* PlayerController = Cast<ACharacterSelectPlayerController>(GetOwningPlayer());
+	PlayerController->SER_SetPlayerReadied();
+}
+
+void UCharacterSelectScreen::LeaveCharacterSelect()
+{
+	SessionMenuInterface->EndSession();
 }

@@ -1,7 +1,7 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
-#include "Characters/CharacterSelectPlayerState.h"
+#include "CharacterSelect/CharacterSelectPlayerState.h"
 
 #include "Net/UnrealNetwork.h"
 

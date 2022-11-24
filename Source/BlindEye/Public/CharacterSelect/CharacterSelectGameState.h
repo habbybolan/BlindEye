@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "BlindEyeBaseCharacter.h"
-#include "Characters/CharacterSelectPlayerController.h"
-#include "Characters/CharacterSelectPlayerState.h"
+#include "CharacterSelect/CharacterSelectPlayerController.h"
+#include "CharacterSelect/CharacterSelectPlayerState.h"
 #include "GameFramework/GameStateBase.h"
 #include "CharacterSelectGameState.generated.h"
 
@@ -19,6 +19,8 @@ class BLINDEYE_API ACharacterSelectGameState : public AGameStateBase
 
 public:
 
+	virtual void BeginPlay() override;
+
 	UPROPERTY(Replicated, ReplicatedUsing="OnRep_PhoenixPlayerSelected")
 	ACharacterSelectPlayerState* PhoenixPlayer = nullptr;
 	UPROPERTY(Replicated, ReplicatedUsing="OnRep_CrowPlayerSelected")
@@ -28,7 +30,8 @@ public:
 	void PlayerTrySelect(EPlayerType PlayerType, ACharacterSelectPlayerController* LocalPlayer);
 
 	// Player readying up
-	void PlayerTryReady(ACharacterSelectPlayerController* LocalPlayer);
+	UFUNCTION(Server, Reliable)
+	void SER_PlayerTryReady(ACharacterSelectPlayerController* LocalPlayer);
 	
 	bool IsAllPlayersReady();
 	
@@ -43,6 +46,11 @@ protected:
 
 	void TrySelectHelper(EPlayerType PlayerType, APlayerState* PlayerThatActioned);
 	bool IsPlayerSelectedCharacter(APlayerState* Player);
+
+	UPROPERTY()
+	ACharacterSelectModel* CrowModel;
+	UPROPERTY()
+	ACharacterSelectModel* PhoenixModel; 
 
 	ACharacterSelectPlayerController* GetOwnerPlayerController();
 };

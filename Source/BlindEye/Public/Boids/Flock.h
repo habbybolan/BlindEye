@@ -126,6 +126,7 @@ protected:
 
 	bool IsCurrTargetValid();
 
+	UPROPERTY(EditDefaultsOnly)
 	bool bCanAttack = true;
 	TArray<ABoid*> BoidsInFlock;
 

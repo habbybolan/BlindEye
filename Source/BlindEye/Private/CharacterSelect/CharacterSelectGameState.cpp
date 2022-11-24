@@ -1,11 +1,12 @@
 // Copyright (C) Nicholas Johnson 2022
 
 
-#include "Gameplay/CharacterSelectGameState.h"
+#include "CharacterSelect/CharacterSelectGameState.h"
 
-#include "Characters/CharacterSelectPlayerController.h"
+#include "CharacterSelect/CharacterSelectPlayerController.h"
 #include "GameFramework/PlayerState.h"
 #include "Gameplay/BlindEyeGameInstance.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
 void ACharacterSelectGameState::OnRep_PhoenixPlayerSelected()
@@ -19,10 +20,14 @@ void ACharacterSelectGameState::OnRep_CrowPlayerSelected()
 }
 
 void ACharacterSelectGameState::PlayerSelected(EPlayerType PlayerType, APlayerState* PlayerThatSelected)
-{
-	if (ACharacterSelectPlayerController* CharacterSelectPC = GetOwnerPlayerController())
+{ 
+	ACharacterSelectModel* CharacterSelectModelSelected = PlayerType == EPlayerType::CrowPlayer ? CrowModel : PhoenixModel;
+	if (PlayerThatSelected == nullptr)
 	{
-		CharacterSelectPC->UpdatePlayerSelectedCharacter(PlayerType, PlayerThatSelected);
+		CharacterSelectModelSelected->UnSelectCharacter();
+	} else
+	{
+		CharacterSelectModelSelected->SelectCharacter(PlayerThatSelected->GetPlayerName());
 	}
 }
 
@@ -37,7 +42,30 @@ ACharacterSelectPlayerController* ACharacterSelectGameState::GetOwnerPlayerContr
 	}
 	return nullptr;
 }
- 
+
+void ACharacterSelectGameState::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (UWorld* World = GetWorld())
+	{
+		// Cache both player models
+		TArray<AActor*> OutCSModels;
+		UGameplayStatics::GetAllActorsOfClass(World, ACharacterSelectModel::StaticClass(), OutCSModels);
+		for (AActor* CSModelActor : OutCSModels)
+		{
+			ACharacterSelectModel* CSModel = Cast<ACharacterSelectModel>(CSModelActor);
+			if (CSModel->PlayerType == EPlayerType::CrowPlayer)
+			{
+				CrowModel = CSModel;
+			} else
+			{
+				PhoenixModel = CSModel;
+			}
+		}
+	}
+}
+
 void ACharacterSelectGameState::PlayerTrySelect(EPlayerType PlayerType, ACharacterSelectPlayerController* ControllerThatSelected)
 {
 	// Update the character the has selected/unselected current character
@@ -68,7 +96,7 @@ void ACharacterSelectGameState::TrySelectHelper(EPlayerType PlayerType, APlayerS
 	}
 }
 
-void ACharacterSelectGameState::PlayerTryReady(ACharacterSelectPlayerController* PlayerReadied)
+void ACharacterSelectGameState::SER_PlayerTryReady_Implementation(ACharacterSelectPlayerController* PlayerReadied)
 {
 	bool bPlayerReadied = false;
 	// Ready up player if valid
@@ -91,21 +119,7 @@ void ACharacterSelectGameState::PlayerTryReady(ACharacterSelectPlayerController*
 					" PhoenixID: " + PhoenixPlayer->GetUniqueId().ToString()));
 			UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
 			
-			// HardCoded to 2 players in LAN, using Host/Client as identifiers for character for simplicity
-			if (BlindEyeGI->GetIsLAN())
-			{
-				if (CrowPlayer->GetLocalRole() == ROLE_Authority)
-				{
-					BlindEyeGI->EnterGameLAN(EPlayerType::CrowPlayer, EPlayerType::PhoenixPlayer);
-				} else {
-					BlindEyeGI->EnterGameLAN(EPlayerType::PhoenixPlayer, EPlayerType::CrowPlayer);
-				}
-			}
-			// Online game, use SteamID as character identifiers
-			else
-			{
-				BlindEyeGI->EnterGame(CrowPlayer->GetUniqueId().ToString(), PhoenixPlayer->GetUniqueId().ToString());
-			}
+			BlindEyeGI->EnterGame(CrowPlayer->GetUniqueId().ToString(), PhoenixPlayer->GetUniqueId().ToString());
 		}
 		else
 		{

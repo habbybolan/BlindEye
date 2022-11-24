@@ -7,6 +7,7 @@
 #include "../../Engine/Plugins/Online/OnlineSubsystem/Source/Public/OnlineSessionSettings.h"
 #include "../../Engine/Plugins/Online/OnlineSubsystem/Source/Public/OnlineSubsystemTypes.h"
 #include "../../Engine/Plugins/Online/OnlineSubsystemUtils/Source/OnlineSubsystemUtils/Classes/CreateSessionCallbackProxy.h"
+#include "CharacterSelect/CharacterSelectGameState.h"
 #include "GameFramework/PlayerState.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -28,6 +29,13 @@ void UBlindEyeGameInstance::LoadJoinLobby()
 	LobbyScreenBase->SessionMenuInterface = this;
 }
 
+void UBlindEyeGameInstance::LoadCharacterSelect()
+{
+	CharacterSelectScreenBase = CreateWidget<UCharacterSelectScreen>(this, CharacterSelectType);
+	CharacterSelectScreenBase->AddToViewport();
+	CharacterSelectScreenBase->SetSessionMenuInterface(this);
+}
+
 void UBlindEyeGameInstance::Init()
 {
 	Super::Init();
@@ -39,15 +47,17 @@ void UBlindEyeGameInstance::Init()
 	{
 		// Subscribe to minimum events to handling sessions
 		SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UBlindEyeGameInstance::OnCreateSessionComplete);
-		//SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UBlindEyeGameInstance::OnDestroySessionComplete);
+		SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UBlindEyeGameInstance::OnDestroySessionComplete);
 		SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UBlindEyeGameInstance::OnFindSessionsComplete);     
 		SessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UBlindEyeGameInstance::OnJoinSessionsComplete);
 	}
+
+	DestroyDelegate.BindUObject(this, &UBlindEyeGameInstance::OnDestroySessionComplete);
 }
 
 void UBlindEyeGameInstance::Host(FString ServerName)
 {
-	DesiredServerName = ServerName;
+	JoinedSessionName = ServerName;
 
 	if (SessionInterface.IsValid())
 	{
@@ -103,7 +113,8 @@ void UBlindEyeGameInstance::OnCreateSessionComplete(FName SessionName, bool Succ
 	UWorld* World = GetWorld();
 
 	if (World == nullptr) return;
- 
+
+	bIsHost = true;
 	//bUseSeamlessTravel = true;
 	World->ServerTravel("/Game/Maps/CharacterSelectMap?listen");
 }
@@ -117,13 +128,16 @@ void UBlindEyeGameInstance::JoinSession(uint32 Index)
 	if (Index < (uint32)(SessionSearch->SearchResults.Num()))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[BlindEyeGameInstance::JoinSession] Joining a session"));
+		SessionSearch->SearchResults[Index].Session.SessionSettings.Get(SERVER_NAME_SETTINGS_KEY, JoinedSessionName);
 		SessionInterface->JoinSession(0, SESSION_NAME, SessionSearch->SearchResults[Index]);
 	}
 }
 
 void UBlindEyeGameInstance::EndSession()
 {
-	
+	APlayerController* PlayerController = GetFirstLocalPlayerController();
+	SessionInterface->DestroySession(*JoinedSessionName, DestroyDelegate);
+	PlayerController->ClientTravel("/Game/Maps/MainMenu", ETravelType::TRAVEL_Absolute);
 }
 
 void UBlindEyeGameInstance::RefreshSessionList()
@@ -182,7 +196,14 @@ void UBlindEyeGameInstance::OnJoinSessionsComplete(FName SessionName, EOnJoinSes
 	UE_LOG(LogTemp, Warning, TEXT("[BlindEyeGameInstance::JoinSession] Travelling to joined session"));
 	// The player controller travels to that url on that specific session
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
+	bIsHost = false;
 	PlayerController->ClientTravel(Url, ETravelType::TRAVEL_Absolute);
+}
+
+void UBlindEyeGameInstance::OnDestroySessionComplete(FName SessionName, bool SuccessfullyClosed)
+{
+	APlayerController* PlayerController = GetFirstLocalPlayerController();
+	PlayerController->ClientTravel("/Game/Maps/MainMenu", ETravelType::TRAVEL_Absolute);
 }
 
 void UBlindEyeGameInstance::CreateSession()
@@ -194,7 +215,7 @@ void UBlindEyeGameInstance::CreateSession()
 		FOnlineSessionSettings SessionSettings;
 
 		// Switch between bIsLANMatch when using NULL subsystem
-		if (IOnlineSubsystem::Get()->GetSubsystemName().ToString() == "NULL")
+		if (bLANGame || IOnlineSubsystem::Get()->GetSubsystemName().ToString() == "NULL")
 		{
 			GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Cyan, "[UBlindEyeGameInstance::CreateSession]: LAN");
 			SessionSettings.bIsLANMatch = true;
@@ -210,10 +231,20 @@ void UBlindEyeGameInstance::CreateSession()
 		SessionSettings.bShouldAdvertise = true;
 		SessionSettings.bUsesPresence = true;
 		SessionSettings.bUseLobbiesIfAvailable = true;
-		SessionSettings.Set(SERVER_NAME_SETTINGS_KEY, DesiredServerName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+		SessionSettings.Set(SERVER_NAME_SETTINGS_KEY, JoinedSessionName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
 		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings);
 	}
+}
+
+FString UBlindEyeGameInstance::GetLobbyName()
+{
+	return JoinedSessionName;
+}
+
+void UBlindEyeGameInstance::SetIsLAN(bool IsLan)
+{
+	bLANGame = IsLan;
 }
 
 void UBlindEyeGameInstance::EnterGame(FString crowPlayerID, FString phoenixPlayerID)
@@ -232,38 +263,12 @@ void UBlindEyeGameInstance::EnterGameLAN(EPlayerType hostType, EPlayerType clien
 	bInEditor = false;
 	HostType = hostType;
 	ClientType = clientType;
-	
-}
-
-void UBlindEyeGameInstance::SetGameAsLan(bool IsLand)
-{
-	bIsLanGame = IsLand;
 }
 
 EPlayerType UBlindEyeGameInstance::GetPlayerType(APlayerState* PlayerState)
 {
-	// If online, get type based on SteamID
-	if (!bIsLanGame)
-	{
-		FString PlayerID = PlayerState->GetUniqueId().ToString();
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Green, "[UBlindEyeGameInstance::GetPlayerType] ID " + PlayerID);
-		if (CrowPlayerID == PlayerID) return EPlayerType::CrowPlayer;
-		else return EPlayerType::PhoenixPlayer;
-	}
-	// If LAN, get type based on Host/CLient
-	else
-	{
-		if (PlayerState->GetLocalRole() == ROLE_Authority)
-		{
-			return HostType;
-		} else
-		{
-			return ClientType;
-		}
-	}
-}
-
-bool UBlindEyeGameInstance::GetIsLAN()
-{
-	return bIsLanGame;
+	FString PlayerID = PlayerState->GetUniqueId().ToString();
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Green, "[UBlindEyeGameInstance::GetPlayerType] ID " + PlayerID);
+	if (CrowPlayerID == PlayerID) return EPlayerType::CrowPlayer;
+	else return EPlayerType::PhoenixPlayer;
 }

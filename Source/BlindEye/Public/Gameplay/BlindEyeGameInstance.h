@@ -7,6 +7,7 @@
 #include "Engine/GameInstance.h"
 #include "Interfaces/OnlineSessionInterface.h"
 #include "Interfaces/SessionMenuInterface.h"
+#include "UI/CharacterSelectScreen.h"
 #include "UI/LobbyScreenBase.h"
 #include "BlindEyeGameInstance.generated.h"
 
@@ -31,6 +32,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void LoadJoinLobby();
 
+	UPROPERTY(EditDefaultsOnly) 
+	TSubclassOf<UCharacterSelectScreen> CharacterSelectType;
+	UFUNCTION(BlueprintCallable)
+	void LoadCharacterSelect();
+
 	IOnlineSessionPtr SessionInterface;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -38,6 +44,9 @@ public:
 	
 	UPROPERTY()
 	ULobbyScreenBase* LobbyScreenBase;
+
+	UPROPERTY() 
+	UCharacterSelectScreen* CharacterSelectScreenBase;
 
 	// Shareable pointer to the session
 	TSharedPtr<FOnlineSessionSearch> SessionSearch;
@@ -53,30 +62,37 @@ public:
 	void OnFindSessionsComplete(bool success);
 	void OnCreateSessionComplete(FName SessionName, bool Success);
 	void OnJoinSessionsComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
+	UFUNCTION()
+	void OnDestroySessionComplete(FName SessionName, bool SuccessfullyClosed);
 
-	void CreateSession();  
+	void CreateSession();
+
+	virtual FString GetLobbyName() override;
+
+	virtual void SetIsLAN(bool IsLan) override;
 
 	// Enter game from character select screen
 	void EnterGame(FString crowPlayerID, FString phoenixPlayerID);
 	void EnterGameLAN(EPlayerType hostType, EPlayerType clientType); 
-	 
-	void SetGameAsLan(bool IsLan);
 
 	const FName SESSION_NAME = TEXT("BlindEyeServer");
 
 	EPlayerType GetPlayerType(APlayerState* PlayerState);
 
-	bool GetIsLAN();
-
 	// if game being played in editor (No Sessions created)
 	bool bInEditor = true;
+	bool bIsHost = false;
+
+	FOnDestroySessionCompleteDelegate DestroyDelegate;
 
 protected:
  
 	FString CrowPlayerID;
 	FString PhoenixPlayerID;
-
-	bool bIsLanGame = false;
+	
 	EPlayerType HostType;
 	EPlayerType ClientType;
+
+	bool bLANGame = false;
+	FString JoinedSessionName;
 };
