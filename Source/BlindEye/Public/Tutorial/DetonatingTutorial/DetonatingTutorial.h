@@ -18,6 +18,8 @@ class BLINDEYE_API ADetonatingTutorial : public ATutorialBase
 
 public:
 
+	virtual void BeginPlay() override;
+
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<ADetonatingDummyEnemy> DummyType;
 
@@ -30,6 +32,8 @@ public:
 
 	UFUNCTION()
 	void OnMarkDetonated(AActor* MarkedPawn, EMarkerType MarkerType);
+
+	virtual void PlayerEnteredTutorialHelper(ABlindEyePlayerCharacter* Player) override;
 
 protected:
 	

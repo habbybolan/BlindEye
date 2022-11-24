@@ -41,7 +41,7 @@ void UANS_HunterBasicAttack::PerformSwing(FName BoneNameHand, FName BoneNameFore
 
 	TArray<FHitResult> HitResults;
 	if (UKismetSystemLibrary::SphereTraceMultiForObjects(World, SwingStartLOC, SwingEndLOC, Radius, DamageObjectTypes, false, TArray<AActor*>(),
-		EDrawDebugTrace::None, HitResults, true))
+		EDrawDebugTrace::ForDuration, HitResults, true))
 	{
 		TryAttack(HitResults);
 	}

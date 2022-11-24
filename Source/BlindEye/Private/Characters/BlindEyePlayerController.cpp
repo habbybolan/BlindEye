@@ -110,3 +110,13 @@ void ABlindEyePlayerController::CLI_GameWon_Implementation()
 		BlindEyeCharacter->CLI_OnGameWon();
 	}
 }
+
+void ABlindEyePlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+
+	if (IsLocalController())
+	{
+		
+	}
+}
