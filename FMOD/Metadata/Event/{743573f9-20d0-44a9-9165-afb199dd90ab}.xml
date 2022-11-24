@@ -153,10 +153,13 @@
 	</object>
 	<object class="MultiSound" id="{a91dc383-9df9-4f3b-8e01-2e7535fe904d}">
 		<property name="length">
-			<value>1.6000000000000001</value>
+			<value>1.3600000000000001</value>
 		</property>
 		<relationship name="modulators">
 			<destination>{8955a259-73cc-4a95-9784-1af4a31eb0c6}</destination>
+		</relationship>
+		<relationship name="fadeOutCurve">
+			<destination>{19eb317d-bf3c-43c8-a592-b743e79220bb}</destination>
 		</relationship>
 		<relationship name="sounds">
 			<destination>{4c95bbe7-b418-4d55-87f0-e91a7826068c}</destination>
@@ -257,6 +260,14 @@
 			<value>12</value>
 		</property>
 	</object>
+	<object class="FadeCurve" id="{19eb317d-bf3c-43c8-a592-b743e79220bb}">
+		<relationship name="startPoint">
+			<destination>{8fa5e995-3ed9-4ae4-912f-60d444e4dbaa}</destination>
+		</relationship>
+		<relationship name="endPoint">
+			<destination>{eeb9cafd-8e16-468a-b8bd-fa09c69d085e}</destination>
+		</relationship>
+	</object>
 	<object class="SingleSound" id="{4c95bbe7-b418-4d55-87f0-e91a7826068c}">
 		<relationship name="audioFile">
 			<destination>{4766f84b-9a6a-49d6-9198-ccb13b5e1b87}</destination>
@@ -294,6 +305,25 @@
 		</property>
 		<property name="dryLevel">
 			<value>-6.5</value>
+		</property>
+	</object>
+	<object class="AutomationPoint" id="{8fa5e995-3ed9-4ae4-912f-60d444e4dbaa}">
+		<property name="position">
+			<value>1.26</value>
+		</property>
+		<property name="value">
+			<value>1</value>
+		</property>
+		<property name="curveShape">
+			<value>0.25471893</value>
+		</property>
+	</object>
+	<object class="AutomationPoint" id="{eeb9cafd-8e16-468a-b8bd-fa09c69d085e}">
+		<property name="position">
+			<value>1.3600000000000001</value>
+		</property>
+		<property name="value">
+			<value>0</value>
 		</property>
 	</object>
 	<object class="MixerBusFader" id="{652c1829-742d-4c18-bfc2-e4fe7a0985df}" />
