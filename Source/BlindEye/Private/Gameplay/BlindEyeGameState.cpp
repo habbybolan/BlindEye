@@ -26,11 +26,19 @@ void ABlindEyeGameState::BeginPlay()
 	if (world == nullptr) return;
 
 	GetShrineReference();
- 
+
+	// Cache Island manager
 	AActor* IslandManageActor = UGameplayStatics::GetActorOfClass(world, AIslandManager::StaticClass());
 	if (IslandManageActor)
 	{
 		IslandManager = Cast<AIslandManager>(IslandManageActor);
+	}
+
+	// Cache Tutorial manager
+	AActor* TutorialManagerActor = UGameplayStatics::GetActorOfClass(world, ATutorialManager::StaticClass());
+	if (TutorialManagerActor)
+	{
+		TutorialManager = Cast<ATutorialManager>(TutorialManagerActor);
 	}
 }
 
@@ -180,6 +188,16 @@ void ABlindEyeGameState::SetPlayerMovementBlocked(bool IsMovementBlocked)
 void ABlindEyeGameState::StartEnemyTutorial(EEnemyTutorialType TutorialType)
 {
 	BP_EnemyTutorialStarted_SER(TutorialType);
+}
+
+void ABlindEyeGameState::PerformPulse(uint8 PulseIndex)
+{
+	BP_PerformPulse_SER(PulseIndex);
+}
+
+ATutorialManager* ABlindEyeGameState::GetTutorialManager()
+{
+	return TutorialManager;
 }
 
 void ABlindEyeGameState::TutorialFinished()

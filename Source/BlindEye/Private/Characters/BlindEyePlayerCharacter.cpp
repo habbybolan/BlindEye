@@ -88,9 +88,6 @@ void ABlindEyePlayerCharacter::BeginPlay()
 	CachedAcceleration = GetCharacterMovement()->MaxAcceleration;
 	
 	if (world == nullptr) return;
-
-	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(world));
-	check(BlindEyeGS);
 	
 	if (IsLocallyControlled())
 	{
@@ -100,17 +97,16 @@ void ABlindEyePlayerCharacter::BeginPlay()
 			AShrine* Shrine = Cast<AShrine>(ShrineActor);
 			Shrine->ShrineHealthChange.AddUFunction(this, TEXT("UpdateShrineHealthUI"));
 		}
-		
-		// Check if state is Tutorial
-		if (BlindEyeGS->IsBlindEyeMatchTutorial())
-		{
-			StartTutorial();
-		}
-		// Check if waiting for players, subscribe to tutorial starting event
-		else 
-		{
-			BlindEyeGS->TutorialStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::StartTutorial);
-		}
+
+		APlayerController* PlayerController = Cast<APlayerController>(UGameplayStatics::GetPlayerController(world, 0));
+		GameplayHud = CreateWidget(PlayerController, GameplayHudType);
+		GameplayHud->AddToViewport();
+		UpdatePlayerHealthUI();
+
+		TextPopupManager = CreateWidget<UTextPopupManager>(PlayerController, TextPopupManagerType);
+		TextPopupManager->AddToViewport();
+
+		SER_ClientFullyInitialized();
 	}
 
 	if (GetLocalRole() == ROLE_Authority)
@@ -126,6 +122,24 @@ void ABlindEyePlayerCharacter::BeginPlay()
 	HealthComponent->MarkedRemovedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::MULT_OnUnMarked);
 
 	GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &ABlindEyePlayerCharacter::AnimMontageEnded);
+
+	UE_LOG(LogTemp, Warning, TEXT("[ABlindEyePlayerCharacter::BeginPlay] %s beginPlay finished"), *GetName());
+}
+
+void ABlindEyePlayerCharacter::SER_ClientFullyInitialized_Implementation()
+{
+	if (UWorld* World = GetWorld())
+	{
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+		ATutorialManager* TutorialManager = BlindEyeGS->GetTutorialManager();
+		check(TutorialManager)
+		TutorialManager->SubscribePlayerToTUtorial(this);
+	} 
+}
+
+void ABlindEyePlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
 }
 
 void ABlindEyePlayerCharacter::OnEnemyMarkDetonated()
@@ -134,18 +148,24 @@ void ABlindEyePlayerCharacter::OnEnemyMarkDetonated()
 	BP_CooldownRefreshed(CooldownRefreshAmount);
 }
 
-void ABlindEyePlayerCharacter::StartTutorial()
+void ABlindEyePlayerCharacter::StartTutorial(const TArray<FTutorialInfo>& TutorialsInfoChecklist) 
 {
 	UWorld* World = GetWorld();
 	if (World)
 	{
 		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
 		check(BlindEyeGS)
-		BlindEyeGS->GameStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::StartGame);
+		BlindEyeGS->GameStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::CLI_StartGame);
+
+		ATutorialManager* TutorialManager = BlindEyeGS->GetTutorialManager();
+		check(TutorialManager)
+		TutorialManager->NextTutorialStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::CLI_OnNewTutorialStarted);
+		
+		CLI_OnNewTutorialStarted(TutorialsInfoChecklist);
 	}
 }
 
-void ABlindEyePlayerCharacter::StartGame()
+void ABlindEyePlayerCharacter::CLI_StartGame_Implementation()
 {
 	BP_DisplayDefendShrineIndicator_CLI();
 }
@@ -416,7 +436,7 @@ void ABlindEyePlayerCharacter::CLI_AddTextPopup_Implementation(const FString& Te
 	TextPopupManager->AddTextPopup(Text, TextPopupType, Duration);
 }
 
-void ABlindEyePlayerCharacter::CLI_SetupChecklist_Implementation()
+void ABlindEyePlayerCharacter::SetupChecklist()
 {
 	USizeBox* ChecklistContainer = BP_GetTutorialBox();
 	if (ChecklistContainer->HasAnyChildren()) return;
@@ -424,12 +444,7 @@ void ABlindEyePlayerCharacter::CLI_SetupChecklist_Implementation()
 	if (Checklist != nullptr) return;
 	
 	Checklist = Cast<UChecklist>( UUserWidget::CreateWidgetInstance(*ChecklistContainer, ChecklistType, TEXT("CheckList")));
-	//ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(GetController());
-	//check(BlindEyeController)
-	//Checklist = CreateWidget<UChecklist>(BlindEyeController, ChecklistType);
-	//ChecklistContainer->AddChild(Checklist);
 	ChecklistContainer->AddChild(Checklist);
-	//->AddToPlayerScreen();
 }
 
 void ABlindEyePlayerCharacter::CLI_DestroyChecklist_Implementation() 
@@ -446,14 +461,6 @@ void ABlindEyePlayerCharacter::CLI_UpdateChecklist_Implementation(uint8 ItemID)
 	if (Checklist)
 	{
 		Checklist->UpdateChecklistItem(ItemID);
-	}
-}
-
-void ABlindEyePlayerCharacter::CLI_AddChecklist_Implementation(uint8 ItemID, const FString& text, uint8 MaxCount)
-{
-	if (Checklist)
-	{
-		Checklist->AddChecklistItem(ItemID, text, MaxCount);
 	}
 }
 
@@ -498,11 +505,6 @@ void ABlindEyePlayerCharacter::RegenHealth()
 			BlindEyePlayerState->GetMaxHealth()); 
 		BlindEyePlayerState->SetHealth(NewHealth);
 	}
-}
-
-void ABlindEyePlayerCharacter::PossessedBy(AController* NewController)
-{
-	Super::PossessedBy(NewController);
 }
 
 void ABlindEyePlayerCharacter::TurnAtRate(float Rate)
@@ -558,6 +560,7 @@ void ABlindEyePlayerCharacter::OnRevive()
 		BlindEyePS->SetHealth(BlindEyePS->GetMaxHealth() * HealthPercentOnRevive);
 		BlindEyePS->SetIsDead(false);
 		GetWorldTimerManager().ClearTimer(AllyHealingCheckTimerHandle);
+		UpdatePlayerHealthUI();
 		CurrRevivePercent = 0;
 	}
 
@@ -1008,6 +1011,16 @@ void ABlindEyePlayerCharacter::AnimMontageEnded(UAnimMontage* Montage, bool bInt
 			ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState());
 			BlindEyePS->bActionsBlocked = false;
 		}
+	}
+}
+
+void ABlindEyePlayerCharacter::CLI_OnNewTutorialStarted_Implementation(const TArray<FTutorialInfo>& TutorialsInfoChecklist)
+{
+	SetupChecklist();
+	
+	for (FTutorialInfo TutorialInfo : TutorialsInfoChecklist)
+	{
+		Checklist->AddChecklistItem(TutorialInfo.ID, TutorialInfo.TextToDisplay, TutorialInfo.MaxCount);
 	}
 }
 

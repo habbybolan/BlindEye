@@ -4,9 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Shrine.h"
+#include "Components/TimelineComponent.h"
 #include "Enemies/BlindEyeEnemyBase.h"
 #include "HunterEnemy.generated.h"
 
+class UTimelineComponent;
 UENUM(BlueprintType)
 enum class EHunterAttacks : uint8
 {
@@ -28,6 +30,8 @@ class BLINDEYE_API AHunterEnemy : public ABlindEyeEnemyBase
 public:
 
 	AHunterEnemy(const FObjectInitializer& ObjectInitializer);
+
+	virtual void Tick(float DeltaSeconds) override;
 
 	virtual void BeginPlay() override;
 	void Despawn();
@@ -88,6 +92,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category=Charged)
 	UAnimMontage* RoarAnimation;
+
+	UPROPERTY(EditDefaultsOnly, Category=Charged, meta=(ToolTip="Applied when right on player, scaled with DistToMarkedPlayerToSlowDown", ClampMin=0, ClampMax=1))
+	float MaxSlowAlterWhenCloseToPlayer = 0.5;
+
+	UPROPERTY(EditDefaultsOnly, Category=Charged)
+	float DistToMarkedPlayerToSlowDown = 300.f;
  
 	UPROPERTY(EditDefaultsOnly, Category=ChargedJump)
 	float ChargedJumpCooldown = 10.f;
@@ -116,8 +126,35 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
 	float ChargedJumpLandingDistanceBeforeTarget = 70.f;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
+	float ChargedJumpMaxPeakHeight = 500.f;
+ 
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
+	float ChargedJumpMinPeakHeight = 50.f;
+
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
+	float ChargedJumpRInterpSpeed = 5.f;
+
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump, meta=(ClampMin=0.01)) 
+	float ChargedJumpCalcDelay = 0.02f;
+ 
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
+	TArray<TEnumAsByte<EObjectTypeQuery>> ChargedJumpLOSBlockers;
+
+	UPROPERTY(Replicated, ReplicatedUsing="OnRep_IsVisible", BlueprintReadOnly)
 	bool IsVisible = false;
+
+	UPROPERTY(EditDefaultsOnly)
+	UMaterialInstance* DissolveMaterial;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UTimelineComponent* InvisTimelineComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UCurveFloat* InvisCurve;
+
+	UFUNCTION()
+	void OnRep_IsVisible();
 	
 	void PerformChargedJump();
 	 
@@ -150,6 +187,10 @@ public:
 	void ChannelingAnimFinished();
 
 	void SetFleeing();
+
+	bool IsTargetMarked();
+
+	bool IsTargetOnNavigableGround();
  
 protected:
 
@@ -171,14 +212,19 @@ protected:
 
 	FTimerHandle ChannellingTimerHandle;
 
+	UPROPERTY(BlueprintReadWrite)
+	UMaterialInstanceDynamic* Material;
+
 	UPROPERTY()
 	AShrine* Shrine;
 
 	UPROPERTY()
 	EHunterAttacks CurrAttack = EHunterAttacks::None;
+
+	FOnTimelineFloat InvisUpdateEvent; 
 	
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_PerformBasicAttackHelper();
+	void MULT_PerformBasicAttackHelper(UAnimMontage* AnimToPlay);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_ChargedStarted();
@@ -217,16 +263,18 @@ protected:
 
 	float CurrTimeOfChargedJump = 0;	// Keeps track of how long of the jump the charged attack has been performed for
 	FVector ChargedJumpTargetLocation;
-	FVector ChargedJumpStartLocation; 
+	FVector ChargedJumpStartLocation;
 	FTimerHandle PerformingChargedJumpTimerHandle;
 	void PerformingJumpAttack();
 
-	// Intermediary method to make RPC call to blueprint implementable method
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_TurnVisible(bool visibility);
+	FTimerHandle ChargedJumpRotationTimerHandle; 
+	UFUNCTION()
+	void RotateDuringChargedAttack();
+
+	float ChargedJumpPeakHeight; // Calculated peak height for charged jump based on distance to player
  
 	UFUNCTION(BlueprintImplementableEvent)
-	void TrySetVisibiltiyHelper(bool visibility);
+	void BP_SetVisibility_CLI(bool visibility);
 
 	void SetCharged();
 	void SetNotCharged();
@@ -239,5 +287,12 @@ protected:
 
 	UFUNCTION()
 	void AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	bool bLeftBasicAttack = true;
+
+	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
+
+	UFUNCTION()
+	void TimelineInvisUpdate(float Value);
 };
 

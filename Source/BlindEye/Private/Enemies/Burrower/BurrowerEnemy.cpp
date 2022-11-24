@@ -155,11 +155,19 @@ void ABurrowerEnemy::SpawnSnappers()
 	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	FVector location = GetMesh()->GetBoneLocation(TEXT("Mouth"));
 	FRotator rotation = -1 * GetMesh()->GetBoneQuaternion(TEXT("Mouth")).Rotator();
-	
-	ASnapperEnemy* Snapper = World->SpawnActor<ASnapperEnemy>(SnapperType, location, rotation, params);
-	Snapper->ApplyKnockBack(GetMesh()->GetBoneQuaternion(TEXT("Mouth")).Vector() * ForwardSnapperSpawnForce);
-	
-	SnappersBeingSpawned.Add(Snapper);
+
+	rotation.Yaw += SnapperSpawnAngleToLeft;
+
+	FTransform Transform;
+	Transform.SetLocation(location);
+	Transform.SetRotation(rotation.Quaternion());
+	ASnapperEnemy* Snapper = World->SpawnActorDeferred<ASnapperEnemy>(SnapperType, Transform);
+	Snapper->QueuedSpawnForce = GetMesh()->GetBoneQuaternion(TEXT("Mouth")).Vector() * ForwardSnapperSpawnForce;
+	Snapper->FinishSpawning(Transform);
+	if (Snapper)
+	{
+		SnappersBeingSpawned.Add(Snapper);	
+	}
 }
 
 FVector ABurrowerEnemy::GetHidePosition()

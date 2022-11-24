@@ -65,7 +65,6 @@ void ASnapperEnemy::BeginPlay()
 
 	CachedCollisionObject = GetCapsuleComponent()->GetCollisionObjectType();
 	
-	GetCapsuleComponent()->SetCapsuleHalfHeight(GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * ColliderHeightAlteredOnSpawn);
 	GetCharacterMovement()->GravityScale *= GravityScaleAlteredOnSpawn;
 
 	if (GetLocalRole() == ROLE_Authority)
@@ -74,6 +73,8 @@ void ASnapperEnemy::BeginPlay()
 	}
 
 	GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &ASnapperEnemy::OnAnimMontageEnded);
+
+	ApplyKnockBack(QueuedSpawnForce);
 }
 
 void ASnapperEnemy::CollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
@@ -98,7 +99,6 @@ void ASnapperEnemy::MULT_OnSpawnCollisionHelper_Implementation()
 	bIsSpawning = false;
 	
 	// Update values back to normal
-	GetCapsuleComponent()->SetCapsuleHalfHeight(GetCapsuleComponent()->GetScaledCapsuleHalfHeight() / ColliderHeightAlteredOnSpawn);
 	GetCharacterMovement()->GravityScale /= GravityScaleAlteredOnSpawn;
 }
 
@@ -232,7 +232,7 @@ void ASnapperEnemy::TeleportColliderToMesh(float DeltaSeconds)
 {
 	FVector TargetLocation = GetMesh()->GetSocketLocation(TEXT("Hips")) + FVector::UpVector * GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 	
-	FVector TeleportLocation = UKismetMathLibrary::VInterpTo(TargetLocation, GetCapsuleComponent()->GetComponentLocation(), DeltaSeconds, 1);
+	FVector TeleportLocation = UKismetMathLibrary::VInterpTo(GetCapsuleComponent()->GetComponentLocation(), TargetLocation, DeltaSeconds, 5);
 	GetCapsuleComponent()->SetWorldLocation(TeleportLocation);
 	FRotator SocketRotation = GetMesh()->GetSocketRotation(TEXT("Hips"));
 	GetCapsuleComponent()->SetWorldRotation(FRotator(0, SocketRotation.Yaw, 0));
@@ -411,4 +411,5 @@ void ASnapperEnemy::GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & Ou
 	DOREPLIFETIME( ASnapperEnemy, HipLocation );
 	DOREPLIFETIME( ASnapperEnemy, bGettingUp );
 	DOREPLIFETIME( ASnapperEnemy, bIsSpawning );
+	DOREPLIFETIME_CONDITION( ASnapperEnemy, QueuedSpawnForce, COND_InitialOnly );
 }

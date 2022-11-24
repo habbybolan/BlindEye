@@ -6,22 +6,17 @@
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "GameFramework/PlayerState.h"
 
+void ALocomotionTutorial::BeginPlay()
+{
+	Super::BeginPlay();
+
+	SetupCheckboxes(EPlayerType::CrowPlayer);
+	SetupCheckboxes(EPlayerType::PhoenixPlayer);
+}
+
 void ALocomotionTutorial::SetupTutorial()
 {
 	Super::SetupTutorial();
-
-	// subscribe to tutorial actions from all players
-	for (APlayerState* PS : BlindEyeGS->PlayerArray)
-	{
-		if (PS->GetPawn())
-		{
-			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
-			Player->TutorialActionsDelegate.AddDynamic(this, &ALocomotionTutorial::OnPlayerAction);
-			Player->TutorialActionBlockers.bUnique2blocked = true;
-			Player->TutorialActionBlockers.bUnique1Blocked = true;
-			Player->TutorialActionBlockers.bBasicAttackBlocked = true;
-		}
-	}
 
 	// setup initial task values for all players
 	PlayersFinishedTasks.SetNum(2);
@@ -32,9 +27,6 @@ void ALocomotionTutorial::SetupTutorial()
 		FinishedTasks.MaxJumpCount = JumpCount;
 		PlayersFinishedTasks[i] = FinishedTasks;
 	}
-
-	SetupCheckboxes(EPlayerType::CrowPlayer);
-	SetupCheckboxes(EPlayerType::PhoenixPlayer);
 }
 
 void ALocomotionTutorial::SetupCheckboxes(EPlayerType PlayerType)
@@ -52,6 +44,14 @@ void ALocomotionTutorial::SetupCheckboxes(EPlayerType PlayerType)
 void ALocomotionTutorial::EndTutorial()
 {
 	Super::EndTutorial();
+}
+
+void ALocomotionTutorial::PlayerEnteredTutorialHelper(ABlindEyePlayerCharacter* Player)
+{
+	Player->TutorialActionsDelegate.AddDynamic(this, &ALocomotionTutorial::OnPlayerAction);
+	Player->TutorialActionBlockers.bUnique2blocked = true;
+	Player->TutorialActionBlockers.bUnique1Blocked = true;
+	Player->TutorialActionBlockers.bBasicAttackBlocked = true;
 }
 
 void ALocomotionTutorial::OnPlayerAction(ABlindEyePlayerCharacter* Player, TutorialInputActions::ETutorialInputActions InputActions)
