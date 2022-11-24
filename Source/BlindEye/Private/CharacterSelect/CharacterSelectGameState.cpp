@@ -29,10 +29,6 @@ void ACharacterSelectGameState::PlayerSelected(EPlayerType PlayerType, APlayerSt
 	{
 		CharacterSelectModelSelected->SelectCharacter(PlayerThatSelected->GetPlayerName());
 	}
-	// if (ACharacterSelectPlayerController* CharacterSelectPC = GetOwnerPlayerController())
-	// {
-	// 	CharacterSelectPC->UpdatePlayerSelectedCharacter(PlayerType, PlayerThatSelected);
-	// }
 }
 
 ACharacterSelectPlayerController* ACharacterSelectGameState::GetOwnerPlayerController()
@@ -100,7 +96,7 @@ void ACharacterSelectGameState::TrySelectHelper(EPlayerType PlayerType, APlayerS
 	}
 }
 
-void ACharacterSelectGameState::PlayerTryReady(ACharacterSelectPlayerController* PlayerReadied)
+void ACharacterSelectGameState::SER_PlayerTryReady_Implementation(ACharacterSelectPlayerController* PlayerReadied)
 {
 	bool bPlayerReadied = false;
 	// Ready up player if valid
@@ -123,21 +119,7 @@ void ACharacterSelectGameState::PlayerTryReady(ACharacterSelectPlayerController*
 					" PhoenixID: " + PhoenixPlayer->GetUniqueId().ToString()));
 			UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
 			
-			// HardCoded to 2 players in LAN, using Host/Client as identifiers for character for simplicity
-			if (BlindEyeGI->GetIsLAN())
-			{
-				if (CrowPlayer->GetLocalRole() == ROLE_Authority)
-				{
-					BlindEyeGI->EnterGameLAN(EPlayerType::CrowPlayer, EPlayerType::PhoenixPlayer);
-				} else {
-					BlindEyeGI->EnterGameLAN(EPlayerType::PhoenixPlayer, EPlayerType::CrowPlayer);
-				}
-			}
-			// Online game, use SteamID as character identifiers
-			else
-			{
-				BlindEyeGI->EnterGame(CrowPlayer->GetUniqueId().ToString(), PhoenixPlayer->GetUniqueId().ToString());
-			}
+			BlindEyeGI->EnterGame(CrowPlayer->GetUniqueId().ToString(), PhoenixPlayer->GetUniqueId().ToString());
 		}
 		else
 		{

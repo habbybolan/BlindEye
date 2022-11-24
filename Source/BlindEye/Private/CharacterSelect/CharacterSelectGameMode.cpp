@@ -4,12 +4,12 @@
 #include "CharacterSelect/CharacterSelectGameMode.h"
 
 #include "CharacterSelect/CharacterSelectPlayerController.h"
+#include "Gameplay/BlindEyeGameInstance.h"
 
 void ACharacterSelectGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Green, "INITIALIZE UI GM");
-	ACharacterSelectPlayerController* CharacterSelectPC = Cast<ACharacterSelectPlayerController>(NewPlayer);
-	CharacterSelectPC->CLI_InitializeUI();
+	ACharacterSelectPlayerController* PlayerController = Cast<ACharacterSelectPlayerController>(NewPlayer);
+	PlayerController->CLI_LoadCharacterSelectScreen();
 }

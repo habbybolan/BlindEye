@@ -30,7 +30,8 @@ public:
 	void PlayerTrySelect(EPlayerType PlayerType, ACharacterSelectPlayerController* LocalPlayer);
 
 	// Player readying up
-	void PlayerTryReady(ACharacterSelectPlayerController* LocalPlayer);
+	UFUNCTION(Server, Reliable)
+	void SER_PlayerTryReady(ACharacterSelectPlayerController* LocalPlayer);
 	
 	bool IsAllPlayersReady();
 	

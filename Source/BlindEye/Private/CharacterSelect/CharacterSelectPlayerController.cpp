@@ -4,6 +4,7 @@
 #include "CharacterSelect/CharacterSelectPlayerController.h"
 
 #include "CharacterSelect/CharacterSelectGameState.h"
+#include "Gameplay/BlindEyeGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 
 void ACharacterSelectPlayerController::BeginPlay()
@@ -18,21 +19,20 @@ void ACharacterSelectPlayerController::UpdateReadyState(bool IsReady)
 	// TODO:
 }
 
-void ACharacterSelectPlayerController::SER_ReadyUp_Implementation()
+void ACharacterSelectPlayerController::SER_SetPlayerReadied_Implementation()
 {
 	if (UWorld* World = GetWorld())
 	{
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Green, "[CharacterSelectPlayerController::PlayerSelection] Make selection");
 		ACharacterSelectGameState* CharacterSelectGS = Cast<ACharacterSelectGameState>(UGameplayStatics::GetGameState(World));
-		CharacterSelectGS->PlayerTryReady(this);
+		CharacterSelectGS->SER_PlayerTryReady(this);
 	}
 }
 
-void ACharacterSelectPlayerController::CLI_InitializeUI_Implementation()
+void ACharacterSelectPlayerController::CLI_LoadCharacterSelectScreen_Implementation()
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Green, "INITIALIZE UI");
-	CharacterSelectScreen = Cast<UCharacterSelectScreen>(CreateWidget(this, CharacterSelectScreenType));
-	CharacterSelectScreen->AddToViewport();
-
-	CharacterSelectScreen->PlayerReadyDelegate.BindDynamic(this, &ACharacterSelectPlayerController::SER_ReadyUp);
+	if (UWorld* World = GetWorld())
+	{
+		UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(UGameplayStatics::GetGameInstance(World));
+		BlindEyeGI->LoadCharacterSelect();
+	}
 }

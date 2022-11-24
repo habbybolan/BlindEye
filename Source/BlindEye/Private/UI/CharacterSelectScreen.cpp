@@ -4,6 +4,7 @@
 #include "UI/CharacterSelectScreen.h"
 
 #include "CharacterSelect/CharacterSelectGameState.h"
+#include "Interfaces/SessionMenuInterface.h"
 #include "Kismet/GameplayStatics.h"
 
 bool UCharacterSelectScreen::Initialize()
@@ -17,7 +18,14 @@ bool UCharacterSelectScreen::Initialize()
 	return true;
 }
 
+void UCharacterSelectScreen::SetSessionMenuInterface(TScriptInterface<ISessionMenuInterface> sessionMenuInterface)
+{
+	SessionMenuInterface = sessionMenuInterface;
+	LobbyNameText->SetText(FText::FromString(SessionMenuInterface->GetLobbyName()));
+}
+
 void UCharacterSelectScreen::TryReady()
 {
-	PlayerReadyDelegate.ExecuteIfBound();
+	ACharacterSelectPlayerController* PlayerController = Cast<ACharacterSelectPlayerController>(GetOwningPlayer());
+	PlayerController->SER_SetPlayerReadied();
 }

@@ -21,16 +21,13 @@ bool UCreateLobbyScreen::Initialize()
 
 void UCreateLobbyScreen::OnNewSessionPressed()
 {
-	UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
-	BlindEyeGI->SetGameAsLan(false);
-	
 	if (SessionMenuInterface == nullptr) return;
-	SessionMenuInterface->Host("BlindEyeServer");
+	FString LobbyName = LobbyNameEditText->GetText().IsEmpty() ? "BlindEyeServer" : LobbyNameEditText->GetText().ToString();
+	SessionMenuInterface->Host(LobbyName);
 }
 
 void UCreateLobbyScreen::OnLANCheckboxSelected(bool IsChecked)
 {
-	UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
-	BlindEyeGI->SetGameAsLan(false);
-	BlindEyeGI->bLANGame = IsChecked;
+	if (SessionMenuInterface == nullptr) return;
+	SessionMenuInterface->SetIsLAN(IsChecked);
 }

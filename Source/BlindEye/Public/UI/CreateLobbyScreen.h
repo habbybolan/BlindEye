@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/CheckBox.h"
+#include "Components/EditableText.h"
 #include "UI/LobbyScreenBase.h"
 #include "CreateLobbyScreen.generated.h"
 
@@ -22,6 +23,9 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UCheckBox* SetAsLANCheckbox;
+
+	UPROPERTY(meta = (BindWidget))
+	UEditableText* LobbyNameEditText;
 
 	virtual bool Initialize() override;
 

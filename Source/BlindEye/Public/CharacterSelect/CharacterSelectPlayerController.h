@@ -19,20 +19,17 @@ class BLINDEYE_API ACharacterSelectPlayerController : public APlayerController
 public:
 
 	virtual void BeginPlay() override;
-
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<UCharacterSelectScreen> CharacterSelectScreenType;
  
 	void UpdateReadyState(bool IsReady);
 
 	UFUNCTION(Client, Reliable)
-	void CLI_InitializeUI();
+	void CLI_LoadCharacterSelectScreen();
+
+	UFUNCTION(Server, Reliable)
+	void SER_SetPlayerReadied();
 
 protected:
 
 	UPROPERTY()
 	UCharacterSelectScreen* CharacterSelectScreen;
-	
-	UFUNCTION(Server, Reliable)
-	void SER_ReadyUp();
 };

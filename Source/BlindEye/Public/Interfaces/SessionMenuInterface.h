@@ -25,8 +25,9 @@ public:
 	virtual void Host(FString ServerName) = 0;
 	virtual void JoinSession(uint32 Index) = 0;
 	virtual void EndSession() = 0;
+	
+	virtual void SetIsLAN(bool IsLan) = 0;
+	virtual FString GetLobbyName() = 0;
 
 	virtual void RefreshSessionList() = 0;
-
-	FString DesiredServerName;
 };
