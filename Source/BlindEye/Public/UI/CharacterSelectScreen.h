@@ -28,19 +28,11 @@ public:
 	UButton* ReadyButton;
 
 	virtual bool Initialize() override;
-
-	//void PlayerSelectionUpdated(EPlayerType PlayerTypeSelected, APlayerState* PlayerThatSelected);
-
-	DECLARE_DYNAMIC_DELEGATE_OneParam(FPlayerSelectionSignature, EPlayerType, PlayerTypeSelected);
-	FPlayerSelectionSignature PlayerSelectionDelegate;
 	
 	DECLARE_DYNAMIC_DELEGATE(FPlayerReadySignature);
 	FPlayerReadySignature PlayerReadyDelegate;
 
 protected:
-
-	UFUNCTION()
-	void TrySelectPlayer(EPlayerType PlayerSelected);
 
 	UFUNCTION() 
 	void TryReady();
