@@ -194,7 +194,7 @@ void UBlindEyeGameInstance::CreateSession()
 		FOnlineSessionSettings SessionSettings;
 
 		// Switch between bIsLANMatch when using NULL subsystem
-		if (IOnlineSubsystem::Get()->GetSubsystemName().ToString() == "NULL")
+		if (bLANGame || IOnlineSubsystem::Get()->GetSubsystemName().ToString() == "NULL")
 		{
 			GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Cyan, "[UBlindEyeGameInstance::CreateSession]: LAN");
 			SessionSettings.bIsLANMatch = true;

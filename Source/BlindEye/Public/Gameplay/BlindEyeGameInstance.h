@@ -39,6 +39,8 @@ public:
 	UPROPERTY()
 	ULobbyScreenBase* LobbyScreenBase;
 
+	bool bLANGame = false;
+
 	// Shareable pointer to the session
 	TSharedPtr<FOnlineSessionSearch> SessionSearch;
 

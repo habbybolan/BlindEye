@@ -15,7 +15,7 @@ bool UCreateLobbyScreen::Initialize()
 	}
 
 	NewSessionButton->OnClicked.AddDynamic(this, &UCreateLobbyScreen::OnNewSessionPressed);
-	LANButton->OnClicked.AddDynamic(this, &UCreateLobbyScreen::OnLANPressed);
+	SetAsLANCheckbox->OnCheckStateChanged.AddDynamic(this, &UCreateLobbyScreen::OnLANCheckboxSelected);
 	return true;
 }
 
@@ -28,8 +28,9 @@ void UCreateLobbyScreen::OnNewSessionPressed()
 	SessionMenuInterface->Host("BlindEyeServer");
 }
 
-void UCreateLobbyScreen::OnLANPressed()
+void UCreateLobbyScreen::OnLANCheckboxSelected(bool IsChecked)
 {
 	UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
-	BlindEyeGI->SetGameAsLan(true);
+	BlindEyeGI->SetGameAsLan(false);
+	BlindEyeGI->bLANGame = IsChecked;
 }
