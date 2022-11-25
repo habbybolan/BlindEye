@@ -267,12 +267,12 @@ void ABurrowerEnemy::OnRep_VisibilityState(EBurrowerVisibilityState OldVisibilit
 {
 	GetMesh()->SetHiddenInGame(VisibilityState == EBurrowerVisibilityState::Hidden);
 	// If changing from hidden to not hidden
-	if (OldVisibilityState == EBurrowerVisibilityState::Hidden && VisibilityState != EBurrowerVisibilityState::Hidden)
+	if (VisibilityState != EBurrowerVisibilityState::Hidden)
 	{
 		BP_FollowingEnd_CLI();
 	}
 	// If changing from not hidden to hidden
-	else if (OldVisibilityState != EBurrowerVisibilityState::Hidden && VisibilityState == EBurrowerVisibilityState::Hidden)
+	else if (VisibilityState == EBurrowerVisibilityState::Hidden)
 	{
 		BP_FollowingStart_CLI();
 	}

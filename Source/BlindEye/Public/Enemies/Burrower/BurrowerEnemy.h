@@ -174,7 +174,7 @@ protected:
 	// bool bIsHidden = false;
  
 	UPROPERTY(Replicated, ReplicatedUsing="OnRep_VisibilityState")
-	EBurrowerVisibilityState VisibilityState; 
+	EBurrowerVisibilityState VisibilityState;
  
 	UFUNCTION()
 	void OnRep_VisibilityState(EBurrowerVisibilityState OldVisibilityState);
