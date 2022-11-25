@@ -73,12 +73,12 @@ void ABurrowerEnemy::SpawnMangerSetup(uint8 islandID, TScriptInterface<IBurrower
 void ABurrowerEnemy::StartSurfacing()
 {
 	GetCapsuleComponent()->SetCollisionObjectType(CachedCollisionObject);
-	MULT_StartSurfacingHelper();
+	StartSurfacingHelper();
 	PerformSurfacingDamage();
 	SetVisibility(false);
 }
 
-void ABurrowerEnemy::MULT_StartSurfacingHelper_Implementation()
+void ABurrowerEnemy::StartSurfacingHelper()
 {
 	SurfacingTimelineComponent->PlayFromStart();
 	BP_SurfacingStarted_CLI();
@@ -113,16 +113,16 @@ void ABurrowerEnemy::StartHiding()
 		float FullDistFromSurfacedToHiding = GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
 		float StartTime = (1 - (DistToHidingTarget / FullDistFromSurfacedToHiding)) * timelineLength;
 
-		MULT_StartHidingHelper(StartTime);
+		StartHidingHelper(StartTime);
 	}
 	// Fully surfaced, hid normally
 	else
 	{
-		MULT_StartHidingHelper(0);
+		StartHidingHelper(0);
 	}
 }
 
-void ABurrowerEnemy::MULT_StartHidingHelper_Implementation(float StartTime)
+void ABurrowerEnemy::StartHidingHelper(float StartTime)
 {
 	GetMesh()->GetAnimInstance()->StopAllMontages(.5);
 	// If currently surfacing, start hiding from current position
@@ -189,13 +189,6 @@ FVector ABurrowerEnemy::GetWorldWarningParticleSpawnLocation()
 FVector ABurrowerEnemy::GetRelativeFollowParticleSpawnLocation()
 {
 	return FVector(0, 0, -GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
-}
-
-void ABurrowerEnemy::UpdateBurrowerState(EBurrowerVisibilityState NewState)
-{
-	EBurrowerVisibilityState OldState = VisibilityState;
-	VisibilityState = NewState;
-	OnRep_VisibilityState(OldState);
 }
 
 void ABurrowerEnemy::MULT_WarningStarted_Implementation()
@@ -276,6 +269,47 @@ void ABurrowerEnemy::OnRep_VisibilityState(EBurrowerVisibilityState OldVisibilit
 	{
 		BP_FollowingStart_CLI();
 	}
+
+	// If visibility state in sync with client's value, then perform movement. Server's value will always be in sync
+	if (LocalVisibilityState == VisibilityState)
+	{
+		if (VisibilityState == EBurrowerVisibilityState::Hiding)
+		{
+			StartHiding();
+		} else if (VisibilityState == EBurrowerVisibilityState::Surfacing)
+		{
+			StartSurfacing();
+		}	
+	}
+}
+
+void ABurrowerEnemy::UpdateBurrowerState(EBurrowerVisibilityState NewState)
+{
+	if (GetLocalRole() < ROLE_Authority) return;
+	EBurrowerVisibilityState OldState = VisibilityState;
+	VisibilityState = NewState;
+	UpdateLocalVisibilityState(NewState);
+	OnRep_VisibilityState(OldState);
+}
+
+void ABurrowerEnemy::UpdateLocalVisibilityState(EBurrowerVisibilityState localVisibilityState)
+{
+	LocalVisibilityState = localVisibilityState;
+	if (GetLocalRole() == ROLE_Authority) return;
+	
+	// If client hidden/hiding and server surfacing/surfaced
+	if ((VisibilityState == EBurrowerVisibilityState::Surfacing || VisibilityState == EBurrowerVisibilityState::Surfaced) &&
+		(LocalVisibilityState == EBurrowerVisibilityState::Hidden))
+	{
+		StartHiding();
+	}
+
+	// If client Surfacing/surfaced and server hiding/hidden
+	if ((VisibilityState == EBurrowerVisibilityState::Hiding || VisibilityState == EBurrowerVisibilityState::Hidden) &&
+		(LocalVisibilityState == EBurrowerVisibilityState::Surfaced))
+	{
+		StartSurfacing();
+	}
 }
 
 void ABurrowerEnemy::OnSnapperDeath(AActor* SnapperActor)
@@ -312,6 +346,7 @@ void ABurrowerEnemy::TimelineSurfacingMovement(float Value)
 	FVector StartLocation = GetHidePosition();
 	GetMesh()->SetRelativeLocation(FMath::Lerp(StartLocation, StartLocation +
 		(FVector::UpVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2)), Value));
+	UpdateLocalVisibilityState(EBurrowerVisibilityState::Surfacing);
 }
 
 void ABurrowerEnemy::TimelineSurfacingFinished()
@@ -319,6 +354,7 @@ void ABurrowerEnemy::TimelineSurfacingFinished()
 	UpdateBurrowerState(EBurrowerVisibilityState::Surfaced);
 	SurfacingFinished.ExecuteIfBound();
 	BP_SurfacingEnded_CLI();
+	UpdateLocalVisibilityState(EBurrowerVisibilityState::Surfaced);
 }
 
 void ABurrowerEnemy::TimelineHideMovement(float Value) 
@@ -326,6 +362,7 @@ void ABurrowerEnemy::TimelineHideMovement(float Value)
 	UpdateBurrowerState(EBurrowerVisibilityState::Hiding);
 	GetMesh()->SetRelativeLocation(FMath::Lerp(CachedMeshRelativeLocation, CachedMeshRelativeLocation +
 		(FVector::DownVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2)), Value));
+	UpdateLocalVisibilityState(EBurrowerVisibilityState::Hiding);
 }
 
 void ABurrowerEnemy::TimelineHideFinished()
@@ -336,9 +373,10 @@ void ABurrowerEnemy::TimelineHideFinished()
 	GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
 	BP_HidingEnded_CLI();
 	SetVisibility(true);
-	UnsubscribeToSpawnLocation(); 
+	UnsubscribeToSpawnLocation();
+	UpdateLocalVisibilityState(EBurrowerVisibilityState::Hidden);
 }
- 
+
 void ABurrowerEnemy::SetVisibility(bool isHidden)
 {
 	if (GetLocalRole() == ROLE_Authority)

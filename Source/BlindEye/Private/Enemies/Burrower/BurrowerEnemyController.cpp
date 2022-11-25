@@ -174,7 +174,7 @@ void ABurrowerEnemyController::StartSurfacing()
 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
 	if (!CachedBurrower) return;
 	
-	CachedBurrower->StartSurfacing();
+	CachedBurrower->UpdateBurrowerState(EBurrowerVisibilityState::Surfacing);
 }
 
 void ABurrowerEnemyController::StartHiding()
@@ -182,7 +182,7 @@ void ABurrowerEnemyController::StartHiding()
 	CachedBurrower = Cast<ABurrowerEnemy>(GetPawn());
 	if (!CachedBurrower) return;
 	
-	CachedBurrower->StartHiding();
+	CachedBurrower->UpdateBurrowerState(EBurrowerVisibilityState::Hiding);
 }
  
 // void ABurrowerEnemyController::SetBurrowerState(bool isHidden, bool bFollowing)

@@ -60,10 +60,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<ASnapperEnemy> SnapperType;
 
-	FOnTimelineFloat SurfacingUpdateEvent; 
+	UPROPERTY()
+	FOnTimelineFloat SurfacingUpdateEvent;
+	UPROPERTY()
 	FOnTimelineEvent SurfacingFinishedEvent;
 
-	FOnTimelineFloat HideUpdateEvent; 
+	UPROPERTY()
+	FOnTimelineFloat HideUpdateEvent;
+	UPROPERTY()
 	FOnTimelineEvent HideFinishedEvent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -107,20 +111,12 @@ public:
 
 	void SpawnMangerSetup(uint8 islandID, TScriptInterface<IBurrowerSpawnManagerListener> listener);
 	
-	void StartSurfacing();
 	void PerformSurfacingDamage();
-	void StartHiding();
 
 	void SetVisibility(bool isHidden);
 
 	UFUNCTION()
 	void SpawnSnappers(); 
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_StartSurfacingHelper();
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_StartHidingHelper(float StartTime);
 
 	void CancelHide();
 	UFUNCTION(NetMulticast, Reliable)
@@ -155,6 +151,9 @@ public:
 	UBurrowerSpawnPoint* GetRandUnusedSpawnPoint();
 
 	void NotifySpawningStopped();
+
+	UFUNCTION()
+	void UpdateBurrowerState(EBurrowerVisibilityState NewState);
  
 protected:
 
@@ -175,6 +174,10 @@ protected:
  
 	UPROPERTY(Replicated, ReplicatedUsing="OnRep_VisibilityState")
 	EBurrowerVisibilityState VisibilityState;
+
+	// Used for client to keep track of its own visibility state if too out of sync with server
+	UPROPERTY()
+	EBurrowerVisibilityState LocalVisibilityState;
  
 	UFUNCTION()
 	void OnRep_VisibilityState(EBurrowerVisibilityState OldVisibilityState);
@@ -198,6 +201,12 @@ protected:
 
 	// Timeline functions for burrower appearing
 
+	void StartHiding();
+	void StartHidingHelper(float StartTime);
+ 
+	void StartSurfacing();
+	void StartSurfacingHelper();
+
 	UFUNCTION()
 	void TimelineSurfacingMovement(float Value);
 
@@ -211,6 +220,9 @@ protected:
 
 	UFUNCTION()
 	void TimelineHideFinished();
+
+	// keeps client movement smooth by keeping its visual state consistent with client state, preventing popping
+	void UpdateLocalVisibilityState(EBurrowerVisibilityState localVisibilityState);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UCurveFloat* SurfacingCurve;
@@ -259,9 +271,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable) 
 	FVector GetRelativeFollowParticleSpawnLocation();
-
-	UFUNCTION()
-	void UpdateBurrowerState(EBurrowerVisibilityState NewState);
 
 	void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const;
 	 
