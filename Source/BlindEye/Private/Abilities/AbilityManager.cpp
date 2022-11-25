@@ -127,12 +127,13 @@ void UAbilityManager::RefreshAllCooldowns(float CooldownRefreshAmount)
 	}
 }
 
-void UAbilityManager::TryCancelCurrentAbility()
+bool UAbilityManager::TryCancelCurrentAbility()
 {
 	if (CurrUsedAbility != nullptr)
 	{
-		CurrUsedAbility->TryCancelAbility();
+		return CurrUsedAbility->TryCancelAbility();
 	}
+	return true;
 }
 
 
