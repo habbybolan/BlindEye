@@ -130,10 +130,14 @@ void ABlindEyePlayerCharacter::SER_ClientFullyInitialized_Implementation()
 {
 	if (UWorld* World = GetWorld())
 	{
+		// Subscribe player to tutorial
 		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
 		ATutorialManager* TutorialManager = BlindEyeGS->GetTutorialManager();
 		check(TutorialManager)
 		TutorialManager->SubscribePlayerToTUtorial(this);
+
+		// Notify players of each others existence to hold indicator reference to each other
+		BlindEyeGS->AddReadyPlayerReference(this);
 	} 
 }
 
@@ -281,7 +285,7 @@ void ABlindEyePlayerCharacter::NotifyOtherPlayerHunterUnMarked()
 	}
 }
 
-void ABlindEyePlayerCharacter::NotifyOfOtherPlayerExistance(ABlindEyePlayerCharacter* NewPlayer)
+void ABlindEyePlayerCharacter::CLI_NotifyOfOtherPlayerExistance_Implementation(ABlindEyePlayerCharacter* NewPlayer)
 {
 	IndicatorManagerComponent->CLI_AddIndicator(PlayerIndicatorID, PlayerIndicatorType, NewPlayer, 0);
 }

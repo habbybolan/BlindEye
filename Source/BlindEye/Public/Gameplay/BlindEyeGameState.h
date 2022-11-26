@@ -140,8 +140,7 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FPulseSignature, uint8, CurrRound, float, RoundLength);
 	FPulseSignature PulseDelegate;
 
-	UPROPERTY(Replicated, ReplicatedUsing="OnRep_PlayerAdded")
-	TArray<ABlindEyePlayerCharacter*> BlindEyePlayers;
+	void AddReadyPlayerReference(ABlindEyePlayerCharacter* NewReadyPlayer);
 
 	UFUNCTION()
 	void OnRep_PlayerAdded();
@@ -169,8 +168,6 @@ public:
 	void OnPlayerRevived(ABlindEyePlayerState* PlayerRevived);
 
 	virtual void AddPlayerState(APlayerState* PlayerState) override;
-
-	void NotifyOtherPlayerOfPlayerExisting(ABlindEyePlayerCharacter* NewPlayer);
 
 	APlayerState* GetOtherPlayer(ABlindEyePlayerCharacter* Player);
 
@@ -219,6 +216,9 @@ protected:
 
 	UPROPERTY()
 	ULevelSequencePlayer* CurrSequencePlaying;
+
+	UPROPERTY(Replicated, ReplicatedUsing="OnRep_PlayerAdded")
+	TArray<ABlindEyePlayerCharacter*> BlindEyePlayers;
 
 	UFUNCTION()
 	void EnemyDied(AActor* Enemy);

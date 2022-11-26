@@ -65,14 +65,20 @@ void ABlindEyeGameState::OnPulse(uint8 currRound, float roundLength)
 	PulseDelegate.Broadcast(CurrRound, roundLength);
 }
 
+void ABlindEyeGameState::AddReadyPlayerReference(ABlindEyePlayerCharacter* NewReadyPlayer)
+{
+	BlindEyePlayers.Add(NewReadyPlayer);
+	OnRep_PlayerAdded();
+}
+
 void ABlindEyeGameState::OnRep_PlayerAdded()
 {
-	if (GetLocalRole() < ROLE_Authority)
+	if (GetLocalRole() == ROLE_Authority)
 	{
 		if (BlindEyePlayers.Num() >= 2)
 		{
-			BlindEyePlayers[0]->NotifyOfOtherPlayerExistance(BlindEyePlayers[1]);
-			BlindEyePlayers[1]->NotifyOfOtherPlayerExistance(BlindEyePlayers[0]);
+			BlindEyePlayers[0]->CLI_NotifyOfOtherPlayerExistance(BlindEyePlayers[1]);
+			BlindEyePlayers[1]->CLI_NotifyOfOtherPlayerExistance(BlindEyePlayers[0]);
 		}
 	}
 }
@@ -126,22 +132,6 @@ void ABlindEyeGameState::OnPlayerRevived(ABlindEyePlayerState* PlayerRevived)
 void ABlindEyeGameState::AddPlayerState(APlayerState* PlayerState)
 {
 	Super::AddPlayerState(PlayerState);
-}
-
-void ABlindEyeGameState::NotifyOtherPlayerOfPlayerExisting(ABlindEyePlayerCharacter* NewPlayer)
-{
-	for (APlayerState* PS : PlayerArray)
-	{
-		APlayerState* ANewPS = NewPlayer->GetPlayerState();
-		if (PS != ANewPS)
-		{
-			ABlindEyePlayerCharacter* OtherPlayer = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
-			if (OtherPlayer)
-			{
-				OtherPlayer->NotifyOfOtherPlayerExistance(NewPlayer);
-			}
-		}
-	}
 }
 
 APlayerState* ABlindEyeGameState::GetOtherPlayer(ABlindEyePlayerCharacter* Player)

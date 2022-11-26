@@ -318,7 +318,8 @@ public:
 	void NotifyOtherPlayerHunterMarked();
 	void NotifyOtherPlayerHunterUnMarked();
 
-	void NotifyOfOtherPlayerExistance(ABlindEyePlayerCharacter* NewPlayer);
+	UFUNCTION(Client, Reliable)
+	void CLI_NotifyOfOtherPlayerExistance(ABlindEyePlayerCharacter* NewPlayer);
 
 	virtual FVector GetIndicatorPosition() override;
 
