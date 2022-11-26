@@ -18,13 +18,13 @@ EBTNodeResult::Type UBTT_BurrowerSurfacingAction::ExecuteTask(UBehaviorTreeCompo
 	AAIController* Controller = OwnerComp.GetAIOwner();
 	if (ABurrowerEnemyController* BurrowerController = Cast<ABurrowerEnemyController>(Controller))
 	{
-		// if already hidden, then finish immediately
+		// if already Surfaced, then finish immediately
 		if (BurrowerController->IsSurfaced())
 		{
 			return EBTNodeResult::Succeeded;
 		}
 		
-		// if not currently hiding, then start hiding
+		// if not currently Surfacing, then start surfacing
 		if (!BurrowerController->IsSurfacing())
 		{
 			BurrowerController->StartSurfacing();

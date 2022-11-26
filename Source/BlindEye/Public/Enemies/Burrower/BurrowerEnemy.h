@@ -113,8 +113,6 @@ public:
 	
 	void PerformSurfacingDamage();
 
-	void SetVisibility(bool isHidden);
-
 	UFUNCTION()
 	void SpawnSnappers(); 
 
@@ -176,6 +174,7 @@ protected:
 	EBurrowerVisibilityState VisibilityState;
 
 	// Used for client to keep track of its own visibility state if too out of sync with server
+	// Updated from timeline methods
 	UPROPERTY()
 	EBurrowerVisibilityState LocalVisibilityState;
  
@@ -220,9 +219,6 @@ protected:
 
 	UFUNCTION()
 	void TimelineHideFinished();
-
-	// keeps client movement smooth by keeping its visual state consistent with client state, preventing popping
-	void UpdateLocalVisibilityState(EBurrowerVisibilityState localVisibilityState);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UCurveFloat* SurfacingCurve;

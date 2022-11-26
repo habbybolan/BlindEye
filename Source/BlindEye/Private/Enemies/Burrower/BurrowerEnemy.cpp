@@ -23,9 +23,7 @@ ABurrowerEnemy::ABurrowerEnemy(const FObjectInitializer& ObjectInitializer)
 {
 	bReplicates = true;
 	SurfacingTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("SpawnTimeline"));
-	SurfacingTimelineComponent->SetIsReplicated(true);
 	HideTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("HideTimeline"));
-	HideTimelineComponent->SetIsReplicated(true);
 }
 
 void ABurrowerEnemy::BeginPlay()
@@ -72,10 +70,10 @@ void ABurrowerEnemy::SpawnMangerSetup(uint8 islandID, TScriptInterface<IBurrower
 
 void ABurrowerEnemy::StartSurfacing()
 {
+	GetMesh()->SetHiddenInGame(false);
 	GetCapsuleComponent()->SetCollisionObjectType(CachedCollisionObject);
 	StartSurfacingHelper();
 	PerformSurfacingDamage();
-	SetVisibility(false);
 }
 
 void ABurrowerEnemy::StartSurfacingHelper()
@@ -130,7 +128,6 @@ void ABurrowerEnemy::StartHidingHelper(float StartTime)
 	{
 		// stop surfacing if it was surfacing
 		SurfacingTimelineComponent->Stop();
-		UpdateBurrowerState(EBurrowerVisibilityState::Hiding);
 
 		// Play from current position to target hide position
 		HideTimelineComponent->SetPlaybackPosition(StartTime, true);
@@ -258,7 +255,6 @@ void ABurrowerEnemy::NotifySpawningStopped()
 
 void ABurrowerEnemy::OnRep_VisibilityState(EBurrowerVisibilityState OldVisibilityState) 
 {
-	GetMesh()->SetHiddenInGame(VisibilityState == EBurrowerVisibilityState::Hidden);
 	// If changing from hidden to not hidden
 	if (VisibilityState != EBurrowerVisibilityState::Hidden)
 	{
@@ -270,17 +266,23 @@ void ABurrowerEnemy::OnRep_VisibilityState(EBurrowerVisibilityState OldVisibilit
 		BP_FollowingStart_CLI();
 	}
 
-	// If visibility state in sync with client's value, then perform movement. Server's value will always be in sync
-	if (LocalVisibilityState == VisibilityState)
+	if (VisibilityState == EBurrowerVisibilityState::Hiding)
 	{
-		if (VisibilityState == EBurrowerVisibilityState::Hiding)
+		// stop current surfacing if currently surfacing
+		if (OldVisibilityState == EBurrowerVisibilityState::Surfacing)
 		{
-			StartHiding();
-		} else if (VisibilityState == EBurrowerVisibilityState::Surfacing)
+			SurfacingTimelineComponent->Stop();
+		}
+		StartHiding();
+	} else if (VisibilityState == EBurrowerVisibilityState::Surfacing)
+	{
+		// stop current Hiding if currently hiding
+		if (OldVisibilityState == EBurrowerVisibilityState::Hiding)
 		{
-			StartSurfacing();
-		}	
-	}
+			HideTimelineComponent->Stop();
+		}
+		StartSurfacing();
+	}	
 }
 
 void ABurrowerEnemy::UpdateBurrowerState(EBurrowerVisibilityState NewState)
@@ -288,28 +290,7 @@ void ABurrowerEnemy::UpdateBurrowerState(EBurrowerVisibilityState NewState)
 	if (GetLocalRole() < ROLE_Authority) return;
 	EBurrowerVisibilityState OldState = VisibilityState;
 	VisibilityState = NewState;
-	UpdateLocalVisibilityState(NewState);
 	OnRep_VisibilityState(OldState);
-}
-
-void ABurrowerEnemy::UpdateLocalVisibilityState(EBurrowerVisibilityState localVisibilityState)
-{
-	LocalVisibilityState = localVisibilityState;
-	if (GetLocalRole() == ROLE_Authority) return;
-	
-	// If client hidden/hiding and server surfacing/surfaced
-	if ((VisibilityState == EBurrowerVisibilityState::Surfacing || VisibilityState == EBurrowerVisibilityState::Surfaced) &&
-		(LocalVisibilityState == EBurrowerVisibilityState::Hidden))
-	{
-		StartHiding();
-	}
-
-	// If client Surfacing/surfaced and server hiding/hidden
-	if ((VisibilityState == EBurrowerVisibilityState::Hiding || VisibilityState == EBurrowerVisibilityState::Hidden) &&
-		(LocalVisibilityState == EBurrowerVisibilityState::Surfaced))
-	{
-		StartSurfacing();
-	}
 }
 
 void ABurrowerEnemy::OnSnapperDeath(AActor* SnapperActor)
@@ -345,65 +326,35 @@ void ABurrowerEnemy::TimelineSurfacingMovement(float Value)
 	FVector StartLocation = GetHidePosition();
 	GetMesh()->SetRelativeLocation(FMath::Lerp(StartLocation, StartLocation +
 		(FVector::UpVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2)), Value));
-	UpdateLocalVisibilityState(EBurrowerVisibilityState::Surfacing);
 }
 
 void ABurrowerEnemy::TimelineSurfacingFinished()
 {
-	UpdateBurrowerState(EBurrowerVisibilityState::Surfaced);
 	SurfacingFinished.ExecuteIfBound();
 	BP_SurfacingEnded_CLI();
-	UpdateLocalVisibilityState(EBurrowerVisibilityState::Surfaced);
+
+	// update states
+	UpdateBurrowerState(EBurrowerVisibilityState::Surfaced);
 }
 
 void ABurrowerEnemy::TimelineHideMovement(float Value) 
 {
 	GetMesh()->SetRelativeLocation(FMath::Lerp(CachedMeshRelativeLocation, CachedMeshRelativeLocation +
 		(FVector::DownVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2)), Value));
-	UpdateLocalVisibilityState(EBurrowerVisibilityState::Hiding);
 }
 
 void ABurrowerEnemy::TimelineHideFinished()
 {
-	SetVisibility(true);
 	HidingFinished.ExecuteIfBound();
 	HealthComponent->RemoveMark();
 	GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
 	BP_HidingEnded_CLI();
 	UnsubscribeToSpawnLocation();
-	UpdateLocalVisibilityState(EBurrowerVisibilityState::Hidden);
-}
 
-void ABurrowerEnemy::SetVisibility(bool isHidden)
-{
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		// Prevent changing hiding state to same
-		if (isHidden && VisibilityState != EBurrowerVisibilityState::Hidden)
-		{
-			UpdateBurrowerState(EBurrowerVisibilityState::Surfacing);
-		
-		}  else if (!isHidden && VisibilityState == EBurrowerVisibilityState::Hidden)
-		{
-			UpdateBurrowerState(EBurrowerVisibilityState::Surfacing);
-		}
-	}
+	// update states
+	UpdateBurrowerState(EBurrowerVisibilityState::Hidden);
+	GetMesh()->SetHiddenInGame(true);
 }
-
-// void ABurrowerEnemy::SetAppeared()
-// {
-// 	MULT_SetBurrowerState(false);
-// }
-//
-// void ABurrowerEnemy::SetDisappeared()
-// {
-// 	MULT_SetBurrowerState(true);
-// }
-//  
-// void ABurrowerEnemy::SetSurfacingHiding()
-// {
-// 	MULT_SetBurrowerState(false);
-// }
 
 void ABurrowerEnemy::CancelHide()
 {
