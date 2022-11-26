@@ -163,7 +163,7 @@ void ABurrowerEnemy::SpawnSnappers()
 	Snapper->FinishSpawning(Transform);
 	if (Snapper)
 	{
-		SnappersBeingSpawned.Add(Snapper);	
+		SnappersBeingSpawned.Add( MakeWeakObjectPtr(Snapper));	
 	}
 }
 
@@ -245,10 +245,13 @@ UBurrowerSpawnPoint* ABurrowerEnemy::GetRandUnusedSpawnPoint()
 void ABurrowerEnemy::NotifySpawningStopped()
 {
 	// Set timer for stopping snapper ragdoll with some variability
-	for (ASnapperEnemy* Snapper : SnappersBeingSpawned)
+	for (TWeakObjectPtr<ASnapperEnemy> Snapper : SnappersBeingSpawned)
 	{
-		float RandVariability = UKismetMathLibrary::RandomFloatInRange(0, SnapperRagdollTimeVariabilityAfterGroupSpawned);
-		Snapper->ManualStopRagdollTimer(SnapperRagdollBaseTimeAfterGroupSpawned + RandVariability);
+		if (Snapper.IsValid())
+		{
+			float RandVariability = UKismetMathLibrary::RandomFloatInRange(0, SnapperRagdollTimeVariabilityAfterGroupSpawned);
+			Snapper->ManualStopRagdollTimer(SnapperRagdollBaseTimeAfterGroupSpawned + RandVariability);
+		}
 	}
 	SnappersBeingSpawned.Empty();
 }
