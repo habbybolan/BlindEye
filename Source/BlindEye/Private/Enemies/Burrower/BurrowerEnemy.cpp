@@ -342,7 +342,6 @@ TArray<FVector> ABurrowerEnemy::GetSnapperSpawnPoints()
 
 void ABurrowerEnemy::TimelineSurfacingMovement(float Value)
 {
-	UpdateBurrowerState(EBurrowerVisibilityState::Surfacing);
 	FVector StartLocation = GetHidePosition();
 	GetMesh()->SetRelativeLocation(FMath::Lerp(StartLocation, StartLocation +
 		(FVector::UpVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2)), Value));
@@ -359,7 +358,6 @@ void ABurrowerEnemy::TimelineSurfacingFinished()
 
 void ABurrowerEnemy::TimelineHideMovement(float Value) 
 {
-	UpdateBurrowerState(EBurrowerVisibilityState::Hiding);
 	GetMesh()->SetRelativeLocation(FMath::Lerp(CachedMeshRelativeLocation, CachedMeshRelativeLocation +
 		(FVector::DownVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2)), Value));
 	UpdateLocalVisibilityState(EBurrowerVisibilityState::Hiding);
@@ -367,12 +365,11 @@ void ABurrowerEnemy::TimelineHideMovement(float Value)
 
 void ABurrowerEnemy::TimelineHideFinished()
 {
-	UpdateBurrowerState(EBurrowerVisibilityState::Hidden);
+	SetVisibility(true);
 	HidingFinished.ExecuteIfBound();
 	HealthComponent->RemoveMark();
 	GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
 	BP_HidingEnded_CLI();
-	SetVisibility(true);
 	UnsubscribeToSpawnLocation();
 	UpdateLocalVisibilityState(EBurrowerVisibilityState::Hidden);
 }
