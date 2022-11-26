@@ -29,8 +29,15 @@ void AHunterEnemy::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	// Slow movement if close to target and target is marked
-	bool bMovementUpdated = false;
+	CalculateWalkSpeed();
+}
+
+void AHunterEnemy::CalculateWalkSpeed()
+{
+	float MovementSpeed = RunningMaxWalkSpeed;
+	if (GetIsAttacking()) MovementSpeed = AttackMaxWalkSpeed;
+
+	// SLow movement if close to player
 	if (IsTargetMarked())
 	{
 		if (AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(GetController()))
@@ -41,26 +48,17 @@ void AHunterEnemy::Tick(float DeltaSeconds)
 				if (DistToTarget < DistToMarkedPlayerToSlowDown)
 				{
 					float PercentOfSlow = DistToTarget / DistToMarkedPlayerToSlowDown;
-					bMovementUpdated = true;
-					GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed * (MaxSlowAlterWhenCloseToPlayer - (1 - MaxSlowAlterWhenCloseToPlayer * PercentOfSlow));
+					MovementSpeed *= (MaxSlowAlterWhenCloseToPlayer - (1 - MaxSlowAlterWhenCloseToPlayer * PercentOfSlow));
 				}
 			}
 		}
 	}
-	
-	// To make sure it doesn't get stuck on slow speed
-	if (!bMovementUpdated)
-	{
-		GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed;
-	}
+	GetCharacterMovement()->MaxWalkSpeed = MovementSpeed;
 }
 
 void AHunterEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	CachedRunningSpeed = GetCharacterMovement()->MaxWalkSpeed;
-	GetCharacterMovement()->MaxWalkSpeed = bCharged ? CachedRunningSpeed : CachedRunningSpeed * MovementSpeedAlteredDuringNotCharged;
 
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
@@ -190,8 +188,6 @@ void AHunterEnemy::SetCharged()
 	bCharged = true;
 	BP_ChargedStarted();
 
-	GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed;
-
 	World->GetTimerManager().ClearTimer(ChargedCooldownTimerHandle);
 	if (ChargedDuration != 0)
 	{
@@ -203,8 +199,6 @@ void AHunterEnemy::SetNotCharged()
 {
 	UWorld* World = GetWorld();
 	if (!ensure(World)) return;
-
-	GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed * MovementSpeedAlteredDuringNotCharged;
 	
 	bCharged = false;
 	BP_ChargedEnded();
@@ -456,7 +450,7 @@ void AHunterEnemy::AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	if (Montage == ChargedJumpAnim || Montage == BasicAttackLeftAnimation || Montage == BasicAttackRightAnimation )
 	{
 		CurrAttack = EHunterAttacks::None;
-		GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed;
+		GetCharacterMovement()->MaxWalkSpeed = RunningMaxWalkSpeed;
 	}
 }
 

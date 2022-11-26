@@ -38,9 +38,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Movement)
 	float AttackMaxWalkSpeed = 450;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Movement)
-	float StalkingMaxWalkSpeed = 200;
  
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Movement)
 	float RunningMaxWalkSpeed = 600;
@@ -205,7 +202,6 @@ protected:
 	bool bDebugStunOnMark = false; 
 	
 	bool bChannelling = false;
-	float CachedRunningSpeed;
 
 	FTimerHandle ChargedCooldownTimerHandle;
 	FTimerHandle ChargedDurationTimerHandle;
@@ -294,5 +290,7 @@ protected:
 
 	UFUNCTION()
 	void TimelineInvisUpdate(float Value);
+
+	void CalculateWalkSpeed();
 };
 
