@@ -21,6 +21,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "BlindEyeUtils.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
+#include "Components/BoxComponent.h"
 #include "Enemies/Hunter/HunterEnemy.h"
 #include "Enemies/Hunter/HunterEnemyController.h"
 #include "Enemies/Burrower/BurrowerSpawnManager.h"
@@ -64,12 +65,7 @@ ABlindEyePlayerCharacter::ABlindEyePlayerCharacter(const FObjectInitializer& Obj
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
-
-	HealthbarVisibilityBounds = CreateDefaultSubobject<UStaticMeshComponent>("Healthbar Visibility Bounds");
-	HealthbarVisibilityBounds->SetupAttachment(FollowCamera);
-
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+	
 	AbilityManager = CreateDefaultSubobject<UAbilityManager>(TEXT("AbilityManager"));
 
 	IndicatorManagerComponent = CreateDefaultSubobject<UIndicatorManagerComponent>("IndicatorManager");
@@ -114,9 +110,6 @@ void ABlindEyePlayerCharacter::BeginPlay()
 		world->GetTimerManager().SetTimer(BirdRegenTimerHandle, this, &ABlindEyePlayerCharacter::RegenBirdMeter, RegenBirdMeterCallDelay, true);
 		world->GetTimerManager().SetTimer(HealthRegenTimerHandle, this, &ABlindEyePlayerCharacter::RegenHealth, RegenHealthCallDelay, true);
 	}
-
-	HealthbarVisibilityBounds->OnComponentBeginOverlap.AddDynamic(this, &ABlindEyePlayerCharacter::HealthbarBeginOverlap);
-	HealthbarVisibilityBounds->OnComponentEndOverlap.AddDynamic(this, &ABlindEyePlayerCharacter::HealthbarEndOverlap);
 
 	HealthComponent->MarkedAddedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::MULT_OnMarked);
 	HealthComponent->MarkedRemovedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::MULT_OnUnMarked);
