@@ -41,11 +41,19 @@ void ASnapperEnemy::Tick(float DeltaSeconds)
 		}
 	}
 
-	// if (bIsSpawning && !GetCharacterMovement()->IsFalling())
-	// {
-	// 	bIsSpawning = false;
-	// 	OnSpawnCollisionHelper();
-	// }
+	RotateWhileJumping(DeltaSeconds);
+}
+
+void ASnapperEnemy::RotateWhileJumping(float DeltaSeconds)
+{
+	if (GetCharacterMovement()->IsFalling())
+	{
+		FRotator TargetRotation = GetCharacterMovement()->Velocity.Rotation();
+		FRotator NewRotation = UKismetMathLibrary::RInterpTo(GetActorRotation(), TargetRotation, DeltaSeconds, JumpingBetweenIslandsRInterpSpeed);
+		NewRotation.Roll = 0;
+		NewRotation.Pitch = 0;
+		SetActorRotation(NewRotation);
+	}
 }
 
 void ASnapperEnemy::MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType,

@@ -29,6 +29,9 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	virtual void BeginPlay() override;
+
+	UPROPERTY(EditDefaultsOnly, Category=Movement)
+	float JumpingBetweenIslandsRInterpSpeed = 5.f;
  
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump Attack")
 	float JumpAttackDelay = 3.f;
@@ -166,6 +169,8 @@ protected:
 
 	void SetCanJumpAttack();
 	void SetCanBasicAttack();
+
+	void RotateWhileJumping(float DeltaSeconds);
 
 	void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const;
 	
