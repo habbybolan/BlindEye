@@ -117,7 +117,7 @@ void AHunterEnemy::PerformChargedJump()
 				
 				// If no environment blocking LOS, then perform jump
 				if (!UKismetSystemLibrary::LineTraceSingleForObjects(World, GetActorLocation(), JumpTargetLocation, ChargedJumpLOSBlockers, false,
-					ActorsToIgnore, EDrawDebugTrace::ForDuration, HitResult, true))
+					ActorsToIgnore, EDrawDebugTrace::None, HitResult, true))
 				{
 					CurrAttack = EHunterAttacks::ChargedJump;
 					bChargeAttackCooldown = true;
@@ -143,7 +143,7 @@ void AHunterEnemy::MULT_PerformChargedJumpHelper_Implementation(FVector StartLoc
 	ChargedJumpPeakHeight = UKismetMathLibrary::Max(ChargedJumpMaxPeakHeight *
 		((JumpDistance - MinDistanceToChargeJump) / (MaxDistanceToChargeJump - MinDistanceToChargeJump)), ChargedJumpMinPeakHeight);
 	
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Falling);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetWorldTimerManager().SetTimer(PerformingChargedJumpTimerHandle, this, &AHunterEnemy::PerformingJumpAttack, ChargedJumpCalcDelay, true);
 	GetWorldTimerManager().SetTimer(ChargedJumpRotationTimerHandle, this, &AHunterEnemy::RotateDuringChargedAttack, ChargedJumpCalcDelay, true);
@@ -152,7 +152,7 @@ void AHunterEnemy::MULT_PerformChargedJumpHelper_Implementation(FVector StartLoc
 void AHunterEnemy::PerformingJumpAttack()
 { 
 	FVector ForwardEase = UKismetMathLibrary::VEase(ChargedJumpStartLocation * FVector(1, 1, 0),
-		ChargedJumpTargetLocation* FVector(1, 1, 0), CurrTimeOfChargedJump / ChargedJumpDuration, EEasingFunc::Linear);
+		ChargedJumpTargetLocation* FVector(1, 1, 0), CurrTimeOfChargedJump / ChargedJumpDuration, EasingForwardMovementChargedJump);
 
 	FVector UpEase;
 	FVector HalfDirectionToTarget = (ChargedJumpTargetLocation - ChargedJumpStartLocation) / 2 + FVector::UpVector * ChargedJumpPeakHeight;
@@ -161,14 +161,14 @@ void AHunterEnemy::PerformingJumpAttack()
 	if (CurrTimeOfChargedJump / ChargedJumpDuration <= 0.5)
 	{
 		 UpEase = UKismetMathLibrary::VEase(ChargedJumpStartLocation * FVector::UpVector,
-			(ChargedJumpTargetLocation + HalfDirectionToTarget) * FVector::UpVector, CurrTimeOfChargedJump / HalfChargedAttackDuration, EEasingFunc::Linear);
+			(ChargedJumpTargetLocation + HalfDirectionToTarget) * FVector::UpVector, CurrTimeOfChargedJump / HalfChargedAttackDuration, EasingUpMovementChargedJump);
 	}
 	// Other latter half of jump, Go from Jump Z-Peak to end point Z
 	else
 	{
 		UpEase = UKismetMathLibrary::VEase((ChargedJumpTargetLocation + HalfDirectionToTarget) * FVector::UpVector,
 		   ChargedJumpTargetLocation * FVector::UpVector,
-		   (CurrTimeOfChargedJump - HalfChargedAttackDuration) / (ChargedJumpDuration - HalfChargedAttackDuration), EEasingFunc::Linear);
+		   (CurrTimeOfChargedJump - HalfChargedAttackDuration) / (ChargedJumpDuration - HalfChargedAttackDuration), EasingDownMovementChargedJump);
 	}
 
 	SetActorLocation(ForwardEase + UpEase);

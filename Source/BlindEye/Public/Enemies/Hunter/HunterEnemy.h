@@ -6,6 +6,7 @@
 #include "Shrine.h"
 #include "Components/TimelineComponent.h"
 #include "Enemies/BlindEyeEnemyBase.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "HunterEnemy.generated.h"
 
 class UTimelineComponent;
@@ -135,11 +136,20 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
 	float ChargedJumpRInterpSpeed = 5.f;
 
-	UPROPERTY(EditDefaultsOnly, Category=ChargedJump, meta=(ClampMin=0.01)) 
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump, meta=(ClampMin=0.0001)) 
 	float ChargedJumpCalcDelay = 0.02f;
  
 	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
 	TArray<TEnumAsByte<EObjectTypeQuery>> ChargedJumpLOSBlockers;
+	
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
+	TEnumAsByte<EEasingFunc::Type> EasingForwardMovementChargedJump;
+
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
+	TEnumAsByte<EEasingFunc::Type> EasingUpMovementChargedJump;
+	
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
+	TEnumAsByte<EEasingFunc::Type> EasingDownMovementChargedJump;
 
 	UPROPERTY(Replicated, ReplicatedUsing="OnRep_IsVisible", BlueprintReadOnly)
 	bool IsVisible = false;
