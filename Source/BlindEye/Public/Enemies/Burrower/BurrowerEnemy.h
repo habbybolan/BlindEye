@@ -191,7 +191,7 @@ protected:
 	TArray<FVector> GetSnapperSpawnPoints();
 
 	UPROPERTY()
-	TArray<ASnapperEnemy*> SnappersBeingSpawned;
+	TArray<TWeakObjectPtr<ASnapperEnemy>> SnappersBeingSpawned;
 
 	// UFUNCTION()
 	// void StartAttackAppearance();
