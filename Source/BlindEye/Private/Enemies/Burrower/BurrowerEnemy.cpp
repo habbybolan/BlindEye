@@ -23,9 +23,7 @@ ABurrowerEnemy::ABurrowerEnemy(const FObjectInitializer& ObjectInitializer)
 {
 	bReplicates = true;
 	SurfacingTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("SpawnTimeline"));
-	SurfacingTimelineComponent->SetIsReplicated(true);
 	HideTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("HideTimeline"));
-	HideTimelineComponent->SetIsReplicated(true);
 }
 
 void ABurrowerEnemy::BeginPlay()
@@ -72,13 +70,13 @@ void ABurrowerEnemy::SpawnMangerSetup(uint8 islandID, TScriptInterface<IBurrower
 
 void ABurrowerEnemy::StartSurfacing()
 {
+	GetMesh()->SetHiddenInGame(false);
 	GetCapsuleComponent()->SetCollisionObjectType(CachedCollisionObject);
-	MULT_StartSurfacingHelper();
+	StartSurfacingHelper();
 	PerformSurfacingDamage();
-	SetVisibility(false);
 }
 
-void ABurrowerEnemy::MULT_StartSurfacingHelper_Implementation()
+void ABurrowerEnemy::StartSurfacingHelper()
 {
 	SurfacingTimelineComponent->PlayFromStart();
 	BP_SurfacingStarted_CLI();
@@ -113,16 +111,16 @@ void ABurrowerEnemy::StartHiding()
 		float FullDistFromSurfacedToHiding = GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2;
 		float StartTime = (1 - (DistToHidingTarget / FullDistFromSurfacedToHiding)) * timelineLength;
 
-		MULT_StartHidingHelper(StartTime);
+		StartHidingHelper(StartTime);
 	}
 	// Fully surfaced, hid normally
 	else
 	{
-		MULT_StartHidingHelper(0);
+		StartHidingHelper(0);
 	}
 }
 
-void ABurrowerEnemy::MULT_StartHidingHelper_Implementation(float StartTime)
+void ABurrowerEnemy::StartHidingHelper(float StartTime)
 {
 	GetMesh()->GetAnimInstance()->StopAllMontages(.5);
 	// If currently surfacing, start hiding from current position
@@ -130,7 +128,6 @@ void ABurrowerEnemy::MULT_StartHidingHelper_Implementation(float StartTime)
 	{
 		// stop surfacing if it was surfacing
 		SurfacingTimelineComponent->Stop();
-		UpdateBurrowerState(EBurrowerVisibilityState::Hiding);
 
 		// Play from current position to target hide position
 		HideTimelineComponent->SetPlaybackPosition(StartTime, true);
@@ -189,13 +186,6 @@ FVector ABurrowerEnemy::GetWorldWarningParticleSpawnLocation()
 FVector ABurrowerEnemy::GetRelativeFollowParticleSpawnLocation()
 {
 	return FVector(0, 0, -GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
-}
-
-void ABurrowerEnemy::UpdateBurrowerState(EBurrowerVisibilityState NewState)
-{
-	EBurrowerVisibilityState OldState = VisibilityState;
-	VisibilityState = NewState;
-	OnRep_VisibilityState(OldState);
 }
 
 void ABurrowerEnemy::MULT_WarningStarted_Implementation()
@@ -265,17 +255,42 @@ void ABurrowerEnemy::NotifySpawningStopped()
 
 void ABurrowerEnemy::OnRep_VisibilityState(EBurrowerVisibilityState OldVisibilityState) 
 {
-	GetMesh()->SetHiddenInGame(VisibilityState == EBurrowerVisibilityState::Hidden);
 	// If changing from hidden to not hidden
-	if (OldVisibilityState == EBurrowerVisibilityState::Hidden && VisibilityState != EBurrowerVisibilityState::Hidden)
+	if (VisibilityState != EBurrowerVisibilityState::Hidden)
 	{
 		BP_FollowingEnd_CLI();
 	}
 	// If changing from not hidden to hidden
-	else if (OldVisibilityState != EBurrowerVisibilityState::Hidden && VisibilityState == EBurrowerVisibilityState::Hidden)
+	else if (VisibilityState == EBurrowerVisibilityState::Hidden)
 	{
 		BP_FollowingStart_CLI();
 	}
+
+	if (VisibilityState == EBurrowerVisibilityState::Hiding)
+	{
+		// stop current surfacing if currently surfacing
+		if (OldVisibilityState == EBurrowerVisibilityState::Surfacing)
+		{
+			SurfacingTimelineComponent->Stop();
+		}
+		StartHiding();
+	} else if (VisibilityState == EBurrowerVisibilityState::Surfacing)
+	{
+		// stop current Hiding if currently hiding
+		if (OldVisibilityState == EBurrowerVisibilityState::Hiding)
+		{
+			HideTimelineComponent->Stop();
+		}
+		StartSurfacing();
+	}	
+}
+
+void ABurrowerEnemy::UpdateBurrowerState(EBurrowerVisibilityState NewState)
+{
+	if (GetLocalRole() < ROLE_Authority) return;
+	EBurrowerVisibilityState OldState = VisibilityState;
+	VisibilityState = NewState;
+	OnRep_VisibilityState(OldState);
 }
 
 void ABurrowerEnemy::OnSnapperDeath(AActor* SnapperActor)
@@ -308,7 +323,6 @@ TArray<FVector> ABurrowerEnemy::GetSnapperSpawnPoints()
 
 void ABurrowerEnemy::TimelineSurfacingMovement(float Value)
 {
-	UpdateBurrowerState(EBurrowerVisibilityState::Surfacing);
 	FVector StartLocation = GetHidePosition();
 	GetMesh()->SetRelativeLocation(FMath::Lerp(StartLocation, StartLocation +
 		(FVector::UpVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2)), Value));
@@ -316,59 +330,31 @@ void ABurrowerEnemy::TimelineSurfacingMovement(float Value)
 
 void ABurrowerEnemy::TimelineSurfacingFinished()
 {
-	UpdateBurrowerState(EBurrowerVisibilityState::Surfaced);
 	SurfacingFinished.ExecuteIfBound();
 	BP_SurfacingEnded_CLI();
+
+	// update states
+	UpdateBurrowerState(EBurrowerVisibilityState::Surfaced);
 }
 
 void ABurrowerEnemy::TimelineHideMovement(float Value) 
 {
-	UpdateBurrowerState(EBurrowerVisibilityState::Hiding);
 	GetMesh()->SetRelativeLocation(FMath::Lerp(CachedMeshRelativeLocation, CachedMeshRelativeLocation +
 		(FVector::DownVector * (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2)), Value));
 }
 
 void ABurrowerEnemy::TimelineHideFinished()
 {
-	UpdateBurrowerState(EBurrowerVisibilityState::Hidden);
 	HidingFinished.ExecuteIfBound();
 	HealthComponent->RemoveMark();
 	GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
 	BP_HidingEnded_CLI();
-	SetVisibility(true);
-	UnsubscribeToSpawnLocation(); 
-}
- 
-void ABurrowerEnemy::SetVisibility(bool isHidden)
-{
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		// Prevent changing hiding state to same
-		if (isHidden && VisibilityState != EBurrowerVisibilityState::Hidden)
-		{
-			UpdateBurrowerState(EBurrowerVisibilityState::Surfacing);
-		
-		}  else if (!isHidden && VisibilityState == EBurrowerVisibilityState::Hidden)
-		{
-			UpdateBurrowerState(EBurrowerVisibilityState::Surfacing);
-		}
-	}
-}
+	UnsubscribeToSpawnLocation();
 
-// void ABurrowerEnemy::SetAppeared()
-// {
-// 	MULT_SetBurrowerState(false);
-// }
-//
-// void ABurrowerEnemy::SetDisappeared()
-// {
-// 	MULT_SetBurrowerState(true);
-// }
-//  
-// void ABurrowerEnemy::SetSurfacingHiding()
-// {
-// 	MULT_SetBurrowerState(false);
-// }
+	// update states
+	UpdateBurrowerState(EBurrowerVisibilityState::Hidden);
+	GetMesh()->SetHiddenInGame(true);
+}
 
 void ABurrowerEnemy::CancelHide()
 {

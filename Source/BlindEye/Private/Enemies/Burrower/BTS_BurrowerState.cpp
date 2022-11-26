@@ -26,7 +26,7 @@ void UBTS_BurrowerState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Node
 
 	BBComp->SetValueAsEnum(VisibilityStateKey.SelectedKeyName, (uint8)Burrower->GetVisibilityState());
 
-	// Check if attack state finished
+	// Check if attack state finished (All players left island and burrower hidden)
 	if (BurrowerController->IsHidden() &&
 		BBComp->GetValueAsEnum(StateKey.SelectedKeyName) == (uint8)EBurrowActionState::Attacking &&
 		BBComp->GetValueAsObject(EnemyActorKey.SelectedKeyName) == nullptr)
@@ -67,11 +67,6 @@ void UBTS_BurrowerState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Node
 			if (BBComp->GetValueAsObject(EnemyActorKey.SelectedKeyName))
 			{
 				BBComp->SetValueAsEnum(StateKey.SelectedKeyName, (uint8)EBurrowActionState::Attacking);
-			}
-			// Otherwise no player reference, so patrol
-			else
-			{
-				BBComp->SetValueAsEnum(StateKey.SelectedKeyName, (uint8)EBurrowActionState::Patrolling);
 			}
 		}
 	}

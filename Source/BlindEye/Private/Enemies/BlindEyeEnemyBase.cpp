@@ -49,8 +49,7 @@ void ABlindEyeEnemyBase::BeginPlay()
 		BlindEyeGS->SubscribeToEnemy(this);
 	}
 
-	// TODO: Start as false when fixed healthbar overlap issue
-	HealthBar->SetVisibility(true);
+	HealthBar->SetVisibility(false);
 }
 
 void ABlindEyeEnemyBase::DestroyEnemy()
@@ -66,8 +65,7 @@ void ABlindEyeEnemyBase::ApplyPulse(ABlindEyePlayerCharacter* PlayerEffectToAppl
 
 void ABlindEyeEnemyBase::SetHealthbarVisibility(bool IsVisible)
 {
-	// TODO: Make not permanent here
-	HealthBar->SetVisibility(true);
+	HealthBar->SetVisibility(IsVisible);
 }
 
 void ABlindEyeEnemyBase::MULT_PlayAnimMontage_Implementation(UAnimMontage* AnimToPlay)

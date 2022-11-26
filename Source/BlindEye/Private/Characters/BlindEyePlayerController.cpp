@@ -70,14 +70,6 @@ void ABlindEyePlayerController::SER_SpawnPlayer_Implementation()
 		{
 			CachedPawn->Destroy();
 		}
-		
-		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(GetWorld()));
-		BlindEyeGS->BlindEyePlayers.Add(OwningCharacter);
-		if (BlindEyeGS->BlindEyePlayers.Num() >= 2)
-		{
-			BlindEyeGS->BlindEyePlayers[0]->NotifyOfOtherPlayerExistance(BlindEyeGS->BlindEyePlayers[1]);
-			BlindEyeGS->BlindEyePlayers[1]->NotifyOfOtherPlayerExistance(BlindEyeGS->BlindEyePlayers[0]);
-		}
 	}
 }
 

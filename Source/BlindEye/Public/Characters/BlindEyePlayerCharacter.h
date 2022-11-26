@@ -21,6 +21,7 @@
 #include "Tutorial/TutorialBase.h"
 #include "BlindEyePlayerCharacter.generated.h"
 
+class UBoxComponent;
 class UChecklist;
 enum class TEAMS;
 enum class EAbilityTypes : uint8;
@@ -58,9 +59,6 @@ class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityU
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
-
-	UPROPERTY(EditDefaultsOnly)
-	UStaticMeshComponent* HealthbarVisibilityBounds;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UIndicatorManagerComponent* IndicatorManagerComponent;
@@ -297,10 +295,10 @@ public:
 	UFUNCTION(Client, Reliable)
 	void CLI_StartGame(); 
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void HealthbarBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void HealthbarEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	// Event for when another player died, called from GameState
@@ -318,7 +316,8 @@ public:
 	void NotifyOtherPlayerHunterMarked();
 	void NotifyOtherPlayerHunterUnMarked();
 
-	void NotifyOfOtherPlayerExistance(ABlindEyePlayerCharacter* NewPlayer);
+	UFUNCTION(Client, Reliable)
+	void CLI_NotifyOfOtherPlayerExistance(ABlindEyePlayerCharacter* NewPlayer);
 
 	virtual FVector GetIndicatorPosition() override;
 
