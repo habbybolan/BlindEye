@@ -66,7 +66,7 @@ public:
 	void RefreshAllCooldowns(float CooldownRefreshAmount);
 
 	UFUNCTION(BlueprintCallable)
-	void TryCancelCurrentAbility();
+	bool TryCancelCurrentAbility();
 
 protected:
 	// Called when the game starts

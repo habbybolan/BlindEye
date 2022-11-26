@@ -51,7 +51,7 @@ public:
 	virtual bool CancelState() override;
 };
 
-// Hanging in the air, waiting for input to launch to ground
+// On Hit ground state
 class BLINDEYE_API FHitGroundState : public FAbilityState
 { 
 public:

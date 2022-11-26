@@ -980,21 +980,21 @@ void ABlindEyePlayerCharacter::FellOutOfWorld(const UDamageType& dmgType)
 
 		AActor* ActorPlayerStart = UGameplayStatics::GetActorOfClass(world, APlayerStart::StaticClass());
 		SetActorLocation(ActorPlayerStart->GetActorLocation());
-
-		// TODO: Play animation and take damage
-		MULT_PlayAnimMontage(TeleportingBackToShrineAnim);
-
+		
 		// Apply damage
 		UGameplayStatics::ApplyPointDamage(this, DamageFallingOffMap, FVector::ZeroVector, FHitResult(),
 		GetController(), this, UDebugDamageType::StaticClass());
 
-		// Cancel current ability to prevent deadlocking
-		AbilityManager->TryCancelCurrentAbility();
-	}
-	if (GetPlayerState()) 
-	{
-		ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState());
-		BlindEyePS->bActionsBlocked = true;
+		// Only play animation if ability cancelled properly
+		if (AbilityManager->TryCancelCurrentAbility())
+		{
+			MULT_PlayAnimMontage(TeleportingBackToShrineAnim);
+			if (GetPlayerState()) 
+			{
+				ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState());
+				BlindEyePS->bActionsBlocked = true;
+			}
+		}
 	}
 }
 
