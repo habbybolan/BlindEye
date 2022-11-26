@@ -30,7 +30,7 @@ class BLINDEYE_API AHunterEnemy : public ABlindEyeEnemyBase
 public:
 
 	AHunterEnemy(const FObjectInitializer& ObjectInitializer);
-
+	
 	virtual void Tick(float DeltaSeconds) override;
 
 	virtual void BeginPlay() override;
@@ -41,6 +41,9 @@ public:
  
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Movement)
 	float RunningMaxWalkSpeed = 600;
+
+	UPROPERTY(EditDefaultsOnly, Category=Movement)  
+	float JumpingBetweenIslandsRInterpSpeed = 5.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Channelling)
 	float ChannellingDuration = 5.f;
@@ -292,5 +295,6 @@ protected:
 	void TimelineInvisUpdate(float Value);
 
 	void CalculateWalkSpeed();
+	void RotateWhileJumping(float DeltaSeconds);
 };
 

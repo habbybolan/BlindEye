@@ -30,6 +30,7 @@ void AHunterEnemy::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	CalculateWalkSpeed();
+	RotateWhileJumping(DeltaSeconds);
 }
 
 void AHunterEnemy::CalculateWalkSpeed()
@@ -54,6 +55,18 @@ void AHunterEnemy::CalculateWalkSpeed()
 		}
 	}
 	GetCharacterMovement()->MaxWalkSpeed = MovementSpeed;
+}
+
+void AHunterEnemy::RotateWhileJumping(float DeltaSeconds)
+{
+	if (GetCharacterMovement()->IsFalling())
+	{
+		FRotator TargetRotation = GetCharacterMovement()->Velocity.Rotation();
+		FRotator NewRotation = UKismetMathLibrary::RInterpTo(GetActorRotation(), TargetRotation, DeltaSeconds, JumpingBetweenIslandsRInterpSpeed);
+		NewRotation.Roll = 0;
+		NewRotation.Pitch = 0;
+		SetActorRotation(NewRotation);
+	}
 }
 
 void AHunterEnemy::BeginPlay()
