@@ -6,6 +6,7 @@
 #include "Shrine.h"
 #include "Components/TimelineComponent.h"
 #include "Enemies/BlindEyeEnemyBase.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "HunterEnemy.generated.h"
 
 class UTimelineComponent;
@@ -30,7 +31,7 @@ class BLINDEYE_API AHunterEnemy : public ABlindEyeEnemyBase
 public:
 
 	AHunterEnemy(const FObjectInitializer& ObjectInitializer);
-
+	
 	virtual void Tick(float DeltaSeconds) override;
 
 	virtual void BeginPlay() override;
@@ -38,12 +39,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Movement)
 	float AttackMaxWalkSpeed = 450;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Movement)
-	float StalkingMaxWalkSpeed = 200;
  
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Movement)
 	float RunningMaxWalkSpeed = 600;
+
+	UPROPERTY(EditDefaultsOnly, Category=Movement)  
+	float JumpingBetweenIslandsRInterpSpeed = 5.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Channelling)
 	float ChannellingDuration = 5.f;
@@ -135,11 +136,20 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
 	float ChargedJumpRInterpSpeed = 5.f;
 
-	UPROPERTY(EditDefaultsOnly, Category=ChargedJump, meta=(ClampMin=0.01)) 
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump, meta=(ClampMin=0.0001)) 
 	float ChargedJumpCalcDelay = 0.02f;
  
 	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
 	TArray<TEnumAsByte<EObjectTypeQuery>> ChargedJumpLOSBlockers;
+	
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
+	TEnumAsByte<EEasingFunc::Type> EasingForwardMovementChargedJump;
+
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
+	TEnumAsByte<EEasingFunc::Type> EasingUpMovementChargedJump;
+	
+	UPROPERTY(EditDefaultsOnly, Category=ChargedJump) 
+	TEnumAsByte<EEasingFunc::Type> EasingDownMovementChargedJump;
 
 	UPROPERTY(Replicated, ReplicatedUsing="OnRep_IsVisible", BlueprintReadOnly)
 	bool IsVisible = false;
@@ -205,7 +215,6 @@ protected:
 	bool bDebugStunOnMark = false; 
 	
 	bool bChannelling = false;
-	float CachedRunningSpeed;
 
 	FTimerHandle ChargedCooldownTimerHandle;
 	FTimerHandle ChargedDurationTimerHandle;
@@ -294,5 +303,8 @@ protected:
 
 	UFUNCTION()
 	void TimelineInvisUpdate(float Value);
+
+	void CalculateWalkSpeed();
+	void RotateWhileJumping(float DeltaSeconds);
 };
 

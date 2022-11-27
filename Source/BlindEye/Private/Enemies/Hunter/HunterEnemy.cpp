@@ -29,8 +29,16 @@ void AHunterEnemy::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	// Slow movement if close to target and target is marked
-	bool bMovementUpdated = false;
+	CalculateWalkSpeed();
+	RotateWhileJumping(DeltaSeconds);
+}
+
+void AHunterEnemy::CalculateWalkSpeed()
+{
+	float MovementSpeed = RunningMaxWalkSpeed;
+	if (GetIsAttacking()) MovementSpeed = AttackMaxWalkSpeed;
+
+	// SLow movement if close to player
 	if (IsTargetMarked())
 	{
 		if (AHunterEnemyController* HunterController = Cast<AHunterEnemyController>(GetController()))
@@ -41,26 +49,29 @@ void AHunterEnemy::Tick(float DeltaSeconds)
 				if (DistToTarget < DistToMarkedPlayerToSlowDown)
 				{
 					float PercentOfSlow = DistToTarget / DistToMarkedPlayerToSlowDown;
-					bMovementUpdated = true;
-					GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed * (MaxSlowAlterWhenCloseToPlayer - (1 - MaxSlowAlterWhenCloseToPlayer * PercentOfSlow));
+					MovementSpeed *= (MaxSlowAlterWhenCloseToPlayer - (1 - MaxSlowAlterWhenCloseToPlayer * PercentOfSlow));
 				}
 			}
 		}
 	}
-	
-	// To make sure it doesn't get stuck on slow speed
-	if (!bMovementUpdated)
+	GetCharacterMovement()->MaxWalkSpeed = MovementSpeed;
+}
+
+void AHunterEnemy::RotateWhileJumping(float DeltaSeconds)
+{
+	if (GetCharacterMovement()->IsFalling())
 	{
-		GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed;
+		FRotator TargetRotation = GetCharacterMovement()->Velocity.Rotation();
+		FRotator NewRotation = UKismetMathLibrary::RInterpTo(GetActorRotation(), TargetRotation, DeltaSeconds, JumpingBetweenIslandsRInterpSpeed);
+		NewRotation.Roll = 0;
+		NewRotation.Pitch = 0;
+		SetActorRotation(NewRotation);
 	}
 }
 
 void AHunterEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	CachedRunningSpeed = GetCharacterMovement()->MaxWalkSpeed;
-	GetCharacterMovement()->MaxWalkSpeed = bCharged ? CachedRunningSpeed : CachedRunningSpeed * MovementSpeedAlteredDuringNotCharged;
 
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
@@ -106,7 +117,7 @@ void AHunterEnemy::PerformChargedJump()
 				
 				// If no environment blocking LOS, then perform jump
 				if (!UKismetSystemLibrary::LineTraceSingleForObjects(World, GetActorLocation(), JumpTargetLocation, ChargedJumpLOSBlockers, false,
-					ActorsToIgnore, EDrawDebugTrace::ForDuration, HitResult, true))
+					ActorsToIgnore, EDrawDebugTrace::None, HitResult, true))
 				{
 					CurrAttack = EHunterAttacks::ChargedJump;
 					bChargeAttackCooldown = true;
@@ -132,7 +143,7 @@ void AHunterEnemy::MULT_PerformChargedJumpHelper_Implementation(FVector StartLoc
 	ChargedJumpPeakHeight = UKismetMathLibrary::Max(ChargedJumpMaxPeakHeight *
 		((JumpDistance - MinDistanceToChargeJump) / (MaxDistanceToChargeJump - MinDistanceToChargeJump)), ChargedJumpMinPeakHeight);
 	
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Falling);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetWorldTimerManager().SetTimer(PerformingChargedJumpTimerHandle, this, &AHunterEnemy::PerformingJumpAttack, ChargedJumpCalcDelay, true);
 	GetWorldTimerManager().SetTimer(ChargedJumpRotationTimerHandle, this, &AHunterEnemy::RotateDuringChargedAttack, ChargedJumpCalcDelay, true);
@@ -141,7 +152,7 @@ void AHunterEnemy::MULT_PerformChargedJumpHelper_Implementation(FVector StartLoc
 void AHunterEnemy::PerformingJumpAttack()
 { 
 	FVector ForwardEase = UKismetMathLibrary::VEase(ChargedJumpStartLocation * FVector(1, 1, 0),
-		ChargedJumpTargetLocation* FVector(1, 1, 0), CurrTimeOfChargedJump / ChargedJumpDuration, EEasingFunc::Linear);
+		ChargedJumpTargetLocation* FVector(1, 1, 0), CurrTimeOfChargedJump / ChargedJumpDuration, EasingForwardMovementChargedJump);
 
 	FVector UpEase;
 	FVector HalfDirectionToTarget = (ChargedJumpTargetLocation - ChargedJumpStartLocation) / 2 + FVector::UpVector * ChargedJumpPeakHeight;
@@ -150,14 +161,14 @@ void AHunterEnemy::PerformingJumpAttack()
 	if (CurrTimeOfChargedJump / ChargedJumpDuration <= 0.5)
 	{
 		 UpEase = UKismetMathLibrary::VEase(ChargedJumpStartLocation * FVector::UpVector,
-			(ChargedJumpTargetLocation + HalfDirectionToTarget) * FVector::UpVector, CurrTimeOfChargedJump / HalfChargedAttackDuration, EEasingFunc::Linear);
+			(ChargedJumpTargetLocation + HalfDirectionToTarget) * FVector::UpVector, CurrTimeOfChargedJump / HalfChargedAttackDuration, EasingUpMovementChargedJump);
 	}
 	// Other latter half of jump, Go from Jump Z-Peak to end point Z
 	else
 	{
 		UpEase = UKismetMathLibrary::VEase((ChargedJumpTargetLocation + HalfDirectionToTarget) * FVector::UpVector,
 		   ChargedJumpTargetLocation * FVector::UpVector,
-		   (CurrTimeOfChargedJump - HalfChargedAttackDuration) / (ChargedJumpDuration - HalfChargedAttackDuration), EEasingFunc::Linear);
+		   (CurrTimeOfChargedJump - HalfChargedAttackDuration) / (ChargedJumpDuration - HalfChargedAttackDuration), EasingDownMovementChargedJump);
 	}
 
 	SetActorLocation(ForwardEase + UpEase);
@@ -190,8 +201,6 @@ void AHunterEnemy::SetCharged()
 	bCharged = true;
 	BP_ChargedStarted();
 
-	GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed;
-
 	World->GetTimerManager().ClearTimer(ChargedCooldownTimerHandle);
 	if (ChargedDuration != 0)
 	{
@@ -203,8 +212,6 @@ void AHunterEnemy::SetNotCharged()
 {
 	UWorld* World = GetWorld();
 	if (!ensure(World)) return;
-
-	GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed * MovementSpeedAlteredDuringNotCharged;
 	
 	bCharged = false;
 	BP_ChargedEnded();
@@ -456,7 +463,7 @@ void AHunterEnemy::AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	if (Montage == ChargedJumpAnim || Montage == BasicAttackLeftAnimation || Montage == BasicAttackRightAnimation )
 	{
 		CurrAttack = EHunterAttacks::None;
-		GetCharacterMovement()->MaxWalkSpeed = CachedRunningSpeed;
+		GetCharacterMovement()->MaxWalkSpeed = RunningMaxWalkSpeed;
 	}
 }
 
