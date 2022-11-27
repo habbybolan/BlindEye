@@ -91,6 +91,7 @@ void UBlindEyeGameInstance::OnCreateSessionComplete(FName SessionName, bool Succ
 	if (!Success)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[UBlindEyeGameInstance::OnCreateSessionComplete] UNSUCESS"));
+		LobbyScreenBase->LoadingFailed("Failed to Create a session");
 		return;
 	}
 
@@ -116,9 +117,9 @@ void UBlindEyeGameInstance::OnCreateSessionComplete(FName SessionName, bool Succ
 
 	bIsHost = true;
 	//bUseSeamlessTravel = true;
+	LobbyScreenBase->LoadingSucceeded();
 	World->ServerTravel("/Game/Maps/CharacterSelectMap?listen");
 }
-
 
 void UBlindEyeGameInstance::JoinSession(uint32 Index)
 {
@@ -244,6 +245,7 @@ void UBlindEyeGameInstance::CreateSession()
 		SessionSettings.Set(SERVER_NAME_SETTINGS_KEY, JoinedSessionName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
 		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings);
+		LobbyScreenBase->LoadingStarted();
 	}
 }
 
