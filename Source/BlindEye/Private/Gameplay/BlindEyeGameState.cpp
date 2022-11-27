@@ -376,6 +376,26 @@ void ABlindEyeGameState::GetShrineReference()
 	}
 }
 
+void ABlindEyeGameState::SER_TeleportPlayersForBurrowerTutorials_Implementation()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	// Get Tutorial teleport points for burrower/snapper intro cutscene
+	TArray<AActor*> OutActors;
+	UGameplayStatics::GetAllActorsOfClass(World, APlayerStartingCutscenePosition::StaticClass(),OutActors);
+	check(OutActors.Num() >= 2);
+	uint8 SpawnPointIndex = 0;
+
+	// Apply position to all players
+	for (APlayerState* PlayerState : PlayerArray)
+	{
+		APawn* PlayerPawn = PlayerState->GetPawn();
+		PlayerPawn->SetActorTransform(OutActors[SpawnPointIndex]->GetTransform());
+		SpawnPointIndex++;
+	}
+}
+
 void ABlindEyeGameState::OnMarkAdded(AActor* MarkedActor, EMarkerType MarkerType)
 {
 	// TODO:
