@@ -25,6 +25,11 @@ void UCharacterSelectScreen::SetSessionMenuInterface(TScriptInterface<ISessionMe
 	LobbyNameText->SetText(FText::FromString(SessionMenuInterface->GetLobbyName()));
 }
 
+void UCharacterSelectScreen::FadeIntoBlack(float Duration)
+{
+	BP_FadeIntoBlack(Duration);
+}
+
 void UCharacterSelectScreen::TryReady()
 {
 	ACharacterSelectPlayerController* PlayerController = Cast<ACharacterSelectPlayerController>(GetOwningPlayer());
@@ -34,4 +39,10 @@ void UCharacterSelectScreen::TryReady()
 void UCharacterSelectScreen::LeaveCharacterSelect()
 {
 	SessionMenuInterface->EndSession();
+}
+
+void UCharacterSelectScreen::NotifyPlayersInSessionUpdated(uint8 NumPlayers)
+{
+	FString Text = "In Lobby " + FString::FromInt(NumPlayers) + "/2";
+	NumPlayersInLobbyText->SetText(FText::FromString(Text));
 }

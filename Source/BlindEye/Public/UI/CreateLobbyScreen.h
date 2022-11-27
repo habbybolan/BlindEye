@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "LoadingIcon.h"
 #include "Components/CheckBox.h"
 #include "Components/EditableText.h"
 #include "UI/LobbyScreenBase.h"
@@ -27,7 +28,14 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UEditableText* LobbyNameEditText;
 
+	UPROPERTY(meta = (BindWidget))
+	ULoadingIcon* LoadingIcon;
+	
 	virtual bool Initialize() override;
+
+	virtual void LoadingStarted() override;
+	virtual void LoadingFailed(FString Message) override;
+	virtual void LoadingSucceeded() override;
 
 protected:
 

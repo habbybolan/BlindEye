@@ -39,8 +39,11 @@ class BLINDEYE_API ACharacterSelectModel : public ACharacter
 public:	
 	ACharacterSelectModel();
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(Replicated, ReplicatedUsing="OnRep_bIsReady", BlueprintReadOnly)
 	bool bIsReady = false;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsSelected = false;
 
 	UPROPERTY(EditDefaultsOnly)
 	UCharacterSelectBox* BoxSelection;
@@ -55,10 +58,15 @@ public:
 
 	void UnSelectCharacter();
 
+	void SetIsSelectedPlayerReady(bool IsReady);
+
 protected:
 
 	FCharacterSelectedInfo CharacterSelectInfo;
 
+	UFUNCTION()
+	void OnRep_bIsReady();
+	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 };

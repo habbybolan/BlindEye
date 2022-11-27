@@ -34,6 +34,11 @@ void UBlindEyeGameInstance::LoadCharacterSelect()
 	CharacterSelectScreenBase = CreateWidget<UCharacterSelectScreen>(this, CharacterSelectType);
 	CharacterSelectScreenBase->AddToViewport();
 	CharacterSelectScreenBase->SetSessionMenuInterface(this);
+	
+	if (bIsHost)
+		CharacterSelectScreenBase->NotifyPlayersInSessionUpdated(1);
+	else
+		CharacterSelectScreenBase->NotifyPlayersInSessionUpdated(2);
 }
 
 void UBlindEyeGameInstance::Init()
@@ -45,7 +50,6 @@ void UBlindEyeGameInstance::Init()
 	SessionInterface = SubSystem->GetSessionInterface();
 	if (SessionInterface.IsValid()) 
 	{
-		// Subscribe to minimum events to handling sessions
 		SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UBlindEyeGameInstance::OnCreateSessionComplete);
 		SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UBlindEyeGameInstance::OnDestroySessionComplete);
 		SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UBlindEyeGameInstance::OnFindSessionsComplete);     
@@ -91,6 +95,7 @@ void UBlindEyeGameInstance::OnCreateSessionComplete(FName SessionName, bool Succ
 	if (!Success)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[UBlindEyeGameInstance::OnCreateSessionComplete] UNSUCESS"));
+		LobbyScreenBase->LoadingFailed("Failed to Create a session");
 		return;
 	}
 
@@ -103,22 +108,18 @@ void UBlindEyeGameInstance::OnCreateSessionComplete(FName SessionName, bool Succ
 	}
 
 	UEngine* Engine = GetEngine();
-
 	if (Engine == nullptr) return;
-
-	Engine->AddOnScreenDebugMessage(0, 2, FColor::Green, TEXT("[OnCreateSessionComplete::Host]"));
-
+	
 	UE_LOG(LogTemp, Warning, TEXT("[OnCreateSessionComplete::OnCreateSessionComplete] HOST TRAVEL TO LOBBY"));
 
 	UWorld* World = GetWorld();
-
 	if (World == nullptr) return;
 
 	bIsHost = true;
 	//bUseSeamlessTravel = true;
+	LobbyScreenBase->LoadingSucceeded();
 	World->ServerTravel("/Game/Maps/CharacterSelectMap?listen");
 }
-
 
 void UBlindEyeGameInstance::JoinSession(uint32 Index)
 {
@@ -130,6 +131,10 @@ void UBlindEyeGameInstance::JoinSession(uint32 Index)
 		UE_LOG(LogTemp, Warning, TEXT("[BlindEyeGameInstance::JoinSession] Joining a session"));
 		SessionSearch->SearchResults[Index].Session.SessionSettings.Get(SERVER_NAME_SETTINGS_KEY, JoinedSessionName);
 		SessionInterface->JoinSession(0, SESSION_NAME, SessionSearch->SearchResults[Index]);
+		LobbyScreenBase->LoadingStarted();
+	} else
+	{
+		LobbyScreenBase->LoadingFailed("No Sessions to join");
 	}
 }
 
@@ -152,6 +157,7 @@ void UBlindEyeGameInstance::RefreshSessionList()
 		SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true,
 								  EOnlineComparisonOp::Equals);
 		SessionInterface->FindSessions(0,SessionSearch.ToSharedRef());
+		LobbyScreenBase->LoadingStarted();
 	}
 }
 
@@ -182,6 +188,10 @@ void UBlindEyeGameInstance::OnFindSessionsComplete(bool Success)
 			// Send the information back to the menu
 			LobbyScreenBase->InitializeSessionList(ServerData);
 		}
+		LobbyScreenBase->LoadingSucceeded();
+	} else
+	{
+		LobbyScreenBase->LoadingFailed("Failed to search for sessions");
 	}
 }
 
@@ -197,6 +207,7 @@ void UBlindEyeGameInstance::OnJoinSessionsComplete(FName SessionName, EOnJoinSes
 	// The player controller travels to that url on that specific session
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
 	bIsHost = false;
+	LobbyScreenBase->LoadingSucceeded();
 	PlayerController->ClientTravel(Url, ETravelType::TRAVEL_Absolute);
 }
 
@@ -234,6 +245,7 @@ void UBlindEyeGameInstance::CreateSession()
 		SessionSettings.Set(SERVER_NAME_SETTINGS_KEY, JoinedSessionName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
 		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings);
+		LobbyScreenBase->LoadingStarted();
 	}
 }
 
@@ -271,4 +283,28 @@ EPlayerType UBlindEyeGameInstance::GetPlayerType(APlayerState* PlayerState)
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Green, "[UBlindEyeGameInstance::GetPlayerType] ID " + PlayerID);
 	if (CrowPlayerID == PlayerID) return EPlayerType::CrowPlayer;
 	else return EPlayerType::PhoenixPlayer;
+}
+
+void UBlindEyeGameInstance::OnPlayerChanged(bool bJoined)
+{
+	if (CharacterSelectScreenBase == nullptr) return;
+	// notify host that other player joined
+	if (bJoined)
+		CharacterSelectScreenBase->NotifyPlayersInSessionUpdated(2);
+	else
+		CharacterSelectScreenBase->NotifyPlayersInSessionUpdated(1);
+}
+
+void UBlindEyeGameInstance::AddLoadingScreen()
+{
+	UUserWidget* Widget =  CreateWidget(this, LoadingScreenType);
+	Widget->AddToViewport();
+}
+
+void UBlindEyeGameInstance::CharacterSelectFadeIntoBlack(float Duration)
+{
+	if (CharacterSelectScreenBase != nullptr)
+	{
+		CharacterSelectScreenBase->FadeIntoBlack(Duration);
+	}
 }

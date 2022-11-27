@@ -37,6 +37,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void LoadCharacterSelect();
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UUserWidget> LoadingScreenType;
+
 	IOnlineSessionPtr SessionInterface;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -84,6 +87,12 @@ public:
 	bool bIsHost = false;
 
 	FOnDestroySessionCompleteDelegate DestroyDelegate;
+
+	void OnPlayerChanged(bool bJoined);
+
+	void AddLoadingScreen();
+
+	void CharacterSelectFadeIntoBlack(float Duration);
 
 protected:
  

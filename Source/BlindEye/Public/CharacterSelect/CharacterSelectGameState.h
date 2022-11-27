@@ -26,6 +26,9 @@ public:
 	UPROPERTY(Replicated, ReplicatedUsing="OnRep_CrowPlayerSelected")
 	ACharacterSelectPlayerState* CrowPlayer = nullptr;
 
+	UPROPERTY(EditDefaultsOnly)
+	float DelayToEnterGame = 3.f;
+
 	// Local player trying to select a specific character
 	void PlayerTrySelect(EPlayerType PlayerType, ACharacterSelectPlayerController* LocalPlayer);
 
@@ -34,6 +37,8 @@ public:
 	void SER_PlayerTryReady(ACharacterSelectPlayerController* LocalPlayer);
 	
 	bool IsAllPlayersReady();
+
+	void OnPlayerChanged(bool bJoined, AController* ChangedController);
 	
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -43,9 +48,16 @@ protected:
 	UFUNCTION()
 	void OnRep_CrowPlayerSelected();
 	void PlayerSelected(EPlayerType PlayerType, APlayerState* PlayerThatSelected);
+	void PlayerReadyStateChanged(EPlayerType PlayerType, bool bReady);
 
 	void TrySelectHelper(EPlayerType PlayerType, APlayerState* PlayerThatActioned);
 	bool IsPlayerSelectedCharacter(APlayerState* Player);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_JoiningGame();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_StartEnterGameFade();
 
 	UPROPERTY()
 	ACharacterSelectModel* CrowModel;
@@ -53,4 +65,12 @@ protected:
 	ACharacterSelectModel* PhoenixModel; 
 
 	ACharacterSelectPlayerController* GetOwnerPlayerController();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_OnPlayerChanged(bool bJoined, AController* ChangedController);
+
+	bool bDelayLoad = false;
+	FTimerHandle EnterGameDelayTimerHandle;
+	UFUNCTION()
+	void EnterGame();
 };

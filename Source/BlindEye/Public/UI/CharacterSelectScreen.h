@@ -26,13 +26,18 @@ public:
 	UTextBlock* LobbyNameText;
 
 	UPROPERTY(meta=(BindWidget))
+	UTextBlock* NumPlayersInLobbyText;
+
+	UPROPERTY(meta=(BindWidget))
 	UButton* LeaveLobbyButton;
+
+	void NotifyPlayersInSessionUpdated(uint8 NumPlayers);
 
 	virtual bool Initialize() override;
 
 	void SetSessionMenuInterface(TScriptInterface<ISessionMenuInterface> SessionMenuInterface);
 
-	
+	void FadeIntoBlack(float Duration);
 
 protected:
 
@@ -44,4 +49,7 @@ protected:
 
 	UPROPERTY()
 	TScriptInterface<ISessionMenuInterface> SessionMenuInterface;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_FadeIntoBlack(float Duration);
 };

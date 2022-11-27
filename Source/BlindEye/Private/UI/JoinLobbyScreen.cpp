@@ -6,6 +6,7 @@
 #include "Components/Button.h"
 #include "Components/ScrollBox.h"
 #include "Interfaces/SessionMenuInterface.h"
+#include "UI/LoadingIcon.h"
 #include "UI/SessionRow.h"
 
 bool UJoinLobbyScreen::Initialize()
@@ -19,6 +20,23 @@ bool UJoinLobbyScreen::Initialize()
 	return true;
 }
 
+void UJoinLobbyScreen::LoadingStarted()
+{
+	LoadingIcon->PlayLoadingIcon();
+}
+
+void UJoinLobbyScreen::LoadingFailed(FString Message)
+{
+	LoadingIcon->StopLoadingIcon();
+	// TODO:
+}
+
+void UJoinLobbyScreen::LoadingSucceeded()
+{
+	LoadingIcon->StopLoadingIcon();
+	// TODO:
+}
+
 void UJoinLobbyScreen::InitializeSessionList(TArray<FServerData> ServerDataList)
 {
 	UE_LOG(LogTemp, Warning, TEXT("[UMainMenu::InitializeSessionsList] %i"), ServerDataList.Num());
@@ -26,6 +44,8 @@ void UJoinLobbyScreen::InitializeSessionList(TArray<FServerData> ServerDataList)
 
 	UWorld* World = this->GetWorld();
 	if (World == nullptr) return;
+
+	NumSessionsText->SetText(FText::FromString(FString::FromInt(ServerDataList.Num())));
 
 	ScrollSessionList->ClearChildren();
 	uint32 IndexRow = 0;

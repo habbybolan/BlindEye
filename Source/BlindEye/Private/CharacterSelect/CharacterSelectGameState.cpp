@@ -6,6 +6,7 @@
 #include "CharacterSelect/CharacterSelectPlayerController.h"
 #include "GameFramework/PlayerState.h"
 #include "Gameplay/BlindEyeGameInstance.h"
+#include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
@@ -29,6 +30,12 @@ void ACharacterSelectGameState::PlayerSelected(EPlayerType PlayerType, APlayerSt
 	{
 		CharacterSelectModelSelected->SelectCharacter(PlayerThatSelected->GetPlayerName());
 	}
+}
+
+void ACharacterSelectGameState::PlayerReadyStateChanged(EPlayerType PlayerType, bool bReady)
+{
+	ACharacterSelectModel* CharacterSelectModelSelected = PlayerType == EPlayerType::CrowPlayer ? CrowModel : PhoenixModel;
+	CharacterSelectModelSelected->SetIsSelectedPlayerReady(bReady);
 }
 
 ACharacterSelectPlayerController* ACharacterSelectGameState::GetOwnerPlayerController()
@@ -85,6 +92,14 @@ void ACharacterSelectGameState::TrySelectHelper(EPlayerType PlayerType, APlayerS
 	// Unselecting character
 	if (*PlayerReferenceToSelectedCharacter == PlayerThatActioned)
 	{
+		// unready player if readied
+		ACharacterSelectPlayerState* CharacterSelectPS = Cast<ACharacterSelectPlayerState>(PlayerThatActioned);
+		if (CharacterSelectPS->GetIsReady())
+		{
+			CharacterSelectPS->FlipReadyState();
+			PlayerReadyStateChanged(PlayerType, false);
+		}
+		
 		*PlayerReferenceToSelectedCharacter = nullptr;
 		PlayerSelected(PlayerType, nullptr);
 	}
@@ -105,8 +120,14 @@ void ACharacterSelectGameState::SER_PlayerTryReady_Implementation(ACharacterSele
 		if (IsPlayerSelectedCharacter(PlayerReadied->PlayerState))
 		{
 			ACharacterSelectPlayerState* CharacterSelectPS = Cast<ACharacterSelectPlayerState>(PlayerReadied->PlayerState);
-			CharacterSelectPS->bReady = true;
-			bPlayerReadied = true;
+			// Check if valid action
+			if (PhoenixPlayer == CharacterSelectPS || CrowPlayer == CharacterSelectPS)
+			{
+				EPlayerType SelectedCharacter = PhoenixPlayer == CharacterSelectPS ? EPlayerType::PhoenixPlayer : EPlayerType::CrowPlayer;
+				CharacterSelectPS->FlipReadyState();
+				bPlayerReadied = CharacterSelectPS->GetIsReady();
+				PlayerReadyStateChanged(SelectedCharacter, CharacterSelectPS->GetIsReady());
+			}
 		}
 	}
 
@@ -117,9 +138,14 @@ void ACharacterSelectGameState::SER_PlayerTryReady_Implementation(ACharacterSele
 			GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Green,
 				TEXT("[ACharacterSelectGameState::PlayerTryReady] CrowID: " + CrowPlayer->GetUniqueId().ToString() +
 					" PhoenixID: " + PhoenixPlayer->GetUniqueId().ToString()));
-			UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
-			
-			BlindEyeGI->EnterGame(CrowPlayer->GetUniqueId().ToString(), PhoenixPlayer->GetUniqueId().ToString());
+
+			// Delay entering game
+			if (UWorld* World = GetWorld())
+			{
+				World->GetTimerManager().SetTimer(EnterGameDelayTimerHandle, this, &ACharacterSelectGameState::EnterGame, DelayToEnterGame, false);
+			}
+			// fade into loading screen
+			MULT_StartEnterGameFade();
 		}
 		else
 		{
@@ -128,10 +154,41 @@ void ACharacterSelectGameState::SER_PlayerTryReady_Implementation(ACharacterSele
 	}
 }
 
+void ACharacterSelectGameState::MULT_StartEnterGameFade_Implementation()
+{
+	UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
+	BlindEyeGI->CharacterSelectFadeIntoBlack(DelayToEnterGame);
+}
+
+void ACharacterSelectGameState::EnterGame()
+{
+	MULT_JoiningGame();
+	UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
+	BlindEyeGI->EnterGame(CrowPlayer->GetUniqueId().ToString(), PhoenixPlayer->GetUniqueId().ToString());
+}
+
+void ACharacterSelectGameState::MULT_JoiningGame_Implementation()
+{
+	UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
+	BlindEyeGI->AddLoadingScreen();
+}
+
 bool ACharacterSelectGameState::IsAllPlayersReady()
 {
-	return CrowPlayer != nullptr && CrowPlayer->bReady &&
-		PhoenixPlayer != nullptr && PhoenixPlayer->bReady;
+	return CrowPlayer != nullptr && CrowPlayer->GetIsReady() &&
+		PhoenixPlayer != nullptr && PhoenixPlayer->GetIsReady();
+}
+
+void ACharacterSelectGameState::OnPlayerChanged(bool bJoined, AController* ChangedController)
+{
+	MULT_OnPlayerChanged(bJoined, ChangedController);
+}
+
+void ACharacterSelectGameState::MULT_OnPlayerChanged_Implementation(bool bJoined, AController* ChangedController)
+{
+	if (GetOwnerPlayerController() == ChangedController) return;
+	UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
+	BlindEyeGI->OnPlayerChanged(bJoined);
 }
 
 bool ACharacterSelectGameState::IsPlayerSelectedCharacter(APlayerState* Player)
