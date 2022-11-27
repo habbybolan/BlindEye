@@ -6,6 +6,7 @@
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Engine/Engine.h"
+#include "HUD/ScreenIndicatorCustomRotationIcon.h"
 
 void UPlayerScreenIndicator::SetTarget(UObject* target)
 {
@@ -70,7 +71,14 @@ void UPlayerScreenIndicator::NativeTick(const FGeometry& MyGeometry, float InDel
 
 		if (!IsOnScreen)
 		{
-			CurrIndicator->SetRenderTransformAngle(Degrees);
+			// If it has custom rotation, then use custom rotation
+			if (UScreenIndicatorCustomRotationIcon* Icon = Cast<UScreenIndicatorCustomRotationIcon>(CurrIndicator))
+			{
+				Icon->ApplyRotation(Degrees);
+			} else
+			{
+				CurrIndicator->SetRenderTransformAngle(Degrees);
+			}
 		}
 	}
 }
