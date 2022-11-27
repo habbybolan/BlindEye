@@ -6,6 +6,7 @@
 #include "UI/LobbyScreenBase.h"
 #include "JoinLobbyScreen.generated.h"
 
+class ULoadingIcon;
 /**
  * 
  */
@@ -21,6 +22,10 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<USessionRow> SessionRowType;
 
+	virtual void LoadingStarted() override;
+	virtual void LoadingFailed(FString Message) override;
+	virtual void LoadingSucceeded() override;
+
 protected:
 
 	UPROPERTY(meta = (BindWidget))
@@ -31,6 +36,9 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	UScrollBox* ScrollSessionList;
+
+	UPROPERTY(meta = (BindWidget))
+	ULoadingIcon* LoadingIcon;
 	
 	TOptional<uint32> SelectedScrollIndex = 0;
 

@@ -24,9 +24,9 @@ class USessionRow;
 class UScrollBox;
 
 /**
- * 
+ * Base screen for joining/creating multiplayer sessions
  */
-UCLASS()
+UCLASS(Abstract)
 class BLINDEYE_API ULobbyScreenBase : public UUserWidget
 {
 	GENERATED_BODY()
@@ -41,6 +41,10 @@ public:
 	virtual bool Initialize() override;
 
 	virtual void InitializeSessionList(TArray<FServerData> ServerDataList);
+
+	virtual void LoadingFailed(FString Message) PURE_VIRTUAL(ULobbyScreenBase,);
+	virtual void LoadingStarted() PURE_VIRTUAL(ULobbyScreenBase,);
+	virtual void LoadingSucceeded() PURE_VIRTUAL(ULobbyScreenBase,);
 
 	UFUNCTION(BlueprintCallable)
 	void TearDown();

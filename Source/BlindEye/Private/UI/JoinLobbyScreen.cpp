@@ -6,6 +6,7 @@
 #include "Components/Button.h"
 #include "Components/ScrollBox.h"
 #include "Interfaces/SessionMenuInterface.h"
+#include "UI/LoadingIcon.h"
 #include "UI/SessionRow.h"
 
 bool UJoinLobbyScreen::Initialize()
@@ -17,6 +18,23 @@ bool UJoinLobbyScreen::Initialize()
 	JoinSelectedSessionButton->OnClicked.AddDynamic(this, &UJoinLobbyScreen::OnJoinSelectedSession);
 	RefreshListButton->OnClicked.AddDynamic(this, &UJoinLobbyScreen::OnRefreshSessionList);
 	return true;
+}
+
+void UJoinLobbyScreen::LoadingStarted()
+{
+	LoadingIcon->PlayLoadingIcon();
+}
+
+void UJoinLobbyScreen::LoadingFailed(FString Message)
+{
+	LoadingIcon->StopLoadingIcon();
+	// TODO:
+}
+
+void UJoinLobbyScreen::LoadingSucceeded()
+{
+	LoadingIcon->StopLoadingIcon();
+	// TODO:
 }
 
 void UJoinLobbyScreen::InitializeSessionList(TArray<FServerData> ServerDataList)

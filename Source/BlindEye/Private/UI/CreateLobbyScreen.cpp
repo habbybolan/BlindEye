@@ -19,6 +19,23 @@ bool UCreateLobbyScreen::Initialize()
 	return true;
 }
 
+void UCreateLobbyScreen::LoadingStarted()
+{
+	LoadingIcon->PlayLoadingIcon();
+}
+
+void UCreateLobbyScreen::LoadingFailed(FString Message)
+{
+	LoadingIcon->StopLoadingIcon();
+	// TODO:
+}
+
+void UCreateLobbyScreen::LoadingSucceeded()
+{
+	LoadingIcon->StopLoadingIcon();
+	// TODO:
+}
+
 void UCreateLobbyScreen::OnNewSessionPressed()
 {
 	if (SessionMenuInterface == nullptr) return;

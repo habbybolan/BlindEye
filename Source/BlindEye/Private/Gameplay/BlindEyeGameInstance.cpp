@@ -130,6 +130,10 @@ void UBlindEyeGameInstance::JoinSession(uint32 Index)
 		UE_LOG(LogTemp, Warning, TEXT("[BlindEyeGameInstance::JoinSession] Joining a session"));
 		SessionSearch->SearchResults[Index].Session.SessionSettings.Get(SERVER_NAME_SETTINGS_KEY, JoinedSessionName);
 		SessionInterface->JoinSession(0, SESSION_NAME, SessionSearch->SearchResults[Index]);
+		LobbyScreenBase->LoadingStarted();
+	} else
+	{
+		LobbyScreenBase->LoadingFailed("No Sessions to join");
 	}
 }
 
@@ -152,6 +156,7 @@ void UBlindEyeGameInstance::RefreshSessionList()
 		SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true,
 								  EOnlineComparisonOp::Equals);
 		SessionInterface->FindSessions(0,SessionSearch.ToSharedRef());
+		LobbyScreenBase->LoadingStarted();
 	}
 }
 
@@ -182,6 +187,10 @@ void UBlindEyeGameInstance::OnFindSessionsComplete(bool Success)
 			// Send the information back to the menu
 			LobbyScreenBase->InitializeSessionList(ServerData);
 		}
+		LobbyScreenBase->LoadingSucceeded();
+	} else
+	{
+		LobbyScreenBase->LoadingFailed("Failed to search for sessions");
 	}
 }
 
@@ -197,6 +206,7 @@ void UBlindEyeGameInstance::OnJoinSessionsComplete(FName SessionName, EOnJoinSes
 	// The player controller travels to that url on that specific session
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
 	bIsHost = false;
+	LobbyScreenBase->LoadingSucceeded();
 	PlayerController->ClientTravel(Url, ETravelType::TRAVEL_Absolute);
 }
 
