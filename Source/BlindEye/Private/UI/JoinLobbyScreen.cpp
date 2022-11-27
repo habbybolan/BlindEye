@@ -45,6 +45,8 @@ void UJoinLobbyScreen::InitializeSessionList(TArray<FServerData> ServerDataList)
 	UWorld* World = this->GetWorld();
 	if (World == nullptr) return;
 
+	NumSessionsText->SetText(FText::FromString(FString::FromInt(ServerDataList.Num())));
+
 	ScrollSessionList->ClearChildren();
 	uint32 IndexRow = 0;
 	for (const FServerData& ServerData : ServerDataList)

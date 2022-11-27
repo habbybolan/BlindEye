@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/TextBlock.h"
 #include "UI/LobbyScreenBase.h"
 #include "JoinLobbyScreen.generated.h"
 
@@ -39,6 +40,9 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	ULoadingIcon* LoadingIcon;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* NumSessionsText;
 	
 	TOptional<uint32> SelectedScrollIndex = 0;
 
