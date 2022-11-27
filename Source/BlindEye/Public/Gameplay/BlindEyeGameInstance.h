@@ -92,6 +92,8 @@ public:
 
 	void AddLoadingScreen();
 
+	void CharacterSelectFadeIntoBlack(float Duration);
+
 protected:
  
 	FString CrowPlayerID;

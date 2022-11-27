@@ -300,3 +300,11 @@ void UBlindEyeGameInstance::AddLoadingScreen()
 	UUserWidget* Widget =  CreateWidget(this, LoadingScreenType);
 	Widget->AddToViewport();
 }
+
+void UBlindEyeGameInstance::CharacterSelectFadeIntoBlack(float Duration)
+{
+	if (CharacterSelectScreenBase != nullptr)
+	{
+		CharacterSelectScreenBase->FadeIntoBlack(Duration);
+	}
+}

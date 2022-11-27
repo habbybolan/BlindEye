@@ -26,6 +26,9 @@ public:
 	UPROPERTY(Replicated, ReplicatedUsing="OnRep_CrowPlayerSelected")
 	ACharacterSelectPlayerState* CrowPlayer = nullptr;
 
+	UPROPERTY(EditDefaultsOnly)
+	float DelayToEnterGame = 3.f;
+
 	// Local player trying to select a specific character
 	void PlayerTrySelect(EPlayerType PlayerType, ACharacterSelectPlayerController* LocalPlayer);
 
@@ -53,6 +56,9 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_JoiningGame();
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_StartEnterGameFade();
+
 	UPROPERTY()
 	ACharacterSelectModel* CrowModel;
 	UPROPERTY()
@@ -62,4 +68,9 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_OnPlayerChanged(bool bJoined, AController* ChangedController);
+
+	bool bDelayLoad = false;
+	FTimerHandle EnterGameDelayTimerHandle;
+	UFUNCTION()
+	void EnterGame();
 };

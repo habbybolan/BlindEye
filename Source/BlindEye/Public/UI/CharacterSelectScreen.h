@@ -37,6 +37,8 @@ public:
 
 	void SetSessionMenuInterface(TScriptInterface<ISessionMenuInterface> SessionMenuInterface);
 
+	void FadeIntoBlack(float Duration);
+
 protected:
 
 	UFUNCTION() 
@@ -47,4 +49,7 @@ protected:
 
 	UPROPERTY()
 	TScriptInterface<ISessionMenuInterface> SessionMenuInterface;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_FadeIntoBlack(float Duration);
 };

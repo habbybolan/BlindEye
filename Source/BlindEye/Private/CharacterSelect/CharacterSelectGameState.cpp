@@ -138,16 +138,33 @@ void ACharacterSelectGameState::SER_PlayerTryReady_Implementation(ACharacterSele
 			GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Green,
 				TEXT("[ACharacterSelectGameState::PlayerTryReady] CrowID: " + CrowPlayer->GetUniqueId().ToString() +
 					" PhoenixID: " + PhoenixPlayer->GetUniqueId().ToString()));
-			UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
 
-			MULT_JoiningGame();
-			BlindEyeGI->EnterGame(CrowPlayer->GetUniqueId().ToString(), PhoenixPlayer->GetUniqueId().ToString());
+			// Delay entering game
+			if (UWorld* World = GetWorld())
+			{
+				World->GetTimerManager().SetTimer(EnterGameDelayTimerHandle, this, &ACharacterSelectGameState::EnterGame, DelayToEnterGame, false);
+			}
+			// fade into loading screen
+			MULT_StartEnterGameFade();
 		}
 		else
 		{
 			// TODO: Notify Players that player is waiting/ready
 		}
 	}
+}
+
+void ACharacterSelectGameState::MULT_StartEnterGameFade_Implementation()
+{
+	UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
+	BlindEyeGI->CharacterSelectFadeIntoBlack(DelayToEnterGame);
+}
+
+void ACharacterSelectGameState::EnterGame()
+{
+	MULT_JoiningGame();
+	UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
+	BlindEyeGI->EnterGame(CrowPlayer->GetUniqueId().ToString(), PhoenixPlayer->GetUniqueId().ToString());
 }
 
 void ACharacterSelectGameState::MULT_JoiningGame_Implementation()
