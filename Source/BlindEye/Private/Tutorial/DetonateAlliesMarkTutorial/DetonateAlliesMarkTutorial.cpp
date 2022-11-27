@@ -45,9 +45,9 @@ void ADetonateAlliesMarkTutorial::SetupTutorial()
 	}
 }
 
-void ADetonateAlliesMarkTutorial::EndTutorial()
+void ADetonateAlliesMarkTutorial::EndTutorialLogic()
 {
-	Super::EndTutorial();
+	Super::EndTutorialLogic();
 
 	UWorld* World = GetWorld();
 	TArray<AActor*> Dummies;

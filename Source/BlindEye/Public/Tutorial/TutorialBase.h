@@ -40,9 +40,12 @@ public:
 
 	DECLARE_DYNAMIC_DELEGATE(FTutorialFinishedSignature);
 	FTutorialFinishedSignature TutorialFinishedDelegate;
+
+	UPROPERTY(EditDefaultsOnly)
+	float EndTutorialDelay = 1.5f;
  
 	virtual void SetupTutorial();
-	virtual void EndTutorial();
+	virtual void EndTutorialLogic();
 
 	// TODO: Logic for player joining in middle of tutorial, update their states?
 
@@ -63,9 +66,13 @@ protected:
  
 	UPROPERTY()
 	ABlindEyeGameState* BlindEyeGS;
+
+	FTimerHandle DelayEndTimerHandle;
  
 	void UpdateChecklistOfPlayer(EPlayerType PlayerType, uint8 ItemID);
 	void AddChecklistItem(EPlayerType PlayerType, uint8 ItemID, FString& text, uint8 MaxCount);
 
 	virtual void PlayerEnteredTutorialHelper(ABlindEyePlayerCharacter* Player) PURE_VIRTUAL(OnPlayerConnected,);
+
+	void EndTutorial();
 };

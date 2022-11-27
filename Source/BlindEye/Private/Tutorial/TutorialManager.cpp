@@ -32,8 +32,6 @@ void ATutorialManager::BeginPlay()
 				AllTutorials.Add(tutorial);
 			}
 		}
-
-		//FGameModeEvents::GameModePostLoginEvent.AddUFunction(this, "PlayerEnteredTutorial");
 	}
 }
 
@@ -51,26 +49,6 @@ void ATutorialManager::StartTutorials()
 			InitializePlayerForTutorial(Player.Get());
 		}
 	}
-
-	// if (UWorld* World = GetWorld())
-	// {
-	// 	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
-	// 	for (APlayerState* PlayerState : BlindEyeGS->PlayerArray)
-	// 	{
-	// 		if (PlayerState->GetPawn())
-	// 		{
-	// 			if (PlayerState->GetPawn()->GetController())
-	// 			{
-	// 				if (APlayerController* PlayerController = Cast<APlayerController>(PlayerState->GetPawn()->GetController()))
-	// 				{
-	// 					InitializePlayerForTutorial(PlayerController);
-	// 					ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerState->GetPawn());
-	// 					PlayerEnteredTutorial(Player);
-	// 				}
-	// 			}
-	// 		}
-	// 	} 
-	// }
 }
 
 void ATutorialManager::GotoNextTutorial()
@@ -95,7 +73,7 @@ void ATutorialManager::SetFinishTutorials()
 	bTutorialEnded = true;
 	if (bTutorialsRunning && CurrTutorialIndex < AllTutorials.Num())
 	{
-		AllTutorials[CurrTutorialIndex]->EndTutorial();
+		AllTutorials[CurrTutorialIndex]->EndTutorialLogic();
 	}
 	bTutorialsRunning = false;
 }

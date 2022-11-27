@@ -44,9 +44,9 @@ void ABasicAttackTutorial::SetupTutorial()
 	}
 }
 
-void ABasicAttackTutorial::EndTutorial()
+void ABasicAttackTutorial::EndTutorialLogic()
 {
-	Super::EndTutorial();
+	Super::EndTutorialLogic();
 
 	UWorld* World = GetWorld();
 	TArray<AActor*> Dummies;

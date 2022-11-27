@@ -41,9 +41,9 @@ void ALocomotionTutorial::SetupCheckboxes(EPlayerType PlayerType)
 	AddChecklistItem(PlayerType, 2, DashText, DashCount);
 }
 
-void ALocomotionTutorial::EndTutorial()
+void ALocomotionTutorial::EndTutorialLogic()
 {
-	Super::EndTutorial();
+	Super::EndTutorialLogic();
 }
 
 void ALocomotionTutorial::PlayerEnteredTutorialHelper(ABlindEyePlayerCharacter* Player)

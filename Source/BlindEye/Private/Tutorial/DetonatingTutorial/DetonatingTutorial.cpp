@@ -66,9 +66,9 @@ void ADetonatingTutorial::SetupTutorial()
 	}
 }
 
-void ADetonatingTutorial::EndTutorial()
+void ADetonatingTutorial::EndTutorialLogic()
 {
-	Super::EndTutorial();
+	Super::EndTutorialLogic();
 
 	UWorld* World = GetWorld();
 	TArray<AActor*> Dummies;

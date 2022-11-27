@@ -27,9 +27,9 @@ void AGotoShrineTutorial::SetupTutorial()
 	StartWaitingForPlayersToInteract();
 }
 
-void AGotoShrineTutorial::EndTutorial()
+void AGotoShrineTutorial::EndTutorialLogic()
 {
-	Super::EndTutorial();
+	Super::EndTutorialLogic();
  
 	if (UWorld* World = GetWorld())
 	{
@@ -74,6 +74,6 @@ void AGotoShrineTutorial::CheckPlayersNearbyHelper()
 	if (OutActors.Num() >= BlindEyeGS->PlayerArray.Num())
 	{
 		// End Tutorial
-		EndTutorial();
+		EndTutorialLogic();
 	}
 }

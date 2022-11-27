@@ -28,7 +28,7 @@ public:
 
 	virtual void SetupTutorial() override;
 
-	virtual void EndTutorial() override;
+	virtual void EndTutorialLogic() override;
 
 	UFUNCTION()
 	void OnMarkDetonated(AActor* MarkedPawn, EMarkerType MarkerType);

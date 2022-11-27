@@ -49,9 +49,9 @@ void AMarkingTutorial::SetupTutorial()
 	NumDummiesForPhoenixToMark = NumTimesForEachPlayerToMark;
 }
 
-void AMarkingTutorial::EndTutorial()
+void AMarkingTutorial::EndTutorialLogic()
 {
-	Super::EndTutorial();
+	Super::EndTutorialLogic();
 
 	UWorld* World = GetWorld();
 	TArray<AActor*> Dummies;
