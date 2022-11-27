@@ -139,7 +139,8 @@ void ACharacterSelectGameState::SER_PlayerTryReady_Implementation(ACharacterSele
 				TEXT("[ACharacterSelectGameState::PlayerTryReady] CrowID: " + CrowPlayer->GetUniqueId().ToString() +
 					" PhoenixID: " + PhoenixPlayer->GetUniqueId().ToString()));
 			UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
-			
+
+			MULT_JoiningGame();
 			BlindEyeGI->EnterGame(CrowPlayer->GetUniqueId().ToString(), PhoenixPlayer->GetUniqueId().ToString());
 		}
 		else
@@ -147,6 +148,12 @@ void ACharacterSelectGameState::SER_PlayerTryReady_Implementation(ACharacterSele
 			// TODO: Notify Players that player is waiting/ready
 		}
 	}
+}
+
+void ACharacterSelectGameState::MULT_JoiningGame_Implementation()
+{
+	UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
+	BlindEyeGI->AddLoadingScreen();
 }
 
 bool ACharacterSelectGameState::IsAllPlayersReady()

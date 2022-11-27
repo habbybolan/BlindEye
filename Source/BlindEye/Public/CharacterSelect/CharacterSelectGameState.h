@@ -50,6 +50,9 @@ protected:
 	void TrySelectHelper(EPlayerType PlayerType, APlayerState* PlayerThatActioned);
 	bool IsPlayerSelectedCharacter(APlayerState* Player);
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_JoiningGame();
+
 	UPROPERTY()
 	ACharacterSelectModel* CrowModel;
 	UPROPERTY()

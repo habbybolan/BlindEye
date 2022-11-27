@@ -37,6 +37,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void LoadCharacterSelect();
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UUserWidget> LoadingScreenType;
+
 	IOnlineSessionPtr SessionInterface;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -86,6 +89,8 @@ public:
 	FOnDestroySessionCompleteDelegate DestroyDelegate;
 
 	void OnPlayerChanged(bool bJoined);
+
+	void AddLoadingScreen();
 
 protected:
  

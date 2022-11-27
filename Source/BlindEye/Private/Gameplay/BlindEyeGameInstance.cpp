@@ -294,3 +294,9 @@ void UBlindEyeGameInstance::OnPlayerChanged(bool bJoined)
 	else
 		CharacterSelectScreenBase->NotifyPlayersInSessionUpdated(1);
 }
+
+void UBlindEyeGameInstance::AddLoadingScreen()
+{
+	UUserWidget* Widget =  CreateWidget(this, LoadingScreenType);
+	Widget->AddToViewport();
+}
