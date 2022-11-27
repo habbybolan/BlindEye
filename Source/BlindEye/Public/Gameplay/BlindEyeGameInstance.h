@@ -85,6 +85,8 @@ public:
 
 	FOnDestroySessionCompleteDelegate DestroyDelegate;
 
+	void OnPlayerChanged(bool bJoined);
+
 protected:
  
 	FString CrowPlayerID;

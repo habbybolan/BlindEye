@@ -26,13 +26,16 @@ public:
 	UTextBlock* LobbyNameText;
 
 	UPROPERTY(meta=(BindWidget))
+	UTextBlock* NumPlayersInLobbyText;
+
+	UPROPERTY(meta=(BindWidget))
 	UButton* LeaveLobbyButton;
+
+	void NotifyPlayersInSessionUpdated(uint8 NumPlayers);
 
 	virtual bool Initialize() override;
 
 	void SetSessionMenuInterface(TScriptInterface<ISessionMenuInterface> SessionMenuInterface);
-
-	
 
 protected:
 

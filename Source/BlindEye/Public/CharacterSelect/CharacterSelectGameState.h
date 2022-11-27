@@ -34,6 +34,8 @@ public:
 	void SER_PlayerTryReady(ACharacterSelectPlayerController* LocalPlayer);
 	
 	bool IsAllPlayersReady();
+
+	void OnPlayerChanged(bool bJoined, AController* ChangedController);
 	
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -53,4 +55,7 @@ protected:
 	ACharacterSelectModel* PhoenixModel; 
 
 	ACharacterSelectPlayerController* GetOwnerPlayerController();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_OnPlayerChanged(bool bJoined, AController* ChangedController);
 };

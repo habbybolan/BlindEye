@@ -34,6 +34,11 @@ void UBlindEyeGameInstance::LoadCharacterSelect()
 	CharacterSelectScreenBase = CreateWidget<UCharacterSelectScreen>(this, CharacterSelectType);
 	CharacterSelectScreenBase->AddToViewport();
 	CharacterSelectScreenBase->SetSessionMenuInterface(this);
+	
+	if (bIsHost)
+		CharacterSelectScreenBase->NotifyPlayersInSessionUpdated(1);
+	else
+		CharacterSelectScreenBase->NotifyPlayersInSessionUpdated(2);
 }
 
 void UBlindEyeGameInstance::Init()
@@ -45,7 +50,6 @@ void UBlindEyeGameInstance::Init()
 	SessionInterface = SubSystem->GetSessionInterface();
 	if (SessionInterface.IsValid()) 
 	{
-		// Subscribe to minimum events to handling sessions
 		SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UBlindEyeGameInstance::OnCreateSessionComplete);
 		SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UBlindEyeGameInstance::OnDestroySessionComplete);
 		SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UBlindEyeGameInstance::OnFindSessionsComplete);     
@@ -104,15 +108,11 @@ void UBlindEyeGameInstance::OnCreateSessionComplete(FName SessionName, bool Succ
 	}
 
 	UEngine* Engine = GetEngine();
-
 	if (Engine == nullptr) return;
-
-	Engine->AddOnScreenDebugMessage(0, 2, FColor::Green, TEXT("[OnCreateSessionComplete::Host]"));
-
+	
 	UE_LOG(LogTemp, Warning, TEXT("[OnCreateSessionComplete::OnCreateSessionComplete] HOST TRAVEL TO LOBBY"));
 
 	UWorld* World = GetWorld();
-
 	if (World == nullptr) return;
 
 	bIsHost = true;
@@ -283,4 +283,14 @@ EPlayerType UBlindEyeGameInstance::GetPlayerType(APlayerState* PlayerState)
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Green, "[UBlindEyeGameInstance::GetPlayerType] ID " + PlayerID);
 	if (CrowPlayerID == PlayerID) return EPlayerType::CrowPlayer;
 	else return EPlayerType::PhoenixPlayer;
+}
+
+void UBlindEyeGameInstance::OnPlayerChanged(bool bJoined)
+{
+	if (CharacterSelectScreenBase == nullptr) return;
+	// notify host that other player joined
+	if (bJoined)
+		CharacterSelectScreenBase->NotifyPlayersInSessionUpdated(2);
+	else
+		CharacterSelectScreenBase->NotifyPlayersInSessionUpdated(1);
 }

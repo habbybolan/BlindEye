@@ -35,3 +35,9 @@ void UCharacterSelectScreen::LeaveCharacterSelect()
 {
 	SessionMenuInterface->EndSession();
 }
+
+void UCharacterSelectScreen::NotifyPlayersInSessionUpdated(uint8 NumPlayers)
+{
+	FString Text = "In Lobby " + FString::FromInt(NumPlayers) + "/2";
+	NumPlayersInLobbyText->SetText(FText::FromString(Text));
+}

@@ -6,6 +6,7 @@
 #include "CharacterSelect/CharacterSelectPlayerController.h"
 #include "GameFramework/PlayerState.h"
 #include "Gameplay/BlindEyeGameInstance.h"
+#include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
@@ -132,6 +133,18 @@ bool ACharacterSelectGameState::IsAllPlayersReady()
 {
 	return CrowPlayer != nullptr && CrowPlayer->bReady &&
 		PhoenixPlayer != nullptr && PhoenixPlayer->bReady;
+}
+
+void ACharacterSelectGameState::OnPlayerChanged(bool bJoined, AController* ChangedController)
+{
+	MULT_OnPlayerChanged(bJoined, ChangedController);
+}
+
+void ACharacterSelectGameState::MULT_OnPlayerChanged_Implementation(bool bJoined, AController* ChangedController)
+{
+	if (GetOwnerPlayerController() == ChangedController) return;
+	UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
+	BlindEyeGI->OnPlayerChanged(bJoined);
 }
 
 bool ACharacterSelectGameState::IsPlayerSelectedCharacter(APlayerState* Player)
