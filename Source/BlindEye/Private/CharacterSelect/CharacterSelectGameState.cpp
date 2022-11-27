@@ -32,6 +32,12 @@ void ACharacterSelectGameState::PlayerSelected(EPlayerType PlayerType, APlayerSt
 	}
 }
 
+void ACharacterSelectGameState::PlayerReadyStateChanged(EPlayerType PlayerType, bool bReady)
+{
+	ACharacterSelectModel* CharacterSelectModelSelected = PlayerType == EPlayerType::CrowPlayer ? CrowModel : PhoenixModel;
+	CharacterSelectModelSelected->SetIsSelectedPlayerReady(bReady);
+}
+
 ACharacterSelectPlayerController* ACharacterSelectGameState::GetOwnerPlayerController()
 {
 	if (UWorld* World = GetWorld())
@@ -86,6 +92,14 @@ void ACharacterSelectGameState::TrySelectHelper(EPlayerType PlayerType, APlayerS
 	// Unselecting character
 	if (*PlayerReferenceToSelectedCharacter == PlayerThatActioned)
 	{
+		// unready player if readied
+		ACharacterSelectPlayerState* CharacterSelectPS = Cast<ACharacterSelectPlayerState>(PlayerThatActioned);
+		if (CharacterSelectPS->GetIsReady())
+		{
+			CharacterSelectPS->FlipReadyState();
+			PlayerReadyStateChanged(PlayerType, false);
+		}
+		
 		*PlayerReferenceToSelectedCharacter = nullptr;
 		PlayerSelected(PlayerType, nullptr);
 	}
@@ -106,8 +120,14 @@ void ACharacterSelectGameState::SER_PlayerTryReady_Implementation(ACharacterSele
 		if (IsPlayerSelectedCharacter(PlayerReadied->PlayerState))
 		{
 			ACharacterSelectPlayerState* CharacterSelectPS = Cast<ACharacterSelectPlayerState>(PlayerReadied->PlayerState);
-			CharacterSelectPS->bReady = true;
-			bPlayerReadied = true;
+			// Check if valid action
+			if (PhoenixPlayer == CharacterSelectPS || CrowPlayer == CharacterSelectPS)
+			{
+				EPlayerType SelectedCharacter = PhoenixPlayer == CharacterSelectPS ? EPlayerType::PhoenixPlayer : EPlayerType::CrowPlayer;
+				CharacterSelectPS->FlipReadyState();
+				bPlayerReadied = CharacterSelectPS->GetIsReady();
+				PlayerReadyStateChanged(SelectedCharacter, CharacterSelectPS->GetIsReady());
+			}
 		}
 	}
 
@@ -131,8 +151,8 @@ void ACharacterSelectGameState::SER_PlayerTryReady_Implementation(ACharacterSele
 
 bool ACharacterSelectGameState::IsAllPlayersReady()
 {
-	return CrowPlayer != nullptr && CrowPlayer->bReady &&
-		PhoenixPlayer != nullptr && PhoenixPlayer->bReady;
+	return CrowPlayer != nullptr && CrowPlayer->GetIsReady() &&
+		PhoenixPlayer != nullptr && PhoenixPlayer->GetIsReady();
 }
 
 void ACharacterSelectGameState::OnPlayerChanged(bool bJoined, AController* ChangedController)

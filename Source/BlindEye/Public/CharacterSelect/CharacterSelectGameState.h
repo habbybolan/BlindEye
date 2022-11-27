@@ -45,6 +45,7 @@ protected:
 	UFUNCTION()
 	void OnRep_CrowPlayerSelected();
 	void PlayerSelected(EPlayerType PlayerType, APlayerState* PlayerThatSelected);
+	void PlayerReadyStateChanged(EPlayerType PlayerType, bool bReady);
 
 	void TrySelectHelper(EPlayerType PlayerType, APlayerState* PlayerThatActioned);
 	bool IsPlayerSelectedCharacter(APlayerState* Player);

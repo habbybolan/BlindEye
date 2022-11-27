@@ -3,6 +3,8 @@
 
 #include "CharacterSelect/CharacterSelectModel.h"
 
+#include "Net/UnrealNetwork.h"
+
 ACharacterSelectModel::ACharacterSelectModel()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -14,6 +16,8 @@ ACharacterSelectModel::ACharacterSelectModel()
 	CharacterSelectWidgetComponent = CreateDefaultSubobject<UWidgetComponent>("CharacterSelectWidget");
 	CharacterSelectWidgetComponent->SetWidgetClass(UCharacterSelectWidget::StaticClass());
 	CharacterSelectWidgetComponent->SetupAttachment(GetMesh());
+
+	CharacterSelectWidgetComponent->SetupAttachment(GetMesh());
 }
 
 void ACharacterSelectModel::SelectCharacter(FString PlayerName)
@@ -23,7 +27,7 @@ void ACharacterSelectModel::SelectCharacter(FString PlayerName)
 	{
 		UCharacterSelectWidget* CSWidget = Cast<UCharacterSelectWidget>(CharacterSelectWidgetComponent->GetWidget());
 		CSWidget->UpdateInfo(CharacterSelectInfo);
-		bIsReady = true;
+		bIsSelected = true;
 	}
 }
 
@@ -34,12 +38,23 @@ void ACharacterSelectModel::UnSelectCharacter()
 	{
 		UCharacterSelectWidget* CSWidget = Cast<UCharacterSelectWidget>(CharacterSelectWidgetComponent->GetWidget());
 		CSWidget->UpdateInfo(CharacterSelectInfo);
-		bIsReady = false;
+		bIsSelected = false;
 	}
+}
+
+void ACharacterSelectModel::SetIsSelectedPlayerReady(bool IsReady)
+{
+	bIsReady = IsReady;
+	OnRep_bIsReady();
+}
+
+void ACharacterSelectModel::OnRep_bIsReady()
+{
 }
 
 void ACharacterSelectModel::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ACharacterSelectModel, bIsReady);
 }
 

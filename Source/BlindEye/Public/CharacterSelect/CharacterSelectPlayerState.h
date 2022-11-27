@@ -16,10 +16,14 @@ class BLINDEYE_API ACharacterSelectPlayerState : public APlayerState
 
 public:
 
+	void FlipReadyState();
+	bool GetIsReady();
+
+protected:
+
 	UPROPERTY(Replicated)
 	bool bReady = false;
-
-
+	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 };
