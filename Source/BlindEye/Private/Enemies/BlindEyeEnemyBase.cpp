@@ -75,9 +75,9 @@ void ABlindEyeEnemyBase::MULT_PlayAnimMontage_Implementation(UAnimMontage* AnimT
 
 void ABlindEyeEnemyBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ABlindEyeEnemyBase, CurrHealth);
+	DOREPLIFETIME(ABlindEyeEnemyBase, bIsDead);
 }
 
 // Called every frame

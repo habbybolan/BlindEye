@@ -60,6 +60,7 @@ protected:
 
 	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
 
+	UPROPERTY(Replicated)
 	bool bIsDead = false;
 
 public:	
