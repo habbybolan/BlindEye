@@ -88,15 +88,20 @@ public:
 
 	// if game being played in editor (No Sessions created)
 	bool bInEditor = true;
+	UPROPERTY(BlueprintReadOnly)
 	bool bIsHost = false;
 
 	FOnDestroySessionCompleteDelegate DestroyDelegate;
 
 	void OnPlayerChanged(bool bJoined);
 
+	UFUNCTION(BlueprintCallable)
 	void AddLoadingScreen();
 
 	void CharacterSelectFadeIntoBlack(float Duration);
+
+	UPROPERTY(BlueprintReadOnly)
+	FName LevelToStream;
 
 protected:
  

@@ -208,7 +208,9 @@ void UBlindEyeGameInstance::OnJoinSessionsComplete(FName SessionName, EOnJoinSes
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
 	bIsHost = false;
 	LobbyScreenBase->LoadingSucceeded();
-	PlayerController->ClientTravel(Url, ETravelType::TRAVEL_Absolute);
+	LevelToStream = FName(*Url);
+	//PlayerController->ClientTravel(Url, ETravelType::TRAVEL_Absolute);
+	PlayerController->LocalTravel("/Game/Maps/LoadingLevel");
 }
 
 void UBlindEyeGameInstance::OnDestroySessionComplete(FName SessionName, bool SuccessfullyClosed)
