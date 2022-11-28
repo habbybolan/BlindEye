@@ -22,7 +22,8 @@ void UBasicSingleIndicator::NativeTick(const FGeometry& MyGeometry, float InDelt
 	{
 		OffScreenIndicator->SetVisibility(ESlateVisibility::Hidden);
 		OnScreenIndicator->SetVisibility(ESlateVisibility::Visible);
-		UWidgetLayoutLibrary::SlotAsCanvasSlot(OnScreenIndicator)->SetPosition(ScreenPosition);
+		UCanvasPanelSlot* CanvasSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(OnScreenIndicator);
+		CanvasSlot->SetPosition(ScreenPosition - FVector2D(1, 0) * CanvasSlot->GetSize().X / 2);
 	}
 	else
 	{
