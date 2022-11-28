@@ -41,7 +41,7 @@ public:
 	uint8 DashCount = 2;
 	
 	virtual void SetupTutorial() override;
-	virtual void EndTutorial() override;
+	virtual void EndTutorialLogic() override;
 
 	virtual void PlayerEnteredTutorialHelper(ABlindEyePlayerCharacter* Player) override;
 

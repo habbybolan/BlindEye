@@ -49,6 +49,11 @@ void AMarkingTutorial::SetupTutorial()
 	NumDummiesForPhoenixToMark = NumTimesForEachPlayerToMark;
 }
 
+void AMarkingTutorial::EndTutorialLogic()
+{
+	Super::EndTutorialLogic();
+}
+
 void AMarkingTutorial::EndTutorial()
 {
 	Super::EndTutorial();
@@ -58,7 +63,13 @@ void AMarkingTutorial::EndTutorial()
 	UGameplayStatics::GetAllActorsOfClass(World, ADummyEnemy::StaticClass(), Dummies);
 	for (AActor* Dummy : Dummies)
 	{
-		Dummy->Destroy();
+		if (ADummyEnemy* DummyEnemy = Cast<ADummyEnemy>(Dummy))
+		{
+			DummyEnemy->KillDummy();
+		} else
+		{
+			Dummy->Destroy();
+		}
 	}
 }
 

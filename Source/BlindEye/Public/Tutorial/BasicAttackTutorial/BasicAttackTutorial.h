@@ -44,6 +44,7 @@ public:
 	TSubclassOf<ADummySpawnPoint> SpawnPointTypes;
 	
 	virtual void SetupTutorial() override;
+	virtual void EndTutorialLogic() override;
 	virtual void EndTutorial() override;
 
 	virtual void PlayerEnteredTutorialHelper(ABlindEyePlayerCharacter* Player) override;

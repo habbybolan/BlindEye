@@ -45,6 +45,11 @@ void ADetonateAlliesMarkTutorial::SetupTutorial()
 	}
 }
 
+void ADetonateAlliesMarkTutorial::EndTutorialLogic()
+{
+	Super::EndTutorialLogic();
+}
+
 void ADetonateAlliesMarkTutorial::EndTutorial()
 {
 	Super::EndTutorial();
@@ -54,7 +59,13 @@ void ADetonateAlliesMarkTutorial::EndTutorial()
 	UGameplayStatics::GetAllActorsOfClass(World, ADummyEnemy::StaticClass(), Dummies);
 	for (AActor* Dummy : Dummies)
 	{
-		Dummy->Destroy();
+		if (ADummyEnemy* DummyEnemy = Cast<ADummyEnemy>(Dummy))
+		{
+			DummyEnemy->KillDummy();
+		} else
+		{
+			Dummy->Destroy();
+		}
 	}
 }
 

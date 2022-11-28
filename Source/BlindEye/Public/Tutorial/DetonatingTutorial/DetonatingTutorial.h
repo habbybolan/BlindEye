@@ -28,6 +28,7 @@ public:
 
 	virtual void SetupTutorial() override;
 
+	virtual void EndTutorialLogic() override;
 	virtual void EndTutorial() override;
 
 	UFUNCTION()

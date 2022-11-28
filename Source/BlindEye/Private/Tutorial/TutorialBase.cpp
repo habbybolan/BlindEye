@@ -40,8 +40,15 @@ void ATutorialBase::InitializePlayerForTutorial(APlayerState* PlayerState)
 	}
 }
 
-void ATutorialBase::EndTutorial()
+void ATutorialBase::EndTutorialLogic()
 {
+	// Clear delay end timer if running
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(DelayEndTimerHandle);
+	}
+
+	// End tutorial logic
 	for (APlayerState* PS : BlindEyeGS->PlayerArray)
 	{
 		if (PS->GetPawn())
@@ -54,6 +61,14 @@ void ATutorialBase::EndTutorial()
 	
 	bRunning = false;
 	TutorialFinishedDelegate.ExecuteIfBound();
+}
+
+void ATutorialBase::EndTutorial()
+{
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().SetTimer(DelayEndTimerHandle, this, &ATutorialBase::EndTutorialLogic, EndTutorialDelay, false);	
+	}
 }
 
 TArray<FTutorialInfo>& ATutorialBase::GetPlayerTutorialArray(EPlayerType PlayerType)

@@ -493,20 +493,6 @@ void ABlindEyeGameMode::BurrowerTutorialSetup()
 	
 	BlindEyeGS->SetPlayerMovementBlocked(true);
 	BlindEyeGS->CurrEnemyTutorial = EEnemyTutorialType::BurrowerSnapper;
-	
-	// Get Tutorial teleport points for burrower/snapper intro cutscene
-	TArray<AActor*> OutActors;
-	UGameplayStatics::GetAllActorsOfClass(World, APlayerStartingCutscenePosition::StaticClass(),OutActors);
-	check(OutActors.Num() >= 2);
-	uint8 SpawnPointIndex = 0;
-
-	// Apply position to all players
-	for (APlayerState* PlayerState : BlindEyeGS->PlayerArray)
-	{
-		APawn* PlayerPawn = PlayerState->GetPawn();
-		PlayerPawn->SetActorTransform(OutActors[SpawnPointIndex]->GetTransform());
-		SpawnPointIndex++;
-	}
 }
 
 void ABlindEyeGameMode::HunterTutorialSetup()

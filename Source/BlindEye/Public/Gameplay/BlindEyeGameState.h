@@ -232,6 +232,9 @@ protected:
 	void TutorialState();
 
 	void GetShrineReference();
+
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_TeleportPlayersForBurrowerTutorials();
  
 	UFUNCTION()
 	void OnMarkAdded(AActor* MarkedActor, EMarkerType MarkerType);
