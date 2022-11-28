@@ -77,6 +77,9 @@ class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityU
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UPlayerScreenIndicator> PlayerIndicatorType;
+
+	UPROPERTY(EditDefaultsOnly)
+	float IndicatorPosAbove = 150;
 	
 public:
 	ABlindEyePlayerCharacter(const FObjectInitializer& ObjectInitializer);
