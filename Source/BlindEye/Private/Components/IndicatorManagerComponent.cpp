@@ -3,7 +3,12 @@
 
 #include "Components/IndicatorManagerComponent.h"
 
+#include "Characters/BlindEyePlayerCharacter.h"
+#include "Components/Overlay.h"
+#include "Components/OverlaySlot.h"
 #include "HUD/ScreenIndicator.h"
+
+class UOverlay;
 
 UIndicatorManagerComponent::UIndicatorManagerComponent()
 {
@@ -15,17 +20,36 @@ void UIndicatorManagerComponent::CLI_AddIndicator_Implementation(const FName Ind
 {
 	if (ShowingScreenIndicators.Contains(IndicatorID)) return;
 
+	//UOverlay* overlay = Cast<UOverlay>(_rootWidget->GetRootWidget());
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetOwner());
+	check(Player)
+
+	UOverlay* overlay = Cast<UOverlay>(Player->GameplayHud->GetRootWidget());
+	
 	if (IIndicatorInterface* IndicatorInterface = Cast<IIndicatorInterface>(Target))
 	{
 		if (UWorld* World = GetWorld())
 		{
-			UScreenIndicator* ScreenIndicator = Cast<UScreenIndicator>(CreateWidget(World, ScreenIndicatorType, FName(IndicatorID)));
-			ScreenIndicator->SetTarget(Target);
-			ScreenIndicator->IndicatorID = IndicatorID;
-			ScreenIndicator->AddToViewport();
-			FIndicatorData ScreenIndicatorData;
-			ScreenIndicatorData.Initialize(IndicatorID, ScreenIndicator, Duration);
-			ShowingScreenIndicators.Add(IndicatorID, ScreenIndicatorData);
+			if (Player->GetController())
+			{
+				APlayerController* PlayerController = Cast<APlayerController>(Player->GetController());
+				UWidget* Widget = CreateWidget(PlayerController, ScreenIndicatorType, FName(IndicatorID));
+				UScreenIndicator* ScreenIndicator = Cast<UScreenIndicator>(Widget);
+				ScreenIndicator->SetTarget(Target);
+				ScreenIndicator->IndicatorID = IndicatorID;
+
+				UOverlaySlot* slot = overlay->AddChildToOverlay(ScreenIndicator);
+
+				// Set the child widget to fill overlay area to allow internal anchoring to work
+				slot->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
+				slot->SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
+			
+				//ScreenIndicator->AddToViewport();
+				FIndicatorData ScreenIndicatorData;
+				ScreenIndicatorData.Initialize(IndicatorID, ScreenIndicator, Duration);
+				ShowingScreenIndicators.Add(IndicatorID, ScreenIndicatorData);
+			}
+			
 		}
 	}
 }
