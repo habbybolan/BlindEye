@@ -213,6 +213,7 @@ void UBlindEyeGameInstance::OnJoinSessionsComplete(FName SessionName, EOnJoinSes
 
 void UBlindEyeGameInstance::OnDestroySessionComplete(FName SessionName, bool SuccessfullyClosed)
 {
+	AddLoadingScreen();
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
 	PlayerController->ClientTravel("/Game/Maps/MainMenu", ETravelType::TRAVEL_Absolute);
 }
