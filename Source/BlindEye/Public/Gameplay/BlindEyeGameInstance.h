@@ -58,6 +58,7 @@ public:
 
 	virtual void Host(FString ServerName) override;
 	virtual void JoinSession(uint32 Index) override;
+	UFUNCTION(BlueprintCallable)
 	virtual void EndSession() override;
 
 	virtual void RefreshSessionList() override;
