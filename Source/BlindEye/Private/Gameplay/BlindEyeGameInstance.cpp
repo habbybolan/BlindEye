@@ -106,9 +106,6 @@ void UBlindEyeGameInstance::OnCreateSessionComplete(FName SessionName, bool Succ
 	{
 		LobbyScreenBase->TearDown();
 	}
-
-	UEngine* Engine = GetEngine();
-	if (Engine == nullptr) return;
 	
 	UE_LOG(LogTemp, Warning, TEXT("[OnCreateSessionComplete::OnCreateSessionComplete] HOST TRAVEL TO LOBBY"));
 
@@ -140,9 +137,7 @@ void UBlindEyeGameInstance::JoinSession(uint32 Index)
 
 void UBlindEyeGameInstance::EndSession()
 {
-	APlayerController* PlayerController = GetFirstLocalPlayerController();
 	SessionInterface->DestroySession(*JoinedSessionName, DestroyDelegate);
-	PlayerController->ClientTravel("/Game/Maps/MainMenu", ETravelType::TRAVEL_Absolute);
 }
 
 void UBlindEyeGameInstance::RefreshSessionList()
