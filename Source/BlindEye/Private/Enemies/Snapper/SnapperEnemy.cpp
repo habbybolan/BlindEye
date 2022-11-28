@@ -112,7 +112,9 @@ void ASnapperEnemy::MULT_OnSpawnCollisionHelper_Implementation()
 
 void ASnapperEnemy::PerformJumpAttack()
 {
+	// prevent attacking while ragdolling or in the air
 	if (bRagdolling) return;
+	if (GetMovementComponent()->IsFalling()) return;
 
 	CurrAttack = ESnapperAttacks::JumpAttack;
 	IsJumpAttackOnDelay = true;
