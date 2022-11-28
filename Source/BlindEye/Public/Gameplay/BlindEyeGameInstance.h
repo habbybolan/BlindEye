@@ -58,6 +58,7 @@ public:
 
 	virtual void Host(FString ServerName) override;
 	virtual void JoinSession(uint32 Index) override;
+	UFUNCTION(BlueprintCallable)
 	virtual void EndSession() override;
 
 	virtual void RefreshSessionList() override;
@@ -67,6 +68,9 @@ public:
 	void OnJoinSessionsComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 	UFUNCTION()
 	void OnDestroySessionComplete(FName SessionName, bool SuccessfullyClosed);
+
+	UFUNCTION(BlueprintCallable, Server, Reliable)
+	void SER_LoadCharacterSelectMap();
 
 	void CreateSession();
 

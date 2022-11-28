@@ -84,7 +84,18 @@ void ABlindEyePlayerController::CLI_GameLost_Implementation()
 
 void ABlindEyePlayerController::SER_RestartLevel_Implementation()
 {
-	AGameModeBase* GameMode = UGameplayStatics::GetGameMode(GetWorld());
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+
+	// Play loading screen for game restart
+	if (AGameStateBase* GameState = UGameplayStatics::GetGameState(World))
+	{
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(GameState);
+		BlindEyeGS->MULT_StartLoadingScreen();
+	}
+
+	// restart the level
+	AGameModeBase* GameMode = UGameplayStatics::GetGameMode(World);
 	if (GameMode)
 	{
 		if (ABlindEyeGameMode* BlindEyeGameMode = Cast<ABlindEyeGameMode>(GameMode))
@@ -101,6 +112,22 @@ void ABlindEyePlayerController::CLI_GameWon_Implementation()
 	{
 		BlindEyeCharacter->CLI_OnGameWon();
 	}
+}
+
+void ABlindEyePlayerController::SER_CharacterSelect_Implementation()
+{
+	if (UWorld* World = GetWorld())
+	{
+		// Play loading screen for both players
+		if (AGameStateBase* GameState = UGameplayStatics::GetGameState(World))
+		{
+			ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(GameState);
+			BlindEyeGS->MULT_StartLoadingScreen();
+		}
+	}
+	
+	UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
+	BlindEyeGI->SER_LoadCharacterSelectMap();
 }
 
 void ABlindEyePlayerController::OnPossess(APawn* InPawn)

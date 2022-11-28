@@ -191,6 +191,9 @@ public:
 
 	ATutorialManager* GetTutorialManager();
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_StartLoadingScreen();
+
 protected: 
 
 	UPROPERTY(Replicated)

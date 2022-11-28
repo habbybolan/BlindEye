@@ -106,18 +106,20 @@ void UBlindEyeGameInstance::OnCreateSessionComplete(FName SessionName, bool Succ
 	{
 		LobbyScreenBase->TearDown();
 	}
-
-	UEngine* Engine = GetEngine();
-	if (Engine == nullptr) return;
 	
 	UE_LOG(LogTemp, Warning, TEXT("[OnCreateSessionComplete::OnCreateSessionComplete] HOST TRAVEL TO LOBBY"));
-
-	UWorld* World = GetWorld();
-	if (World == nullptr) return;
 
 	bIsHost = true;
 	//bUseSeamlessTravel = true;
 	LobbyScreenBase->LoadingSucceeded();
+	SER_LoadCharacterSelectMap();
+}
+
+void UBlindEyeGameInstance::SER_LoadCharacterSelectMap_Implementation()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
 	World->ServerTravel("/Game/Maps/CharacterSelectMap?listen");
 }
 
@@ -140,9 +142,7 @@ void UBlindEyeGameInstance::JoinSession(uint32 Index)
 
 void UBlindEyeGameInstance::EndSession()
 {
-	APlayerController* PlayerController = GetFirstLocalPlayerController();
 	SessionInterface->DestroySession(*JoinedSessionName, DestroyDelegate);
-	PlayerController->ClientTravel("/Game/Maps/MainMenu", ETravelType::TRAVEL_Absolute);
 }
 
 void UBlindEyeGameInstance::RefreshSessionList()
@@ -213,6 +213,7 @@ void UBlindEyeGameInstance::OnJoinSessionsComplete(FName SessionName, EOnJoinSes
 
 void UBlindEyeGameInstance::OnDestroySessionComplete(FName SessionName, bool SuccessfullyClosed)
 {
+	AddLoadingScreen();
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
 	PlayerController->ClientTravel("/Game/Maps/MainMenu", ETravelType::TRAVEL_Absolute);
 }

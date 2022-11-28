@@ -9,6 +9,7 @@
 #include "Enemies/Burrower/BurrowerSpawnManager.h"
 #include "Enemies/Burrower/BurrowerTutorialSpawnPoint.h"
 #include "GameFramework/PlayerState.h"
+#include "Gameplay/BlindEyeGameInstance.h"
 #include "Gameplay/BlindEyeGameMode.h"
 #include "Gameplay/BlindEyePlayerState.h"
 #include "Kismet/GameplayStatics.h"
@@ -188,6 +189,12 @@ void ABlindEyeGameState::PerformPulse(uint8 PulseIndex)
 ATutorialManager* ABlindEyeGameState::GetTutorialManager()
 {
 	return TutorialManager;
+}
+
+void ABlindEyeGameState::MULT_StartLoadingScreen_Implementation()
+{
+	UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
+	BlindEyeGI->AddLoadingScreen();
 }
 
 void ABlindEyeGameState::TutorialFinished()
@@ -431,10 +438,11 @@ void ABlindEyeGameState::GameInProgressState()
 void ABlindEyeGameState::GameEndingState()
 {
 	BP_GameEnding_SER(GameOverState);
-	// TODO: Players looking around animation
 
 	GameEndingDelegate.Broadcast();
 	SetPlayerMovementBlocked(true);
+
+	SER_TeleportPlayersForBurrowerTutorials();
 }
 
 void ABlindEyeGameState::GameEndedState()
