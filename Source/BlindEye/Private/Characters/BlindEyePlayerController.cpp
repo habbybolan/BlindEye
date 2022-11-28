@@ -103,6 +103,12 @@ void ABlindEyePlayerController::CLI_GameWon_Implementation()
 	}
 }
 
+void ABlindEyePlayerController::SER_CharacterSelect_Implementation()
+{
+	UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
+	BlindEyeGI->SER_LoadCharacterSelectMap();
+}
+
 void ABlindEyePlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);

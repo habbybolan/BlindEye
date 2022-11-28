@@ -29,6 +29,9 @@ public:
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void SER_RestartLevel();
 
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void SER_CharacterSelect();
+
 	virtual void OnPossess(APawn* InPawn) override;
 
 private:

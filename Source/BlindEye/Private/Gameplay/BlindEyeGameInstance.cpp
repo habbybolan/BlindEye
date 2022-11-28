@@ -109,12 +109,17 @@ void UBlindEyeGameInstance::OnCreateSessionComplete(FName SessionName, bool Succ
 	
 	UE_LOG(LogTemp, Warning, TEXT("[OnCreateSessionComplete::OnCreateSessionComplete] HOST TRAVEL TO LOBBY"));
 
-	UWorld* World = GetWorld();
-	if (World == nullptr) return;
-
 	bIsHost = true;
 	//bUseSeamlessTravel = true;
 	LobbyScreenBase->LoadingSucceeded();
+	SER_LoadCharacterSelectMap();
+}
+
+void UBlindEyeGameInstance::SER_LoadCharacterSelectMap_Implementation()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
 	World->ServerTravel("/Game/Maps/CharacterSelectMap?listen");
 }
 

@@ -69,6 +69,9 @@ public:
 	UFUNCTION()
 	void OnDestroySessionComplete(FName SessionName, bool SuccessfullyClosed);
 
+	UFUNCTION(BlueprintCallable, Server, Reliable)
+	void SER_LoadCharacterSelectMap();
+
 	void CreateSession();
 
 	virtual FString GetLobbyName() override;
