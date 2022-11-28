@@ -103,7 +103,7 @@ void ASnapperEnemy::CollisionWithGround(UPrimitiveComponent* HitComponent, AActo
 void ASnapperEnemy::MULT_OnSpawnCollisionHelper_Implementation()
 {
 	// set ragdolling
-	TryRagdoll(true, true);
+	//TryRagdoll(true, true);
 	bIsSpawning = false;
 	
 	// Update values back to normal
@@ -202,7 +202,7 @@ void ASnapperEnemy::ApplyKnockBack(FVector Force)
 		}
 	} else
 	{
-		TryRagdoll(true);
+		TryRagdoll(true, bIsSpawning);
 		GetMesh()->AddImpulseAtLocation(Force, GetMesh()->GetBoneLocation("Hips"), "Hips");
 	}
 } 
