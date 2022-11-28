@@ -285,7 +285,7 @@ void ABlindEyePlayerCharacter::CLI_NotifyOfOtherPlayerExistance_Implementation(A
 
 FVector ABlindEyePlayerCharacter::GetIndicatorPosition()
 {
-	return GetActorLocation() + FVector::UpVector * 250;
+	return GetActorLocation() + FVector::UpVector * IndicatorPosAbove;
 }
 
 void ABlindEyePlayerCharacter::CLI_AddEnemyTutorialTextSnippet_Implementation(EEnemyTutorialType EnemyTutorialType)
