@@ -67,7 +67,7 @@ void UPlayerScreenIndicator::NativeTick(const FGeometry& MyGeometry, float InDel
 	if (CurrIndicator != nullptr)
 	{
 		CurrIndicator->SetVisibility(ESlateVisibility::Visible);
-		CurrIndicator->SetPositionInViewport(ScreenPosition);
+		CurrIndicator->SetPositionInViewport(ScreenPosition - FVector2D(1, 0) * CurrIndicator->GetDesiredSize().X / 2);
 
 		if (!IsOnScreen)
 		{
