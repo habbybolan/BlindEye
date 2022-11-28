@@ -438,10 +438,11 @@ void ABlindEyeGameState::GameInProgressState()
 void ABlindEyeGameState::GameEndingState()
 {
 	BP_GameEnding_SER(GameOverState);
-	// TODO: Players looking around animation
 
 	GameEndingDelegate.Broadcast();
 	SetPlayerMovementBlocked(true);
+
+	SER_TeleportPlayersForBurrowerTutorials();
 }
 
 void ABlindEyeGameState::GameEndedState()
