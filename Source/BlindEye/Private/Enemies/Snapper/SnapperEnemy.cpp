@@ -264,7 +264,6 @@ void ASnapperEnemy::MULT_StartRagdoll_Implementation(bool IsIndefiniteRagdoll)
 {
 	GetMovementComponent()->SetComponentTickEnabled(false);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetCapsuleComponent()->SetEnableGravity(false);
 	if (GetLocalRole() == ROLE_Authority) 
 	{  
 		bRagdolling = true;
