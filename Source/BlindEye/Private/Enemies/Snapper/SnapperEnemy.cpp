@@ -278,6 +278,9 @@ void ASnapperEnemy::MULT_StartRagdoll_Implementation(bool IsIndefiniteRagdoll)
 
 void ASnapperEnemy::MULT_StopRagdoll_Implementation() 
 {
+	// Prevent getting up if dead
+	if (bIsDead) return;
+	
 	bGettingUp = true;
 	GetMovementComponent()->StopMovementImmediately();
 	GetMovementComponent()->SetComponentTickEnabled(true);
