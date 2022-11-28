@@ -103,7 +103,7 @@ void ASnapperEnemy::CollisionWithGround(UPrimitiveComponent* HitComponent, AActo
 void ASnapperEnemy::MULT_OnSpawnCollisionHelper_Implementation()
 {
 	// set ragdolling
-	TryRagdoll(true, true);
+	//TryRagdoll(true, true);
 	bIsSpawning = false;
 	
 	// Update values back to normal
@@ -112,7 +112,9 @@ void ASnapperEnemy::MULT_OnSpawnCollisionHelper_Implementation()
 
 void ASnapperEnemy::PerformJumpAttack()
 {
+	// prevent attacking while ragdolling or in the air
 	if (bRagdolling) return;
+	if (GetMovementComponent()->IsFalling()) return;
 
 	CurrAttack = ESnapperAttacks::JumpAttack;
 	IsJumpAttackOnDelay = true;
@@ -202,7 +204,7 @@ void ASnapperEnemy::ApplyKnockBack(FVector Force)
 		}
 	} else
 	{
-		TryRagdoll(true);
+		TryRagdoll(true, bIsSpawning);
 		GetMesh()->AddImpulseAtLocation(Force, GetMesh()->GetBoneLocation("Hips"), "Hips");
 	}
 } 
@@ -218,7 +220,6 @@ void ASnapperEnemy::TryRagdoll(bool SimulatePhysics, bool IsIndefiniteRagdoll)
 	if (SimulatePhysics)
 	{ 
 		GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = true;
-		GetCharacterMovement()->bServerAcceptClientAuthoritativePosition = true;
 		MULT_StartRagdoll(IsIndefiniteRagdoll);
 	} else
 	{
@@ -265,7 +266,6 @@ void ASnapperEnemy::MULT_StartRagdoll_Implementation(bool IsIndefiniteRagdoll)
 {
 	GetMovementComponent()->SetComponentTickEnabled(false);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetCapsuleComponent()->SetEnableGravity(false);
 	if (GetLocalRole() == ROLE_Authority) 
 	{  
 		bRagdolling = true;
@@ -280,6 +280,9 @@ void ASnapperEnemy::MULT_StartRagdoll_Implementation(bool IsIndefiniteRagdoll)
 
 void ASnapperEnemy::MULT_StopRagdoll_Implementation() 
 {
+	// Prevent getting up if dead
+	if (bIsDead) return;
+	
 	bGettingUp = true;
 	GetMovementComponent()->StopMovementImmediately();
 	GetMovementComponent()->SetComponentTickEnabled(true);
@@ -296,7 +299,6 @@ void ASnapperEnemy::MULT_StopRagdoll_Implementation()
 	}
 
 	GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = false;
-	GetCharacterMovement()->bServerAcceptClientAuthoritativePosition = false;
 	GetWorldTimerManager().SetTimer(GetupAnimTimerHandle, this, &ASnapperEnemy::FinishGettingUp, TimeForGetup, false);
 	
 	AlphaBlendWeight = 1;
