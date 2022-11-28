@@ -26,6 +26,7 @@
 #include "Enemies/Hunter/HunterEnemyController.h"
 #include "Enemies/Burrower/BurrowerSpawnManager.h"
 #include "Enemies/Burrower/BurrowerSpawnPoint.h"
+#include "Gameplay/BlindEyeGameInstance.h"
 #include "Gameplay/BlindEyeGameMode.h"
 #include "HUD/Checklist.h"
 #include "HUD/TextPopupManager.h"
@@ -103,6 +104,9 @@ void ABlindEyePlayerCharacter::BeginPlay()
 		TextPopupManager->AddToViewport();
 
 		SER_ClientFullyInitialized();
+
+		UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
+		BlindEyeGI->CloseLoadingScreen();
 	}
 
 	if (GetLocalRole() == ROLE_Authority)

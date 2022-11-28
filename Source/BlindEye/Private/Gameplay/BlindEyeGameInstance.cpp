@@ -57,6 +57,26 @@ void UBlindEyeGameInstance::Init()
 	}
 
 	DestroyDelegate.BindUObject(this, &UBlindEyeGameInstance::OnDestroySessionComplete);
+
+	FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UBlindEyeGameInstance::PostLostMap);
+	FCoreUObjectDelegates::PreLoadMap.AddUObject(this, &UBlindEyeGameInstance::PreLoadMap);
+}
+
+
+void UBlindEyeGameInstance::PostLostMap(UWorld* World)
+{
+	if (bInEditor) return;
+	
+	CurrLoadingScreen = nullptr;
+	if (!bIsHost && World && World->GetName() == "WhiteBox")
+	{
+		AddLoadingScreen();
+	}
+}
+
+void UBlindEyeGameInstance::PreLoadMap(const FString& MapName)
+{
+
 }
 
 void UBlindEyeGameInstance::Host(FString ServerName)
@@ -133,6 +153,7 @@ void UBlindEyeGameInstance::JoinSession(uint32 Index)
 		UE_LOG(LogTemp, Warning, TEXT("[BlindEyeGameInstance::JoinSession] Joining a session"));
 		SessionSearch->SearchResults[Index].Session.SessionSettings.Get(SERVER_NAME_SETTINGS_KEY, JoinedSessionName);
 		SessionInterface->JoinSession(0, SESSION_NAME, SessionSearch->SearchResults[Index]);
+		bInEditor = false;
 		LobbyScreenBase->LoadingStarted();
 	} else
 	{
@@ -298,8 +319,16 @@ void UBlindEyeGameInstance::OnPlayerChanged(bool bJoined)
 
 void UBlindEyeGameInstance::AddLoadingScreen()
 {
-	UUserWidget* Widget =  CreateWidget(this, LoadingScreenType);
-	Widget->AddToViewport();
+	CurrLoadingScreen = CreateWidget(this, LoadingScreenType);
+	CurrLoadingScreen->AddToViewport();
+}
+
+void UBlindEyeGameInstance::CloseLoadingScreen()
+{
+	if (CurrLoadingScreen)
+	{
+		CurrLoadingScreen->RemoveFromViewport();
+	}
 }
 
 void UBlindEyeGameInstance::CharacterSelectFadeIntoBlack(float Duration)
