@@ -12,6 +12,9 @@ void UANS_BaseHunterAttack::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimS
 
 void UANS_BaseHunterAttack::TryAttack(TArray<FHitResult> Hits)
 {
+	if (Hunter == nullptr) return;
+	if (Hunter->GetLocalRole() < ROLE_Authority) return;
+	
 	for (FHitResult Hit : Hits)
 	{
 		if (Hit.Actor == Hunter) continue;

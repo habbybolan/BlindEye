@@ -399,14 +399,20 @@ bool AHunterEnemy::GetIsChannelling()
 void AHunterEnemy::ApplyBasicAttackDamage(FHitResult Hit, bool IfShouldApplyHunterMark)
 {
 	// base DamageType and damage amount if Hunter Charged and if marking target
-	TSubclassOf<UBaseDamageType> DamageTypeToApply = IfShouldApplyHunterMark ? BasicAttackDamageTypeWithMark : BasicAttackDamageTypeNoMark;
+	TSubclassOf<UBaseDamageType> DamageTypeToApply;
+	if (bPlayerMarked) DamageTypeToApply = BasicAttackDamageTypeNoMark;
+	else DamageTypeToApply = IfShouldApplyHunterMark ? BasicAttackDamageTypeWithMark : BasicAttackDamageTypeNoMark;
+	
 	ApplyAttackDamageHelper(BasicAttackDamage, IfShouldApplyHunterMark, DamageTypeToApply, Hit);
 }
 
 void AHunterEnemy::ApplyChargedJumpDamage(FHitResult Hit, bool IfShouldApplyHunterMark)
 {
 	// base DamageType and damage amount if Hunter Charged and if marking target
-	TSubclassOf<UBaseDamageType> DamageTypeToApply = IfShouldApplyHunterMark ? ChargedJumpDamageTypeWithMark : ChargedJumpDamageTypeNoMark;
+	TSubclassOf<UBaseDamageType> DamageTypeToApply;
+	if (bPlayerMarked) DamageTypeToApply = ChargedJumpDamageTypeNoMark;
+	else DamageTypeToApply = IfShouldApplyHunterMark ? ChargedJumpDamageTypeWithMark : ChargedJumpDamageTypeNoMark;
+	
 	ApplyAttackDamageHelper(ChargedAttackDamage, IfShouldApplyHunterMark, DamageTypeToApply, Hit);
 }
 
