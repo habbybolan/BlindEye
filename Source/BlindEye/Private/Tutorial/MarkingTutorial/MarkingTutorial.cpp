@@ -52,13 +52,24 @@ void AMarkingTutorial::SetupTutorial()
 void AMarkingTutorial::EndTutorialLogic()
 {
 	Super::EndTutorialLogic();
+}
+
+void AMarkingTutorial::EndTutorial()
+{
+	Super::EndTutorial();
 
 	UWorld* World = GetWorld();
 	TArray<AActor*> Dummies;
 	UGameplayStatics::GetAllActorsOfClass(World, ADummyEnemy::StaticClass(), Dummies);
 	for (AActor* Dummy : Dummies)
 	{
-		Dummy->Destroy();
+		if (ADummyEnemy* DummyEnemy = Cast<ADummyEnemy>(Dummy))
+		{
+			DummyEnemy->KillDummy();
+		} else
+		{
+			Dummy->Destroy();
+		}
 	}
 }
 

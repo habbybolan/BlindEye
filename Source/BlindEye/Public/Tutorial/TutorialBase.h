@@ -74,5 +74,5 @@ protected:
 
 	virtual void PlayerEnteredTutorialHelper(ABlindEyePlayerCharacter* Player) PURE_VIRTUAL(OnPlayerConnected,);
 
-	void EndTutorial();
+	virtual void EndTutorial();
 };
