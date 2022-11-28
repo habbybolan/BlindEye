@@ -76,8 +76,8 @@ void ADifficultyManager::OnGameStarted()
 void ADifficultyManager::OnGameEnding()
 {
 	// Spawning hunters and burrowers
-	CurrBurrowerSpawnMultTimeline->Deactivate();
-	HunterSpawnMultTimeline->Deactivate();
+	CurrBurrowerSpawnMultTimeline->Stop();
+	HunterSpawnMultTimeline->Stop();
 	
 	// Hide and destroy all burrowers
 	if (BurrowerSpawnManager)
