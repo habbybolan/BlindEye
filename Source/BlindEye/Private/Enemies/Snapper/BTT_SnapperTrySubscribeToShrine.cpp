@@ -31,6 +31,9 @@ EBTNodeResult::Type UBTT_SnapperTrySubscribeToShrine::ExecuteTask(UBehaviorTreeC
 			{
 				BBComp->SetValueAsObject(ShrineAttackPointKey.SelectedKeyName, AttackingPoint);
 				Result = EBTNodeResult::Succeeded;
+			} else
+			{
+				Snapper->IsAttackingShrine = false;
 			}
 		}
 	}
