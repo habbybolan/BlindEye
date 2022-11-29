@@ -33,6 +33,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category=Movement)
 	float JumpingBetweenIslandsRInterpSpeed = 5.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Movement)
+	float BaseMoveSpeed = 450.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Movement)
+	float AttackingShrineMoveSpeed = 200.f;
  
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Jump Attack")
 	float JumpAttackDelay = 3.f;

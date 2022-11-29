@@ -7,6 +7,7 @@
 #include "Shrine.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/Snapper/SnapperEnemy.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 void UBTS_SnapperState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
@@ -30,6 +31,10 @@ void UBTS_SnapperState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 			{
 				UShrineAttackPoint* ShrineAttackObj = Cast<UShrineAttackPoint>(AttackPointObj);
 				BBComp->SetValueAsVector(ShrineAttackPositionKey.SelectedKeyName, ShrineAttackObj->Location);
+				Snapper->GetCharacterMovement()->MaxWalkSpeed = Snapper->AttackingShrineMoveSpeed;
+			} else
+			{
+				Snapper->GetCharacterMovement()->MaxWalkSpeed = Snapper->BaseMoveSpeed;
 			}
 		}
 	}
