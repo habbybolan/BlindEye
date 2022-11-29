@@ -49,7 +49,7 @@ void AHunterEnemy::CalculateWalkSpeed()
 				if (DistToTarget < DistToMarkedPlayerToSlowDown)
 				{
 					float PercentOfSlow = DistToTarget / DistToMarkedPlayerToSlowDown;
-					MovementSpeed *= (MaxSlowAlterWhenCloseToPlayer - (1 - MaxSlowAlterWhenCloseToPlayer * PercentOfSlow));
+					MovementSpeed *= (MaxSlowAlterWhenCloseToPlayer + (1 - MaxSlowAlterWhenCloseToPlayer) * PercentOfSlow);
 				}
 			}
 		}
