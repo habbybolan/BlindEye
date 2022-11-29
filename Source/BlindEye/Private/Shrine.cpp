@@ -25,6 +25,25 @@ AShrine::AShrine()
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
 }
 
+void AShrine::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+
+	// TODO: REmove, used for testing points
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		for (UShrineAttackPoint* Point : AttackPoints)
+		{
+			UKismetSystemLibrary::DrawDebugSphere(World, Point->Location, 25);
+		}
+	}
+
+	
+}
+
 
 void AShrine::BeginPlay()
 {
@@ -39,6 +58,22 @@ void AShrine::BeginPlay()
 		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
 		check(BlindEyeGS)
 		BlindEyeGS->GameStartedDelegate.AddDynamic(this, &AShrine::MULT_OnGameStarted);
+
+		InitializeAttackPoint();
+	}
+}
+
+void AShrine::InitializeAttackPoint()
+{
+	FVector FrontSpot = GetActorLocation() + FVector::ForwardVector * CapsuleComponent->GetScaledCapsuleRadius() + FVector::ForwardVector * AttackPointDistOffset;
+	float DegreesBtwPoints = 360 / NumSurroundingAttackPoints;
+	for (uint8 i = 0; i < NumSurroundingAttackPoints; i++)
+	{
+		UShrineAttackPoint* ShrineAttackPoint = NewObject<UShrineAttackPoint>(GetTransientPackage());
+
+		FVector AttackLocation = FrontSpot.RotateAngleAxis(DegreesBtwPoints * i, FVector::UpVector);
+		ShrineAttackPoint->Initialize(AttackLocation);
+		AttackPoints.Add(ShrineAttackPoint);
 	}
 }
 
