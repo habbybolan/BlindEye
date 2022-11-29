@@ -214,7 +214,7 @@ bool AShrine::IsOpenAttackPoint()
 {
 	for (uint8 i = 0; i < AttackPoints.Num(); i++)
 	{
-		if (AttackPoints[i]->State == EShrineAttackPointState::Empty) return true;
+		if (AttackPoints[i]->GetIsFree()) return true;
 	}
 	return false;
 }
@@ -222,7 +222,7 @@ bool AShrine::IsOpenAttackPoint()
 void AShrine::PerformShift(int8 AttackPointIndex, ASnapperEnemy* AskingSnapper)
 {
 	// Check if first point is already empty
-	if (!AttackPoints[AttackPointIndex]->State == EShrineAttackPointState::Empty)
+	if (!AttackPoints[AttackPointIndex]->GetIsFree())
 	{
 		bool IsRightClosest;
 		uint8 ClosestOpenPointIndex = GetClosestOpenPointLeft(AttackPointIndex, OUT IsRightClosest);
@@ -240,7 +240,10 @@ void AShrine::PerformShift(int8 AttackPointIndex, ASnapperEnemy* AskingSnapper)
 			
 			UShrineAttackPoint* CurrPoint = AttackPoints[CurrIndex];
 			TWeakObjectPtr<ASnapperEnemy> TempSnapper = AttackPoints[CurrIndex]->SubscribedSnapper;
-			CurrPoint->PerformShift(PrevSnapper.Get());
+			if (PrevSnapper.IsValid())
+			{
+				CurrPoint->PerformShift(PrevSnapper.Get());
+			}
 			PrevSnapper = TempSnapper;
 		}
 	}
@@ -260,13 +263,13 @@ uint8 AShrine::GetClosestOpenPointLeft(uint8 AttackPointIndex, bool& IsRightClos
 		LeftIndex = LeftIndex - 1 < 0 ? AttackPoints.Num() - 1 : LeftIndex - 1;
 		RightIndex = RightIndex + 1 >= AttackPoints.Num() ? 0 : RightIndex + 1;
 		// Check if right index is empty slot
-		if (AttackPoints[RightIndex]->State == EShrineAttackPointState::Empty)
+		if (AttackPoints[RightIndex]->GetIsFree())
 		{
 			IsRightClosest = true;
 			return RightIndex;
 		}
 		// Check if left index is empty slot
-		else if (AttackPoints[LeftIndex]->State == EShrineAttackPointState::Empty)
+		else if (AttackPoints[LeftIndex]->GetIsFree())
 		{
 			IsRightClosest = false;
 			return LeftIndex;

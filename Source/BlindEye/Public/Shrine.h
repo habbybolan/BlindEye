@@ -10,21 +10,13 @@
 #include "Interfaces/HealthInterface.h"
 #include "Shrine.generated.h"
 
-UENUM()
-enum EShrineAttackPointState
-{
-	Empty,
-	Taken,
-};
-
 UCLASS()
 class BLINDEYE_API UShrineAttackPoint : public UObject
 {
 	GENERATED_BODY()
 
 public:
-
-	EShrineAttackPointState State = EShrineAttackPointState::Empty;
+	
 	TWeakObjectPtr<ASnapperEnemy> SubscribedSnapper = nullptr;
 	FVector Location;
 
@@ -45,7 +37,6 @@ public:
 		SubscribedSnapper = MakeWeakObjectPtr(Snapper);
 		Snapper->SubToShrineAttackPoint(this);
 		Snapper->GetHealthComponent()->OnDeathDelegate.AddDynamic(this, &UShrineAttackPoint::OnSnapperDeath);
-		State = EShrineAttackPointState::Taken;
 	}
 
 	UFUNCTION()
@@ -63,7 +54,6 @@ public:
 			PrevSnapper->UnsubFromShrineAttackPoint();
 			SubscribedSnapper.Get()->GetHealthComponent()->OnDeathDelegate.RemoveDynamic(this, &UShrineAttackPoint::OnSnapperDeath);
 		}
-		State = EShrineAttackPointState::Empty;
 		SubscribedSnapper = nullptr;
 	}
 
@@ -75,6 +65,11 @@ public:
 		}
 		check(NewSnapper);
 		SubscribeSnapper(NewSnapper);
+	}
+
+	bool GetIsFree()
+	{
+		return !SubscribedSnapper.IsValid();
 	}
 };
 
