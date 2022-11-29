@@ -68,7 +68,7 @@ void UBlindEyeGameInstance::PostLostMap(UWorld* World)
 	if (bInEditor) return;
 	
 	CurrLoadingScreen = nullptr;
-	if (!bIsHost && World && World->GetName() == "WhiteBox")
+	if (!bIsHost && World && World->GetName() == "WhiteBox" || World->GetName() == "CharacterSelectMap")
 	{
 		AddLoadingScreen();
 	}
@@ -132,6 +132,7 @@ void UBlindEyeGameInstance::OnCreateSessionComplete(FName SessionName, bool Succ
 	bIsHost = true;
 	//bUseSeamlessTravel = true;
 	LobbyScreenBase->LoadingSucceeded();
+	AddLoadingScreen();
 	SER_LoadCharacterSelectMap();
 }
 
@@ -229,6 +230,7 @@ void UBlindEyeGameInstance::OnJoinSessionsComplete(FName SessionName, EOnJoinSes
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
 	bIsHost = false;
 	LobbyScreenBase->LoadingSucceeded();
+	AddLoadingScreen();
 	PlayerController->ClientTravel(Url, ETravelType::TRAVEL_Absolute);
 }
 
