@@ -830,6 +830,7 @@ void ABlindEyePlayerCharacter::OnDeath(AActor* ActorThatKilled)
 	Super::OnDeath(ActorThatKilled);
 	if (ABlindEyePlayerState* BlindEyePS = Cast<ABlindEyePlayerState>(GetPlayerState()))
 	{
+		AbilityManager->TryCancelCurrentAbility();
 		BlindEyePS->SetIsDead(true);
 	}
 	MULT_OnDeath(ActorThatKilled);
