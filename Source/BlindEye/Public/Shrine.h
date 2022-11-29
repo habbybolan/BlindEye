@@ -110,8 +110,10 @@ public:
 	void ChannellingEnded(AActor* EnemyChannelling);
 
 	virtual FVector GetIndicatorPosition() override;
- 
-	void StartWaitingForPlayersToInteract();
+	
+	bool AskForClosestPoint(ASnapperEnemy* Snapper);
+
+	UShrineAttackPoint* FindClosestAttackPoint(const FVector& AskerLocation);
  
 protected:
 	

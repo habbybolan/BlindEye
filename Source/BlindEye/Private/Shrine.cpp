@@ -39,9 +39,8 @@ void AShrine::Tick(float DeltaSeconds)
 		{
 			UKismetSystemLibrary::DrawDebugSphere(World, Point->Location, 25);
 		}
+		AskForClosestPoint(nullptr);
 	}
-
-	
 }
 
 
@@ -173,6 +172,41 @@ void AShrine::ChannellingEnded(AActor* EnemyChannelling)
 FVector AShrine::GetIndicatorPosition()
 {
 	return IndicatorPosition->GetComponentLocation();
+}
+
+bool AShrine::AskForClosestPoint(ASnapperEnemy* Snapper)
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return false;
+	
+	AController* Controller = UGameplayStatics::GetPlayerController(World, 0);
+	APawn* Pawn = Controller->GetPawn();
+	if (Pawn == nullptr) return false;
+	
+	FVector AskerLocation = Pawn->GetActorLocation();
+	UShrineAttackPoint* ClosestAttackPoint = FindClosestAttackPoint(AskerLocation);
+
+	// TODO: Subscribe snapper to point, perform shifting logic
+	UKismetSystemLibrary::DrawDebugSphere(World, ClosestAttackPoint->Location, 25, 100, FColor::Red);
+	return true;
+}
+
+UShrineAttackPoint* AShrine::FindClosestAttackPoint(const FVector& AskerLocation)
+{
+	UShrineAttackPoint* CurrClosestPoint = AttackPoints[0];
+	float ClosestDist = FVector::Dist(CurrClosestPoint->Location, AskerLocation);
+	for (uint8 i = 1; i < AttackPoints.Num(); i++)
+	{
+		UShrineAttackPoint* AttackPoint = AttackPoints[i];
+		float Dist = FVector::Dist(AttackPoint->Location, AskerLocation);
+		if (Dist < ClosestDist)
+		{
+			CurrClosestPoint = AttackPoint;
+			ClosestDist = Dist;
+		}
+	}
+
+	return CurrClosestPoint;
 }
 
 void AShrine::OnRep_HealthUpdated()
