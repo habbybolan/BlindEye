@@ -61,9 +61,24 @@ void ASnapperEnemy::MYOnTakeDamage(float Damage, FVector HitLocation, const UDam
 {
 	Super::MYOnTakeDamage(Damage, HitLocation, DamageType, DamageCauser);
 
+	if (GetLocalRole() < ROLE_Authority) return;
+	
 	if (ASnapperEnemyController* SnapperController = Cast<ASnapperEnemyController>(GetController()))
 	{
 		SnapperController->DamageTaken(Damage, HitLocation, DamageType, DamageCauser);
+		if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(DamageCauser))
+		{
+			MULT_OnPlayerAttackedSnapper();
+		}
+	}
+}
+
+void ASnapperEnemy::MULT_OnPlayerAttackedSnapper_Implementation()
+{
+	// If snapper basic attacking shrine, stop animation
+	if (GetMesh()->GetAnimInstance()->Montage_IsActive(BasicAttackAnim))
+	{
+		GetMesh()->GetAnimInstance()->StopAllMontages(.5f);
 	}
 }
 

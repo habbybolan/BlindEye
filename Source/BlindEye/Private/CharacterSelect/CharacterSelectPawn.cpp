@@ -9,6 +9,7 @@
 #include "CharacterSelect/CharacterSelectPlayerController.h"
 #include "CharacterSelect/CharacterSelectPlayerState.h"
 #include "GameFramework/PlayerStart.h"
+#include "Gameplay/BlindEyeGameInstance.h"
 #include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -31,6 +32,9 @@ void ACharacterSelectPawn::BeginPlay()
 			SetActorTransform(PlayerStart->GetTransform());
 		}
 	}
+
+	UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
+	BlindEyeGI->CloseLoadingScreen();
 }
 
 void ACharacterSelectPawn::PlayerTrySelectCharacter()
