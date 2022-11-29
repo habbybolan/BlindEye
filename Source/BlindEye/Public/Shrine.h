@@ -109,7 +109,16 @@ public:
 	uint8 NumSurroundingAttackPoints = 10;
 	
 	UPROPERTY(EditDefaultsOnly, Category=Ticketing)
-	uint8 AttackPointDistOffset = 15;
+	float AttackPointDistOffset = 15;
+
+	UPROPERTY(EditDefaultsOnly, Category=Ticketing)
+	float AttackPointCenterOffsetRight = -55;
+	
+	UPROPERTY(EditDefaultsOnly, Category=Ticketing)
+	float AttackPointCenterOffsetForward = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category=Ticketing)
+	bool bShowAttackingPoints = false;
 
 	virtual float GetMass() override;
 

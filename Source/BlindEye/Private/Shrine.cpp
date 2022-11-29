@@ -32,13 +32,15 @@ void AShrine::Tick(float DeltaSeconds)
 
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
-
-	// TODO: REmove, used for testing points
+	
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		for (UShrineAttackPoint* Point : AttackPoints)
+		if (bShowAttackingPoints)
 		{
-			UKismetSystemLibrary::DrawDebugSphere(World, Point->Location, 25);
+			for (UShrineAttackPoint* Point : AttackPoints)
+			{
+				UKismetSystemLibrary::DrawDebugSphere(World, Point->Location, 25);
+			}
 		}
 	}
 }
@@ -64,13 +66,15 @@ void AShrine::BeginPlay()
 
 void AShrine::InitializeAttackPoint()
 {
-	FVector FrontSpot = GetActorLocation() + FVector::ForwardVector * CapsuleComponent->GetScaledCapsuleRadius() + FVector::ForwardVector * AttackPointDistOffset;
+	FVector FrontSpot = GetActorLocation() + GetActorForwardVector() * CapsuleComponent->GetUnscaledCapsuleRadius() + GetActorForwardVector() * AttackPointDistOffset;
 	float DegreesBtwPoints = 360 / NumSurroundingAttackPoints;
 	for (uint8 i = 0; i < NumSurroundingAttackPoints; i++)
 	{
 		UShrineAttackPoint* ShrineAttackPoint = NewObject<UShrineAttackPoint>(GetTransientPackage());
 
-		FVector AttackLocation = FrontSpot.RotateAngleAxis(DegreesBtwPoints * i, FVector::UpVector);
+		FVector AttackLocation = FrontSpot.RotateAngleAxis(DegreesBtwPoints * i, FVector::UpVector)
+			+ GetActorRightVector() * AttackPointCenterOffsetRight
+			+ GetActorForwardVector() * AttackPointCenterOffsetForward;
 		ShrineAttackPoint->Initialize(AttackLocation);
 		AttackPoints.Add(ShrineAttackPoint);
 	}
