@@ -130,7 +130,7 @@ void ABasicAttackSmallFlock::CheckTargetReached()
 
 void ABasicAttackSmallFlock::GoBackToPlayer()
 {
-	TargetList.Add(GetInstigator());
+	TargetList.Add( MakeWeakObjectPtr(GetInstigator()));
 	bHasReachedTarget = true;
 	SwirlStrength = 0;
 }
@@ -145,6 +145,7 @@ void ABasicAttackSmallFlock::CheckReturnedToPlayer()
 
 void ABasicAttackSmallFlock::CheckShrinking()
 {
+	if (!IsCurrTargetValid()) return;
 	float DistToPlayer = FVector::Distance(TargetList[CurrTargetIndex]->GetActorLocation(), CalcAveragePosition());
 	if (DistToPlayer < DistToPlayerToStartShrinking)
 	{
