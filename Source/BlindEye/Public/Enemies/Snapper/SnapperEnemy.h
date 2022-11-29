@@ -15,6 +15,7 @@ enum class ESnapperAttacks : uint8
 	JumpAttack
 };
 
+class UShrineAttackPoint;
 /**
  * 
  */
@@ -107,8 +108,15 @@ public:
 
 	UPROPERTY(Replicated)
 	FVector QueuedSpawnForce;
+
+	void UnsubFromShrineAttackPoint();
+	void SubToShrineAttackPoint(UShrineAttackPoint* ShrineAttackPoint);
+	UShrineAttackPoint* GetShrineAttackPoint();
 	
 protected:
+
+	UPROPERTY()
+	UShrineAttackPoint* SubscribedShrineAttackPoint;
 
 	UPROPERTY(Replicated)
 	bool bRagdolling = false;
@@ -166,7 +174,7 @@ protected:
 	void OnAnimMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 	virtual void OnDeath(AActor* ActorThatKilled) override;
-
+	
 	void SetCanJumpAttack();
 	void SetCanBasicAttack();
 

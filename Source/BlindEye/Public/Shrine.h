@@ -14,8 +14,7 @@ UENUM()
 enum EShrineAttackPointState
 {
 	Empty,
-	Queued,
-	Taken
+	Taken,
 };
 
 UCLASS()
@@ -39,8 +38,14 @@ public:
 	
 	void SubscribeSnapper(ASnapperEnemy* Snapper)
 	{
+		if (SubscribedSnapper.IsValid())
+		{
+			UnsubscribeSnapper();
+		}
 		SubscribedSnapper = MakeWeakObjectPtr(Snapper);
+		Snapper->SubToShrineAttackPoint(this);
 		Snapper->GetHealthComponent()->OnDeathDelegate.AddDynamic(this, &UShrineAttackPoint::OnSnapperDeath);
+		State = EShrineAttackPointState::Taken;
 	}
 
 	UFUNCTION()
@@ -52,8 +57,24 @@ public:
 	// Ubsubscribe a snapper from the attack point (Manually left or snapper died)
 	void UnsubscribeSnapper()
 	{
+		if (SubscribedSnapper.IsValid())
+		{
+			ASnapperEnemy* PrevSnapper = SubscribedSnapper.Get();
+			PrevSnapper->UnsubFromShrineAttackPoint();
+			SubscribedSnapper.Get()->GetHealthComponent()->OnDeathDelegate.RemoveDynamic(this, &UShrineAttackPoint::OnSnapperDeath);
+		}
 		State = EShrineAttackPointState::Empty;
 		SubscribedSnapper = nullptr;
+	}
+
+	void PerformShift(ASnapperEnemy* NewSnapper)
+	{
+		if (SubscribedSnapper.IsValid())
+		{
+			UnsubscribeSnapper();
+		}
+		check(NewSnapper);
+		SubscribeSnapper(NewSnapper);
 	}
 };
 
@@ -110,10 +131,18 @@ public:
 	void ChannellingEnded(AActor* EnemyChannelling);
 
 	virtual FVector GetIndicatorPosition() override;
-	
-	bool AskForClosestPoint(ASnapperEnemy* Snapper);
 
-	UShrineAttackPoint* FindClosestAttackPoint(const FVector& AskerLocation);
+	/**
+	 * Checks for the closest shrine attack point and checks if a valid spot exists
+	 * @param Snapper	Snapper asking for point to subscribe to to attack shrine
+	 * returns			nullptr if no points available, otherwise returns the closest point to subscribe to
+	 */
+	UShrineAttackPoint* AskForClosestPoint(ASnapperEnemy* Snapper);
+
+	uint8 FindClosestAttackPointIndex(const FVector& AskerLocation);
+	bool IsOpenAttackPoint();
+	void PerformShift(int8 AttackPointIndex, ASnapperEnemy* AskingSnapper);
+	uint8 GetClosestOpenPointLeft(uint8 AttackPointIndex, bool& IsRightClosest);
  
 protected:
 	

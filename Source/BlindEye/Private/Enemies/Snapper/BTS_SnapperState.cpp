@@ -4,6 +4,7 @@
 #include "Enemies/Snapper/BTS_SnapperState.h"
 
 #include "AIController.h"
+#include "Shrine.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/Snapper/SnapperEnemy.h"
 
@@ -23,6 +24,13 @@ void UBTS_SnapperState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 			BBComp->SetValueAsBool(IsRagdolling.SelectedKeyName, Snapper->GetIsRagdolling());
 			BBComp->SetValueAsEnum(AttackState.SelectedKeyName, (uint8)Snapper->CurrAttack);
 			BBComp->SetValueAsBool(IsAttackingShrine.SelectedKeyName, Snapper->IsAttackingShrine);
+
+			BBComp->SetValueAsObject(ShrineAttackObjectKey.SelectedKeyName, Snapper->GetShrineAttackPoint());
+			if (UObject* AttackPointObj = BBComp->GetValueAsObject(ShrineAttackObjectKey.SelectedKeyName))
+			{
+				UShrineAttackPoint* ShrineAttackObj = Cast<UShrineAttackPoint>(AttackPointObj);
+				BBComp->SetValueAsVector(ShrineAttackPositionKey.SelectedKeyName, ShrineAttackObj->Location);
+			}
 		}
 	}
 }

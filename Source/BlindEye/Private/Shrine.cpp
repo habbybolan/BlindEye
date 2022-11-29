@@ -1,4 +1,5 @@
 // Copyright (C) Nicholas Johnson 2022
+#pragma optimize("", off)
 
 #include "Shrine.h"
 
@@ -39,7 +40,6 @@ void AShrine::Tick(float DeltaSeconds)
 		{
 			UKismetSystemLibrary::DrawDebugSphere(World, Point->Location, 25);
 		}
-		AskForClosestPoint(nullptr);
 	}
 }
 
@@ -174,39 +174,104 @@ FVector AShrine::GetIndicatorPosition()
 	return IndicatorPosition->GetComponentLocation();
 }
 
-bool AShrine::AskForClosestPoint(ASnapperEnemy* Snapper)
+UShrineAttackPoint* AShrine::AskForClosestPoint(ASnapperEnemy* Snapper)
 {
-	UWorld* World = GetWorld();
-	if (World == nullptr) return false;
-	
-	AController* Controller = UGameplayStatics::GetPlayerController(World, 0);
-	APawn* Pawn = Controller->GetPawn();
-	if (Pawn == nullptr) return false;
-	
-	FVector AskerLocation = Pawn->GetActorLocation();
-	UShrineAttackPoint* ClosestAttackPoint = FindClosestAttackPoint(AskerLocation);
+	// No open attack points
+	if (!IsOpenAttackPoint()) return false;
+		
+	FVector AskerLocation = Snapper->GetActorLocation();
+	uint8 ClosestAttackPoint = FindClosestAttackPointIndex(AskerLocation);
 
-	// TODO: Subscribe snapper to point, perform shifting logic
-	UKismetSystemLibrary::DrawDebugSphere(World, ClosestAttackPoint->Location, 25, 100, FColor::Red);
-	return true;
+	// TODO: Shifting logic
+
+	PerformShift(ClosestAttackPoint, Snapper);
+	return AttackPoints[ClosestAttackPoint];
 }
 
-UShrineAttackPoint* AShrine::FindClosestAttackPoint(const FVector& AskerLocation)
+uint8 AShrine::FindClosestAttackPointIndex(const FVector& AskerLocation)
 {
-	UShrineAttackPoint* CurrClosestPoint = AttackPoints[0];
-	float ClosestDist = FVector::Dist(CurrClosestPoint->Location, AskerLocation);
-	for (uint8 i = 1; i < AttackPoints.Num(); i++)
+	float ClosestDist = FVector::Dist(AttackPoints[0]->Location, AskerLocation);
+	uint8 ClosestIndex = 0;
+	uint8 Index = 0;
+	for (Index = 1; Index < AttackPoints.Num(); ++Index)
 	{
-		UShrineAttackPoint* AttackPoint = AttackPoints[i];
+		UShrineAttackPoint* AttackPoint = AttackPoints[Index];
 		float Dist = FVector::Dist(AttackPoint->Location, AskerLocation);
 		if (Dist < ClosestDist)
 		{
-			CurrClosestPoint = AttackPoint;
 			ClosestDist = Dist;
+			ClosestIndex = Index;
 		}
 	}
 
-	return CurrClosestPoint;
+	return ClosestIndex;
+}
+
+bool AShrine::IsOpenAttackPoint()
+{
+	for (uint8 i = 0; i < AttackPoints.Num(); i++)
+	{
+		if (AttackPoints[i]->State == EShrineAttackPointState::Empty) return true;
+	}
+	return false;
+}
+
+void AShrine::PerformShift(int8 AttackPointIndex, ASnapperEnemy* AskingSnapper)
+{
+	// Check if first point is already empty
+	if (!AttackPoints[AttackPointIndex]->State == EShrineAttackPointState::Empty)
+	{
+		bool IsRightClosest;
+		uint8 ClosestOpenPointIndex = GetClosestOpenPointLeft(AttackPointIndex, OUT IsRightClosest);
+		
+		int8 CurrIndex = AttackPointIndex;
+		TWeakObjectPtr<ASnapperEnemy> PrevSnapper = AttackPoints[AttackPointIndex]->SubscribedSnapper;
+		// Perform shift on all points up to closest open point
+		while (CurrIndex != ClosestOpenPointIndex)
+		{
+			AttackPoints[CurrIndex]->UnsubscribeSnapper();
+			// Incr/Decr. Curr Index
+			CurrIndex = IsRightClosest ? CurrIndex + 1 : CurrIndex - 1;
+			if (CurrIndex < 0) CurrIndex = AttackPoints.Num() - 1;
+			if (CurrIndex >= AttackPoints.Num()) CurrIndex = 0;
+			
+			UShrineAttackPoint* CurrPoint = AttackPoints[CurrIndex];
+			TWeakObjectPtr<ASnapperEnemy> TempSnapper = AttackPoints[CurrIndex]->SubscribedSnapper;
+			CurrPoint->PerformShift(PrevSnapper.Get());
+			PrevSnapper = TempSnapper;
+		}
+	}
+
+	// Subscribe snapper to its asking points
+	AttackPoints[AttackPointIndex]->SubscribeSnapper(AskingSnapper);
+}
+
+uint8 AShrine::GetClosestOpenPointLeft(uint8 AttackPointIndex, bool& IsRightClosest)
+{
+	uint8 LeftIndex = AttackPointIndex;
+	uint8 RightIndex = AttackPointIndex;
+
+	// Find if right or left index has the closest point
+	do 
+	{
+		LeftIndex = LeftIndex - 1 < 0 ? AttackPoints.Num() - 1 : LeftIndex - 1;
+		RightIndex = RightIndex + 1 >= AttackPoints.Num() ? 0 : RightIndex + 1;
+		// Check if right index is empty slot
+		if (AttackPoints[RightIndex]->State == EShrineAttackPointState::Empty)
+		{
+			IsRightClosest = true;
+			return RightIndex;
+		}
+		// Check if left index is empty slot
+		else if (AttackPoints[LeftIndex]->State == EShrineAttackPointState::Empty)
+		{
+			IsRightClosest = false;
+			return LeftIndex;
+		}
+	} while (LeftIndex != RightIndex);
+
+	// Right and left index met
+	return LeftIndex;
 }
 
 void AShrine::OnRep_HealthUpdated()

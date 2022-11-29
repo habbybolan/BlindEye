@@ -4,6 +4,7 @@
 #include "Enemies/Snapper/SnapperEnemy.h"
 
 #include "BrainComponent.h"
+#include "Shrine.h"
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "Enemies/BlindEyeEnemyController.h"
@@ -68,6 +69,11 @@ void ASnapperEnemy::MYOnTakeDamage(float Damage, FVector HitLocation, const UDam
 		SnapperController->DamageTaken(Damage, HitLocation, DamageType, DamageCauser);
 		if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(DamageCauser))
 		{
+			if (SubscribedShrineAttackPoint)
+			{
+				SubscribedShrineAttackPoint->UnsubscribeSnapper();
+				SubscribedShrineAttackPoint = nullptr;
+			}
 			MULT_OnPlayerAttackedSnapper();
 		}
 	}
@@ -375,6 +381,21 @@ void ASnapperEnemy::StopBasicAttack()
 {
 	CurrAttack = ESnapperAttacks::None;
 	GetWorldTimerManager().SetTimer(BasicAttackDelayTimerHandle, this, &ASnapperEnemy::SetCanBasicAttack, BasicAttackDelay, false);
+}
+
+void ASnapperEnemy::UnsubFromShrineAttackPoint()
+{
+	SubscribedShrineAttackPoint = nullptr;
+}
+
+void ASnapperEnemy::SubToShrineAttackPoint(UShrineAttackPoint* ShrineAttackPoint)
+{
+	SubscribedShrineAttackPoint = ShrineAttackPoint;
+}
+
+UShrineAttackPoint* ASnapperEnemy::GetShrineAttackPoint()
+{
+	return SubscribedShrineAttackPoint;
 }
 
 void ASnapperEnemy::SetPhysicsBlendWeight()
