@@ -1,5 +1,4 @@
 // Copyright (C) Nicholas Johnson 2022
-#pragma optimize("", off)
 
 #include "Shrine.h"
 
