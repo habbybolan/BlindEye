@@ -240,7 +240,6 @@ void ASnapperEnemy::TryRagdoll(bool SimulatePhysics, bool IsIndefiniteRagdoll)
 
 	if (SimulatePhysics)
 	{ 
-		GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = true;
 		MULT_StartRagdoll(IsIndefiniteRagdoll);
 	} else
 	{
@@ -285,6 +284,7 @@ void ASnapperEnemy::UpdateHipLocation(float DeltaSecond)
 
 void ASnapperEnemy::MULT_StartRagdoll_Implementation(bool IsIndefiniteRagdoll)
 {
+	GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = true;
 	GetMovementComponent()->SetComponentTickEnabled(false);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	if (GetLocalRole() == ROLE_Authority) 
