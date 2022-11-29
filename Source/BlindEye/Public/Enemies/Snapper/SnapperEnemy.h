@@ -173,5 +173,8 @@ protected:
 	void RotateWhileJumping(float DeltaSeconds);
 
 	void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_OnPlayerAttackedSnapper();
 	
 };

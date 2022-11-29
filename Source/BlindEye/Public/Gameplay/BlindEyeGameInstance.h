@@ -95,6 +95,7 @@ public:
 	void OnPlayerChanged(bool bJoined);
 
 	void AddLoadingScreen();
+	void CloseLoadingScreen();
 
 	void CharacterSelectFadeIntoBlack(float Duration);
 
@@ -108,4 +109,13 @@ protected:
 
 	bool bLANGame = false;
 	FString JoinedSessionName;
+
+	UPROPERTY()
+	UUserWidget* CurrLoadingScreen;
+
+	UFUNCTION()
+	void PostLostMap(UWorld* World);
+
+	UFUNCTION()
+	void PreLoadMap(const FString& MapName);
 };
