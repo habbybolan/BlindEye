@@ -14,6 +14,7 @@ public:
 	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
 	virtual void ExitState() override;
+	virtual bool CancelState() override;
 };
 
 /**
@@ -40,5 +41,7 @@ public:
 
 	void UpdatePlayerSpeed(); 
 	void ResetPlayerSpeed();
+
+	virtual void EndAbilityLogic() override;
 	
 };

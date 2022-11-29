@@ -20,7 +20,7 @@ void UAN_SnapperBasicAttack::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 	{
 		TArray<FHitResult> OutHits;
 		UKismetSystemLibrary::BoxTraceMultiForObjects(World, Snapper->GetActorLocation(), Snapper->GetActorForwardVector() * 300, FVector(100/2, 100 / 2, 100 / 2),
-			Snapper->GetActorRotation(), PlayerObjectType, false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, OutHits, true);
+			Snapper->GetActorRotation(), PlayerObjectType, false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true);
 	
 		for (FHitResult Hit : OutHits)
 		{

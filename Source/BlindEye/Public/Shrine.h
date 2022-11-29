@@ -5,9 +5,78 @@
 #include "CoreMinimal.h"
 #include "Components/CapsuleComponent.h"
 #include "Enemies/BlindEyeEnemyBase.h"
+#include "Enemies/Snapper/SnapperEnemy.h"
 #include "GameFramework/Actor.h"
 #include "Interfaces/HealthInterface.h"
 #include "Shrine.generated.h"
+
+UENUM()
+enum EShrineAttackPointState
+{
+	Empty,
+	Taken,
+};
+
+UCLASS()
+class BLINDEYE_API UShrineAttackPoint : public UObject
+{
+	GENERATED_BODY()
+
+public:
+
+	EShrineAttackPointState State = EShrineAttackPointState::Empty;
+	TWeakObjectPtr<ASnapperEnemy> SubscribedSnapper = nullptr;
+	FVector Location;
+
+	UShrineAttackPoint() {}
+
+	// Initialize attack point
+	void Initialize(FVector location)
+	{
+		Location = location;
+	}
+	
+	void SubscribeSnapper(ASnapperEnemy* Snapper)
+	{
+		if (SubscribedSnapper.IsValid())
+		{
+			UnsubscribeSnapper();
+		}
+		SubscribedSnapper = MakeWeakObjectPtr(Snapper);
+		Snapper->SubToShrineAttackPoint(this);
+		Snapper->GetHealthComponent()->OnDeathDelegate.AddDynamic(this, &UShrineAttackPoint::OnSnapperDeath);
+		State = EShrineAttackPointState::Taken;
+	}
+
+	UFUNCTION()
+	void OnSnapperDeath(AActor* EnemyKilled)
+	{
+		UnsubscribeSnapper();
+	}
+
+	// Ubsubscribe a snapper from the attack point (Manually left or snapper died)
+	void UnsubscribeSnapper()
+	{
+		if (SubscribedSnapper.IsValid())
+		{
+			ASnapperEnemy* PrevSnapper = SubscribedSnapper.Get();
+			PrevSnapper->UnsubFromShrineAttackPoint();
+			SubscribedSnapper.Get()->GetHealthComponent()->OnDeathDelegate.RemoveDynamic(this, &UShrineAttackPoint::OnSnapperDeath);
+		}
+		State = EShrineAttackPointState::Empty;
+		SubscribedSnapper = nullptr;
+	}
+
+	void PerformShift(ASnapperEnemy* NewSnapper)
+	{
+		if (SubscribedSnapper.IsValid())
+		{
+			UnsubscribeSnapper();
+		}
+		check(NewSnapper);
+		SubscribeSnapper(NewSnapper);
+	}
+};
 
 class UHealthComponent;
 
@@ -18,6 +87,8 @@ class BLINDEYE_API AShrine : public AActor, public IHealthInterface, public IInd
 	
 public:	
 	AShrine();
+
+	virtual void Tick(float DeltaSeconds) override;
 
 	UPROPERTY(EditDefaultsOnly)
 	UCapsuleComponent* CapsuleComponent;
@@ -33,6 +104,21 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	float MaxShrineHealth = 100.f;
+
+	UPROPERTY(EditDefaultsOnly, Category=Ticketing)
+	uint8 NumSurroundingAttackPoints = 10;
+	
+	UPROPERTY(EditDefaultsOnly, Category=Ticketing)
+	float AttackPointDistOffset = 15;
+
+	UPROPERTY(EditDefaultsOnly, Category=Ticketing)
+	float AttackPointCenterOffsetRight = -55;
+	
+	UPROPERTY(EditDefaultsOnly, Category=Ticketing)
+	float AttackPointCenterOffsetForward = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category=Ticketing)
+	bool bShowAttackingPoints = false;
 
 	virtual float GetMass() override;
 
@@ -54,8 +140,18 @@ public:
 	void ChannellingEnded(AActor* EnemyChannelling);
 
 	virtual FVector GetIndicatorPosition() override;
- 
-	void StartWaitingForPlayersToInteract();
+
+	/**
+	 * Checks for the closest shrine attack point and checks if a valid spot exists
+	 * @param Snapper	Snapper asking for point to subscribe to to attack shrine
+	 * returns			nullptr if no points available, otherwise returns the closest point to subscribe to
+	 */
+	UShrineAttackPoint* AskForClosestPoint(ASnapperEnemy* Snapper);
+
+	uint8 FindClosestAttackPointIndex(const FVector& AskerLocation);
+	bool IsOpenAttackPoint();
+	void PerformShift(int8 AttackPointIndex, ASnapperEnemy* AskingSnapper);
+	uint8 GetClosestOpenPointLeft(uint8 AttackPointIndex, bool& IsRightClosest);
  
 protected:
 	
@@ -72,6 +168,11 @@ protected:
 
 	FTimerHandle ChargeUpdatingTimerHandle;
 	float ChargeUpdatingDelay = 0.1f;
+
+	UPROPERTY()
+	TArray<UShrineAttackPoint*> AttackPoints;
+
+	void InitializeAttackPoint();
 	
 	UFUNCTION()
 	void UpdateChargeUI();

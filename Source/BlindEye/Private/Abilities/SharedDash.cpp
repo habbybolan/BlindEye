@@ -36,6 +36,12 @@ void ASharedDash::ResetPlayerSpeed()
 	}
 }
 
+void ASharedDash::EndAbilityLogic()
+{
+	Super::EndAbilityLogic();
+	ResetPlayerSpeed();
+}
+
 // **** States *******
 
 // Dash Start State *********************
@@ -70,10 +76,10 @@ void FDashStartState::ExitState()
 {
 	FAbilityState::ExitState();
 	if (Ability == nullptr) return;
-
-	ASharedDash* Dash = Cast<ASharedDash>(Ability);
-	if (Dash == nullptr) return;
-
-	Dash->ResetPlayerSpeed();
 	Ability->EndCurrState();
+}
+
+bool FDashStartState::CancelState()
+{
+	return FAbilityState::CancelState();
 }

@@ -50,7 +50,9 @@ void ASnapperEnemyController::PerformJumpAttack()
 
 bool ASnapperEnemyController::CanBasicAttack(AActor* target)
 {
-	return !Snapper->IsBasicAttackOnDelay && IsInBasicAttackRange(target);
+	return !Snapper->IsBasicAttackOnDelay &&
+			IsInBasicAttackRange(target) &&
+			Snapper->GetShrineAttackPoint() != nullptr;
 }
 
 bool ASnapperEnemyController::IsInBasicAttackRange(AActor* Target)

@@ -24,4 +24,10 @@ class BLINDEYE_API UBTS_SnapperState : public UBTService
 	
 	UPROPERTY(EditAnywhere)  
 	FBlackboardKeySelector IsAttackingShrine;
+
+	UPROPERTY(EditAnywhere)
+	FBlackboardKeySelector ShrineAttackObjectKey;
+
+	UPROPERTY(EditAnywhere)
+	FBlackboardKeySelector ShrineAttackPositionKey;
 };
