@@ -158,7 +158,8 @@ void ABurrowerEnemy::SpawnSnappers()
 	FTransform Transform;
 	Transform.SetLocation(location);
 	Transform.SetRotation(rotation.Quaternion());
-	ASnapperEnemy* Snapper = World->SpawnActorDeferred<ASnapperEnemy>(SnapperType, Transform);
+	ASnapperEnemy* Snapper = World->SpawnActorDeferred<ASnapperEnemy>(SnapperType, Transform, nullptr, nullptr,
+		ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 	Snapper->QueuedSpawnForce = GetMesh()->GetBoneQuaternion(TEXT("Mouth")).Vector() * ForwardSnapperSpawnForce;
 	Snapper->FinishSpawning(Transform);
 	if (Snapper)
