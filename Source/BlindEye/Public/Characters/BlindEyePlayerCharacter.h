@@ -486,6 +486,8 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void SER_ClientFullyInitialized();
 	
+	UFUNCTION()
+	void OnGameEnded();
 
 protected:
 	// APawn interface
