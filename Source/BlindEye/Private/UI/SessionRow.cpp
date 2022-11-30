@@ -16,12 +16,14 @@ void USessionRow::InitializeData(FServerData Data, uint8 Index)
 	RowIndex = Index;
 	ServerName->SetText(FText::FromString(Data.Name));
 
-	// Row->HostUser->SetText(FText::FromString(ServerData.HostUsername));
-	//
-	// FString FractionText = FString::Printf(TEXT("%d/%d"), ServerData.CurrentPlayers, ServerData.MaxPlayers);
-	// Row->ConnectionFraction->SetText(FText::FromString(FractionText));
-	//
-	// Row->Setup(this, IndexRow);
+	// Limit num of player name characters
+	FString HostNameText = Data.HostUsername.Len() >= MaxNumHostNameCharacters ?
+		Data.HostUsername.Mid(0, MaxNumHostNameCharacters) + "..."
+		: Data.HostUsername;
+	HostName->SetText(FText::FromString(HostNameText));
+
+	FString FractionText = "";//FString::Printf(TEXT("%d/%d"), Data.CurrentPlayers, Data.MaxPlayers);
+	NumPlayersInLobby->SetText(FText::FromString(FractionText));
 
 	SessionData = Data;
 }

@@ -39,7 +39,6 @@ void ATutorialManager::StartTutorials()
 {
 	check(AllTutorials.Num() > 0);
 	bTutorialsRunning = true;
-	StartNextTutorial();
 
 	for (TWeakObjectPtr<ABlindEyePlayerCharacter> Player : SubscribedPlayers)
 	{
@@ -49,6 +48,7 @@ void ATutorialManager::StartTutorials()
 			InitializePlayerForTutorial(Player.Get());
 		}
 	}
+	AllTutorials[CurrTutorialIndex]->SetupTutorial();
 }
 
 void ATutorialManager::GotoNextTutorial()
@@ -90,25 +90,11 @@ TArray<FTutorialInfo> ATutorialManager::GetCurrentTutorialInfo(EPlayerType Playe
 void ATutorialManager::StartNextTutorial()
 {
 	AllTutorials[CurrTutorialIndex]->SetupTutorial();
-	
-	MULT_NotifyNextTutorial(AllTutorials[CurrTutorialIndex]->GetPlayerTutorialArray(EPlayerType::CrowPlayer),
-		AllTutorials[CurrTutorialIndex]->GetPlayerTutorialArray(EPlayerType::PhoenixPlayer));
-}
-
-void ATutorialManager::MULT_NotifyNextTutorial_Implementation(const TArray<FTutorialInfo>& CrowChecklist, const TArray<FTutorialInfo>& PhoenixChecklist)
-{
-	if (UWorld* World = GetWorld())
+	for (TWeakObjectPtr<ABlindEyePlayerCharacter> Player : SubscribedPlayers)
 	{
-		if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(World, 0))
+		if (Player.IsValid())
 		{
-			if (PlayerController->GetPawn())
-			{
-				ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PlayerController->GetPawn());
-				if (Player->IsLocallyControlled())
-				{
-					NextTutorialStartedDelegate.Broadcast(Player->PlayerType == EPlayerType::CrowPlayer ? CrowChecklist : PhoenixChecklist);
-				}
-			}
+			Player->CLI_OnNewTutorialStarted(AllTutorials[CurrTutorialIndex]->GetPlayerTutorialArray(Player->PlayerType));
 		}
 	}
 }
