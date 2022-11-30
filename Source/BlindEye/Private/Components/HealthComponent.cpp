@@ -76,9 +76,12 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 
 		if (UWorld* World = GetWorld())
 		{
-			ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
-			// only allow taking damage if game in progress
-			if (!BlindEyeGS->IsBlindEyeMatchInProgress()) return;
+			if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+			{
+				ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+				// only allow taking damage if game in progress
+				if (!BlindEyeGS->IsBlindEyeMatchInProgress()) return;
+			}
 		}
 			
 		const UBaseDamageType* baseDamageType = Cast<UBaseDamageType>(DamageType);

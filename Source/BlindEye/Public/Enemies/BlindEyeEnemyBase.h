@@ -77,5 +77,9 @@ public:
 	virtual float GetMaxHealth() override;
 
 	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
+
+protected:
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_OnDeath(AActor* ActorThatKilled);
 	
 };

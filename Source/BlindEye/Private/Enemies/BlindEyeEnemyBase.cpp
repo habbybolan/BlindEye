@@ -114,6 +114,8 @@ void ABlindEyeEnemyBase::OnDeath(AActor* ActorThatKilled)
 	{
 		World->GetTimerManager().SetTimer(DestroyTimerHandle, this, &ABlindEyeEnemyBase::DestroyEnemy, DestroyDelay, false);
 	}
+
+	MULT_OnDeath(ActorThatKilled);
 }
 
 float ABlindEyeEnemyBase::GetHealthPercent()
@@ -132,5 +134,13 @@ void ABlindEyeEnemyBase::FellOutOfWorld(const UDamageType& dmgType)
 	if (GetLocalRole() == ROLE_Authority)
 	{
 		OnDeath(nullptr);
+	}
+}
+
+void ABlindEyeEnemyBase::MULT_OnDeath_Implementation(AActor* ActorThatKilled)
+{
+	if (GetHealthComponent()->GetCurrMark().bHasMark)
+	{
+		MarkerComponent->RemoveMark(GetHealthComponent()->GetCurrMark().MarkerType);
 	}
 }
