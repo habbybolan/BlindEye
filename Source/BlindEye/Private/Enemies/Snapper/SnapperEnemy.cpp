@@ -284,7 +284,10 @@ void ASnapperEnemy::UpdateHipLocation(float DeltaSecond)
 
 void ASnapperEnemy::MULT_StartRagdoll_Implementation(bool IsIndefiniteRagdoll)
 {
-	GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = true;
+	if (GetLocalRole() < ROLE_Authority)
+	{
+		GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = false;
+	}
 	GetMovementComponent()->SetComponentTickEnabled(false);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	if (GetLocalRole() == ROLE_Authority) 
@@ -319,7 +322,11 @@ void ASnapperEnemy::MULT_StopRagdoll_Implementation()
 		TimeForGetup = PlayAnimMontage(GetUpFromBehindMontage);
 	}
 
-	GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = false;
+	if (GetLocalRole() < ROLE_Authority)
+	{
+		GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = false;
+	}
+	
 	GetWorldTimerManager().SetTimer(GetupAnimTimerHandle, this, &ASnapperEnemy::FinishGettingUp, TimeForGetup, false);
 	
 	AlphaBlendWeight = 1;
