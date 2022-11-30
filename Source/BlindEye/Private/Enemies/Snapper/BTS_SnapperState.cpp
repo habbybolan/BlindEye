@@ -8,6 +8,8 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/Snapper/SnapperEnemy.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Gameplay/BlindEyeGameState.h"
+#include "Kismet/GameplayStatics.h"
 
 void UBTS_SnapperState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
@@ -15,6 +17,16 @@ void UBTS_SnapperState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 
 	UBlackboardComponent* BBComp = OwnerComp.GetBlackboardComponent();
 	if (!BBComp) return;
+
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+
+	// check if game ended
+	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+	if (BlindEyeGS->IsBlindEyeMatchEnding() || BlindEyeGS->IsBlindEyeMatchEnded())
+	{
+		BBComp->SetValueAsBool(IsGameEndedKey.SelectedKeyName, true);
+	}
 	
 	if (AAIController* Controller = OwnerComp.GetAIOwner())
 	{

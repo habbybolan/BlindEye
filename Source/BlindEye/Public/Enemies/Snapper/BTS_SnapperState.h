@@ -16,18 +16,21 @@ class BLINDEYE_API UBTS_SnapperState : public UBTService
 
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
-	UPROPERTY(EditAnywhere) 
+	UPROPERTY(EditAnywhere, Category=BlackBoard) 
 	FBlackboardKeySelector IsRagdolling;
 
-	UPROPERTY(EditAnywhere)  
+	UPROPERTY(EditAnywhere, Category=BlackBoard)  
 	FBlackboardKeySelector AttackState;
 	
-	UPROPERTY(EditAnywhere)  
+	UPROPERTY(EditAnywhere, Category=BlackBoard)  
 	FBlackboardKeySelector IsAttackingShrine;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category=BlackBoard)
 	FBlackboardKeySelector ShrineAttackObjectKey;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category=BlackBoard)
 	FBlackboardKeySelector ShrineAttackPositionKey;
+
+	UPROPERTY(EditAnywhere, Category=BlackBoard)
+	FBlackboardKeySelector IsGameEndedKey;
 };
