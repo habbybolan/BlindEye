@@ -71,7 +71,7 @@ void UMarkerComponent::RemoveMark(EMarkerType MarkType)
 {
 	if (AMarkerStaticMesh* ActiveMark = GetMarkMesh(MarkType))
 	{
-		ActiveMark->BP_RemoveMark();
+		ActiveMark->BP_RemoveMark_CLI();
 	}
 	bMarked = false;
 	UpdateMarkVisibility(MarkType, false);
@@ -81,7 +81,7 @@ void UMarkerComponent::DetonateMark(EMarkerType MarkerType)
 {
 	if (AMarkerStaticMesh* ActiveMark = GetMarkMesh(MarkerType))
 	{
-		ActiveMark->BP_DetonateMark(MarkerType);
+		ActiveMark->BP_DetonateMark_CLI(MarkerType);
 	}
 	bMarked = false;
 	UpdateMarkVisibility(MarkerType, false);

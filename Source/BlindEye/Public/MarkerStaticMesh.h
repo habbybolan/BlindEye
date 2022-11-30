@@ -19,9 +19,9 @@ class BLINDEYE_API AMarkerStaticMesh : public AStaticMeshActor
 public:
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_RemoveMark();
+	void BP_RemoveMark_CLI();
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_DetonateMark(EMarkerType MarkerType); 
+	void BP_DetonateMark_CLI(EMarkerType MarkerType); 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_AddMark(EMarkerType MarkerType); 
 	UFUNCTION(BlueprintImplementableEvent)

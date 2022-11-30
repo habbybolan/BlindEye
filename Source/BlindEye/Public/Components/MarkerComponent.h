@@ -31,6 +31,9 @@ public:
 	TSubclassOf<AMarkerStaticMesh> PhoenixMarkType;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AMarkerStaticMesh> HunterMarkType;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float MarketRemoveDecayDuration = 1.f;
  
 	void RemoveMark(EMarkerType MarkType);
 	void DetonateMark(EMarkerType MarkerType);
