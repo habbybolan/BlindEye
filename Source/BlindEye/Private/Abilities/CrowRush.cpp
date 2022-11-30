@@ -205,6 +205,7 @@ void ACrowRush::MULT_StartMovementHelper_Implementation(FVector StartPos, FVecto
 {
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
 	Player->GetMovementComponent()->StopMovementImmediately();
+	Player->GetCharacterMovement()->SetMovementMode(MOVE_Falling);
 	
 	UWorld* World = GetWorld();
 	if (World)
@@ -252,17 +253,8 @@ void ACrowRush::CheckIsLanded()
 
 bool ACrowRush::CheckIsLandedHelper()
 {
-	UWorld* World = GetWorld();
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
-	if (World)
-	{
-		FVector StartLoc = Player->GetMesh()->GetBoneLocation("RightFoot");
-		FVector EndLoc = StartLoc + FVector::DownVector * 150;
-		FHitResult OutHit;
-		return UKismetSystemLibrary::LineTraceSingleForObjects(World, StartLoc, EndLoc, GroundObjectTypes, false,
-			TArray<AActor*>(), EDrawDebugTrace::ForDuration, OutHit, true);
-	}
-	return false;
+	return !Player->GetMovementComponent()->IsFalling();
 }
 
 void ACrowRush::SetAsLanded()
