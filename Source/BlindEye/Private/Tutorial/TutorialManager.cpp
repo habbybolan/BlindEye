@@ -73,7 +73,7 @@ void ATutorialManager::SetFinishTutorials()
 	bTutorialEnded = true;
 	if (bTutorialsRunning && CurrTutorialIndex < AllTutorials.Num())
 	{
-		AllTutorials[CurrTutorialIndex]->EndTutorialLogic();
+		AllTutorials[CurrTutorialIndex]->EndTutorial();
 	}
 	bTutorialsRunning = false;
 }

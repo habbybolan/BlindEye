@@ -46,6 +46,7 @@ public:
  
 	virtual void SetupTutorial();
 	virtual void EndTutorialLogic();
+	virtual void EndTutorial();
 
 	// TODO: Logic for player joining in middle of tutorial, update their states?
 
@@ -73,6 +74,4 @@ protected:
 	void AddChecklistItem(EPlayerType PlayerType, uint8 ItemID, FString& text, uint8 MaxCount);
 
 	virtual void PlayerEnteredTutorialHelper(ABlindEyePlayerCharacter* Player) PURE_VIRTUAL(OnPlayerConnected,);
-
-	virtual void EndTutorial();
 };
