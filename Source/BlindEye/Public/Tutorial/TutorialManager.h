@@ -59,7 +59,4 @@ protected:
 
 	void InitializePlayerForTutorial(ABlindEyePlayerCharacter* NewPlayer);
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_NotifyNextTutorial(const TArray<FTutorialInfo>& CrowChecklist, const TArray<FTutorialInfo>& PhoenixChecklist);
-
 };
