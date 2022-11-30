@@ -73,15 +73,6 @@ void ABlindEyePlayerController::SER_SpawnPlayer_Implementation()
 	}
 }
 
-void ABlindEyePlayerController::CLI_GameLost_Implementation()
-{
-	if (GetPawn() == nullptr) return;
-	if (ABlindEyePlayerCharacter* BlindEyeCharacter = Cast<ABlindEyePlayerCharacter>(GetPawn()))
-	{
-		BlindEyeCharacter->CLI_OnGameLost();
-	}
-}
-
 void ABlindEyePlayerController::SER_RestartLevel_Implementation()
 {
 	UWorld* World = GetWorld();
@@ -102,15 +93,6 @@ void ABlindEyePlayerController::SER_RestartLevel_Implementation()
 		{
 			BlindEyeGameMode->RestartGame();
 		}
-	}
-}
-
-void ABlindEyePlayerController::CLI_GameWon_Implementation()
-{
-	if (GetPawn() == nullptr) return;
-	if (ABlindEyePlayerCharacter* BlindEyeCharacter = Cast<ABlindEyePlayerCharacter>(GetPawn()))
-	{
-		BlindEyeCharacter->CLI_OnGameWon();
 	}
 }
 

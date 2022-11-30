@@ -238,10 +238,8 @@ public:
 	float GetBirdMeterPercent() override;
 	virtual float GetBirdMeter() override;
 
-	UFUNCTION(Client, Reliable)
-	void CLI_OnGameLost();
-	UFUNCTION(Client, Reliable)
-	void CLI_OnGameWon();
+	void OnGameLost();
+	void OnGameWon();
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void UpdateShrineHealthUI(); 
