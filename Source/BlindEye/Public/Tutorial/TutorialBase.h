@@ -64,6 +64,7 @@ public:
 protected:
 
 	bool bRunning = false;
+	bool bEnding = false;
  
 	UPROPERTY()
 	ABlindEyeGameState* BlindEyeGS;

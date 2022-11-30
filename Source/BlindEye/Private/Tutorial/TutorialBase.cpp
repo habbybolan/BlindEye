@@ -65,8 +65,10 @@ void ATutorialBase::EndTutorialLogic()
 
 void ATutorialBase::EndTutorial()
 {
+	if (bEnding) return;
 	if (UWorld* World = GetWorld())
 	{
+		bEnding = true;
 		World->GetTimerManager().SetTimer(DelayEndTimerHandle, this, &ATutorialBase::EndTutorialLogic, EndTutorialDelay, false);	
 	}
 }
