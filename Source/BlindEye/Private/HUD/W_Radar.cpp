@@ -24,12 +24,13 @@ void UW_Radar::UpdateRadar()
 	if (World)
 	{
 		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
-		for (ABlindEyeEnemyBase* Actor : BlindEyeGS->GetAllEnemies())
+		for (TWeakObjectPtr<ABlindEyeEnemyBase> Actor : BlindEyeGS->GetAllEnemies())
 		{
+			if (!Actor.IsValid()) continue;
 			// dont show snappers on radar
 			if (ASnapperEnemy* Snapper = Cast<ASnapperEnemy>(Actor)) continue;
 			
-			int8 RadarIndex = GetRadarIndex(Actor, PlayerController);
+			int8 RadarIndex = GetRadarIndex(Actor.Get(), PlayerController);
 			if (RadarIndex >= 0)
 			{
 				NumOfEnemiesAtRadarIndices[RadarIndex]++;

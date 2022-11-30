@@ -127,7 +127,7 @@ public:
 
 	float GetGameDonePercent();
 
-	TArray<ABlindEyeEnemyBase*> GetAllEnemies();
+	TArray<TWeakObjectPtr<ABlindEyeEnemyBase>> GetAllEnemies();
 
 	// Called whenever enemy is spawned to allow easy retrieval of all enemies alive in level
 	void SubscribeToEnemy(ABlindEyeEnemyBase* Enemy);
@@ -200,7 +200,7 @@ protected:
 	TWeakObjectPtr<AShrine> Shrine;
 
 	UPROPERTY(Replicated)
-	TArray<ABlindEyeEnemyBase*> AllEnemies;
+	TArray<TWeakObjectPtr<ABlindEyeEnemyBase>> AllEnemies;
 
 	UPROPERTY(ReplicatedUsing=OnRep_InProgressMatchState, BlueprintReadOnly, VisibleInstanceOnly, Category = GameState)
 	FName InProgressMatchState;

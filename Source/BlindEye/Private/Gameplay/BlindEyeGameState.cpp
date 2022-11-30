@@ -43,14 +43,14 @@ void ABlindEyeGameState::BeginPlay()
 	}
 }
 
-TArray<ABlindEyeEnemyBase*> ABlindEyeGameState::GetAllEnemies()
+TArray<TWeakObjectPtr<ABlindEyeEnemyBase>> ABlindEyeGameState::GetAllEnemies()
 {
 	return AllEnemies;
 }
 
 void ABlindEyeGameState::SubscribeToEnemy(ABlindEyeEnemyBase* Enemy)
 {
-	AllEnemies.Add(Enemy);
+	AllEnemies.Add( MakeWeakObjectPtr(Enemy));
 	Enemy->HealthComponent->OnDeathDelegate.AddDynamic(this, &ABlindEyeGameState::EnemyDied);
 }
 
@@ -261,7 +261,7 @@ void ABlindEyeGameState::EnemyDied(AActor* EnemyActor)
 {
 	uint8 Index = 0;
 	// remove reference to the actor 
-	for (ABlindEyeEnemyBase* Enemy : AllEnemies)
+	for (TWeakObjectPtr<ABlindEyeEnemyBase> Enemy : AllEnemies)
 	{
 		if (EnemyActor == Enemy)
 		{
