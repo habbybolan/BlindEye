@@ -1202,6 +1202,43 @@ void ABlindEyePlayerCharacter::TutorialActionPerformed(TutorialInputActions::ETu
 	}
 }
 
+void ABlindEyePlayerCharacter::AddHunterHealthbar(AHunterEnemy* Hunter)
+{
+	if (HunterHealthbarWidget != nullptr)
+	{
+		HunterHealthbarWidget->RemoveFromParent();
+	}
+
+	if (GetController())
+	{
+		ABlindEyePlayerController* PlayerController = Cast<ABlindEyePlayerController>(GetController());
+		HunterHealthbarWidget = CreateWidget<UHunterHealthbar>(PlayerController, HunterHealthbarType);
+		HunterHealthbarWidget->AddToViewport();
+		HunterHealthbarWidget->SubscribeToHunter(Hunter);
+	}
+}
+
+void ABlindEyePlayerCharacter::RemoveHunterHealthbar()
+{
+	if (HunterHealthbarWidget != nullptr)
+	{
+		HunterHealthbarWidget->RemoveFromParent();
+	}
+}
+
+void ABlindEyePlayerCharacter::HunterHealthbarVisibility(bool IsVisible)
+{
+	if (HunterHealthbarWidget)
+	{
+		HunterHealthbarWidget->SetVisibility(IsVisible ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+	}
+}
+
+void ABlindEyePlayerCharacter::LevelSequenceAction(bool IsStarted)
+{
+	HunterHealthbarVisibility(!IsStarted);
+}
+
 void ABlindEyePlayerCharacter::SER_TutorialActionPerformedHelper_Implementation(
 	TutorialInputActions::ETutorialInputActions TutorialAction)
 {
