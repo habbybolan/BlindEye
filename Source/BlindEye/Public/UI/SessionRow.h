@@ -22,6 +22,15 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, meta=(BindWidget))
 	UTextBlock* ServerName;
+	
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* HostName;
+
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* NumPlayersInLobby;
+
+	UPROPERTY(EditDefaultsOnly)
+	uint8 MaxNumHostNameCharacters = 20;
 
 	DECLARE_DYNAMIC_DELEGATE_OneParam(FSessionRowSelectedSignature, USessionRow*, SessionRow);
 	FSessionRowSelectedSignature SessionRowSelectedDelegate;

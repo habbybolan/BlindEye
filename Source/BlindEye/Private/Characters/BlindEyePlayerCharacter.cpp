@@ -160,7 +160,7 @@ void ABlindEyePlayerCharacter::StartTutorial(const TArray<FTutorialInfo>& Tutori
 
 		ATutorialManager* TutorialManager = BlindEyeGS->GetTutorialManager();
 		check(TutorialManager)
-		TutorialManager->NextTutorialStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::CLI_OnNewTutorialStarted);
+		//TutorialManager->NextTutorialStartedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::CLI_OnNewTutorialStarted);
 		
 		CLI_OnNewTutorialStarted(TutorialsInfoChecklist);
 	}
@@ -1212,7 +1212,7 @@ void ABlindEyePlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ABlindEyePlayerCharacter, bUnlimitedBirdMeter);
-	DOREPLIFETIME(ABlindEyePlayerCharacter, PlayerType);
+	DOREPLIFETIME_CONDITION(ABlindEyePlayerCharacter, PlayerType, COND_InitialOnly);
 	DOREPLIFETIME(ABlindEyePlayerCharacter, CurrRevivePercent);
 	DOREPLIFETIME(ABlindEyePlayerCharacter, TutorialActionBlockers);
 }

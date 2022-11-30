@@ -363,6 +363,10 @@ public:
 	void SER_TutorialActionPerformedHelper(TutorialInputActions::ETutorialInputActions TutorialAction);
 
 	void InitializeUI();
+
+	// Update checklist to fit new tutorial
+	UFUNCTION(Client, Reliable)
+	void CLI_OnNewTutorialStarted(const TArray<FTutorialInfo>& TutorialsInfoChecklist);
 	
 protected:
 
@@ -465,10 +469,6 @@ protected:
 
 	UFUNCTION()
 	void AnimMontageEnded(UAnimMontage* Montage, bool bInterrupted);
-
-	// Update checklist to fit new tutorial
-	UFUNCTION(Client, Reliable)
-	void CLI_OnNewTutorialStarted(const TArray<FTutorialInfo>& TutorialsInfoChecklist);
 
 	UFUNCTION(Server, Reliable)
 	void SER_ClientFullyInitialized();

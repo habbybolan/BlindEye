@@ -57,12 +57,13 @@ void ABlindEyePlayerController::SER_SpawnPlayer_Implementation()
 			IsServer = !IsServer;
 		}
 	}
-	
 		
-	OwningCharacter = Cast<ABlindEyePlayerCharacter>(world->SpawnActor<ABlindEyePlayerCharacter>(PlayerClassType, spawnTransform, spawnParams));
+	OwningCharacter = Cast<ABlindEyePlayerCharacter>(world->SpawnActorDeferred<ABlindEyePlayerCharacter>(PlayerClassType,
+		spawnTransform, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn));
+	OwningCharacter->PlayerType = playerType;
+	OwningCharacter->FinishSpawning(spawnTransform);
 	if (OwningCharacter)
 	{
-		OwningCharacter->PlayerType = playerType;
 		APawn* CachedPawn = GetPawn();
 		Possess(OwningCharacter);
 
