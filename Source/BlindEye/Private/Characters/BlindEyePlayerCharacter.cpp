@@ -113,6 +113,9 @@ void ABlindEyePlayerCharacter::BeginPlay()
 	{
 		world->GetTimerManager().SetTimer(BirdRegenTimerHandle, this, &ABlindEyePlayerCharacter::RegenBirdMeter, RegenBirdMeterCallDelay, true);
 		world->GetTimerManager().SetTimer(HealthRegenTimerHandle, this, &ABlindEyePlayerCharacter::RegenHealth, RegenHealthCallDelay, true);
+
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(world));
+		BlindEyeGS->GameEndingDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::OnGameEnded);
 	}
 
 	HealthComponent->MarkedAddedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::MULT_OnMarked);
@@ -121,6 +124,15 @@ void ABlindEyePlayerCharacter::BeginPlay()
 	GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &ABlindEyePlayerCharacter::AnimMontageEnded);
 
 	UE_LOG(LogTemp, Warning, TEXT("[ABlindEyePlayerCharacter::BeginPlay] %s beginPlay finished"), *GetName());
+}
+
+void ABlindEyePlayerCharacter::OnGameEnded()
+{
+	if (GetIsDead())
+	{
+		BP_PlayerRevived();
+		GetWorldTimerManager().ClearTimer(AllyHealingCheckTimerHandle);
+	}
 }
 
 void ABlindEyePlayerCharacter::SER_ClientFullyInitialized_Implementation()
@@ -522,7 +534,6 @@ void ABlindEyePlayerCharacter::LookUpAtRate(float Rate)
  
 void ABlindEyePlayerCharacter::OnCheckAllyHealing() 
 {
-	// TODO: Sphere cast around on timer for healing
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(this);
 	TArray<AActor*> OverlapActors;
@@ -833,7 +844,17 @@ void ABlindEyePlayerCharacter::OnDeath(AActor* ActorThatKilled)
 		AbilityManager->TryCancelCurrentAbility();
 		BlindEyePS->SetIsDead(true);
 	}
-	MULT_OnDeath(ActorThatKilled);
+
+	if (UWorld* World = GetWorld())
+	{
+		ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+		// If game not ended after player death
+		if (BlindEyeGS->IsBlindEyeMatchInProgress())
+		{
+			GetWorldTimerManager().SetTimer(AllyHealingCheckTimerHandle, this, &ABlindEyePlayerCharacter::OnCheckAllyHealing, AllyHealCheckDelay, true);
+			MULT_OnDeath(ActorThatKilled);
+		}
+	}
 }
 
 void ABlindEyePlayerCharacter::MULT_OnDeath_Implementation(AActor* ActorThatKilled)
@@ -854,7 +875,6 @@ void ABlindEyePlayerCharacter::MULT_OnDeath_Implementation(AActor* ActorThatKill
 			}
 		}
 	}
-	GetWorldTimerManager().SetTimer(AllyHealingCheckTimerHandle, this, &ABlindEyePlayerCharacter::OnCheckAllyHealing, AllyHealCheckDelay, true);
 }
 
 bool ABlindEyePlayerCharacter::TryConsumeBirdMeter(float PercentAmount)
@@ -1200,6 +1220,43 @@ void ABlindEyePlayerCharacter::TutorialActionPerformed(TutorialInputActions::ETu
 	{
 		SER_TutorialActionPerformedHelper(TutorialAction);
 	}
+}
+
+void ABlindEyePlayerCharacter::AddHunterHealthbar(AHunterEnemy* Hunter)
+{
+	if (HunterHealthbarWidget != nullptr)
+	{
+		HunterHealthbarWidget->RemoveFromParent();
+	}
+
+	if (GetController())
+	{
+		ABlindEyePlayerController* PlayerController = Cast<ABlindEyePlayerController>(GetController());
+		HunterHealthbarWidget = CreateWidget<UHunterHealthbar>(PlayerController, HunterHealthbarType);
+		HunterHealthbarWidget->AddToViewport();
+		HunterHealthbarWidget->SubscribeToHunter(Hunter);
+	}
+}
+
+void ABlindEyePlayerCharacter::RemoveHunterHealthbar()
+{
+	if (HunterHealthbarWidget != nullptr)
+	{
+		HunterHealthbarWidget->RemoveFromParent();
+	}
+}
+
+void ABlindEyePlayerCharacter::HunterHealthbarVisibility(bool IsVisible)
+{
+	if (HunterHealthbarWidget)
+	{
+		HunterHealthbarWidget->SetVisibility(IsVisible ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+	}
+}
+
+void ABlindEyePlayerCharacter::LevelSequenceAction(bool IsStarted)
+{
+	HunterHealthbarVisibility(!IsStarted);
 }
 
 void ABlindEyePlayerCharacter::SER_TutorialActionPerformedHelper_Implementation(

@@ -212,7 +212,14 @@ void ABlindEyeGameState::MULT_PlayLevelSequence_Implementation(ULevelSequence* S
 	Settings.bHideHud = true;
 	ALevelSequenceActor* OutActor; 
 	CurrSequencePlaying = ULevelSequencePlayer::CreateLevelSequencePlayer(World, SequenceToPlay, Settings, OutActor);
-	CurrSequencePlaying->Play(); 
+	CurrSequencePlaying->Play();
+
+	// Notify player sequence started
+	if (ACharacter* Character = UGameplayStatics::GetPlayerCharacter(World, 0))
+	{
+		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Character);
+		Player->LevelSequenceAction(true);
+	}
 } 
 
 void ABlindEyeGameState::MULT_BeginningTutorialFinished_Implementation()
@@ -231,6 +238,20 @@ void ABlindEyeGameState::EnemyTutorialTextSkipped()
 		}
 	}
 	BP_EnemyTutorialTextSkipped_SER(CurrEnemyTutorial);
+	MULT_EnemyTutorialTextSkipped();
+}
+
+void ABlindEyeGameState::MULT_EnemyTutorialTextSkipped_Implementation()
+{
+	UWorld* World = GetWorld();
+	if (!World) return;
+	
+	// Notify player that sequence stopped
+	if (ACharacter* Character = UGameplayStatics::GetPlayerCharacter(World, 0))
+	{
+		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Character);
+		Player->LevelSequenceAction(false);
+	}
 }
 
 void ABlindEyeGameState::FinishEnemyTutorial()
@@ -334,7 +355,12 @@ bool ABlindEyeGameState::IsBlindEyeMatchEnding()
 {
 	return InProgressMatchState == InProgressStates::GameEnding;
 }
- 
+
+bool ABlindEyeGameState::IsBlindEyeMatchEnded()
+{
+	return InProgressMatchState == InProgressStates::GameEnded;
+}
+
 void ABlindEyeGameState::MULT_StartGame_Implementation()
 {
 	GameStartedDelegate.Broadcast();
@@ -437,12 +463,14 @@ void ABlindEyeGameState::GameInProgressState()
 
 void ABlindEyeGameState::GameEndingState()
 {
-	BP_GameEnding_SER(GameOverState);
-
-	GameEndingDelegate.Broadcast();
-	SetPlayerMovementBlocked(true);
-
-	SER_TeleportPlayersForBurrowerTutorials();
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		BP_GameEnding_SER(GameOverState);
+        GameEndingDelegate.Broadcast();
+        SetPlayerMovementBlocked(true);
+    
+        SER_TeleportPlayersForBurrowerTutorials();
+	}
 }
 
 void ABlindEyeGameState::GameEndedState()

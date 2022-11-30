@@ -16,26 +16,29 @@ class BLINDEYE_API UBTS_HunterState : public UBTService
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere) 
+	UPROPERTY(EditAnywhere, Category=BlackBoard) 
 	FBlackboardKeySelector IsFirstRunKey;
 
-	UPROPERTY(EditAnywhere)  
+	UPROPERTY(EditAnywhere, Category=BlackBoard)  
 	FBlackboardKeySelector IsDeadKey;
 
-	UPROPERTY(EditAnywhere)   
+	UPROPERTY(EditAnywhere, Category=BlackBoard)   
 	FBlackboardKeySelector IsFleeingKey;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category=BlackBoard)
 	FBlackboardKeySelector IsAttackingKey;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category=BlackBoard)
 	FBlackboardKeySelector IsImmobilizedKey;
 
-	UPROPERTY(EditAnywhere) 
+	UPROPERTY(EditAnywhere, Category=BlackBoard) 
 	FBlackboardKeySelector ShrineKey;
 
-	UPROPERTY(EditAnywhere)  
+	UPROPERTY(EditAnywhere, Category=BlackBoard)  
 	FBlackboardKeySelector IsChannellingKey;
+
+	UPROPERTY(EditAnywhere, Category=BlackBoard)
+	FBlackboardKeySelector IsGameEndedKey;
 
 	UPROPERTY()
 	AHunterEnemy* Hunter;

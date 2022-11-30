@@ -73,6 +73,13 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 	{
 		// prevent damage logic of already dead
 		if (OwnerHealth->GetIsDead()) return;
+
+		if (UWorld* World = GetWorld())
+		{
+			ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+			// only allow taking damage if game in progress
+			if (!BlindEyeGS->IsBlindEyeMatchInProgress()) return;
+		}
 			
 		const UBaseDamageType* baseDamageType = Cast<UBaseDamageType>(DamageType);
 		if (!baseDamageType) return;
@@ -90,6 +97,7 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 		OwnerHealth->SetHealth(OwnerHealth->GetHealth() - damageMultiplied);
 		// send callback to owning actor for any additional logic
 		OwnerHealth->MYOnTakeDamage(damageMultiplied, HitLocation, DamageType, DamageCauser->GetInstigator());
+		OnDamageDelegate.Broadcast(damageMultiplied, HitLocation, DamageType, DamageCauser->GetInstigator());
 		 
 		if (OwnerHealth->GetHealth() <= 0)
 		{

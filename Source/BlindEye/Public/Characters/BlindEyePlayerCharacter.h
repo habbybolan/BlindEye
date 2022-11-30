@@ -18,6 +18,7 @@
 #include "Components/ScaleBox.h"
 #include "Components/SizeBox.h"
 #include "HUD/EnemyTutorialTextSnippet.h"
+#include "HUD/HunterHealthbar.h"
 #include "Tutorial/TutorialBase.h"
 #include "BlindEyePlayerCharacter.generated.h"
 
@@ -162,6 +163,9 @@ public:
 	TSubclassOf<UTextPopupManager> TextPopupManagerType;
 	UPROPERTY(BlueprintReadWrite)
 	UTextPopupManager* TextPopupManager;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UHunterHealthbar> HunterHealthbarType;
  
 	UFUNCTION(BlueprintPure)
 	EPlayerType GetPlayerType();
@@ -367,6 +371,12 @@ public:
 	// Update checklist to fit new tutorial
 	UFUNCTION(Client, Reliable)
 	void CLI_OnNewTutorialStarted(const TArray<FTutorialInfo>& TutorialsInfoChecklist);
+
+	void AddHunterHealthbar(AHunterEnemy* Hunter);
+	void RemoveHunterHealthbar();
+	void HunterHealthbarVisibility(bool IsVisible);
+	// If a level sequence started or ended
+	void LevelSequenceAction(bool IsStarted);
 	
 protected:
 
@@ -421,7 +431,10 @@ protected:
 	const float AllyHealCheckDelay = 0.2f;
 
 	UPROPERTY(Replicated, EditDefaultsOnly)
-	float CurrRevivePercent = 0; 
+	float CurrRevivePercent = 0;
+
+	UPROPERTY()
+	UHunterHealthbar* HunterHealthbarWidget;
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_PlayerRevived();
@@ -473,6 +486,8 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void SER_ClientFullyInitialized();
 	
+	UFUNCTION()
+	void OnGameEnded();
 
 protected:
 	// APawn interface

@@ -7,6 +7,7 @@
 #include "Shrine.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/Hunter/HunterEnemyController.h"
+#include "Gameplay/BlindEyeGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -20,6 +21,16 @@ void UBTS_HunterState::OnSearchStart(FBehaviorTreeSearchData& SearchData)
 {
 	UBlackboardComponent* BBComp = SearchData.OwnerComp.GetBlackboardComponent();
 	check(BBComp);
+
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+
+	// check if game ended
+	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+	if (BlindEyeGS->IsBlindEyeMatchEnding() || BlindEyeGS->IsBlindEyeMatchEnded())
+	{
+		BBComp->SetValueAsBool(IsGameEndedKey.SelectedKeyName, true);
+	}
 	
 	if (BBComp->GetValueAsBool(IsFirstRunKey.SelectedKeyName))
 	{
@@ -27,17 +38,13 @@ void UBTS_HunterState::OnSearchStart(FBehaviorTreeSearchData& SearchData)
 		HunterController = Cast<AHunterEnemyController>(Controller);
 		Hunter = Cast<AHunterEnemy>(HunterController->GetPawn());
 
-		UWorld* World = GetWorld();
-		if (ensure(World))
+		if (AActor* Actor = UGameplayStatics::GetActorOfClass(World, AShrine::StaticClass()))
 		{
-			if (AActor* Actor = UGameplayStatics::GetActorOfClass(World, AShrine::StaticClass()))
-			{
-				AShrine* Shrine = Cast<AShrine>(Actor);
-				BBComp->SetValueAsObject(ShrineKey.SelectedKeyName, Shrine);
-			}
-			BBComp->SetValueAsBool(IsDeadKey.SelectedKeyName, false);
-			BBComp->SetValueAsBool(IsFleeingKey.SelectedKeyName, false);
+			AShrine* Shrine = Cast<AShrine>(Actor);
+			BBComp->SetValueAsObject(ShrineKey.SelectedKeyName, Shrine);
 		}
+		BBComp->SetValueAsBool(IsDeadKey.SelectedKeyName, false);
+		BBComp->SetValueAsBool(IsFleeingKey.SelectedKeyName, false);
 	}
 }
 

@@ -69,6 +69,17 @@ void AHunterEnemy::RotateWhileJumping(float DeltaSeconds)
 	}
 }
 
+void AHunterEnemy::MULT_HunterLeft_Implementation()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	if (ACharacter* Character = UGameplayStatics::GetPlayerCharacter(World, 0))
+	{
+		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Character);
+		Player->RemoveHunterHealthbar();
+	}
+}
+
 void AHunterEnemy::BeginPlay()
 {
 	Super::BeginPlay();
@@ -89,10 +100,18 @@ void AHunterEnemy::BeginPlay()
 	InvisUpdateEvent.BindUFunction(this, FName("TimelineInvisUpdate"));
 	InvisTimelineComponent->AddInterpFloat(InvisCurve, InvisUpdateEvent);
 	InvisTimelineComponent->SetTimelineLength(1);
+
+	// notify local player that hunter spawned
+	if (ACharacter* Character = UGameplayStatics::GetPlayerCharacter(World, 0))
+	{
+		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Character);
+		Player->AddHunterHealthbar(this);
+	}
 }
 
 void AHunterEnemy::Despawn()
 {
+	MULT_HunterLeft();
 	BP_HunterDespawned_SER();
 }
 
@@ -361,6 +380,7 @@ void AHunterEnemy::OnDeath(AActor* ActorThatKilled)
 	}
 	RemoveHunterMarkOnPlayer();
 	UnPossessed();
+	MULT_HunterLeft();
 }
 
 void AHunterEnemy::SetChargedJumpOffCooldown()

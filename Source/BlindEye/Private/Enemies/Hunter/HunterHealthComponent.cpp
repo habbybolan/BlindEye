@@ -21,11 +21,11 @@ float UHunterHealthComponent::ProcessDamage(float Damage)
 		return Damage * Hunter->StunnedDamagePercent;
 	}
 	// Alter damage intake if hunter not charged
-	if (!Hunter->GetIsCharged())
-	{
-		return Damage * Hunter->UnchargedDamagePercent;
-	} else 
+	if (Hunter->GetIsCharged() || Hunter->GetIsFleeing())
 	{
 		return Damage * Hunter->ChargedDamagePercent;
+	} else 
+	{
+		return Damage * Hunter->UnchargedDamagePercent;
 	}
 }

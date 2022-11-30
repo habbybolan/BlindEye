@@ -309,5 +309,8 @@ protected:
 
 	void CalculateWalkSpeed();
 	void RotateWhileJumping(float DeltaSeconds);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_HunterLeft();
 };
 

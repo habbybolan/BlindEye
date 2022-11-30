@@ -104,10 +104,13 @@ public:
 	bool IsBlindEyeMatchTutorial();
 	bool IsBlindEyeMatchInProgress();
 	bool IsBlindEyeMatchEnding();
+	bool IsBlindEyeMatchEnded();
 
 	void TutorialFinished();
 
 	void EnemyTutorialTextSkipped();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_EnemyTutorialTextSkipped();
 	
 	// Stops Cutscene and give control back to players, Called from Blueprints
 	void FinishEnemyTutorial();
