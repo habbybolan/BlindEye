@@ -202,8 +202,8 @@ void UBlindEyeGameInstance::OnFindSessionsComplete(bool Success)
 				{
 					Data.Name = ServerName;
 				}
-				// Fill information for the menuData.MaxPlayers = SearchResult.Session.SessionSettings.NumPublicConnections;
-				Data.CurrentPlayers = Data.MaxPlayers - SearchResult.Session.NumOpenPublicConnections;
+				Data.MaxPlayers = 2;
+				Data.CurrentPlayers = Data.MaxPlayers - (SearchResult.Session.NumOpenPublicConnections + 1);
 				Data.HostUsername = SearchResult.Session.OwningUserName;
 				ServerData.Add(Data);
 			}

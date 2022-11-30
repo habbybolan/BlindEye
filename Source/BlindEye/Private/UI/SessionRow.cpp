@@ -22,7 +22,7 @@ void USessionRow::InitializeData(FServerData Data, uint8 Index)
 		: Data.HostUsername;
 	HostName->SetText(FText::FromString(HostNameText));
 
-	FString FractionText = FString::Printf(TEXT("%d/%d"), Data.CurrentPlayers, Data.MaxPlayers);
+	FString FractionText = "";//FString::Printf(TEXT("%d/%d"), Data.CurrentPlayers, Data.MaxPlayers);
 	NumPlayersInLobby->SetText(FText::FromString(FractionText));
 
 	SessionData = Data;
