@@ -229,7 +229,7 @@ void AHunterEnemy::OnMarkDetonated(AActor* MarkedPawn, EMarkerType MarkerType)
 		check(HunterController);
 		
 		AActor* Target = HunterController->GetBTTarget();
-		HealthComponent->Stun(5, Target);
+		HealthComponent->Stun(StunDurationOnMarkDetonated, Target);
 		SetNotCharged();
 	}
 }
@@ -297,7 +297,7 @@ void AHunterEnemy::OnHunterMarkDetonated(AActor* MarkedPawn, EMarkerType MarkerT
 	check(HunterController);
 	AActor* Target = HunterController->GetBTTarget();
 	
-	HealthComponent->Stun(5, Target);
+	HealthComponent->Stun(StunDurationOnMarkDetonated, Target);
 }
 
 void AHunterEnemy::OnHunterMarkRemoved(AActor* UnmarkedActor, EMarkerType MarkerType)

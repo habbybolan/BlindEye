@@ -99,6 +99,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category=Charged)
 	float DistToMarkedPlayerToSlowDown = 300.f;
+
+	UPROPERTY(EditDefaultsOnly, Category=Charged)
+	float StunDurationOnMarkDetonated = 0.5f;
  
 	UPROPERTY(EditDefaultsOnly, Category=ChargedJump)
 	float ChargedJumpCooldown = 10.f;

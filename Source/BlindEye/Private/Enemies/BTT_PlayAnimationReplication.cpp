@@ -33,7 +33,7 @@ EBTNodeResult::Type UBTT_PlayAnimationReplication::AbortTask(UBehaviorTreeCompon
 
 void UBTT_PlayAnimationReplication::OnAnimEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	if (MyOwnerComp)
+	if (MyOwnerComp && AnimToPlay == Montage)
 	{
 		FinishLatentTask(*MyOwnerComp, EBTNodeResult::Succeeded);
 		CleanUp(*MyOwnerComp);
