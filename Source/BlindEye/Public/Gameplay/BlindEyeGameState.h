@@ -104,6 +104,7 @@ public:
 	bool IsBlindEyeMatchTutorial();
 	bool IsBlindEyeMatchInProgress();
 	bool IsBlindEyeMatchEnding();
+	bool IsBlindEyeMatchEnded();
 
 	void TutorialFinished();
 

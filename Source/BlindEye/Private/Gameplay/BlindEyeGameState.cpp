@@ -334,7 +334,12 @@ bool ABlindEyeGameState::IsBlindEyeMatchEnding()
 {
 	return InProgressMatchState == InProgressStates::GameEnding;
 }
- 
+
+bool ABlindEyeGameState::IsBlindEyeMatchEnded()
+{
+	return InProgressMatchState == InProgressStates::GameEnded;
+}
+
 void ABlindEyeGameState::MULT_StartGame_Implementation()
 {
 	GameStartedDelegate.Broadcast();
