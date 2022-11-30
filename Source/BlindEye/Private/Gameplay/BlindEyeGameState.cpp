@@ -447,18 +447,18 @@ void ABlindEyeGameState::GameEndingState()
 
 void ABlindEyeGameState::GameEndedState()
 {
-	for (APlayerState* PS : PlayerArray)
+	if (UWorld* World = GetWorld())
 	{
-		if (PS->GetPawn())
+		if (ACharacter* Character = UGameplayStatics::GetPlayerCharacter(World, 0))
 		{
-			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PS->GetPawn());
+			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Character);
 			if (GameOverState == EGameOverState::Lost)
 			{
-				Player->CLI_OnGameLost();
+				Player->OnGameLost();
 			}
 			else if (GameOverState == EGameOverState::Won)
 			{
-				Player->CLI_OnGameWon();
+				Player->OnGameWon();
 			}
 		}
 	}

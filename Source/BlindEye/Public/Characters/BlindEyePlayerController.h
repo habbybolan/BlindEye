@@ -19,12 +19,6 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void SER_SpawnPlayer();
- 
-	UFUNCTION(Client, Reliable)
-	void CLI_GameLost();
-
-	UFUNCTION(Client, Reliable)
-	void CLI_GameWon(); 
 
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void SER_RestartLevel();
