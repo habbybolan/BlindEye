@@ -442,12 +442,14 @@ void ABlindEyeGameState::GameInProgressState()
 
 void ABlindEyeGameState::GameEndingState()
 {
-	BP_GameEnding_SER(GameOverState);
-
-	GameEndingDelegate.Broadcast();
-	SetPlayerMovementBlocked(true);
-
-	SER_TeleportPlayersForBurrowerTutorials();
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		BP_GameEnding_SER(GameOverState);
+        GameEndingDelegate.Broadcast();
+        SetPlayerMovementBlocked(true);
+    
+        SER_TeleportPlayersForBurrowerTutorials();
+	}
 }
 
 void ABlindEyeGameState::GameEndedState()
