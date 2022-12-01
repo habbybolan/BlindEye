@@ -372,8 +372,10 @@ public:
 	UFUNCTION(Client, Reliable)
 	void CLI_OnNewTutorialStarted(const TArray<FTutorialInfo>& TutorialsInfoChecklist);
 
+	UFUNCTION()
 	void AddHunterHealthbar(AHunterEnemy* Hunter);
-	void RemoveHunterHealthbar();
+	UFUNCTION(Client, Reliable)
+	void CLI_RemoveHunterHealthbar();
 	void HunterHealthbarVisibility(bool IsVisible);
 	// If a level sequence started or ended
 	void LevelSequenceAction(bool IsStarted);

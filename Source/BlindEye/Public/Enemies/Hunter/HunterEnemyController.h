@@ -124,7 +124,7 @@ protected:
 	void NewIslandAdded(AIsland* Island);
 
 	UPROPERTY() 
-	AHunterEnemy* Hunter;
+	TWeakObjectPtr<AHunterEnemy> Hunter;
 
 	void SetFleeing();
 
@@ -139,4 +139,9 @@ protected:
 	bool bFleeingAfterStun = false;
 
 	FTimerHandle FleeingTimerHandle;
+
+	void RemoveHunterHealthbar();
+
+	virtual void OnUnPossess() override;
 };
+
