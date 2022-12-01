@@ -6,8 +6,10 @@
 void UHunterHealthbar::SubscribeToHunter(AHunterEnemy* hunter)
 {
 	Hunter = MakeWeakObjectPtr(hunter);
-	Hunter->HealthComponent->OnDamageDelegate.AddDynamic(this, &UHunterHealthbar::HunterHealthUpdated);
+	Hunter->OnDamageDelegate.AddDynamic(this, &UHunterHealthbar::HunterHealthUpdated);
 	UpdateHealth(Hunter->GetHealthPercent());
+
+	BP_StartAnimation();
 }
 
 void UHunterHealthbar::HunterHealthUpdated(float Damage, FVector HitLocation, const UDamageType* DamageType,

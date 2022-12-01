@@ -1238,7 +1238,7 @@ void ABlindEyePlayerCharacter::AddHunterHealthbar(AHunterEnemy* Hunter)
 	}
 }
 
-void ABlindEyePlayerCharacter::RemoveHunterHealthbar()
+void ABlindEyePlayerCharacter::CLI_RemoveHunterHealthbar_Implementation()
 {
 	if (HunterHealthbarWidget != nullptr)
 	{

@@ -52,8 +52,26 @@ void AHunterEnemyController::Initialize()
 		NewIslandAdded(Island);
 	}
 	IslandManager->GetShrineIsland()->IslandTrigger->CustomOverlapStartDelegate.AddDynamic(this, &AHunterEnemyController::SetEnteredNewIsland);
-	
-	//World->GetTimerManager().SetTimer(InitialSpawnDelayTimerHandle, this, &AHunterEnemyController::SpawnHunter, InitialSpawnDelay, false);
+}
+
+void AHunterEnemyController::RemoveHunterHealthbar()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+
+	ABlindEyeGameState* BlindEyeGS = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(World));
+	for (TWeakObjectPtr<ABlindEyePlayerCharacter> Player : BlindEyeGS->GetPlayers())
+	{
+		if (Player != nullptr)
+		{
+			Player->CLI_RemoveHunterHealthbar();
+		}
+	}
+}
+
+void AHunterEnemyController::OnUnPossess()
+{
+	Super::OnUnPossess();
 }
 
 bool AHunterEnemyController::IsHunterSpawned()
@@ -86,7 +104,7 @@ void AHunterEnemyController::SetAlwaysVisible(bool IsAlwaysVisible)
 		if (ABlindEyeGameState* BlindEyeGameState = Cast<ABlindEyeGameState>(GameState))
 		{
 			BlindEyeGameState->bHunterAlwaysVisible = IsAlwaysVisible;
-			if (Hunter)
+			if (Hunter.IsValid())
 			{
 				Hunter->TrySetVisibility(true);
 			}
@@ -96,7 +114,7 @@ void AHunterEnemyController::SetAlwaysVisible(bool IsAlwaysVisible)
 
 void AHunterEnemyController::PerformChargedJump()
 {
-	if (Hunter)
+	if (Hunter.IsValid())
 	{
 		Hunter->PerformChargedJump();
 	}
@@ -104,7 +122,7 @@ void AHunterEnemyController::PerformChargedJump()
 
 void AHunterEnemyController::PerformBasicAttack()
 {
-	if (Hunter)
+	if (Hunter.IsValid())
 	{
 		Hunter->PerformBasicAttack();
 	}
@@ -135,13 +153,13 @@ bool AHunterEnemyController::CanBasicAttack(AActor* Target)
 
 void AHunterEnemyController::TrySetVisibility(bool visibility)
 {
-	if (!Hunter) return;
+	if (!Hunter.IsValid()) return;
 	Hunter->TrySetVisibility(visibility);
 }
 
 bool AHunterEnemyController::IsInChargedJumpRange(AActor* Target)
 {
-	if (Hunter)
+	if (Hunter.IsValid())
 	{
 		float Distance = FVector::Distance(Target->GetActorLocation(), Hunter->GetActorLocation());
 		return Distance < Hunter->MaxDistanceToChargeJump &&  Distance > Hunter->MinDistanceToChargeJump;
@@ -151,7 +169,7 @@ bool AHunterEnemyController::IsInChargedJumpRange(AActor* Target)
 
 bool AHunterEnemyController::IsInBasicAttackRange(AActor* Target)
 {
-	if (Hunter)
+	if (Hunter.IsValid())
 	{
 		float Distance = FVector::Distance(Target->GetActorLocation(), Hunter->GetActorLocation());
 		return Distance < Hunter->MaxDistanceForBasicAttack;
@@ -170,7 +188,7 @@ bool AHunterEnemyController::IsOnSameIslandAsPlayer(AActor* Target)
 
 void AHunterEnemyController::OnStunStart(float StunDuration)
 {
-	if (Hunter)
+	if (Hunter.IsValid())
 	{
 		Hunter->OnStunStart(StunDuration);
 	}
@@ -184,11 +202,14 @@ void AHunterEnemyController::OnStunEnd()
 
 void AHunterEnemyController::DespawnHunter()
 {
-	Hunter->Despawn(); 
-	CachedHealth = Hunter->GetHealth();
-	UnPossess();
-	Hunter->Destroy();
-	RemoveHunterHelper();
+	if (Hunter.IsValid())
+	{
+		Hunter->Despawn(); 
+		CachedHealth = Hunter->GetHealth();
+		UnPossess();
+		Hunter->Destroy();
+		RemoveHunterHelper();
+	}
 }
 
 void AHunterEnemyController::FleeingFinished()
@@ -213,14 +234,6 @@ UHunterSpawnPoint* AHunterEnemyController::GetRandHunterSpawnPoint()
 	return RandIsland->GetRandHunterSpawnPoint();
 }
 
-void AHunterEnemyController::MULT_SetCachedHealth_Implementation()
-{
-	if (Hunter)
-	{
-		Hunter->BP_OnTakeDamage(0, FVector::ZeroVector, nullptr, nullptr);
-	}
-}
-
 void AHunterEnemyController::DelayedReturn(float ReturnDelay)
 {
 	UWorld* World = GetWorld();
@@ -233,53 +246,13 @@ void AHunterEnemyController::DelayedReturn(float ReturnDelay)
 void AHunterEnemyController::SetFleeing()
 {
 	UWorld* World = GetWorld();
-	if (Hunter)
+	if (Hunter.IsValid())
 	{
 		Hunter->SetFleeing();
 		World->GetTimerManager().SetTimer(FleeingTimerHandle, this, &AHunterEnemyController::FleeingFinished, FleeingDuration, false);
 	}	 
 }
 
-void AHunterEnemyController::OnPossess(APawn* InPawn)
-{
-	Super::OnPossess(InPawn);
-	
-	UWorld* world = GetWorld();
-	if (!world) return;
-	
-	Hunter = Cast<AHunterEnemy>(InPawn);
-	if (CachedHealth > 0)
-	{
-		Hunter->SetHealth(CachedHealth);
-		MULT_SetCachedHealth();
-	}
-
-	// Get random player to attack
-	ABlindEyeGameState* GameState = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(world));
-	check(GameState);
-	AActor* RandPlayerTarget;
-	if (GameState->PlayerArray.Num() == 1)
-	{
-		RandPlayerTarget = GameState->PlayerArray[0]->GetPawn();
-	}
-	else
-	{
-		RandPlayerTarget = GameState->PlayerArray[UKismetMathLibrary::RandomIntegerInRange(0, 1)]->GetPawn();
-	}
-	
-	InitializeBehaviorTree();
-	GetBrainComponent()->GetBlackboardComponent()->SetValueAsBool("bDead", false);
-	GetBrainComponent()->GetBlackboardComponent()->SetValueAsBool("bFirstRun", true);
-
-	InPawn->OnTakeAnyDamage.AddDynamic(this, &AHunterEnemyController::OnTakeDamage);
-
-	// Initial check for which island Hunter spawned on
-	CurrIsland = CheckIslandSpawnedOn();
-	if (CurrIsland == nullptr)
-	{
-		CurrIsland = GameState->GetIslandManager()->GetActiveIslands()[0]->IslandTrigger;
-	}
-}
 UBurrowerTriggerVolume* AHunterEnemyController::CheckIslandSpawnedOn()
 {
 	if (Hunter == nullptr) return nullptr;
@@ -310,11 +283,12 @@ void AHunterEnemyController::RemoveHunterHelper()
 	Hunter = nullptr;
 	GetBrainComponent()->GetBlackboardComponent()->SetValueAsBool("IsFirstRun", false);
 	GetBrainComponent()->StopLogic(TEXT("HunterDeath"));
+	RemoveHunterHealthbar();
 }
 
 void AHunterEnemyController::StartChanneling()
 {
-	if (Hunter)
+	if (Hunter.IsValid())
 	{
 		Hunter->StartChanneling();
 	}
@@ -349,8 +323,6 @@ void AHunterEnemyController::SpawnHunter()
 	UWorld* World = GetWorld();
 	if (!World) return;
 
-	bIsHunterAlive = true;
-
 	FVector SpawnLocation;
 	FRotator Rotation;
 	// If first spawn, spawn at specific location and start enemy tutorial
@@ -371,9 +343,18 @@ void AHunterEnemyController::SpawnHunter()
 		Rotation = RandSpawnPoint->GetComponentRotation();
 	}
 	
-	FActorSpawnParameters params; 
-	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-	AHunterEnemy* SpawnedHunter = World->SpawnActor<AHunterEnemy>(HunterType, SpawnLocation, Rotation, params);
+	FTransform SpawnTransform = FTransform();
+	SpawnTransform.SetLocation(SpawnLocation);
+	SpawnTransform.SetRotation(Rotation.Quaternion());
+	AHunterEnemy* SpawnedHunter = World->SpawnActorDeferred<AHunterEnemy>(HunterType, SpawnTransform, nullptr,
+		nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+	if (CachedHealth > 0)
+	{
+		SpawnedHunter->StartingHealth = CachedHealth;
+	}
+	SpawnedHunter->FinishSpawning(SpawnTransform);
+	
+	bIsHunterAlive = true;
 
 	bool bAlwaysVisible = false;
 	AGameStateBase* GameState = UGameplayStatics::GetGameState(World);
@@ -394,12 +375,49 @@ void AHunterEnemyController::SpawnHunter()
 	Possess(SpawnedHunter);
 }
 
+void AHunterEnemyController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+	
+	UWorld* world = GetWorld();
+	if (!world) return;
+	
+	AHunterEnemy* HunterEnemy = Cast<AHunterEnemy>(InPawn);
+	Hunter = MakeWeakObjectPtr(HunterEnemy);
+
+	// Get random player to attack
+	ABlindEyeGameState* GameState = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(world));
+	check(GameState);
+	AActor* RandPlayerTarget;
+	if (GameState->PlayerArray.Num() == 1)
+	{
+		RandPlayerTarget = GameState->PlayerArray[0]->GetPawn();
+	}
+	else
+	{
+		RandPlayerTarget = GameState->PlayerArray[UKismetMathLibrary::RandomIntegerInRange(0, 1)]->GetPawn();
+	}
+	
+	InitializeBehaviorTree();
+	GetBrainComponent()->GetBlackboardComponent()->SetValueAsBool("bDead", false);
+	GetBrainComponent()->GetBlackboardComponent()->SetValueAsBool("bFirstRun", true);
+
+	InPawn->OnTakeAnyDamage.AddDynamic(this, &AHunterEnemyController::OnTakeDamage);
+
+	// Initial check for which island Hunter spawned on
+	CurrIsland = CheckIslandSpawnedOn();
+	if (CurrIsland == nullptr)
+	{
+		CurrIsland = GameState->GetIslandManager()->GetActiveIslands()[0]->IslandTrigger;
+	}
+}
+
 void AHunterEnemyController::DebugSpawnHunter()
 {
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
 	
-	if (Hunter) return;
+	if (Hunter.IsValid()) return;
 
 	SpawnHunter();
 	//World->GetTimerManager().ClearTimer(InitialSpawnDelayTimerHandle);

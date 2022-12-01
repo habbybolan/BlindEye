@@ -166,6 +166,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UCurveFloat* InvisCurve;
 
+	UPROPERTY(Replicated)
+	float StartingHealth = 0;
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FDamageSignature, float, Damage, FVector, HitLocation, const UDamageType*, DamageType, AActor*, DamageCauser);
+	FDamageSignature OnDamageDelegate;
+
 	UFUNCTION()
 	void OnRep_IsVisible();
 	
@@ -234,6 +240,10 @@ protected:
 	EHunterAttacks CurrAttack = EHunterAttacks::None;
 
 	FOnTimelineFloat InvisUpdateEvent; 
+
+	virtual void MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser) override;
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_OnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_PerformBasicAttackHelper(UAnimMontage* AnimToPlay);
@@ -309,8 +319,5 @@ protected:
 
 	void CalculateWalkSpeed();
 	void RotateWhileJumping(float DeltaSeconds);
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_HunterLeft();
 };
 

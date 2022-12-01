@@ -69,20 +69,14 @@ void AHunterEnemy::RotateWhileJumping(float DeltaSeconds)
 	}
 }
 
-void AHunterEnemy::MULT_HunterLeft_Implementation()
-{
-	UWorld* World = GetWorld();
-	if (World == nullptr) return;
-	if (ACharacter* Character = UGameplayStatics::GetPlayerCharacter(World, 0))
-	{
-		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Character);
-		Player->RemoveHunterHealthbar();
-	}
-}
-
 void AHunterEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (StartingHealth > 0)
+	{
+		CurrHealth = StartingHealth;
+	}
 
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
@@ -111,7 +105,6 @@ void AHunterEnemy::BeginPlay()
 
 void AHunterEnemy::Despawn()
 {
-	MULT_HunterLeft();
 	BP_HunterDespawned_SER();
 }
 
@@ -380,7 +373,6 @@ void AHunterEnemy::OnDeath(AActor* ActorThatKilled)
 	}
 	RemoveHunterMarkOnPlayer();
 	UnPossessed();
-	MULT_HunterLeft();
 }
 
 void AHunterEnemy::SetChargedJumpOffCooldown()
@@ -505,6 +497,19 @@ bool AHunterEnemy::GetIsFleeing()
 	return bFleeing;
 }
 
+void AHunterEnemy::MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType,
+	AActor* DamageCauser)
+{
+	Super::MYOnTakeDamage(Damage, HitLocation, DamageType, DamageCauser);
+	MULT_OnTakeDamage(Damage, HitLocation, DamageType, DamageCauser);
+}
+
+void AHunterEnemy::MULT_OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType,
+	AActor* DamageCauser)
+{
+	OnDamageDelegate.Broadcast(Damage, HitLocation, DamageType, DamageCauser);
+}
+
 void AHunterEnemy::SetPlayerMarked(AActor* NewTarget)
 {
 	if (GetLocalRole() < ROLE_Authority) return;
@@ -576,6 +581,7 @@ void AHunterEnemy::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AHunterEnemy, IsVisible)
+	DOREPLIFETIME_CONDITION(AHunterEnemy, StartingHealth, COND_InitialOnly);
 }
 
 void AHunterEnemy::TimelineInvisUpdate(float Value)

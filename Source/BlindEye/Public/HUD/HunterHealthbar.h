@@ -17,12 +17,16 @@ class BLINDEYE_API UHunterHealthbar : public UUserWidget
 
 public:
 
+	UPROPERTY(BlueprintReadOnly)
 	TWeakObjectPtr<AHunterEnemy> Hunter;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateHealth(float Percent);
 
 	void SubscribeToHunter(AHunterEnemy* hunter);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_StartAnimation();
 
 	UFUNCTION()
 	void HunterHealthUpdated(float Damage, FVector HitLocation, const UDamageType* DamageType, AActor* DamageCauser);
