@@ -80,9 +80,6 @@ public:
 	DECLARE_MULTICAST_DELEGATE(FStunEndSignature)
 	FStunEndSignature StunEndDelegate;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FDamageSignature, float, Damage, FVector, HitLocation, const UDamageType*, DamageType, AActor*, DamageCauser);
-	FDamageSignature OnDamageDelegate;
-
 	DECLARE_MULTICAST_DELEGATE_OneParam(FKnockBackSignature, FVector)
 	FKnockBackSignature KnockBackDelegate;
 

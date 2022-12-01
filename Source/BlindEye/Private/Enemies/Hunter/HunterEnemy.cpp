@@ -497,6 +497,19 @@ bool AHunterEnemy::GetIsFleeing()
 	return bFleeing;
 }
 
+void AHunterEnemy::MYOnTakeDamage(float Damage, FVector HitLocation, const UDamageType* DamageType,
+	AActor* DamageCauser)
+{
+	Super::MYOnTakeDamage(Damage, HitLocation, DamageType, DamageCauser);
+	MULT_OnTakeDamage(Damage, HitLocation, DamageType, DamageCauser);
+}
+
+void AHunterEnemy::MULT_OnTakeDamage_Implementation(float Damage, FVector HitLocation, const UDamageType* DamageType,
+	AActor* DamageCauser)
+{
+	OnDamageDelegate.Broadcast(Damage, HitLocation, DamageType, DamageCauser);
+}
+
 void AHunterEnemy::SetPlayerMarked(AActor* NewTarget)
 {
 	if (GetLocalRole() < ROLE_Authority) return;

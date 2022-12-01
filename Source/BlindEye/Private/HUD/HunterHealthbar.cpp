@@ -6,7 +6,7 @@
 void UHunterHealthbar::SubscribeToHunter(AHunterEnemy* hunter)
 {
 	Hunter = MakeWeakObjectPtr(hunter);
-	Hunter->HealthComponent->OnDamageDelegate.AddDynamic(this, &UHunterHealthbar::HunterHealthUpdated);
+	Hunter->OnDamageDelegate.AddDynamic(this, &UHunterHealthbar::HunterHealthUpdated);
 	UpdateHealth(Hunter->GetHealthPercent());
 }
 

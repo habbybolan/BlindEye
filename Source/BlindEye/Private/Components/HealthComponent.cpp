@@ -100,7 +100,6 @@ void UHealthComponent::SetDamage(float Damage, FVector HitLocation, const UDamag
 		OwnerHealth->SetHealth(OwnerHealth->GetHealth() - damageMultiplied);
 		// send callback to owning actor for any additional logic
 		OwnerHealth->MYOnTakeDamage(damageMultiplied, HitLocation, DamageType, DamageCauser->GetInstigator());
-		OnDamageDelegate.Broadcast(damageMultiplied, HitLocation, DamageType, DamageCauser->GetInstigator());
 		 
 		if (OwnerHealth->GetHealth() <= 0)
 		{
