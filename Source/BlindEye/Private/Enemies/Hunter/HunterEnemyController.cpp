@@ -234,14 +234,6 @@ UHunterSpawnPoint* AHunterEnemyController::GetRandHunterSpawnPoint()
 	return RandIsland->GetRandHunterSpawnPoint();
 }
 
-void AHunterEnemyController::MULT_SetCachedHealth_Implementation()
-{
-	if (Hunter.IsValid())
-	{
-		Hunter->BP_OnTakeDamage(0, FVector::ZeroVector, nullptr, nullptr);
-	}
-}
-
 void AHunterEnemyController::DelayedReturn(float ReturnDelay)
 {
 	UWorld* World = GetWorld();
@@ -261,47 +253,6 @@ void AHunterEnemyController::SetFleeing()
 	}	 
 }
 
-void AHunterEnemyController::OnPossess(APawn* InPawn)
-{
-	Super::OnPossess(InPawn);
-	
-	UWorld* world = GetWorld();
-	if (!world) return;
-	
-	AHunterEnemy* HunterEnemy = Cast<AHunterEnemy>(InPawn);
-	Hunter = MakeWeakObjectPtr(HunterEnemy);
-	if (CachedHealth > 0)
-	{
-		Hunter->SetHealth(CachedHealth);
-		MULT_SetCachedHealth();
-	}
-
-	// Get random player to attack
-	ABlindEyeGameState* GameState = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(world));
-	check(GameState);
-	AActor* RandPlayerTarget;
-	if (GameState->PlayerArray.Num() == 1)
-	{
-		RandPlayerTarget = GameState->PlayerArray[0]->GetPawn();
-	}
-	else
-	{
-		RandPlayerTarget = GameState->PlayerArray[UKismetMathLibrary::RandomIntegerInRange(0, 1)]->GetPawn();
-	}
-	
-	InitializeBehaviorTree();
-	GetBrainComponent()->GetBlackboardComponent()->SetValueAsBool("bDead", false);
-	GetBrainComponent()->GetBlackboardComponent()->SetValueAsBool("bFirstRun", true);
-
-	InPawn->OnTakeAnyDamage.AddDynamic(this, &AHunterEnemyController::OnTakeDamage);
-
-	// Initial check for which island Hunter spawned on
-	CurrIsland = CheckIslandSpawnedOn();
-	if (CurrIsland == nullptr)
-	{
-		CurrIsland = GameState->GetIslandManager()->GetActiveIslands()[0]->IslandTrigger;
-	}
-}
 UBurrowerTriggerVolume* AHunterEnemyController::CheckIslandSpawnedOn()
 {
 	if (Hunter == nullptr) return nullptr;
@@ -372,8 +323,6 @@ void AHunterEnemyController::SpawnHunter()
 	UWorld* World = GetWorld();
 	if (!World) return;
 
-	bIsHunterAlive = true;
-
 	FVector SpawnLocation;
 	FRotator Rotation;
 	// If first spawn, spawn at specific location and start enemy tutorial
@@ -394,9 +343,18 @@ void AHunterEnemyController::SpawnHunter()
 		Rotation = RandSpawnPoint->GetComponentRotation();
 	}
 	
-	FActorSpawnParameters params; 
-	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-	AHunterEnemy* SpawnedHunter = World->SpawnActor<AHunterEnemy>(HunterType, SpawnLocation, Rotation, params);
+	FTransform SpawnTransform = FTransform();
+	SpawnTransform.SetLocation(SpawnLocation);
+	SpawnTransform.SetRotation(Rotation.Quaternion());
+	AHunterEnemy* SpawnedHunter = World->SpawnActorDeferred<AHunterEnemy>(HunterType, SpawnTransform, nullptr,
+		nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+	if (CachedHealth > 0)
+	{
+		SpawnedHunter->StartingHealth = CachedHealth;
+	}
+	SpawnedHunter->FinishSpawning(SpawnTransform);
+	
+	bIsHunterAlive = true;
 
 	bool bAlwaysVisible = false;
 	AGameStateBase* GameState = UGameplayStatics::GetGameState(World);
@@ -415,6 +373,43 @@ void AHunterEnemyController::SpawnHunter()
 	}
 	
 	Possess(SpawnedHunter);
+}
+
+void AHunterEnemyController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+	
+	UWorld* world = GetWorld();
+	if (!world) return;
+	
+	AHunterEnemy* HunterEnemy = Cast<AHunterEnemy>(InPawn);
+	Hunter = MakeWeakObjectPtr(HunterEnemy);
+
+	// Get random player to attack
+	ABlindEyeGameState* GameState = Cast<ABlindEyeGameState>(UGameplayStatics::GetGameState(world));
+	check(GameState);
+	AActor* RandPlayerTarget;
+	if (GameState->PlayerArray.Num() == 1)
+	{
+		RandPlayerTarget = GameState->PlayerArray[0]->GetPawn();
+	}
+	else
+	{
+		RandPlayerTarget = GameState->PlayerArray[UKismetMathLibrary::RandomIntegerInRange(0, 1)]->GetPawn();
+	}
+	
+	InitializeBehaviorTree();
+	GetBrainComponent()->GetBlackboardComponent()->SetValueAsBool("bDead", false);
+	GetBrainComponent()->GetBlackboardComponent()->SetValueAsBool("bFirstRun", true);
+
+	InPawn->OnTakeAnyDamage.AddDynamic(this, &AHunterEnemyController::OnTakeDamage);
+
+	// Initial check for which island Hunter spawned on
+	CurrIsland = CheckIslandSpawnedOn();
+	if (CurrIsland == nullptr)
+	{
+		CurrIsland = GameState->GetIslandManager()->GetActiveIslands()[0]->IslandTrigger;
+	}
 }
 
 void AHunterEnemyController::DebugSpawnHunter()

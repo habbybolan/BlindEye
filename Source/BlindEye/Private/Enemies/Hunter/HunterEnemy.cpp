@@ -73,6 +73,11 @@ void AHunterEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (StartingHealth > 0)
+	{
+		CurrHealth = StartingHealth;
+	}
+
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
 	
@@ -563,6 +568,7 @@ void AHunterEnemy::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AHunterEnemy, IsVisible)
+	DOREPLIFETIME_CONDITION(AHunterEnemy, StartingHealth, COND_InitialOnly);
 }
 
 void AHunterEnemy::TimelineInvisUpdate(float Value)

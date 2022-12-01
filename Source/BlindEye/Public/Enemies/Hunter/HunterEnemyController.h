@@ -100,9 +100,6 @@ protected:
 
 	bool bIsFirstSpawn = true;
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_SetCachedHealth();
-
 	void RemoveHunterHelper();
 
 	UFUNCTION()

@@ -166,6 +166,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UCurveFloat* InvisCurve;
 
+	UPROPERTY(Replicated)
+	float StartingHealth = 0;
+
 	UFUNCTION()
 	void OnRep_IsVisible();
 	
