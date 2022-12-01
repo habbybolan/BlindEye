@@ -4,6 +4,7 @@
 #include "HUD/ScreenIndicator.h"
 
 #include "Blueprint/WidgetLayoutLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void UScreenIndicator::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
@@ -73,24 +74,30 @@ void UScreenIndicator::FindScreenEdgeLocationForWorldLocation(FVector2D& OutScre
 	Offset.Normalize();
 	
 	float DotProduct = FVector::DotProduct(Forward, Offset);
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0, FColor::Purple, FString::SanitizeFloat(DotProduct));
 	bool bLocationIsBehindCamera = (DotProduct < 0);
 	
 	if (bLocationIsBehindCamera)
 	{
-		// For behind the camera situation, we cheat a little to put the
-		// marker at the bottom of the screen so that it moves smoothly
-		// as you turn around. Could stand some refinement, but results
-		// are decent enough for most purposes.
+		FVector DirFromTarget = ViewportLocation - TargetInterface->GetIndicatorPosition();
+		FVector NewPos = TargetInterface->GetIndicatorPosition() + DirFromTarget * 2;
+		UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PlayerController, NewPos, ScreenPosition, false);
+		ScreenPosition.X += (ViewportCenter.X - ScreenPosition.X) * 2;
+		ScreenPosition.Y = ViewportSize.Y * EdgePercent;
+
+		if (ScreenPosition.X < (1 - EdgePercent) * ViewportSize.X) ScreenPosition.X = (1 - EdgePercent) * ViewportSize.X;
+		if (ScreenPosition.X > ViewportSize.X) ScreenPosition.X = ViewportSize.X;
+
+		OutScreenPosition = ScreenPosition;
+
+		ScreenPosition -= ViewportCenter;
+		float AngleRadians = FMath::Atan2(ScreenPosition.Y, ScreenPosition.X);
+		AngleRadians -= FMath::DegreesToRadians(90.f);
+		OutRotationAngleDegrees = FMath::RadiansToDegrees(AngleRadians) + 180.f;
 		
-		FVector DiffVector = TargetInterface->GetIndicatorPosition() - ViewportLocation;
-		FVector Inverted = DiffVector * -1.f;
-		FVector NewInLocation = ViewportLocation * Inverted;
-		
-		NewInLocation.Z -= 5000;
-		
-		UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PlayerController, NewInLocation, ScreenPosition, false);
-		ScreenPosition.Y = (EdgePercent * ViewportCenter.X) * 2.f;
-		ScreenPosition.X = -ViewportCenter.X - ScreenPosition.X;
+		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0, FColor::Orange, FString::SanitizeFloat(OutRotationAngleDegrees));
+		bIsOnScreen = false;
+		return;
 	}
 
 	UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PlayerController, TargetInterface->GetIndicatorPosition(), ScreenPosition, false);

@@ -20,6 +20,7 @@ void UBasicSingleIndicator::NativeTick(const FGeometry& MyGeometry, float InDelt
 
 	if (IsOnScreen)
 	{
+		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0, FColor::Orange, "IS On Camera");
 		OffScreenIndicator->SetVisibility(ESlateVisibility::Hidden);
 		OnScreenIndicator->SetVisibility(ESlateVisibility::Visible);
 		UCanvasPanelSlot* CanvasSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(OnScreenIndicator);
@@ -27,6 +28,7 @@ void UBasicSingleIndicator::NativeTick(const FGeometry& MyGeometry, float InDelt
 	}
 	else
 	{
+		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0, FColor::Orange, "IS Behind Camera");
 		OffScreenIndicator->SetVisibility(ESlateVisibility::Visible);
 		OnScreenIndicator->SetVisibility(ESlateVisibility::Hidden);
 		UCanvasPanelSlot* CanvasSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(OffScreenIndicator);
