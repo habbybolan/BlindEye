@@ -38,6 +38,8 @@
 
 ABlindEyePlayerCharacter::ABlindEyePlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
+	PrimaryActorTick.bCanEverTick = true;
+	
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
@@ -73,6 +75,13 @@ ABlindEyePlayerCharacter::ABlindEyePlayerCharacter(const FObjectInitializer& Obj
 	
 	PlayerType = EPlayerType::CrowPlayer;
 	Team = TEAMS::Player;
+}
+
+void ABlindEyePlayerCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	UpdateTopdownCamera();
 }
 
 void ABlindEyePlayerCharacter::BeginPlay()
@@ -124,6 +133,12 @@ void ABlindEyePlayerCharacter::BeginPlay()
 	GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &ABlindEyePlayerCharacter::AnimMontageEnded);
 
 	UE_LOG(LogTemp, Warning, TEXT("[ABlindEyePlayerCharacter::BeginPlay] %s beginPlay finished"), *GetName());
+
+	if (bIsTopdown)
+	{
+		const FDetachmentTransformRules DetachmentRules(EDetachmentRule::KeepWorld, false);
+		FollowCamera->DetachFromComponent(DetachmentRules);
+	}
 }
 
 void ABlindEyePlayerCharacter::OnGameEnded()
@@ -522,12 +537,14 @@ void ABlindEyePlayerCharacter::RegenHealth()
 
 void ABlindEyePlayerCharacter::TurnAtRate(float Rate)
 {
+	if (bIsTopdown) return;
 	// calculate delta for this frame from the rate information
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
 void ABlindEyePlayerCharacter::LookUpAtRate(float Rate)
 {
+	if (bIsTopdown) return;
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
@@ -1177,11 +1194,11 @@ void ABlindEyePlayerCharacter::MoveForward(float Value)
 		}
 		
 		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator Rotation = bIsTopdown ? FollowCamera->GetComponentRotation() : Controller->GetControlRotation(); 
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
 		// get forward vector
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		const FVector Direction = YawRotation.Vector();
 		AddMovementInput(Direction, Value * MovementAlter);
 	}
 }
@@ -1204,11 +1221,11 @@ void ABlindEyePlayerCharacter::MoveRight(float Value)
 		}
 		
 		// find out which way is right
-		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator Rotation = bIsTopdown ? FollowCamera->GetRightVector().Rotation() : Controller->GetControlRotation(); 
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 	
 		// get right vector 
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		const FVector Direction = Rotation.Vector();
 		// add movement in that direction
 		AddMovementInput(Direction, Value * MovementAlter);
 	}
@@ -1274,6 +1291,20 @@ void ABlindEyePlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	DOREPLIFETIME(ABlindEyePlayerCharacter, TutorialActionBlockers);
 }
 
+void ABlindEyePlayerCharacter::UpdateTopdownCamera()
+{
+	// Camera location
+	FRotator WorldRotationCameraOutOffset = FRotator(0, StartingWorldZAngleOfCamera, 0);
+	FVector CameraPos = GetActorLocation() +
+						FVector::UpVector * StartingCameraHeightOffset +
+						WorldRotationCameraOutOffset.Vector() * StartingCameraOutOffset;
+	FollowCamera->SetWorldLocation(CameraPos);
+
+	// camera rotation
+	FRotator CameraRot = UKismetMathLibrary::FindLookAtRotation(CameraPos, GetActorLocation());
+	FollowCamera->SetWorldRotation(CameraRot);
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -1285,9 +1316,9 @@ void ABlindEyePlayerCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ABlindEyePlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABlindEyePlayerCharacter::MoveRight);
 	
-	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+	//PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("TurnRate", this, &ABlindEyePlayerCharacter::TurnAtRate);
-	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+	//PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &ABlindEyePlayerCharacter::LookUpAtRate);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABlindEyePlayerCharacter::TryJump);

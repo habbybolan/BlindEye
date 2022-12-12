@@ -81,9 +81,21 @@ class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityU
 
 	UPROPERTY(EditDefaultsOnly)
 	float IndicatorPosAbove = 150;
+
+	UPROPERTY(EditDefaultsOnly)
+	bool bIsTopdown = true;
 	
 public:
 	ABlindEyePlayerCharacter(const FObjectInitializer& ObjectInitializer);
+
+	virtual void Tick(float DeltaSeconds) override;
+
+	UPROPERTY(EditDefaultsOnly, Category="Camera|Topdown")
+	float StartingCameraHeightOffset = 500.f;
+	UPROPERTY(EditDefaultsOnly, Category="Camera|Topdown")
+	float StartingCameraOutOffset = 50.f;
+	UPROPERTY(EditDefaultsOnly, Category="Camera|Topdown")
+	float StartingWorldZAngleOfCamera = 0;
 
 	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
 
@@ -405,6 +417,12 @@ protected:
 	float CachedMovementSpeed;
 	float CachedAcceleration;
 
+	// Camera Values
+	float CurrCameraHeightOffset;
+	float CurrCameraOutOffset;
+	float CurrWorldZAngleOfCamera;
+	// Camera Values End
+
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
 
@@ -504,5 +522,8 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+private:
+	void UpdateTopdownCamera();
 };
 
