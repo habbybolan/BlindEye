@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright (C) Nicholas Johnson 2022
 
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Camera/CameraComponent.h"
@@ -21,6 +21,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "BlindEyeUtils.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
+#include "Characters/BlindEyePlayerMovementComponent.h"
 #include "Components/BoxComponent.h"
 #include "Enemies/Hunter/HunterEnemy.h"
 #include "Enemies/Hunter/HunterEnemyController.h"
@@ -36,7 +37,8 @@
 //////////////////////////////////////////////////////////////////////////
 // ATP_ThirdPersonCharacter
 
-ABlindEyePlayerCharacter::ABlindEyePlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+ABlindEyePlayerCharacter::ABlindEyePlayerCharacter(const FObjectInitializer& ObjectInitializer) :
+	Super(ObjectInitializer.SetDefaultSubobjectClass<UBlindEyePlayerMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	PrimaryActorTick.bCanEverTick = true;
 	
@@ -116,6 +118,15 @@ void ABlindEyePlayerCharacter::BeginPlay()
 
 		UBlindEyeGameInstance* BlindEyeGI = Cast<UBlindEyeGameInstance>(GetGameInstance());
 		BlindEyeGI->CloseLoadingScreen();
+
+		if (bIsTopdown)
+		{
+			const FDetachmentTransformRules DetachmentRules(EDetachmentRule::KeepWorld, false);
+			FollowCamera->DetachFromComponent(DetachmentRules);
+
+			ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(GetController());
+			BlindEyeController->bShowMouseCursor = true;
+		}
 	}
 
 	if (GetLocalRole() == ROLE_Authority)
@@ -133,15 +144,6 @@ void ABlindEyePlayerCharacter::BeginPlay()
 	GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &ABlindEyePlayerCharacter::AnimMontageEnded);
 
 	UE_LOG(LogTemp, Warning, TEXT("[ABlindEyePlayerCharacter::BeginPlay] %s beginPlay finished"), *GetName());
-
-	if (bIsTopdown)
-	{
-		const FDetachmentTransformRules DetachmentRules(EDetachmentRule::KeepWorld, false);
-		FollowCamera->DetachFromComponent(DetachmentRules);
-
-		ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(GetController());
-		BlindEyeController->bShowMouseCursor = true;
-	}
 }
 
 void ABlindEyePlayerCharacter::OnGameEnded()
@@ -396,9 +398,17 @@ void ABlindEyePlayerCharacter::UpdateAllClientUI()
 void ABlindEyePlayerCharacter::MULT_StartLockRotationToController_Implementation(float Duration)
 {
 	UWorld* World = GetWorld();
-	if (World == nullptr) return; 
+	if (World == nullptr) return;
 
-	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	if (bIsTopdown)
+	{
+		UBlindEyePlayerMovementComponent* BlindEyePlayerMC = Cast<UBlindEyePlayerMovementComponent>(GetCharacterMovement());
+		BlindEyePlayerMC->bOrientRotationToMouse = true;
+	} else
+	{
+		GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	}
+	
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 
 	// Override current timer duration if new duration larger
@@ -416,7 +426,15 @@ void ABlindEyePlayerCharacter::CLI_StopLockRotationToController_Implementation()
 	if (World == nullptr) return;
 	
 	World->GetTimerManager().ClearTimer(RotationalLockTimerHandle);
-	GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	if (bIsTopdown)
+	{
+		UBlindEyePlayerMovementComponent* BlindEyePlayerMC = Cast<UBlindEyePlayerMovementComponent>(GetCharacterMovement());
+		BlindEyePlayerMC->bOrientRotationToMouse = false;
+	} else
+	{
+		GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	}
+	
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 }
 

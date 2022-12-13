@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright (C) Nicholas Johnson 2022
 
 #pragma once
 
@@ -391,7 +391,7 @@ public:
 	void HunterHealthbarVisibility(bool IsVisible);
 	// If a level sequence started or ended
 	void LevelSequenceAction(bool IsStarted);
-	
+
 protected:
 
 	TSet<ETutorialChecklist> ChecklistFinishedTasks;

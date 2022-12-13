@@ -116,9 +116,26 @@ void ABlindEyePlayerController::SER_CharacterSelect_Implementation()
 void ABlindEyePlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
+}
 
-	if (IsLocalController())
+FRotator ABlindEyePlayerController::GetDesiredRotationFromMouse()
+{
+	FVector MouseLocation;
+	FVector MouseRotation;
+	DeprojectMousePositionToWorld(OUT MouseLocation, OUT MouseRotation);
+	
+	if (ensure(GetPawn()))
 	{
-		
+		if (UWorld* World = GetWorld())
+		{
+			FHitResult OutHit;
+			if (UKismetSystemLibrary::LineTraceSingle(World, MouseLocation, MouseLocation + MouseRotation * 5000, ETraceTypeQuery::TraceTypeQuery1,
+				false, TArray<AActor*>(), EDrawDebugTrace::None, OutHit, true))
+			{
+				FVector DirToMouse = (OutHit.Location - GetPawn()->GetActorLocation()) * FVector(1, 1, 0);
+				return DirToMouse.Rotation();
+			}
+		}
 	}
+	return FRotator::ZeroRotator;
 }

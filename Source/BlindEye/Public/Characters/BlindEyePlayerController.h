@@ -28,6 +28,8 @@ public:
 
 	virtual void OnPossess(APawn* InPawn) override;
 
+	FRotator GetDesiredRotationFromMouse();
+
 private:
 	UPROPERTY()
 	ABlindEyePlayerCharacter* OwningCharacter;
