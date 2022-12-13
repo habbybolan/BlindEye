@@ -138,6 +138,9 @@ void ABlindEyePlayerCharacter::BeginPlay()
 	{
 		const FDetachmentTransformRules DetachmentRules(EDetachmentRule::KeepWorld, false);
 		FollowCamera->DetachFromComponent(DetachmentRules);
+
+		ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(GetController());
+		BlindEyeController->bShowMouseCursor = true;
 	}
 }
 
@@ -1225,7 +1228,7 @@ void ABlindEyePlayerCharacter::MoveRight(float Value)
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 	
 		// get right vector 
-		const FVector Direction = Rotation.Vector();
+		const FVector Direction = YawRotation.Vector();
 		// add movement in that direction
 		AddMovementInput(Direction, Value * MovementAlter);
 	}
