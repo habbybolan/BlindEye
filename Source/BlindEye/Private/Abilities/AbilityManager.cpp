@@ -15,35 +15,42 @@ UAbilityManager::UAbilityManager()
 	UniqueAbilityTypes.SetNum(2);
 }
  
-void UAbilityManager::SER_UsedAbility_Implementation(EAbilityTypes abilityType, EAbilityInputTypes abilityUsageType)
+void UAbilityManager::UseAbility(EAbilityTypes abilityType, EAbilityInputTypes abilityUsageType, const FVector& MouseLocation, const FRotator& MouseRotation)
 {
-	if (abilityType == EAbilityTypes::Basic)
+	// Run on owning client for immediate action
+	AAbilityBase* AbilityToUse = GetAbility(abilityType);
+	if (GetOwner()->GetLocalRole() != ROLE_Authority && !IsAbilityUnavailable(AbilityToUse))
 	{
-		if (IsAbilityUnavailable(BasicAttack)) return;
-		BasicAttack->UseAbility(abilityUsageType);
-	} else if (abilityType == EAbilityTypes::ChargedBasic) {
-		// TODO:
-	} else if (abilityType == EAbilityTypes::Unique1)
+		UseAbilityHelper(AbilityToUse, abilityUsageType, MouseLocation, MouseRotation);
+	}
+	
+	SER_UseAbility(abilityType, abilityUsageType, MouseLocation, MouseRotation);
+}
+
+void UAbilityManager::UseAbilityHelper(AAbilityBase* AbilityToUser, EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
+{
+	AbilityToUser->UseAbility(abilityUsageType, Location, Rotation);
+}
+
+void UAbilityManager::SER_UseAbility_Implementation(EAbilityTypes abilityType, EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
+{
+	AAbilityBase* AbilityToUse = GetAbility(abilityType);
+	if (!IsAbilityUnavailable(AbilityToUse))
 	{
-		if (UniqueAbilities[0])
-		{
-			if (IsAbilityUnavailable(UniqueAbilities[0])) return;
-			UniqueAbilities[0]->UseAbility(abilityUsageType);
-		}
-	} else if (abilityType == EAbilityTypes::Unique2)
+		UseAbilityHelper(AbilityToUse, abilityUsageType, Location, Rotation);
+	}
+}
+
+AAbilityBase* UAbilityManager::GetAbility(EAbilityTypes abilityType)
+{
+	switch (abilityType)
 	{
-		if (UniqueAbilities[1])
-		{
-			if (IsAbilityUnavailable(UniqueAbilities[1])) return;
-			UniqueAbilities[1]->UseAbility(abilityUsageType);
-		}
-	} else if (abilityType == EAbilityTypes::Dash)
-	{
-		if (Dash)
-		{
-			if (IsAbilityUnavailable(Dash)) return;
-			Dash->UseAbility(abilityUsageType);
-		}
+		case EAbilityTypes::Basic: return BasicAttack;
+		case EAbilityTypes::ChargedBasic: return BasicAttack;
+		case EAbilityTypes::Unique1: return UniqueAbilities[0];
+		case EAbilityTypes::Unique2: return UniqueAbilities[1];
+		case EAbilityTypes::Dash: return Dash;
+		default: return BasicAttack;
 	}
 }
 
@@ -147,8 +154,6 @@ void UAbilityManager::BeginPlay()
 
 void UAbilityManager::SetupAbilities()
 {
-	if (GetOwnerRole() < ROLE_Authority) return;
-
 	UWorld* world = GetWorld();
 	if (!world) return;
 

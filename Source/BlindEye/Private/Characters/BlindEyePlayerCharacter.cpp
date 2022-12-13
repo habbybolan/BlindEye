@@ -637,60 +637,68 @@ void ABlindEyePlayerCharacter::BasicAttackPressed()
 	if (TutorialActionBlockers.bBasicAttackBlocked) return;
 	if (IsActionsBlocked()) return;
 	TutorialActionPerformed(TutorialInputActions::BasicAttack);
-	AbilityManager->SER_UsedAbility(EAbilityTypes::Basic, EAbilityInputTypes::Pressed);
+
+	if (GetController())
+	{
+		ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(GetController());
+		FVector MouseLocation;
+		FVector MouseRotation;
+		BlindEyeController->DeprojectMousePositionToWorld(OUT MouseLocation, OUT MouseRotation);
+		AbilityManager->UseAbility(EAbilityTypes::Basic, EAbilityInputTypes::Pressed, MouseLocation, MouseRotation.Rotation());
+	}
 }
 
 void ABlindEyePlayerCharacter::ChargedAttackPressed()
 {
-	if (IsActionsBlocked()) return;
-	AbilityManager->SER_UsedAbility(EAbilityTypes::ChargedBasic, EAbilityInputTypes::Pressed);
+	//if (IsActionsBlocked()) return;
+	//AbilityManager->UseAbility(EAbilityTypes::ChargedBasic, EAbilityInputTypes::Pressed);
 }
 
 void ABlindEyePlayerCharacter::ChargedAttackReleased()
 {
-	if (IsActionsBlocked()) return;
-	AbilityManager->SER_UsedAbility(EAbilityTypes::ChargedBasic, EAbilityInputTypes::Released);
+	//if (IsActionsBlocked()) return;
+	//AbilityManager->UseAbility(EAbilityTypes::ChargedBasic, EAbilityInputTypes::Released);
 }
 
 void ABlindEyePlayerCharacter::DashPressed()
 {
 	if (TutorialActionBlockers.bDashBlocked) return;
 	if (IsActionsBlocked()) return;
-	AbilityManager->SER_UsedAbility(EAbilityTypes::Dash, EAbilityInputTypes::Pressed);
+	AbilityManager->UseAbility(EAbilityTypes::Dash, EAbilityInputTypes::Pressed);
 }
 
 void ABlindEyePlayerCharacter::DashReleased()
 {
 	if (IsActionsBlocked()) return;
-	AbilityManager->SER_UsedAbility(EAbilityTypes::ChargedBasic, EAbilityInputTypes::Released);
+	AbilityManager->UseAbility(EAbilityTypes::ChargedBasic, EAbilityInputTypes::Released);
 }
 
 void ABlindEyePlayerCharacter::Unique1Pressed()
 {
 	if (TutorialActionBlockers.bUnique1Blocked) return;
 	if (IsActionsBlocked()) return;
-	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Pressed);
+	AbilityManager->UseAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Pressed);
 }
 
 void ABlindEyePlayerCharacter::Unique1Released()
 {
 	if (TutorialActionBlockers.bUnique1Blocked) return;
 	if (IsActionsBlocked()) return;
-	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Released);
+	AbilityManager->UseAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Released);
 }
 
 void ABlindEyePlayerCharacter::Unique2Pressed()
 {
 	if (TutorialActionBlockers.bUnique2blocked) return;
 	if (IsActionsBlocked()) return;
-	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Pressed);
+	AbilityManager->UseAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Pressed);
 }
 
 void ABlindEyePlayerCharacter::Unique2Released()
 {
 	if (TutorialActionBlockers.bUnique2blocked) return;
 	if (IsActionsBlocked()) return;
-	AbilityManager->SER_UsedAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Released);
+	AbilityManager->UseAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Released);
 }
 
 void ABlindEyePlayerCharacter::TutorialSkipPressed()

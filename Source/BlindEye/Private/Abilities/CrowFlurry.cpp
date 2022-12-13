@@ -164,7 +164,7 @@ void ACrowFlurry::EndAbilityLogic()
 
 FPerformCrowFlurryState::FPerformCrowFlurryState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-void FPerformCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType)
+void FPerformCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	FAbilityState::TryEnterState();
 	if (abilityUsageType != EAbilityInputTypes::Pressed) return;
@@ -179,7 +179,7 @@ void FPerformCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType)
 	RunState();
 }
 
-void FPerformCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
+void FPerformCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	// Dont enter if input pressed
 	if (abilityUsageType > EAbilityInputTypes::None) return;
@@ -220,13 +220,13 @@ bool FPerformCrowFlurryState::CancelState()
 
 FCancelCrowFlurryState::FCancelCrowFlurryState(AAbilityBase* ability)  : FAbilityState(ability) {}
 
-void FCancelCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType)
+void FCancelCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
 	RunState();
 }
 
-void FCancelCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
+void FCancelCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 { 
 	FAbilityState::RunState(abilityUsageType);
 
@@ -274,13 +274,13 @@ bool FCancelCrowFlurryState::CancelState()
 
 FEndCrowFlurryState::FEndCrowFlurryState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-void FEndCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType)
+void FEndCrowFlurryState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
 	RunState();
 }
 
-void FEndCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType)
+void FEndCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 { 
 	FAbilityState::RunState(abilityUsageType);
 	Ability->Blockers.IsMovementSlowBlocked = true;

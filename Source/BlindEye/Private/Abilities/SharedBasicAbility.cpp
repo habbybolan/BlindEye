@@ -5,6 +5,7 @@
 
 #include "Characters/BlindEyePlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
 
 ASharedBasicAbility::ASharedBasicAbility() : AAbilityBase()
 {
@@ -20,14 +21,20 @@ void ASharedBasicAbility::AbilityStarted()
 {
 	Super::AbilityStarted();
 
-	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetOwner());
-	Player->TutorialActionPerformed(TutorialInputActions::BasicAttack);
+	if (GetOwner()->GetLocalRole() == ROLE_Authority)
+	{
+		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetOwner());
+		Player->TutorialActionPerformed(TutorialInputActions::BasicAttack);
+	}
 }
 
 void ASharedBasicAbility::SetComboFinished()
 {
-	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetOwner());
-	Player->TutorialActionPerformed(TutorialInputActions::BasicAttackCombo);
+	if (GetOwner()->GetLocalRole() == ROLE_Authority)
+	{
+		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetOwner());
+		Player->TutorialActionPerformed(TutorialInputActions::BasicAttackCombo);
+	}
 }
 
 void ASharedBasicAbility::PlayAbilityAnimation()
@@ -43,7 +50,7 @@ void ASharedBasicAbility::PlayAbilityAnimation()
 void ASharedBasicAbility::UseAnimNotifyExecuted()
 {
 	AnimNotifyDelegate.Unbind();
-	SER_SpawnFlock();
+	SpawnFlock();
 	WaitForEndAbilityNotify();
 }
 
@@ -83,11 +90,7 @@ FVector ASharedBasicAbility::CalcFirstFlockingTarget()
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
 	if (Player->GetIsTopdown())
 	{
-		if (Player->GetController())
-		{
-			ABlindEyePlayerController* Controller = Cast<ABlindEyePlayerController>(Player->GetController());
-			return Controller->GetMouseAimLocation();
-		}
+		return ABlindEyePlayerController::GetMouseAimLocationHelper(AimLocation, AimRotation, Player, World);
 	}
 	// 3rd person
 	else
@@ -109,8 +112,6 @@ FVector ASharedBasicAbility::CalcFirstFlockingTarget()
 		}
 		return TargetLocation;
 	}
-	check(true)
-	return FVector::ZeroVector;
 }
 
 void ASharedBasicAbility::TryCancelAbilityHelper()
@@ -118,7 +119,13 @@ void ASharedBasicAbility::TryCancelAbilityHelper()
 	TryCancelAbility();
 }
 
-void ASharedBasicAbility::SER_SpawnFlock_Implementation()
+void ASharedBasicAbility::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ASharedBasicAbility, bIsAttacking);
+}
+
+void ASharedBasicAbility::SpawnFlock()
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
@@ -144,22 +151,32 @@ void ASharedBasicAbility::SER_SpawnFlock_Implementation()
 		FlockType = FirstChargeFlockType;
 		break;
 	}
+	SpawnFlockHelper(BoneSpawnLocation, FlockType, CalcFirstFlockingTarget());
 	MULT_SpawnFlockHelper(BoneSpawnLocation, FlockType, CalcFirstFlockingTarget());
 }
 
-void ASharedBasicAbility::MULT_SpawnFlockHelper_Implementation(FName BoneSpawnLocation,
-	TSubclassOf<ABasicAttackSmallFlock> FlockType, FVector StartTargetLoc)
+void ASharedBasicAbility::SpawnFlockHelper(FName BoneSpawnLocation, TSubclassOf<ABasicAttackSmallFlock> FlockType,
+	FVector StartTargetLoc)
 {
 	UWorld* World = GetWorld();
-	if (World) 
+	if (World)
 	{
 		ABasicAttackSmallFlock* Flock = World->SpawnActorDeferred<ABasicAttackSmallFlock>(FlockType, FTransform::Identity, GetOwner(),
 			GetInstigator(), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 		Flock->BoneSpawnLocation = BoneSpawnLocation;
 		Flock->InitialTarget = StartTargetLoc;
 		UGameplayStatics::FinishSpawningActor(Flock, FTransform::Identity);
+	}	
+}
+
+void ASharedBasicAbility::MULT_SpawnFlockHelper_Implementation(FName BoneSpawnLocation,
+	TSubclassOf<ABasicAttackSmallFlock> FlockType, FVector StartTargetLoc)
+{
+	// Run for remote clients
+	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		SpawnFlockHelper(BoneSpawnLocation, FlockType, StartTargetLoc);
 	}
-	
 }
 
 void ASharedBasicAbility::SetLeaveAbilityTimer()
@@ -185,9 +202,9 @@ void ASharedBasicAbility::ClearLeaveAbilityTimer()
 
 UFirstAttackState::UFirstAttackState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-void UFirstAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
+void UFirstAttackState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
-	FAbilityState::TryEnterState();
+	FAbilityState::TryEnterState(abilityUsageType, Location, Rotation);
 	if (!Ability) return;
 	if (ASharedBasicAbility* SharedBasicAbility = Cast<ASharedBasicAbility>(Ability))
 	{
@@ -198,9 +215,9 @@ void UFirstAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 	RunState();
 }
 
-void UFirstAttackState::RunState(EAbilityInputTypes abilityUsageType)
+void UFirstAttackState::RunState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
-	FAbilityState::RunState();
+	FAbilityState::RunState(abilityUsageType, Location, Rotation);
 	if (ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability))
 	{
 		// prevent re-entering state while attacking
@@ -233,9 +250,9 @@ void UFirstAttackState::ExitState()
 
 USecondAttackState::USecondAttackState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-void USecondAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
+void USecondAttackState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
-	FAbilityState::TryEnterState();
+	FAbilityState::TryEnterState(abilityUsageType, Location, Rotation);
 	if (!Ability) return;
 	if (ASharedBasicAbility* SharedBasicAbility = Cast<ASharedBasicAbility>(Ability))
 	{
@@ -247,9 +264,9 @@ void USecondAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 	RunState();
 }
 
-void USecondAttackState::RunState(EAbilityInputTypes abilityUsageType)
+void USecondAttackState::RunState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
-	FAbilityState::RunState();
+	FAbilityState::RunState(abilityUsageType, Location, Rotation);
 	if (!Ability) return;
 	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
 	if (!SharedAbility) return;
@@ -281,9 +298,9 @@ void USecondAttackState::ExitState()
 
 ULastAttackState::ULastAttackState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-void ULastAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
+void ULastAttackState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
-	FAbilityState::TryEnterState();
+	FAbilityState::TryEnterState(abilityUsageType, Location, Rotation);
 	if (!Ability) return;
 	if (ASharedBasicAbility* SharedBasicAbility = Cast<ASharedBasicAbility>(Ability))
 	{
@@ -295,9 +312,9 @@ void ULastAttackState::TryEnterState(EAbilityInputTypes abilityUsageType)
 	RunState();
 }
 
-void ULastAttackState::RunState(EAbilityInputTypes abilityUsageType)
+void ULastAttackState::RunState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
-	FAbilityState::RunState();
+	FAbilityState::RunState(abilityUsageType, Location, Rotation);
 	if (!Ability) return;
 	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
 	if (SharedAbility == nullptr) return;

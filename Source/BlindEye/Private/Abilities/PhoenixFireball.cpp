@@ -79,20 +79,32 @@ void APhoenixFireball::CastFireball()
 	GetInstigator()->GetController()->GetPlayerViewPoint(ViewportLocation, ViewportRotation);
 
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
-	check(Player)
 	FVector SpawnLocation = Player->GetMesh()->GetBoneLocation("RightHand") + Player->GetActorForwardVector() * 25;
 
 	// Find Rotation of phoenix fireball
-	FVector vectorRotation;
-	FHitResult Hit;
-	if (UKismetSystemLibrary::LineTraceSingleForObjects(world, ViewportLocation, ViewportLocation + ViewportRotation.Vector() * 10000, FireballCastObjectTypes,
-		false, TArray<AActor*>(), EDrawDebugTrace::None, Hit, true))
+	FVector vectorRotation = FVector::ZeroVector;
+
+	// If Topdown
+	if (Player->GetIsTopdown())
 	{
-		vectorRotation = Hit.Location - SpawnLocation;
+		if (Player->GetController())
+		{
+			ABlindEyePlayerController* Controller = Cast<ABlindEyePlayerController>(Player->GetController());
+			vectorRotation = Controller->GetMouseAimLocation() - Player->GetActorLocation();
+		}
 	} else
 	{
-		vectorRotation = (ViewportLocation + ViewportRotation.Vector() * 10000) - SpawnLocation;
+		FHitResult Hit;
+		if (UKismetSystemLibrary::LineTraceSingleForObjects(world, ViewportLocation, ViewportLocation + ViewportRotation.Vector() * 10000, FireballCastObjectTypes,
+			false, TArray<AActor*>(), EDrawDebugTrace::None, Hit, true))
+		{
+			vectorRotation = Hit.Location - SpawnLocation;
+		} else
+		{
+			vectorRotation = (ViewportLocation + ViewportRotation.Vector() * 10000) - SpawnLocation;
+		}
 	}
+	
 	
 	FireballCast = world->SpawnActor<APhoenixFireballCast>(FireballCastType, SpawnLocation, vectorRotation.Rotation(), params);
 	FireballCast->CustomCollisionDelegate.BindDynamic(this, &APhoenixFireball::OnFireballCastHit);
@@ -156,7 +168,7 @@ void APhoenixFireball::EndAbilityLogic()
 
 FStartCastingAbilityState::FStartCastingAbilityState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-void FStartCastingAbilityState::TryEnterState(EAbilityInputTypes abilityUsageType)
+void FStartCastingAbilityState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
 	if (!Ability) return;
@@ -169,7 +181,7 @@ void FStartCastingAbilityState::TryEnterState(EAbilityInputTypes abilityUsageTyp
 	RunState();
 }
 
-void FStartCastingAbilityState::RunState(EAbilityInputTypes abilityUsageType)
+void FStartCastingAbilityState::RunState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	// prevent input in this state
 	if (abilityUsageType > EAbilityInputTypes::None) return;
@@ -211,13 +223,13 @@ bool FStartCastingAbilityState::CancelState()
  
 FCastFireballState::FCastFireballState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-void FCastFireballState::TryEnterState(EAbilityInputTypes abilityUsageType)
+void FCastFireballState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
 	RunState();
 }
 
-void FCastFireballState::RunState(EAbilityInputTypes abilityUsageType)
+void FCastFireballState::RunState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	// prevent input in this state
 	if (abilityUsageType > EAbilityInputTypes::None) return;

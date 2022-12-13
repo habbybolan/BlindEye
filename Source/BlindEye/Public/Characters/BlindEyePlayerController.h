@@ -20,9 +20,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=TopdownAim)
 	TArray<TEnumAsByte<EObjectTypeQuery>> MouseAimingObjectTypes;
 
-	UPROPERTY(EditDefaultsOnly, Category=TopdownAim)
-	float MouseAimUpOffsetFromGround = 50.f;
-
 	UFUNCTION(Server, Reliable)
 	void SER_SpawnPlayer();
 
@@ -35,6 +32,9 @@ public:
 	virtual void OnPossess(APawn* InPawn) override;
 
 	FRotator GetDesiredRotationFromMouse();
+
+	static FVector GetMouseAimLocationHelper(FVector MouseLocation, FRotator MouseRotation, ACharacter* Character,
+		UWorld* World, TArray<TEnumAsByte<EObjectTypeQuery>> HitObjectType = TArray<TEnumAsByte<EObjectTypeQuery>>());
 	FVector GetMouseAimLocation();
 
 private:

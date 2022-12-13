@@ -48,7 +48,7 @@ void ASharedDash::EndAbilityLogic()
 
 FDashStartState::FDashStartState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-void FDashStartState::TryEnterState(EAbilityInputTypes abilityUsageType)
+void FDashStartState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
 	// Enter on pressed
@@ -58,7 +58,7 @@ void FDashStartState::TryEnterState(EAbilityInputTypes abilityUsageType)
 	}
 }
 
-void FDashStartState::RunState(EAbilityInputTypes abilityUsageType)
+void FDashStartState::RunState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	FAbilityState::RunState(abilityUsageType);
 	if (Ability == nullptr) return;

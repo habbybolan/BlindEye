@@ -330,7 +330,7 @@ void APhoenixDive::EndAbilityLogic()
 
 FStartAbilityState::FStartAbilityState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-void FStartAbilityState::TryEnterState(EAbilityInputTypes abilityUsageType)
+void FStartAbilityState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
 	if (!Ability) return;
@@ -341,7 +341,7 @@ void FStartAbilityState::TryEnterState(EAbilityInputTypes abilityUsageType)
 	RunState();
 }
 
-void FStartAbilityState::RunState(EAbilityInputTypes abilityUsageType)
+void FStartAbilityState::RunState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	// prevent user input here
 	if (abilityUsageType > EAbilityInputTypes::None) return;
@@ -381,7 +381,7 @@ bool FStartAbilityState::CancelState()
 
 FJumpState::FJumpState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-void FJumpState::TryEnterState(EAbilityInputTypes abilityUsageType)
+void FJumpState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	// prevent user input here
 	if (abilityUsageType > EAbilityInputTypes::None) return;
@@ -392,7 +392,7 @@ void FJumpState::TryEnterState(EAbilityInputTypes abilityUsageType)
 	RunState();
 }
 
-void FJumpState::RunState(EAbilityInputTypes abilityUsageType)
+void FJumpState::RunState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	FAbilityState::RunState(abilityUsageType);
 	APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability);
@@ -425,13 +425,13 @@ bool FJumpState::CancelState()
 
 FInAirState::FInAirState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-void FInAirState::TryEnterState(EAbilityInputTypes abilityUsageType)
+void FInAirState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
 	RunState();
 }
 
-void FInAirState::RunState(EAbilityInputTypes abilityUsageType)
+void FInAirState::RunState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	if (abilityUsageType > EAbilityInputTypes::None) return;
 	FAbilityState::RunState(abilityUsageType);
@@ -477,7 +477,7 @@ bool FInAirState::CancelState()
 
 FHangingState::FHangingState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-void FHangingState::TryEnterState(EAbilityInputTypes abilityUsageType)
+void FHangingState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
 	Ability->Blockers.IsMovementBlocked = true;
@@ -489,7 +489,7 @@ void FHangingState::TryEnterState(EAbilityInputTypes abilityUsageType)
 	}
 }
 
-void FHangingState::RunState(EAbilityInputTypes abilityUsageType)
+void FHangingState::RunState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	// prevent inputs in run state
 	if (abilityUsageType > EAbilityInputTypes::None) return;
@@ -549,13 +549,13 @@ bool FHangingState::CancelState()
 
 FHitGroundState::FHitGroundState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-void FHitGroundState::TryEnterState(EAbilityInputTypes abilityUsageType)
+void FHitGroundState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
 	RunState();
 }
 
-void FHitGroundState::RunState(EAbilityInputTypes abilityUsageType)
+void FHitGroundState::RunState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	// prevent user input
 	if (abilityUsageType > EAbilityInputTypes::None) return;

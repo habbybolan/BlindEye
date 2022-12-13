@@ -44,11 +44,10 @@ class BLINDEYE_API UAbilityManager : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UAbilityManager();
-
+	
 	// Entrance point for using a specific ability and what input called it
-	UFUNCTION(Server, Reliable)
-	void SER_UsedAbility(EAbilityTypes abilityType, EAbilityInputTypes abilityUsageType);
-
+	void UseAbility(EAbilityTypes abilityType, EAbilityInputTypes abilityUsageType,
+		const FVector& Location = FVector::ZeroVector, const FRotator& Rotation = FRotator::ZeroRotator);
 	bool IsMovementBlocked();
 	bool IsAbilityUnavailable();
 	bool IsReceiveDamageBlocked();
@@ -98,6 +97,14 @@ protected:
 	AAbilityBase* CurrUsedAbility;
 
 	TArray<AAbilityBase*> AllAbilities;
+
+	void UseAbilityHelper(AAbilityBase* AbilityToUser, EAbilityInputTypes abilityUsageType,
+		const FVector& Location = FVector::ZeroVector, const FRotator& Rotation = FRotator::ZeroRotator);
+	UFUNCTION(Server, Reliable)
+	void SER_UseAbility(EAbilityTypes abilityType, EAbilityInputTypes abilityUsageType,
+		const FVector& Location = FVector::ZeroVector, const FRotator& Rotation = FRotator::ZeroRotator);
+
+	AAbilityBase* GetAbility(EAbilityTypes abilityType);
 
 	UFUNCTION()
 	void SetupAbilities();

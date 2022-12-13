@@ -144,32 +144,49 @@ FRotator ABlindEyePlayerController::GetDesiredRotationFromMouse()
 	return FRotator::ZeroRotator;
 }
 
+/**
+ * Static helper for calculating the hit location of a mouse from its location and rotation
+ * @param MouseLocation		Location of the mouse in world space
+ * @param MouseRotation		Rotation of mouse in World Space
+ * @param Character			Player Character's mouse
+ * @param World				World
+ * @param HitObjectType		Objects trace will hit. If left empty, then defaults will be WorldStatic and WorldDynamic
+ */
+FVector ABlindEyePlayerController::GetMouseAimLocationHelper(FVector MouseLocation, FRotator MouseRotation, ACharacter* Character,
+		UWorld* World, TArray<TEnumAsByte<EObjectTypeQuery>> HitObjectType)
+{
+	// If no Object types added, set as defaults of WorldStatic and WorldDynamic
+	if (HitObjectType.Num() == 0)
+	{
+		HitObjectType.Add(EObjectTypeQuery::ObjectTypeQuery1);
+		HitObjectType.Add(EObjectTypeQuery::ObjectTypeQuery2);
+	}
+	
+	FHitResult OutHit;
+	// Set mouse aim location to cast from mouse
+	if (UKismetSystemLibrary::LineTraceSingleForObjects(World, MouseLocation, MouseLocation + MouseRotation.Vector() * 5000, HitObjectType,
+		false, TArray<AActor*>(), EDrawDebugTrace::None, OutHit, true))
+	{
+		return OutHit.Location + FVector::UpVector * Character->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	}
+	// Set mouse hit location from mouse position and at the Z-height of the player
+	else
+	{
+		FVector MouseLocationInAir = MouseLocation + MouseRotation.Vector() * 1000;
+		MouseLocationInAir.Z = Character->GetActorLocation().Z;
+		return MouseLocationInAir + FVector::UpVector * Character->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	}
+}
+
 FVector ABlindEyePlayerController::GetMouseAimLocation()
 {
 	FVector MouseLocation;
 	FVector MouseRotation;
 	DeprojectMousePositionToWorld(OUT MouseLocation, OUT MouseRotation);
 
-	if (UWorld* World = GetWorld())
+	if (GetCharacter() && GetWorld())
 	{
-		FHitResult OutHit;
-		// Set mouse aim location to cast from mouse
-		if (UKismetSystemLibrary::LineTraceSingleForObjects(World, MouseLocation, MouseLocation + MouseRotation * 5000, MouseAimingObjectTypes,
-			false, TArray<AActor*>(), EDrawDebugTrace::None, OutHit, true))
-		{
-			return OutHit.Location + FVector::UpVector * MouseAimUpOffsetFromGround;
-		}
-		// Set mouse hit location from mouse position and at the Z-height of the player
-		else
-		{
-			if (GetPawn())
-			{
-				FVector MouseLocationInAir = MouseLocation + MouseRotation * 1000;
-				MouseLocationInAir.Z = GetPawn()->GetActorLocation().Z;
-				return MouseLocationInAir + FVector::UpVector * MouseAimUpOffsetFromGround;
-			}
-			
-		}
+		return GetMouseAimLocationHelper(MouseLocation, MouseRotation.Rotation(), GetCharacter(), GetWorld(), MouseAimingObjectTypes);
 	}
 	return FVector::ZeroVector;
 }

@@ -11,8 +11,10 @@ class BLINDEYE_API UCrowCocoonStart : public FAbilityState
 { 
 public:  
 	UCrowCocoonStart(AAbilityBase* ability);
-	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
-	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None,
+		const FVector& Location = FVector::ZeroVector, const FRotator& Rotation = FRotator::ZeroRotator) override;
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None,
+		const FVector& Location = FVector::ZeroVector, const FRotator& Rotation = FRotator::ZeroRotator) override;
 	virtual void ExitState() override;
 };
 

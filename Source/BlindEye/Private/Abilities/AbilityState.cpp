@@ -10,9 +10,13 @@ FAbilityState::FAbilityState(AAbilityBase* ability)
 	Ability = ability;
 }
 
-void FAbilityState::TryEnterState(EAbilityInputTypes abilityUsageType)
+void FAbilityState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	check(Ability);
+	if (abilityUsageType != EAbilityInputTypes::None)
+	{
+		Ability->StoreAimData(Location, Rotation);
+	}
 	RemoveBlockers();
 }
 
@@ -23,9 +27,13 @@ void FAbilityState::ExitState()
 	RemoveBlockers();
 }
 
-void FAbilityState::RunState(EAbilityInputTypes abilityUsageType)
+void FAbilityState::RunState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	check(Ability);
+	if (abilityUsageType != EAbilityInputTypes::None)
+	{
+		Ability->StoreAimData(Location, Rotation);
+	}
 	CurrInnerState = EInnerState::Running;
 	RemoveBlockers();
 	if (Ability)
@@ -40,14 +48,14 @@ bool FAbilityState::CancelState()
 	return true;
 }
 
-void FAbilityState::HandleInput(EAbilityInputTypes abilityUsageType)
-{ 
+void FAbilityState::HandleInput(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
+{
 	if (CurrInnerState == EInnerState::None)
 	{
-		TryEnterState(abilityUsageType);
+		TryEnterState(abilityUsageType, Location, Rotation);
 	} else if (CurrInnerState == EInnerState::Running)
 	{
-		RunState(abilityUsageType);
+		RunState(abilityUsageType, Location, Rotation);
 	}
 }
 

@@ -111,6 +111,12 @@ void AAbilityBase::RefreshCooldown(float CooldownRefreshAmount)
 	}
 }
 
+void AAbilityBase::StoreAimData(FVector aimLocation, FRotator aimRotation)
+{
+	AimLocation = aimLocation;
+	AimRotation = aimRotation;
+}
+
 
 void AAbilityBase::SetOffCooldown()
 {
@@ -202,10 +208,10 @@ void AAbilityBase::AbilityCancelInput()
 	TryCancelAbility(); 
 }
 
-void AAbilityBase::UseAbility(EAbilityInputTypes abilityUsageType)
+void AAbilityBase::UseAbility(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	if (AbilityStates.Num() <= CurrState) return;
-	AbilityStates[CurrState]->HandleInput(abilityUsageType);
+	AbilityStates[CurrState]->HandleInput(abilityUsageType, Location, Rotation);
 }
 
 void AAbilityBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

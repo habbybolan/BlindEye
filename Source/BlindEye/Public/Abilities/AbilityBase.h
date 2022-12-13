@@ -90,6 +90,8 @@ public:
 	FAnimNotifySignature AnimNotifyDelegate;
 
 	void RefreshCooldown(float CooldownRefreshAmount);
+
+	void StoreAimData(FVector aimLocation, FRotator aimRotation);
 	
 protected:
 	// Called when the game starts
@@ -110,6 +112,10 @@ protected:
 	float CurrCooldown = 0; 
 	FTimerHandle CooldownTimerHandle;
 	float CooldownTimerDelay = 0.02;
+
+	FVector AimLocation;
+	FRotator AimRotation;
+	
 	void CalculateCooldown();
 
 	UFUNCTION(Client, Unreliable)
@@ -143,7 +149,8 @@ public:
 	void AbilityCancelInput();
 
 	// input for attempting to use/trigger ability effects
-	void UseAbility(EAbilityInputTypes abilityUsageType);
+	void UseAbility(EAbilityInputTypes abilityUsageType,
+		const FVector& Location = FVector::ZeroVector, const FRotator& Rotation = FRotator::ZeroRotator);
 
 	bool bIsRunning = false;
 

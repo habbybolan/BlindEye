@@ -14,8 +14,10 @@ class BLINDEYE_API FAimingStartState : public FAbilityState
 {
 public:
 	FAimingStartState(AAbilityBase* ability);
-	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
-	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None,
+		const FVector& Location = FVector::ZeroVector, const FRotator& Rotation = FRotator::ZeroRotator) override;
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None,
+		const FVector& Location = FVector::ZeroVector, const FRotator& Rotation = FRotator::ZeroRotator) override;
 	virtual void ExitState() override;
 	virtual bool CancelState() override;
 };
@@ -25,8 +27,10 @@ class BLINDEYE_API FMovingState : public FAbilityState
 {
 public:
 	FMovingState(AAbilityBase* ability);
-	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
-	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None,
+		const FVector& Location = FVector::ZeroVector, const FRotator& Rotation = FRotator::ZeroRotator) override;
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None,
+		const FVector& Location = FVector::ZeroVector, const FRotator& Rotation = FRotator::ZeroRotator) override;
 	virtual void ExitState() override;
 	virtual bool CancelState() override;
 };

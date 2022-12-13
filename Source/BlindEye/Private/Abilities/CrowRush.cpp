@@ -314,7 +314,7 @@ void ACrowRush::UpdatePlayerMovement()
 
 FAimingStartState::FAimingStartState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-void FAimingStartState::TryEnterState(EAbilityInputTypes abilityUsageType)
+void FAimingStartState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
 	// Enter on pressed
@@ -325,7 +325,7 @@ void FAimingStartState::TryEnterState(EAbilityInputTypes abilityUsageType)
 	}
 }
 
-void FAimingStartState::RunState(EAbilityInputTypes abilityUsageType)
+void FAimingStartState::RunState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	FAbilityState::RunState(abilityUsageType);
 	Ability->Blockers.IsOtherAbilitiesBlocked = true;
@@ -372,7 +372,7 @@ bool FAimingStartState::CancelState()
 
 FMovingState::FMovingState(AAbilityBase* ability) : FAbilityState(ability) {}
 
-void FMovingState::TryEnterState(EAbilityInputTypes abilityUsageType)
+void FMovingState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
 	if (!Ability) return;
@@ -380,7 +380,7 @@ void FMovingState::TryEnterState(EAbilityInputTypes abilityUsageType)
 	RunState();
 }
 
-void FMovingState::RunState(EAbilityInputTypes abilityUsageType)
+void FMovingState::RunState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	// prevent user input
 	if (abilityUsageType > EAbilityInputTypes::None) return;

@@ -12,8 +12,10 @@ class BLINDEYE_API UFirstAttackState : public FAbilityState
 {
 public:
 	UFirstAttackState(AAbilityBase* ability);
-	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
-	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None,
+		const FVector& Location = FVector::ZeroVector, const FRotator& Rotation = FRotator::ZeroRotator) override;
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None,
+		const FVector& Location = FVector::ZeroVector, const FRotator& Rotation = FRotator::ZeroRotator) override;
 	virtual void ExitState() override;
 };
 
@@ -22,8 +24,10 @@ class BLINDEYE_API USecondAttackState : public FAbilityState
 {
 public:
 	USecondAttackState(AAbilityBase* ability);
-	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
-	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None,
+		const FVector& Location = FVector::ZeroVector, const FRotator& Rotation = FRotator::ZeroRotator) override;
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None,
+		const FVector& Location = FVector::ZeroVector, const FRotator& Rotation = FRotator::ZeroRotator) override;
 	virtual void ExitState() override;
 };
 
@@ -32,8 +36,10 @@ class BLINDEYE_API ULastAttackState : public FAbilityState
 {
 public:
 	ULastAttackState(AAbilityBase* ability);
-	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
-	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None) override;
+	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None,
+		const FVector& Location = FVector::ZeroVector, const FRotator& Rotation = FRotator::ZeroRotator) override;
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None,
+		const FVector& Location = FVector::ZeroVector, const FRotator& Rotation = FRotator::ZeroRotator) override;
 	virtual void ExitState() override;
 };
 
@@ -99,11 +105,10 @@ public:
 
 	uint8 CurrCharge = 0;
 	
-	UFUNCTION(Server, Reliable)
-	void SER_SpawnFlock();
+	void SpawnFlock();
 
 	
-
+	UPROPERTY(Replicated)
 	bool bIsAttacking = false;
 
 	// Wait for ability use animation notify to send out flock
@@ -127,10 +132,14 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_SpawnFlockHelper(FName BoneSpawnLocation, TSubclassOf<ABasicAttackSmallFlock> FlockType, FVector StartTargetLoc);
 
+	void SpawnFlockHelper(FName BoneSpawnLocation, TSubclassOf<ABasicAttackSmallFlock> FlockType, FVector StartTargetLoc);
+
 	FVector CalcFirstFlockingTarget();
 
 	UFUNCTION()
 	void TryCancelAbilityHelper();
+
+	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
 };
 
 

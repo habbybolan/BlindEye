@@ -84,7 +84,7 @@ uint8 ACrowCocoon::CalcPulseIndex()
 
 UCrowCocoonStart::UCrowCocoonStart(AAbilityBase* ability): FAbilityState(ability) {}
 
-void UCrowCocoonStart::TryEnterState(EAbilityInputTypes abilityUsageType)
+void UCrowCocoonStart::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	FAbilityState::TryEnterState(abilityUsageType);
 	// apply initial cost
@@ -100,7 +100,7 @@ void UCrowCocoonStart::TryEnterState(EAbilityInputTypes abilityUsageType)
 	}
 }
 
-void UCrowCocoonStart::RunState(EAbilityInputTypes abilityUsageType)
+void UCrowCocoonStart::RunState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	FAbilityState::RunState(abilityUsageType);
 	if (!Ability) return;

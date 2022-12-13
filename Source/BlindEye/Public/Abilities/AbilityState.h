@@ -26,11 +26,13 @@ public:
 
 	/** @return True if the enter state conditions were satisfied */
 	// State checks for condition and goes to running state if passed. Called from either an event or Input
-	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None);
+	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None,
+		const FVector& Location = FVector::ZeroVector, const FRotator& Rotation = FRotator::ZeroRotator);
 
 	// Single use logic to start ability logic, or timer that continuously calls Run State logic until run state left
 	// Leaving run state either on a timer based, outside event or Input (ex) Bird meter, Input, Status effect)
-	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None);
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None,
+		const FVector& Location = FVector::ZeroVector, const FRotator& Rotation = FRotator::ZeroRotator);
 	
 	// calls any transition logic that must occur before going to next state
 	// Transition logic is never input based
@@ -40,7 +42,8 @@ public:
 	virtual bool CancelState();
 
 	// Only allow input being passed to TryEnter or Running states
-	virtual void HandleInput(EAbilityInputTypes abilityUsageType);
+	virtual void HandleInput(EAbilityInputTypes abilityUsageType,
+		const FVector& Location = FVector::ZeroVector, const FRotator& Rotation = FRotator::ZeroRotator);
 
 	// reset the state after leaving it for entering again in the future
 	virtual void ResetState();
