@@ -128,14 +128,48 @@ FRotator ABlindEyePlayerController::GetDesiredRotationFromMouse()
 	{
 		if (UWorld* World = GetWorld())
 		{
+			FVector DirToMouse;
 			FHitResult OutHit;
 			if (UKismetSystemLibrary::LineTraceSingle(World, MouseLocation, MouseLocation + MouseRotation * 5000, ETraceTypeQuery::TraceTypeQuery1,
 				false, TArray<AActor*>(), EDrawDebugTrace::None, OutHit, true))
 			{
-				FVector DirToMouse = (OutHit.Location - GetPawn()->GetActorLocation()) * FVector(1, 1, 0);
-				return DirToMouse.Rotation();
+				DirToMouse = (OutHit.Location - GetPawn()->GetActorLocation()) * FVector(1, 1, 0);
+			} else
+			{
+				DirToMouse = (MouseLocation + MouseRotation * 1000 - GetPawn()->GetActorLocation()) * FVector(1, 1, 0);
 			}
+			return DirToMouse.Rotation();
 		}
 	}
 	return FRotator::ZeroRotator;
+}
+
+FVector ABlindEyePlayerController::GetMouseAimLocation()
+{
+	FVector MouseLocation;
+	FVector MouseRotation;
+	DeprojectMousePositionToWorld(OUT MouseLocation, OUT MouseRotation);
+
+	if (UWorld* World = GetWorld())
+	{
+		FHitResult OutHit;
+		// Set mouse aim location to cast from mouse
+		if (UKismetSystemLibrary::LineTraceSingleForObjects(World, MouseLocation, MouseLocation + MouseRotation * 5000, MouseAimingObjectTypes,
+			false, TArray<AActor*>(), EDrawDebugTrace::None, OutHit, true))
+		{
+			return OutHit.Location + FVector::UpVector * MouseAimUpOffsetFromGround;
+		}
+		// Set mouse hit location from mouse position and at the Z-height of the player
+		else
+		{
+			if (GetPawn())
+			{
+				FVector MouseLocationInAir = MouseLocation + MouseRotation * 1000;
+				MouseLocationInAir.Z = GetPawn()->GetActorLocation().Z;
+				return MouseLocationInAir + FVector::UpVector * MouseAimUpOffsetFromGround;
+			}
+			
+		}
+	}
+	return FVector::ZeroVector;
 }

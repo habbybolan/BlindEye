@@ -392,6 +392,8 @@ public:
 	// If a level sequence started or ended
 	void LevelSequenceAction(bool IsStarted);
 
+	bool GetIsTopdown();
+
 protected:
 
 	TSet<ETutorialChecklist> ChecklistFinishedTasks;

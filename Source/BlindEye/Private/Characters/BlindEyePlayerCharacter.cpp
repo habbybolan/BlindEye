@@ -1297,6 +1297,11 @@ void ABlindEyePlayerCharacter::LevelSequenceAction(bool IsStarted)
 	HunterHealthbarVisibility(!IsStarted);
 }
 
+bool ABlindEyePlayerCharacter::GetIsTopdown()
+{
+	return bIsTopdown;
+}
+
 void ABlindEyePlayerCharacter::SER_TutorialActionPerformedHelper_Implementation(
 	TutorialInputActions::ETutorialInputActions TutorialAction)
 {

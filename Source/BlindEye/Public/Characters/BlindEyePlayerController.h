@@ -17,6 +17,12 @@ class BLINDEYE_API ABlindEyePlayerController : public APlayerController
 
 public:
 
+	UPROPERTY(EditDefaultsOnly, Category=TopdownAim)
+	TArray<TEnumAsByte<EObjectTypeQuery>> MouseAimingObjectTypes;
+
+	UPROPERTY(EditDefaultsOnly, Category=TopdownAim)
+	float MouseAimUpOffsetFromGround = 50.f;
+
 	UFUNCTION(Server, Reliable)
 	void SER_SpawnPlayer();
 
@@ -29,6 +35,7 @@ public:
 	virtual void OnPossess(APawn* InPawn) override;
 
 	FRotator GetDesiredRotationFromMouse();
+	FVector GetMouseAimLocation();
 
 private:
 	UPROPERTY()

@@ -78,23 +78,39 @@ FVector ASharedBasicAbility::CalcFirstFlockingTarget()
 {
 	UWorld* World = GetWorld();
 	if (World == nullptr) return FVector::ZeroVector;
-		
-	FVector ViewportLocation;
-	FRotator ViewportRotation;
-	GetInstigator()->GetController()->GetPlayerViewPoint(OUT ViewportLocation, OUT ViewportRotation);
-	FVector InstigatorFwd =  ViewportRotation.Vector() * TargetDistanceFromInstigator;
 
-	FVector TargetLocation;
-	FHitResult OutHit;
-	if (UKismetSystemLibrary::LineTraceSingleForObjects(World, ViewportLocation, ViewportLocation + InstigatorFwd, SpawnLineCastObjectTypes,
-		false, TArray<AActor*>(), EDrawDebugTrace::None, OutHit, true))
+	// If Topdown
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+	if (Player->GetIsTopdown())
 	{
-		TargetLocation = OutHit.Location;
-	} else
-	{
-		TargetLocation = ViewportLocation + InstigatorFwd;
+		if (Player->GetController())
+		{
+			ABlindEyePlayerController* Controller = Cast<ABlindEyePlayerController>(Player->GetController());
+			return Controller->GetMouseAimLocation();
+		}
 	}
-	return TargetLocation;
+	// 3rd person
+	else
+	{
+		FVector ViewportLocation;
+		FRotator ViewportRotation;
+		GetInstigator()->GetController()->GetPlayerViewPoint(OUT ViewportLocation, OUT ViewportRotation);
+		FVector InstigatorFwd =  ViewportRotation.Vector() * TargetDistanceFromInstigator;
+
+		FVector TargetLocation;
+		FHitResult OutHit;
+		if (UKismetSystemLibrary::LineTraceSingleForObjects(World, ViewportLocation, ViewportLocation + InstigatorFwd, SpawnLineCastObjectTypes,
+			false, TArray<AActor*>(), EDrawDebugTrace::None, OutHit, true))
+		{
+			TargetLocation = OutHit.Location;
+		} else
+		{
+			TargetLocation = ViewportLocation + InstigatorFwd;
+		}
+		return TargetLocation;
+	}
+	check(true)
+	return FVector::ZeroVector;
 }
 
 void ASharedBasicAbility::TryCancelAbilityHelper()
