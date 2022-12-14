@@ -25,7 +25,8 @@ APhoenixDive::APhoenixDive() : AAbilityBase()
 void APhoenixDive::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	if (!ensure(GetInstigator())) return;
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
 	CachedGravityScale = Character->GetCharacterMovement()->GravityScale;
 }
