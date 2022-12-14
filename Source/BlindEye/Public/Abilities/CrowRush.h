@@ -117,18 +117,17 @@ public:
 	
 	void ApplyDamage();
 
-	UFUNCTION(Client, Reliable)
-	void CLI_StartAiming();
+	void StartAiming();
 
 	void StartMovement();
+	void StartMovementHelper();
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_StartMovementHelper(FVector StartPos, FVector CalculatedEndPos);
+	void MULT_StartMovementHelper();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_ResetPlayerState();
-
-	UFUNCTION(Client, Reliable)
-	void CLI_RemoveTarget();
+	
+	void RemoveTarget();
 
 	FTimerHandle UpdateTargetTimerHandle;
 	FTimerHandle CheckIsLandedTimerHandle;

@@ -72,7 +72,7 @@ void ACrowRush::ApplyDamage()
 	}
 }
 
-void ACrowRush::CLI_StartAiming_Implementation()
+void ACrowRush::StartAiming()
 {
 	UWorld* World = GetWorld();
 	if (World)
@@ -105,7 +105,21 @@ FVector ACrowRush::CalculateTargetPosition()
 {
 	FVector TargetPosition;
 	UWorld* World = GetWorld();
-	if (World)
+	check(World)
+
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+
+	if (Player->GetIsTopdown())
+	{
+		FVector MouseLocation;
+		FVector MouseRotation;
+		if (Player->GetController())
+		{
+			ABlindEyePlayerController* PlayerController = Cast<ABlindEyePlayerController>(Player->GetController());
+			PlayerController->DeprojectMousePositionToWorld(MouseLocation, MouseRotation);
+			TargetPosition = ABlindEyePlayerController::GetMouseAimLocationHelper(MouseLocation, MouseRotation.Rotation(), Player, World);
+		}
+	} else
 	{
 		FVector ViewportLocation;
 		FRotator ViewportRotation;
@@ -140,7 +154,6 @@ FVector ACrowRush::CalculateTargetPosition()
 		{
 			FHitResult HitTargetBelow;
 			// Move target position off ground based on player height
-			ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
 			float PlayerHeight = Player->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 			if (UKismetSystemLibrary::LineTraceSingleForObjects(World, TargetPosition, TargetPosition + FVector::DownVector * PlayerHeight, TargetObjectBlocker,
 				false, TArray<AActor*>(), EDrawDebugTrace::None, HitTargetBelow, true))
@@ -155,6 +168,7 @@ FVector ACrowRush::CalculateTargetPosition()
 			TargetPosition = EndLocation;
 		}
 	}
+
 	return TargetPosition;
 }
  
@@ -194,50 +208,58 @@ void ACrowRush::EndAbilityLogic()
 
 void ACrowRush::StartMovement()
 {
-	FVector CalcEndPos = CalculateTargetPosition();
-	FVector StartPos = GetInstigator()->GetActorLocation();
-	CLI_RemoveTarget();
-	MULT_StartMovementHelper(StartPos, CalcEndPos);
+	if (GetLocalRole() == ROLE_AutonomousProxy || GetRemoteRole() == ROLE_SimulatedProxy)
+	{
+		RemoveTarget();
+	}
+	StartMovementHelper();
 }
- 
- 
-void ACrowRush::MULT_StartMovementHelper_Implementation(FVector StartPos, FVector CalculatedEndPos) 
+
+void ACrowRush::StartMovementHelper()
 {
+	UWorld* World = GetWorld();
+	check(World);
+	
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
 	Player->GetMovementComponent()->StopMovementImmediately();
 	Player->GetCharacterMovement()->SetMovementMode(MOVE_Falling);
-	
-	UWorld* World = GetWorld();
-	if (World)
-	{ 
+
+	if (Player->GetIsTopdown())
+	{
+		StartingPosition = GetInstigator()->GetActorLocation();;
+		EndPosition = ABlindEyePlayerController::GetMouseAimLocationHelper(AimLocation, AimRotation, Player, World);
+	} else
+	{
+		FVector CalcEndPos = CalculateTargetPosition();
+		FVector StartPos = GetInstigator()->GetActorLocation();
+		
 		StartingPosition = StartPos;
-		EndPosition = CalculatedEndPos;
-		CalculatedDuration = (FVector::Distance(StartingPosition, EndPosition) / MaxDistance) * DurationAtMaxDistance;
+		EndPosition = CalcEndPos;
+	}
 
-		GetInstigator()->SetActorLocation(EndPosition);
+	CalculatedDuration = (FVector::Distance(StartingPosition, EndPosition) / MaxDistance) * DurationAtMaxDistance;
 
-		if (GetLocalRole() == ROLE_Authority)
-		{
-			ApplyDamage();
+	GetInstigator()->SetActorLocation(EndPosition);
+	ApplyDamage();
 
-			// If Already on the ground, then dont play landing montage
-			if (CheckIsLandedHelper())
-			{
-				SetAsLanded();
-			}
-			// Otherwise, wait to land to play anim
-			else
-			{
-				World->GetTimerManager().SetTimer(CheckIsLandedTimerHandle, this, &ACrowRush::CheckIsLanded, 0.1, true);
-			}
-		}
+	// If Already on the ground, then dont play landing montage
+	if (CheckIsLandedHelper())
+	{
+		SetAsLanded();
+	}
+	// Otherwise, wait to land to play anim
+	else
+	{
+		World->GetTimerManager().SetTimer(CheckIsLandedTimerHandle, this, &ACrowRush::CheckIsLanded, 0.1, true);
+	}
+}
 
-		// ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
-		// Player->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		// Player->GetCharacterMovement()->PrimaryComponentTick.bCanEverTick = false;
-		// Player->GetCharacterMovement()->Deactivate();
-		//
-		// World->GetTimerManager().SetTimer(UpdateTargetTimerHandle, this, &ACrowRush::UpdatePlayerMovement, UpdateMovementDelay, true);
+void ACrowRush::MULT_StartMovementHelper_Implementation() 
+{
+	// Play for remote clients
+	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		StartMovementHelper();
 	}
 }
 
@@ -279,7 +301,7 @@ void ACrowRush::SetLandingAnimFinished(UAnimMontage* Montage, bool bInterrupted)
 	}
 }
 
-void ACrowRush::CLI_RemoveTarget_Implementation()
+void ACrowRush::RemoveTarget()
 {
 	if (Target)
 	{
@@ -316,7 +338,7 @@ FAimingStartState::FAimingStartState(AAbilityBase* ability) : FAbilityState(abil
 
 void FAimingStartState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
-	FAbilityState::TryEnterState(abilityUsageType);
+	FAbilityState::TryEnterState(abilityUsageType, Location, Rotation);
 	// Enter on pressed
 	if (abilityUsageType == EAbilityInputTypes::Pressed)
 	{
@@ -327,15 +349,17 @@ void FAimingStartState::TryEnterState(EAbilityInputTypes abilityUsageType, const
 
 void FAimingStartState::RunState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
-	FAbilityState::RunState(abilityUsageType);
+	FAbilityState::RunState(abilityUsageType, Location, Rotation);
 	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 	// Start Aiming hold
 	if (abilityUsageType == EAbilityInputTypes::None)
 	{
 		Ability->AbilityStarted();
 		ACrowRush* Rush = Cast<ACrowRush>(Ability);
-		check(Rush)
-		Rush->CLI_StartAiming();
+		if (Ability->GetLocalRole() == ROLE_AutonomousProxy || Ability->GetRemoteRole() == ROLE_SimulatedProxy)
+		{
+			Rush->StartAiming();
+		}
 	}
 	// stop aiming and goto moving state
 	else if (abilityUsageType == EAbilityInputTypes::Released)
@@ -357,7 +381,7 @@ bool FAimingStartState::CancelState()
 	FAbilityState::CancelState();
 	
 	ACrowRush* Rush = Cast<ACrowRush>(Ability);
-	Rush->CLI_RemoveTarget();
+	Rush->RemoveTarget();
 	// resets camera and stops particles
 	Rush->BP_AbilityInnerState(2);
 
@@ -374,7 +398,7 @@ FMovingState::FMovingState(AAbilityBase* ability) : FAbilityState(ability) {}
 
 void FMovingState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
-	FAbilityState::TryEnterState(abilityUsageType);
+	FAbilityState::TryEnterState(abilityUsageType, Location, Rotation);
 	if (!Ability) return;
 	Ability->SetOnCooldown();
 	RunState();
@@ -385,12 +409,13 @@ void FMovingState::RunState(EAbilityInputTypes abilityUsageType, const FVector& 
 	// prevent user input
 	if (abilityUsageType > EAbilityInputTypes::None) return;
 	
-	FAbilityState::RunState(abilityUsageType);
+	FAbilityState::RunState(abilityUsageType, Location, Rotation);
 
 	Ability->Blockers.IsMovementBlocked = true;
 	ACrowRush* CrowRush = Cast<ACrowRush>(Ability);
 	check(CrowRush);
 	CrowRush->StartMovement();
+	CrowRush->MULT_StartMovementHelper();
 }
 
 void FMovingState::ExitState()

@@ -392,6 +392,7 @@ public:
 	// If a level sequence started or ended
 	void LevelSequenceAction(bool IsStarted);
 
+	UFUNCTION(BlueprintCallable)
 	bool GetIsTopdown();
 
 protected:
