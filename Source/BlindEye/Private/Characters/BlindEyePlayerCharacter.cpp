@@ -400,6 +400,7 @@ void ABlindEyePlayerCharacter::MULT_StartLockRotationToController_Implementation
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
 
+	// TODO:
 	if (bIsTopdown)
 	{
 		UBlindEyePlayerMovementComponent* BlindEyePlayerMC = Cast<UBlindEyePlayerMovementComponent>(GetCharacterMovement());
@@ -677,28 +678,60 @@ void ABlindEyePlayerCharacter::Unique1Pressed()
 {
 	if (TutorialActionBlockers.bUnique1Blocked) return;
 	if (IsActionsBlocked()) return;
-	AbilityManager->UseAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Pressed);
+	
+	if (GetController())
+	{
+		ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(GetController());
+		FVector MouseLocation;
+		FVector MouseRotation;
+		BlindEyeController->DeprojectMousePositionToWorld(OUT MouseLocation, OUT MouseRotation);
+		AbilityManager->UseAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Pressed, MouseLocation, MouseRotation.Rotation());
+	}
 }
 
 void ABlindEyePlayerCharacter::Unique1Released()
 {
 	if (TutorialActionBlockers.bUnique1Blocked) return;
 	if (IsActionsBlocked()) return;
-	AbilityManager->UseAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Released);
+
+	if (GetController())
+	{
+		ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(GetController());
+		FVector MouseLocation;
+		FVector MouseRotation;
+		BlindEyeController->DeprojectMousePositionToWorld(OUT MouseLocation, OUT MouseRotation);
+		AbilityManager->UseAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Released, MouseLocation, MouseRotation.Rotation());
+	}
 }
 
 void ABlindEyePlayerCharacter::Unique2Pressed()
 {
 	if (TutorialActionBlockers.bUnique2blocked) return;
 	if (IsActionsBlocked()) return;
-	AbilityManager->UseAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Pressed);
+
+	if (GetController())
+	{
+		ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(GetController());
+		FVector MouseLocation;
+		FVector MouseRotation;
+		BlindEyeController->DeprojectMousePositionToWorld(OUT MouseLocation, OUT MouseRotation);
+		AbilityManager->UseAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Pressed, MouseLocation, MouseRotation.Rotation());
+	}
 }
 
 void ABlindEyePlayerCharacter::Unique2Released()
 {
 	if (TutorialActionBlockers.bUnique2blocked) return;
 	if (IsActionsBlocked()) return;
-	AbilityManager->UseAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Released);
+
+	if (GetController())
+	{
+		ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(GetController());
+		FVector MouseLocation;
+		FVector MouseRotation;
+		BlindEyeController->DeprojectMousePositionToWorld(OUT MouseLocation, OUT MouseRotation);
+		AbilityManager->UseAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Released, MouseLocation, MouseRotation.Rotation());
+	}
 }
 
 void ABlindEyePlayerCharacter::TutorialSkipPressed()

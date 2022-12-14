@@ -93,6 +93,8 @@ public:
 
 	// Wait for ability use animation notify to cast fireball
 	void PlayAbilityAnimation();
+	UFUNCTION(NetMulticast, Unreliable)
+	void MULT_PlayAbilityAnimation();
 	
 	
 protected:
@@ -100,6 +102,8 @@ protected:
 	TSet<uint32> IDsOfHitActors;
 	UPROPERTY()
 	APhoenixFireballCast* FireballCast;
+
+	void PlayAbilityAnimationHelper();
 
 	virtual void EndAbilityLogic() override;
 

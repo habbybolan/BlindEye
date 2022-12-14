@@ -66,17 +66,12 @@ void APhoenixFireball::CastFireCone()
 
 void APhoenixFireball::CastFireball()
 {
-	UWorld* world = GetWorld();
-	if (!world) return;
+	UWorld* World = GetWorld();
+	if (!World) return;
 
 	FActorSpawnParameters params;
 	params.Instigator = GetInstigator();
 	params.Owner = this;
-
-	FVector ViewportLocation;
-	FRotator ViewportRotation;
-
-	GetInstigator()->GetController()->GetPlayerViewPoint(ViewportLocation, ViewportRotation);
 
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
 	FVector SpawnLocation = Player->GetMesh()->GetBoneLocation("RightHand") + Player->GetActorForwardVector() * 25;
@@ -87,15 +82,17 @@ void APhoenixFireball::CastFireball()
 	// If Topdown
 	if (Player->GetIsTopdown())
 	{
-		if (Player->GetController())
-		{
-			ABlindEyePlayerController* Controller = Cast<ABlindEyePlayerController>(Player->GetController());
-			vectorRotation = Controller->GetMouseAimLocation() - Player->GetActorLocation();
-		}
-	} else
+		FVector ShootAtLoc = ABlindEyePlayerController::GetMouseAimLocationHelper(AimLocation, AimRotation, Player, World);
+		vectorRotation = ShootAtLoc - SpawnLocation;
+	}
+	else
 	{
+		FVector ViewportLocation;
+		FRotator ViewportRotation;
+		GetInstigator()->GetController()->GetPlayerViewPoint(ViewportLocation, ViewportRotation);
+		
 		FHitResult Hit;
-		if (UKismetSystemLibrary::LineTraceSingleForObjects(world, ViewportLocation, ViewportLocation + ViewportRotation.Vector() * 10000, FireballCastObjectTypes,
+		if (UKismetSystemLibrary::LineTraceSingleForObjects(World, ViewportLocation, ViewportLocation + ViewportRotation.Vector() * 10000, FireballCastObjectTypes,
 			false, TArray<AActor*>(), EDrawDebugTrace::None, Hit, true))
 		{
 			vectorRotation = Hit.Location - SpawnLocation;
@@ -105,8 +102,7 @@ void APhoenixFireball::CastFireball()
 		}
 	}
 	
-	
-	FireballCast = world->SpawnActor<APhoenixFireballCast>(FireballCastType, SpawnLocation, vectorRotation.Rotation(), params);
+	FireballCast = World->SpawnActor<APhoenixFireballCast>(FireballCastType, SpawnLocation, vectorRotation.Rotation(), params);
 	FireballCast->CustomCollisionDelegate.BindDynamic(this, &APhoenixFireball::OnFireballCastHit);
 }
 
@@ -132,10 +128,27 @@ void APhoenixFireball::PlayAbilityAnimation()
 {
 	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
-		PlayerCharacter->MULT_PlayAnimMontage(FireballCastAnimation);
 		PlayerCharacter->MULT_StartLockRotationToController(1);
 	}
+	PlayAbilityAnimationHelper();
 	AnimNotifyDelegate.BindUFunction( this, TEXT("UseAnimNotifyExecuted"));
+}
+
+void APhoenixFireball::PlayAbilityAnimationHelper()
+{
+	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	{
+		PlayerCharacter->PlayAnimMontage(FireballCastAnimation);
+	}
+}
+
+void APhoenixFireball::MULT_PlayAbilityAnimation_Implementation()
+{
+	// Play for remote clients
+	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		PlayAbilityAnimationHelper();
+	}
 }
 
 void APhoenixFireball::UseAnimNotifyExecuted()
@@ -170,7 +183,7 @@ FStartCastingAbilityState::FStartCastingAbilityState(AAbilityBase* ability) : FA
 
 void FStartCastingAbilityState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
-	FAbilityState::TryEnterState(abilityUsageType);
+	FAbilityState::TryEnterState(abilityUsageType, Location, Rotation);
 	if (!Ability) return;
 	if (APhoenixFireball* PhoenixFireball = Cast<APhoenixFireball>(Ability))
 	{
@@ -186,7 +199,7 @@ void FStartCastingAbilityState::RunState(EAbilityInputTypes abilityUsageType, co
 	// prevent input in this state
 	if (abilityUsageType > EAbilityInputTypes::None) return;
 	
-	FAbilityState::RunState(abilityUsageType);
+	FAbilityState::RunState(abilityUsageType, Location, Rotation);
 	if (!Ability) return;
 	Ability->AbilityStarted();
 	
@@ -198,6 +211,7 @@ void FStartCastingAbilityState::RunState(EAbilityInputTypes abilityUsageType, co
 	PhoenixFireball->Blockers.MovementSlowAmount = PhoenixFireball->SlowAmount;
 	
 	PhoenixFireball->PlayAbilityAnimation();
+	PhoenixFireball->MULT_PlayAbilityAnimation();
 }
 
 void FStartCastingAbilityState::ExitState()
@@ -225,7 +239,7 @@ FCastFireballState::FCastFireballState(AAbilityBase* ability) : FAbilityState(ab
 
 void FCastFireballState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
-	FAbilityState::TryEnterState(abilityUsageType);
+	FAbilityState::TryEnterState(abilityUsageType, Location, Rotation);
 	RunState();
 }
 
@@ -234,7 +248,7 @@ void FCastFireballState::RunState(EAbilityInputTypes abilityUsageType, const FVe
 	// prevent input in this state
 	if (abilityUsageType > EAbilityInputTypes::None) return;
 	
-	FAbilityState::RunState(abilityUsageType);
+	FAbilityState::RunState(abilityUsageType, Location, Rotation);
 	if (Ability == nullptr) return;
 
 	APhoenixFireball* PhoenixFireball = Cast<APhoenixFireball>(Ability);
@@ -244,9 +258,12 @@ void FCastFireballState::RunState(EAbilityInputTypes abilityUsageType, const FVe
 	PhoenixFireball->Blockers.IsOtherAbilitiesBlocked = true;
 	PhoenixFireball->Blockers.IsMovementSlowBlocked = true;
 	PhoenixFireball->Blockers.MovementSlowAmount = PhoenixFireball->SlowAmount;
-	
-	PhoenixFireball->CastFireball();
-	PhoenixFireball->CastFireCone();
+
+	if (Ability->GetLocalRole() == ROLE_Authority)
+	{
+		PhoenixFireball->CastFireball();
+		PhoenixFireball->CastFireCone();
+	}
 }
 
 void FCastFireballState::ExitState()
