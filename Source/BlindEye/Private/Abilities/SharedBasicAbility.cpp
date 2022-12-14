@@ -1,6 +1,5 @@
 // Copyright (C) Nicholas Johnson 2022
 
-
 #include "Abilities/SharedBasicAbility.h"
 
 #include "Characters/BlindEyePlayerCharacter.h"
@@ -40,11 +39,25 @@ void ASharedBasicAbility::SetComboFinished()
 void ASharedBasicAbility::PlayAbilityAnimation()
 {
 	bIsAttacking = true;
+	PlayAbilityAnimationHelper(CurrCharge);
+	AnimNotifyDelegate.BindDynamic( this, &ASharedBasicAbility::UseAnimNotifyExecuted);
+}
+
+void ASharedBasicAbility::PlayAbilityAnimationHelper(uint8 charge)
+{
 	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
-		PlayerCharacter->MULT_PlayAnimMontage(ChargeAnimMontages[CurrCharge]);
+		PlayerCharacter->PlayAnimMontage(ChargeAnimMontages[charge]);
 	}
-	AnimNotifyDelegate.BindUFunction( this, TEXT("UseAnimNotifyExecuted"));
+}
+
+void ASharedBasicAbility::MULT_PlayAbilityAnimation_Implementation()
+{
+	// Play for remote clients
+	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		PlayAbilityAnimationHelper(CurrCharge);
+	}
 }
 
 void ASharedBasicAbility::UseAnimNotifyExecuted()
@@ -56,11 +69,13 @@ void ASharedBasicAbility::UseAnimNotifyExecuted()
 
 void ASharedBasicAbility::WaitForEndAbilityNotify()
 {
-	AnimNotifyDelegate.BindUFunction( this, TEXT("EndAnimNotifyExecuted"));
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Blue, UEnum::GetValueAsString(GetOwner()->GetLocalRole()));
+	AnimNotifyDelegate.BindDynamic( this, &ASharedBasicAbility::EndAnimNotifyExecuted);
 }
 
 void ASharedBasicAbility::EndAnimNotifyExecuted()
 {
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Blue, UEnum::GetValueAsString(GetOwner()->GetLocalRole()));
 	bIsAttacking = false;
 	AnimNotifyDelegate.Unbind();
 	AbilityStates[CurrState]->ExitState();
@@ -226,6 +241,7 @@ void UFirstAttackState::RunState(EAbilityInputTypes abilityUsageType, const FVec
 		SharedAbility->Blockers.IsMovementSlowBlocked = true;
 		SharedAbility->Blockers.MovementSlowAmount = SharedAbility->Charge1MovementSlow;
 		SharedAbility->PlayAbilityAnimation();
+		SharedAbility->MULT_PlayAbilityAnimation();
 	} 
 	
 	if (!Ability) return;
@@ -280,6 +296,7 @@ void USecondAttackState::RunState(EAbilityInputTypes abilityUsageType, const FVe
 	SharedAbility->StartLockRotation(1);
 	SharedAbility->BP_AbilityInnerState(2);
 	SharedAbility->PlayAbilityAnimation();
+	SharedAbility->MULT_PlayAbilityAnimation();
 }
 
 void USecondAttackState::ExitState()
@@ -328,6 +345,7 @@ void ULastAttackState::RunState(EAbilityInputTypes abilityUsageType, const FVect
 	SharedAbility->StartLockRotation(2);
 	SharedAbility->BP_AbilityInnerState(3);
 	SharedAbility->PlayAbilityAnimation();
+	SharedAbility->MULT_PlayAbilityAnimation();
 	SharedAbility->SetComboFinished();
 }
 

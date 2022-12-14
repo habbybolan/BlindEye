@@ -49,7 +49,7 @@ public:
 	void UseAbility(EAbilityTypes abilityType, EAbilityInputTypes abilityUsageType,
 		const FVector& Location = FVector::ZeroVector, const FRotator& Rotation = FRotator::ZeroRotator);
 	bool IsMovementBlocked();
-	bool IsAbilityUnavailable();
+	bool IsAbilityBlocked();
 	bool IsReceiveDamageBlocked();
 	bool IsDamageFeedbackBlocked();
 	// Returns 1 if no movement slow applied, otherwise alter movement speed with stored ability slow movement blocker property

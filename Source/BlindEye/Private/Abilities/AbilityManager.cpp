@@ -63,7 +63,7 @@ bool UAbilityManager::IsMovementBlocked()
 	return false;
 }
 
-bool UAbilityManager::IsAbilityUnavailable()
+bool UAbilityManager::IsAbilityBlocked()
 {
 	if (CurrUsedAbility)
 	{

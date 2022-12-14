@@ -113,6 +113,9 @@ public:
 
 	// Wait for ability use animation notify to send out flock
 	void PlayAbilityAnimation();
+	void PlayAbilityAnimationHelper(uint8 charge);
+	UFUNCTION(NetMulticast, Unreliable)
+	void MULT_PlayAbilityAnimation();
 	UFUNCTION()
 	void UseAnimNotifyExecuted();
 
@@ -124,7 +127,6 @@ public:
 protected:
 	bool AbilityTest = true;
 	FTimerHandle ResetAbilityTimerHandle;
-	
 
 	virtual bool TryCancelAbility() override;
 	virtual void EndAbilityLogic() override;

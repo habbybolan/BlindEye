@@ -86,7 +86,7 @@ public:
 	// Broadcasts a generic anim notify event to be subscribed by child abilities when waiting for anim notify
 	void GenericAnimNotify();
 
-	DECLARE_DELEGATE(FAnimNotifySignature)
+	DECLARE_DYNAMIC_DELEGATE(FAnimNotifySignature);
 	FAnimNotifySignature AnimNotifyDelegate;
 
 	void RefreshCooldown(float CooldownRefreshAmount);
