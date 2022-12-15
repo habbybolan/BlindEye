@@ -108,7 +108,7 @@ void APhoenixFireball::CastFireball()
 
 void APhoenixFireball::OnFireballCastHit()
 {
-	if (GetLocalRole() < ROLE_Authority) return;
+	if (GetOwner()->GetLocalRole() < ROLE_Authority) return;
 	
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;

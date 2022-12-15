@@ -19,7 +19,7 @@ void UAbilityManager::UseAbility(EAbilityTypes abilityType, EAbilityInputTypes a
 {
 	// Run on owning client for immediate action
 	AAbilityBase* AbilityToUse = GetAbility(abilityType);
-	if (GetOwner()->GetLocalRole() != ROLE_Authority && !IsAbilityUnavailable(AbilityToUse))
+	if (GetOwner()->GetLocalRole() == ROLE_AutonomousProxy && !IsAbilityUnavailable(AbilityToUse))
 	{
 		UseAbilityHelper(AbilityToUse, abilityUsageType, MouseLocation, MouseRotation);
 	}

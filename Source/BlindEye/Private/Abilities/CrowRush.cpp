@@ -22,7 +22,7 @@ void ACrowRush::ApplyDamage()
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
 
-	if (GetLocalRole() < ROLE_Authority) return;
+	if (GetOwner()->GetLocalRole() < ROLE_Authority) return;
 	
 	if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
@@ -120,7 +120,7 @@ FVector ACrowRush::CalculateTargetPosition()
 			ABlindEyePlayerController* PlayerController = Cast<ABlindEyePlayerController>(Player->GetController());
 			PlayerController->DeprojectMousePositionToWorld(OUT MouseLocation, OUT MouseRotation);
 			GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Red, MouseLocation.ToString());
-			TargetPosition = ABlindEyePlayerController::GetMouseAimLocationHelper(MouseLocation, MouseRotation.Rotation(), Player, World);
+			TargetPosition =  ABlindEyePlayerController::GetMouseAimLocationHelper(MouseLocation, MouseRotation.Rotation(), Player, World);
 		}
 	} else
 	{
@@ -211,7 +211,7 @@ void ACrowRush::EndAbilityLogic()
 
 void ACrowRush::StartMovement()
 {
-	if (GetLocalRole() == ROLE_AutonomousProxy || GetRemoteRole() == ROLE_SimulatedProxy)
+	if (GetOwner()->GetLocalRole() == ROLE_AutonomousProxy || GetRemoteRole() == ROLE_SimulatedProxy)
 	{
 		RemoveTarget();
 	}
@@ -275,7 +275,7 @@ void ACrowRush::CheckIsLanded()
 		World->GetTimerManager().ClearTimer(CheckIsLandedTimerHandle);
 		SetAsLandedHelper();
 		SetAsLanded();
-		if (GetLocalRole() == ROLE_Authority)
+		if (GetOwner()->GetLocalRole() == ROLE_Authority)
 		{
 			MULT_SetAsLanded();
 		}
@@ -344,7 +344,7 @@ void ACrowRush::UpdatePlayerMovement()
 		check(World);
 		World->GetTimerManager().ClearTimer(UpdateTargetTimerHandle);
 
-		if (GetLocalRole() == ROLE_Authority)
+		if (GetOwner()->GetLocalRole() == ROLE_Authority)
 		{
 			ApplyDamage();
 			AbilityStates[CurrState]->ExitState();
@@ -378,7 +378,7 @@ void FAimingStartState::RunState(EAbilityInputTypes abilityUsageType, const FVec
 	{
 		Ability->AbilityStarted();
 		ACrowRush* Rush = Cast<ACrowRush>(Ability);
-		if (Ability->GetLocalRole() == ROLE_AutonomousProxy || Ability->GetRemoteRole() == ROLE_SimulatedProxy)
+		if (Ability->GetOwner()->GetLocalRole() == ROLE_AutonomousProxy || Ability->GetOwner()->GetRemoteRole() == ROLE_SimulatedProxy)
 		{
 			Rush->StartAiming();
 		}
