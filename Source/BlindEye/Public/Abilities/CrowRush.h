@@ -154,6 +154,9 @@ protected:
 	float CurrDuration = 0;
 
 	void SetAsLanded();
+	UFUNCTION(NetMulticast, Unreliable)
+	void MULT_SetAsLanded();
+	void SetAsLandedHelper();
 	UFUNCTION()
 	void SetLandingAnimFinished(UAnimMontage* Montage, bool bInterrupted);
 

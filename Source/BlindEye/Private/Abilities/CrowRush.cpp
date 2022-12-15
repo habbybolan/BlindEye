@@ -21,6 +21,8 @@ void ACrowRush::ApplyDamage()
 {
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
+
+	if (GetLocalRole() < ROLE_Authority) return;
 	
 	if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
@@ -31,7 +33,7 @@ void ACrowRush::ApplyDamage()
 			false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true))
 		{
 			for (FHitResult OutHit : OutHits)
-			{ 
+			{
 				// calculate knockBack force from center of dash
 				FVector ClosestPoint = UKismetMathLibrary::FindClosestPointOnLine(OutHit.Location, StartingPosition, EndLocation - StartingPosition);
 				float distToCenter = FVector::Distance(ClosestPoint, OutHit.Location);
@@ -116,7 +118,8 @@ FVector ACrowRush::CalculateTargetPosition()
 		if (Player->GetController())
 		{
 			ABlindEyePlayerController* PlayerController = Cast<ABlindEyePlayerController>(Player->GetController());
-			PlayerController->DeprojectMousePositionToWorld(MouseLocation, MouseRotation);
+			PlayerController->DeprojectMousePositionToWorld(OUT MouseLocation, OUT MouseRotation);
+			GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Red, MouseLocation.ToString());
 			TargetPosition = ABlindEyePlayerController::GetMouseAimLocationHelper(MouseLocation, MouseRotation.Rotation(), Player, World);
 		}
 	} else
@@ -245,6 +248,7 @@ void ACrowRush::StartMovementHelper()
 	// If Already on the ground, then dont play landing montage
 	if (CheckIsLandedHelper())
 	{
+		SetAsLandedHelper();
 		SetAsLanded();
 	}
 	// Otherwise, wait to land to play anim
@@ -269,7 +273,12 @@ void ACrowRush::CheckIsLanded()
 	if (World && CheckIsLandedHelper())
 	{
 		World->GetTimerManager().ClearTimer(CheckIsLandedTimerHandle);
+		SetAsLandedHelper();
 		SetAsLanded();
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			MULT_SetAsLanded();
+		}
 	}
 }
 
@@ -283,10 +292,26 @@ void ACrowRush::SetAsLanded()
 {
 	BP_AbilityInnerState(2);
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
-	Player->MULT_PlayAnimMontage(LandingAnim);
 	if (!Player->GetMesh()->GetAnimInstance()->OnMontageEnded.Contains(this, TEXT("SetLandingAnimFinished")))
 	{
 		Player->GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &ACrowRush::SetLandingAnimFinished);
+	}
+}
+
+void ACrowRush::SetAsLandedHelper()
+{
+	if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator()))
+	{
+		Player->PlayAnimMontage(LandingAnim);
+	}
+}
+
+void ACrowRush::MULT_SetAsLanded_Implementation()
+{
+	// Play for remote clients
+	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		SetAsLandedHelper();
 	}
 }
 
@@ -295,10 +320,7 @@ void ACrowRush::SetLandingAnimFinished(UAnimMontage* Montage, bool bInterrupted)
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
 	Player->GetMesh()->GetAnimInstance()->OnMontageEnded.Remove(this, TEXT("SetLandingAnimFinished"));
 	// Landing finished, goto ending state
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		AbilityStates[CurrState]->ExitState();
-	}
+	AbilityStates[CurrState]->ExitState();
 }
 
 void ACrowRush::RemoveTarget()

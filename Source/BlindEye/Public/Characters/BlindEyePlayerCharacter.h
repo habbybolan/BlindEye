@@ -82,7 +82,7 @@ class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityU
 	UPROPERTY(EditDefaultsOnly)
 	float IndicatorPosAbove = 150;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Replicated)
 	bool bIsTopdown = true;
 	
 public:

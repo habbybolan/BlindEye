@@ -1356,6 +1356,7 @@ void ABlindEyePlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	DOREPLIFETIME_CONDITION(ABlindEyePlayerCharacter, PlayerType, COND_InitialOnly);
 	DOREPLIFETIME(ABlindEyePlayerCharacter, CurrRevivePercent);
 	DOREPLIFETIME(ABlindEyePlayerCharacter, TutorialActionBlockers);
+	DOREPLIFETIME(ABlindEyePlayerCharacter, bIsTopdown);
 }
 
 void ABlindEyePlayerCharacter::UpdateTopdownCamera()
