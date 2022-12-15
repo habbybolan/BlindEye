@@ -52,9 +52,25 @@ void ACrowFlurry::PlayAbilityAnimation()
 	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
 		PlayerCharacter->MULT_StartLockRotationToController(1);
+	}
+	PlayAnimationHelper();
+	AnimNotifyDelegate.BindUFunction( this, TEXT("UseAnimNotifyExecuted"));
+}
+
+void ACrowFlurry::PlayAnimationHelper()
+{
+	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	{
 		PlayerCharacter->MULT_PlayAnimMontage(CrowFlurryAnimation);
 	}
-	AnimNotifyDelegate.BindUFunction( this, TEXT("UseAnimNotifyExecuted"));
+}
+
+void ACrowFlurry::MULT_PlayAbilityAnimation_Implementation()
+{
+	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		PlayAnimationHelper();
+	}
 }
 
 void ACrowFlurry::UseAnimNotifyExecuted()
@@ -142,8 +158,23 @@ void ACrowFlurry::PerformCrowFlurry()
 
 void ACrowFlurry::CalcFlurryRotation()
 {
-	FRotator TargetRotation = GetInstigator()->GetControlRotation();
-	CurrFlurryRotation = UKismetMathLibrary::RLerp(CurrFlurryRotation, TargetRotation, CrowFlurryLerpSpeed, true);
+	ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner());
+	if (GetWorld() && BlindEyePlayerCharacter)
+	{
+		FRotator TargetRotation = FRotator::ZeroRotator;
+		if (BlindEyePlayerCharacter->GetIsTopdown())
+		{
+			FVector MouseLocation;
+			FVector MouseRotation;
+			BlindEyePlayerCharacter->GetMouseValues(MouseLocation, MouseRotation);
+			FVector TargetLocation = ABlindEyePlayerController::GetMouseAimLocationHelper(MouseLocation, MouseRotation.Rotation(), BlindEyePlayerCharacter, GetWorld());
+			TargetRotation = (TargetLocation - BlindEyePlayerCharacter->GetActorLocation()).Rotation();
+		} else
+		{
+			TargetRotation = GetInstigator()->GetControlRotation();
+		}
+		CurrFlurryRotation = UKismetMathLibrary::RLerp(CurrFlurryRotation, TargetRotation, CrowFlurryLerpSpeed, true);
+	}
 }
 
 void ACrowFlurry::EndAbilityLogic()
@@ -193,6 +224,7 @@ void FPerformCrowFlurryState::RunState(EAbilityInputTypes abilityUsageType, cons
 	Ability->AbilityStarted();
 	// wait for ability startup to goto end state
 	CrowFlurry->PlayAbilityAnimation();
+	CrowFlurry->MULT_PlayAbilityAnimation();
 
 	Ability->Blockers.IsMovementSlowBlocked = true;
 	Ability->Blockers.MovementSlowAmount = CrowFlurry->MovementSlowDuringFlurry;

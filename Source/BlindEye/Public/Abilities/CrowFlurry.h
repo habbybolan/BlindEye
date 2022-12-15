@@ -109,6 +109,9 @@ public:
 	
 	void StartCrowFlurry();
 	void PlayAbilityAnimation();
+	void PlayAnimationHelper();
+	UFUNCTION(NetMulticast, Unreliable)
+	void MULT_PlayAbilityAnimation();
 	void EndAbilityAnimation();
 
 	FTimerHandle CrowFlurryTimerHandle;
