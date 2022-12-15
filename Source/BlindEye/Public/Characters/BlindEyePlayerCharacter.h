@@ -395,6 +395,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool GetIsTopdown();
 
+	UFUNCTION(Server, Unreliable)
+	void SER_UpdateMouse(FVector mousePosition, FVector mouseRotation);
+
+	void GetMouseValues(FVector& mouseLocation, FVector& mouseRotation);
+
 protected:
 
 	TSet<ETutorialChecklist> ChecklistFinishedTasks;
@@ -425,6 +430,11 @@ protected:
 	float CurrCameraOutOffset;
 	float CurrWorldZAngleOfCamera;
 	// Camera Values End
+
+	UPROPERTY(Replicated)
+	FVector MouseLocation;
+	UPROPERTY(Replicated)
+	FVector MouseRotation;
 
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);

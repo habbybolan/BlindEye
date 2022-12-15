@@ -15,5 +15,7 @@ public:
 	UPROPERTY(Category="Character Movement (Rotation Settings)", EditAnywhere, BlueprintReadWrite)
 	uint8 bOrientRotationToMouse:1;
 
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
 	virtual void PhysicsRotation(float DeltaTime) override;
 };

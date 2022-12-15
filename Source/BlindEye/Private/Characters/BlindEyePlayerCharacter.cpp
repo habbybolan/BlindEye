@@ -642,10 +642,10 @@ void ABlindEyePlayerCharacter::BasicAttackPressed()
 	if (GetController())
 	{
 		ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(GetController());
-		FVector MouseLocation;
-		FVector MouseRotation;
-		BlindEyeController->DeprojectMousePositionToWorld(OUT MouseLocation, OUT MouseRotation);
-		AbilityManager->UseAbility(EAbilityTypes::Basic, EAbilityInputTypes::Pressed, MouseLocation, MouseRotation.Rotation());
+		FVector mouseLocation;
+		FVector mouseRotation;
+		BlindEyeController->DeprojectMousePositionToWorld(OUT mouseLocation, OUT mouseRotation);
+		AbilityManager->UseAbility(EAbilityTypes::Basic, EAbilityInputTypes::Pressed, mouseLocation, mouseRotation.Rotation());
 	}
 }
 
@@ -682,10 +682,10 @@ void ABlindEyePlayerCharacter::Unique1Pressed()
 	if (GetController())
 	{
 		ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(GetController());
-		FVector MouseLocation;
-		FVector MouseRotation;
-		BlindEyeController->DeprojectMousePositionToWorld(OUT MouseLocation, OUT MouseRotation);
-		AbilityManager->UseAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Pressed, MouseLocation, MouseRotation.Rotation());
+		FVector mouseLocation;
+		FVector mouseRotation;
+		BlindEyeController->DeprojectMousePositionToWorld(OUT mouseLocation, OUT mouseRotation);
+		AbilityManager->UseAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Pressed, mouseLocation, mouseRotation.Rotation());
 	}
 }
 
@@ -697,10 +697,10 @@ void ABlindEyePlayerCharacter::Unique1Released()
 	if (GetController())
 	{
 		ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(GetController());
-		FVector MouseLocation;
-		FVector MouseRotation;
-		BlindEyeController->DeprojectMousePositionToWorld(OUT MouseLocation, OUT MouseRotation);
-		AbilityManager->UseAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Released, MouseLocation, MouseRotation.Rotation());
+		FVector mouseLocation;
+		FVector mouseRotation;
+		BlindEyeController->DeprojectMousePositionToWorld(OUT mouseLocation, OUT mouseRotation);
+		AbilityManager->UseAbility(EAbilityTypes::Unique1, EAbilityInputTypes::Released, mouseLocation, mouseRotation.Rotation());
 	}
 }
 
@@ -712,10 +712,10 @@ void ABlindEyePlayerCharacter::Unique2Pressed()
 	if (GetController())
 	{
 		ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(GetController());
-		FVector MouseLocation;
-		FVector MouseRotation;
-		BlindEyeController->DeprojectMousePositionToWorld(OUT MouseLocation, OUT MouseRotation);
-		AbilityManager->UseAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Pressed, MouseLocation, MouseRotation.Rotation());
+		FVector mouseLocation;
+		FVector mouseRotation;
+		BlindEyeController->DeprojectMousePositionToWorld(OUT mouseLocation, OUT mouseRotation);
+		AbilityManager->UseAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Pressed, mouseLocation, mouseRotation.Rotation());
 	}
 }
 
@@ -727,10 +727,10 @@ void ABlindEyePlayerCharacter::Unique2Released()
 	if (GetController())
 	{
 		ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(GetController());
-		FVector MouseLocation;
-		FVector MouseRotation;
-		BlindEyeController->DeprojectMousePositionToWorld(OUT MouseLocation, OUT MouseRotation);
-		AbilityManager->UseAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Released, MouseLocation, MouseRotation.Rotation());
+		FVector mouseLocation;
+		FVector mouseRotation;
+		BlindEyeController->DeprojectMousePositionToWorld(OUT mouseLocation, OUT mouseRotation);
+		AbilityManager->UseAbility(EAbilityTypes::Unique2, EAbilityInputTypes::Released, mouseLocation, mouseRotation.Rotation());
 	}
 }
 
@@ -1343,6 +1343,18 @@ bool ABlindEyePlayerCharacter::GetIsTopdown()
 	return bIsTopdown;
 }
 
+void ABlindEyePlayerCharacter::GetMouseValues(FVector& mouseLocation, FVector& mouseRotation)
+{
+	mouseLocation = MouseLocation;
+	mouseRotation = MouseRotation;
+}
+
+void ABlindEyePlayerCharacter::SER_UpdateMouse_Implementation(FVector mousePosition, FVector mouseRotation)
+{
+	MouseLocation = mousePosition;
+	MouseRotation = mouseRotation;
+}
+
 void ABlindEyePlayerCharacter::SER_TutorialActionPerformedHelper_Implementation(
 	TutorialInputActions::ETutorialInputActions TutorialAction)
 {
@@ -1357,6 +1369,8 @@ void ABlindEyePlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	DOREPLIFETIME(ABlindEyePlayerCharacter, CurrRevivePercent);
 	DOREPLIFETIME(ABlindEyePlayerCharacter, TutorialActionBlockers);
 	DOREPLIFETIME(ABlindEyePlayerCharacter, bIsTopdown);
+	DOREPLIFETIME(ABlindEyePlayerCharacter, MouseLocation);
+	DOREPLIFETIME(ABlindEyePlayerCharacter, MouseRotation);
 }
 
 void ABlindEyePlayerCharacter::UpdateTopdownCamera()
