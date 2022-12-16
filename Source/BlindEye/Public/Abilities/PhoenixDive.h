@@ -125,16 +125,14 @@ public:
 	// launches character upwards and sets transition
 	void LaunchPlayerUpwards();
 	void HangInAir();
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_HandInAirHelper();
+	
 	void HangInAirTimer();
 	void LaunchToGround();
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_LaunchToGround(FVector LaunchForce);
-
 	// Wait for ability use animation notify to send out flock
 	void PlayAbilityAnimation();
+	UFUNCTION(NetMulticast, Unreliable)
+	void MULT_PlayAbilityAnimation();
 
 	// Recovering after landing and getting up
 	void PlayLandingSectionOfAnim();
@@ -152,8 +150,7 @@ public:
 	FTimerHandle MaxHangingTimerHandle;
 	FTimerHandle UpdateGroundTargetPositionTimerHandle;
 
-	UFUNCTION(Client, Reliable)
-	void CLI_StopGroundTarget();
+	void StopGroundTarget();
 
 	float CachedGravityScale = 1;
 
@@ -161,11 +158,12 @@ public:
 	void MULT_ResetPlayerOnCancel();
 
 protected:
+
+	void PlayAbilityAnimationHelper();
 	
 	void UpdateGroundTargetPosition();
-
-	UFUNCTION(Client, Reliable)
-	void CLI_SpawnGroundTarget();
+	
+	void SpawnGroundTarget();
 
 	void hangingInAirExpired();
 
@@ -174,6 +172,18 @@ protected:
 	FRotator CalculateLaunchViewPoint(FVector& ViewportLocation, FRotator& ViewportRotation);
 
 	FVector CalculateDownwardVectorImpulse(FVector TargetPosition, float Angle);
+
+	void PlayLandingSectionOfAnimHelper();
+	UFUNCTION(NetMulticast, Unreliable)
+	void MULT_PlayLandingSectionOfAnim();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_LaunchToGround(FVector LaunchForce);
+	void LaunchToGroundHelper(FVector LaunchForce);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_HandInAirHelper();
+	void HandInAirHelper();
 
 	UFUNCTION()
 	void UseAnimNotifyExecuted();

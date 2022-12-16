@@ -42,23 +42,11 @@ void APhoenixDive::LaunchPlayerUpwards()
 	if (!world) return;
 	world->GetTimerManager().SetTimer(MaxHangingTimerHandle, this, &APhoenixDive::hangingInAirExpired, MaxTimeHanging, false);
 }
- 
-void APhoenixDive::HangInAir()
-{
-	BP_AbilityInnerState(1);
-	
-	MULT_HandInAirHelper();
-	// Spawn Ground Target only for client 
-	CLI_SpawnGroundTarget();
-	
-	AbilityStates[CurrState]->ExitState();
-}
 
-void APhoenixDive::MULT_HandInAirHelper_Implementation()
+void APhoenixDive::hangingInAirExpired()
 {
-	ACharacter* Character = Cast<ACharacter>(GetInstigator());
-	Character->GetCharacterMovement()->GravityScale = 0.f;
-	Character->GetCharacterMovement()->StopMovementImmediately();
+	// force a user input to launch to ground after time expired
+	AbilityStates[CurrState]->TryEnterState(EAbilityInputTypes::Pressed);
 }
 
 void APhoenixDive::HangInAirTimer()
@@ -67,6 +55,43 @@ void APhoenixDive::HangInAirTimer()
 	if (!world) return;
 
 	world->GetTimerManager().SetTimer(HangInAirTimerHandle, this, &APhoenixDive::HangInAir, DurationOfUpwardsForce, false);
+}
+
+void APhoenixDive::HangInAir()
+{
+	BP_AbilityInnerState(1);
+
+	HandInAirHelper();
+	MULT_HandInAirHelper();
+	
+	// Spawn Ground Target only for client 
+	SpawnGroundTarget();
+	
+	AbilityStates[CurrState]->ExitState();
+}
+
+void APhoenixDive::HandInAirHelper()
+{
+	ACharacter* Character = Cast<ACharacter>(GetInstigator());
+	Character->GetCharacterMovement()->GravityScale = 0.f;
+	Character->GetCharacterMovement()->StopMovementImmediately();
+}
+
+void APhoenixDive::MULT_HandInAirHelper_Implementation()
+{
+	// Run on remote clients
+	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		HandInAirHelper();
+	}
+}
+
+void APhoenixDive::SpawnGroundTarget()
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
+	GroundTarget = world->SpawnActor<AGroundTarget>(GroundTargetType);
+	world->GetTimerManager().SetTimer(UpdateGroundTargetPositionTimerHandle, this, &APhoenixDive::UpdateGroundTargetPosition, 0.02, true);
 }
 
 void APhoenixDive::LaunchToGround()
@@ -109,6 +134,7 @@ void APhoenixDive::LaunchToGround()
 		}
 	}
 
+	LaunchToGroundHelper(ImpulseVec);
 	MULT_LaunchToGround_Implementation(ImpulseVec);
 	
 	// prevent hanging in air
@@ -119,10 +145,18 @@ void APhoenixDive::LaunchToGround()
 	// Setup ground collision
 	Character->GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &APhoenixDive::MULT_CollisionWithGround);
 
-	CLI_StopGroundTarget();
+	StopGroundTarget();
 }
 
 void APhoenixDive::MULT_LaunchToGround_Implementation(FVector LaunchForce)
+{
+	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		LaunchToGroundHelper(LaunchForce);
+	}
+}
+
+void APhoenixDive::LaunchToGroundHelper(FVector LaunchForce)
 {
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
 	if (Character == nullptr) return;
@@ -163,11 +197,24 @@ FVector APhoenixDive::CalculateDownwardVectorImpulse(FVector TargetPosition, flo
 
 void APhoenixDive::PlayAbilityAnimation()
 {
+	PlayAbilityAnimationHelper();
+	AnimNotifyDelegate.BindUFunction( this, TEXT("UseAnimNotifyExecuted"));
+}
+
+void APhoenixDive::MULT_PlayAbilityAnimation_Implementation()
+{
+	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		PlayAbilityAnimationHelper();
+	}
+}
+
+void APhoenixDive::PlayAbilityAnimationHelper()
+{
 	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
 		PlayerCharacter->MULT_PlayAnimMontage(DiveAbilityAnim);
 	}
-	AnimNotifyDelegate.BindUFunction( this, TEXT("UseAnimNotifyExecuted"));
 }
 
 void APhoenixDive::UseAnimNotifyExecuted()
@@ -178,11 +225,25 @@ void APhoenixDive::UseAnimNotifyExecuted()
 
 void APhoenixDive::PlayLandingSectionOfAnim() 
 {
+	PlayLandingSectionOfAnimHelper();
+	MULT_PlayLandingSectionOfAnim();
+	AnimNotifyDelegate.BindUFunction( this, TEXT("UseAnimNotifyExecuted"));
+}
+
+void APhoenixDive::PlayLandingSectionOfAnimHelper()
+{
 	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
 		PlayerCharacter->MULT_SetNextMontageSection(DiveAbilityAnim, "Land"); 
 	}
-	AnimNotifyDelegate.BindUFunction( this, TEXT("UseAnimNotifyExecuted"));
+}
+
+void APhoenixDive::MULT_PlayLandingSectionOfAnim_Implementation()
+{
+	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		PlayLandingSectionOfAnimHelper();
+	}
 }
 
 void APhoenixDive::LandingAnimationFinishExecuted()
@@ -213,33 +274,33 @@ bool APhoenixDive::CalculateGroundTargetPosition(FVector& TargetPosition)
 	UWorld* World = GetWorld();
 	if (World == nullptr) return false;
 	
-	ACharacter* Character = Cast<ACharacter>(GetInstigator());
+	ABlindEyePlayerCharacter* Character = Cast<ABlindEyePlayerCharacter>(GetInstigator());
 	if (Character == nullptr) return false;
 
-	FVector ViewportLocation;
-	FRotator ViewportRotation;
-	CalculateLaunchViewPoint(ViewportLocation, ViewportRotation);
-
-	FVector EndPosition = ViewportLocation + ViewportRotation.Vector() * 10000;
-	FHitResult OutHit;
-	if (UKismetSystemLibrary::LineTraceSingleForObjects(World, Character->GetActorLocation(), EndPosition, GroundObjectTypes,
-		false, TArray<AActor*>(), EDrawDebugTrace::None, OutHit, true))
+	if (Character->GetIsTopdown())
 	{
-		TargetPosition = OutHit.Location;
+		TargetPosition = ABlindEyePlayerController::GetMouseAimLocationHelper(AimLocation, AimRotation, Character, World);
 		return true;
+	} else
+	{
+		FVector ViewportLocation;
+		FRotator ViewportRotation;
+		CalculateLaunchViewPoint(ViewportLocation, ViewportRotation);
+
+		FVector EndPosition = ViewportLocation + ViewportRotation.Vector() * 10000;
+		FHitResult OutHit;
+		if (UKismetSystemLibrary::LineTraceSingleForObjects(World, Character->GetActorLocation(), EndPosition, GroundObjectTypes,
+			false, TArray<AActor*>(), EDrawDebugTrace::None, OutHit, true))
+		{
+			TargetPosition = OutHit.Location;
+			return true;
+		}	
 	}
+	
 	return false;
 }
 
-void APhoenixDive::CLI_SpawnGroundTarget_Implementation()
-{
-	UWorld* world = GetWorld();
-	if (!world) return;
-	GroundTarget = world->SpawnActor<AGroundTarget>(GroundTargetType);
-	world->GetTimerManager().SetTimer(UpdateGroundTargetPositionTimerHandle, this, &APhoenixDive::UpdateGroundTargetPosition, 0.02, true);
-}
- 
-void APhoenixDive::CLI_StopGroundTarget_Implementation()
+void APhoenixDive::StopGroundTarget()
 {
 	UWorld* world = GetWorld();
 	if (!world) return;
@@ -250,12 +311,6 @@ void APhoenixDive::CLI_StopGroundTarget_Implementation()
 		GroundTarget->Destroy();
 		GroundTarget = nullptr;
 	}
-}
-
-void APhoenixDive::hangingInAirExpired()
-{
-	// force a user input to launch to ground after time expired
-	AbilityStates[CurrState]->TryEnterState(EAbilityInputTypes::Pressed);
 }
 
 FRotator APhoenixDive::CalculateLaunchViewPoint(FVector& ViewportLocation, FRotator& ViewportRotation)
@@ -333,7 +388,7 @@ FStartAbilityState::FStartAbilityState(AAbilityBase* ability) : FAbilityState(ab
 
 void FStartAbilityState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
-	FAbilityState::TryEnterState(abilityUsageType);
+	FAbilityState::TryEnterState(abilityUsageType, Location, Rotation);
 	if (!Ability) return;
 	if (APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability))
 	{
@@ -347,7 +402,7 @@ void FStartAbilityState::RunState(EAbilityInputTypes abilityUsageType, const FVe
 	// prevent user input here
 	if (abilityUsageType > EAbilityInputTypes::None) return;
 	
-	FAbilityState::RunState(abilityUsageType);
+	FAbilityState::RunState(abilityUsageType, Location, Rotation);
 
 	if (Ability == nullptr) return;
 	Ability->Blockers.IsMovementBlocked = true;
@@ -357,6 +412,7 @@ void FStartAbilityState::RunState(EAbilityInputTypes abilityUsageType, const FVe
 	if (PhoenixDive == nullptr) return;
 
 	PhoenixDive->PlayAbilityAnimation();
+	PhoenixDive->MULT_PlayAbilityAnimation();
 }
 
 void FStartAbilityState::ExitState()
@@ -387,7 +443,7 @@ void FJumpState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVecto
 	// prevent user input here
 	if (abilityUsageType > EAbilityInputTypes::None) return;
 	
-	FAbilityState::TryEnterState(abilityUsageType);
+	FAbilityState::TryEnterState(abilityUsageType, Location, Rotation);
 	if (!Ability) return;
 	Ability->AbilityStarted();
 	RunState();
@@ -395,7 +451,7 @@ void FJumpState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVecto
 
 void FJumpState::RunState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
-	FAbilityState::RunState(abilityUsageType);
+	FAbilityState::RunState(abilityUsageType, Location, Rotation);
 	APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability);
 	if (!PhoenixDive) return;
 
@@ -428,14 +484,14 @@ FInAirState::FInAirState(AAbilityBase* ability) : FAbilityState(ability) {}
 
 void FInAirState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
-	FAbilityState::TryEnterState(abilityUsageType);
+	FAbilityState::TryEnterState(abilityUsageType, Location, Rotation);
 	RunState();
 }
 
 void FInAirState::RunState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	if (abilityUsageType > EAbilityInputTypes::None) return;
-	FAbilityState::RunState(abilityUsageType);
+	FAbilityState::RunState(abilityUsageType, Location, Rotation);
 	
 	if (!Ability) return;
 	APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability);
@@ -480,7 +536,7 @@ FHangingState::FHangingState(AAbilityBase* ability) : FAbilityState(ability) {}
 
 void FHangingState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
-	FAbilityState::TryEnterState(abilityUsageType);
+	FAbilityState::TryEnterState(abilityUsageType, Location, Rotation);
 	Ability->Blockers.IsMovementBlocked = true;
 	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 	// enter launch state on player input, or duration in air ran out
@@ -495,7 +551,7 @@ void FHangingState::RunState(EAbilityInputTypes abilityUsageType, const FVector&
 	// prevent inputs in run state
 	if (abilityUsageType > EAbilityInputTypes::None) return;
 	// Launch to ground
-	FAbilityState::RunState(abilityUsageType);
+	FAbilityState::RunState(abilityUsageType, Location, Rotation);
 	if (!Ability) return;
 	APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability);
 	if (!PhoenixDive) return;
@@ -533,7 +589,7 @@ bool FHangingState::CancelState()
 		PhoenixDive->MULT_ResetPlayerOnCancel();
 		
 		Player->MULT_StopAnimMontage(PhoenixDive->DiveAbilityAnim);
-		PhoenixDive->CLI_StopGroundTarget();
+		PhoenixDive->StopGroundTarget();
 		UWorld* World = Ability->GetWorld();
 		if (World)
 		{
@@ -552,7 +608,7 @@ FHitGroundState::FHitGroundState(AAbilityBase* ability) : FAbilityState(ability)
 
 void FHitGroundState::TryEnterState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
-	FAbilityState::TryEnterState(abilityUsageType);
+	FAbilityState::TryEnterState(abilityUsageType, Location, Rotation);
 	RunState();
 }
 
@@ -561,7 +617,7 @@ void FHitGroundState::RunState(EAbilityInputTypes abilityUsageType, const FVecto
 	// prevent user input
 	if (abilityUsageType > EAbilityInputTypes::None) return;
 	
-	FAbilityState::RunState(abilityUsageType);
+	FAbilityState::RunState(abilityUsageType, Location, Rotation);
  
 	if (!Ability) return;
 	Ability->Blockers.IsMovementBlocked = true;
