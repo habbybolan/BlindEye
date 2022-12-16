@@ -156,6 +156,7 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_ResetPlayerOnCancel();
+	void ResetPlayerOnCancelHelper();
 
 protected:
 

@@ -64,8 +64,11 @@ void APhoenixDive::HangInAir()
 	HandInAirHelper();
 	MULT_HandInAirHelper();
 	
-	// Spawn Ground Target only for client 
-	SpawnGroundTarget();
+	// Spawn Ground Target only for client
+	if (GetOwner()->GetLocalRole() == ROLE_AutonomousProxy || GetOwner()->GetRemoteRole() == ROLE_SimulatedProxy)
+	{
+		SpawnGroundTarget();
+	}
 	
 	AbilityStates[CurrState]->ExitState();
 }
@@ -116,10 +119,6 @@ void APhoenixDive::LaunchToGround()
 	// Otherwise launch normally
 	else
 	{
-		FVector ViewportLocation;
-		FRotator ViewportRotation;
-		CalculateLaunchViewPoint(ViewportLocation, ViewportRotation);
-
 		FVector VecToGroundTarget = position - GetOwner()->GetActorLocation();
 		FRotator RotatorToGroundTarget = VecToGroundTarget.Rotation();
 		float Angle = RotatorToGroundTarget.Pitch;
@@ -145,7 +144,10 @@ void APhoenixDive::LaunchToGround()
 	// Setup ground collision
 	Character->GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &APhoenixDive::MULT_CollisionWithGround);
 
-	StopGroundTarget();
+	if (GetOwner()->GetLocalRole() == ROLE_AutonomousProxy || GetOwner()->GetRemoteRole() == ROLE_SimulatedProxy)
+	{
+		StopGroundTarget();
+	}
 }
 
 void APhoenixDive::MULT_LaunchToGround_Implementation(FVector LaunchForce)
@@ -254,6 +256,14 @@ void APhoenixDive::LandingAnimationFinishExecuted()
 
 void APhoenixDive::MULT_ResetPlayerOnCancel_Implementation()
 {
+	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		ResetPlayerOnCancelHelper();
+	}
+}
+
+void APhoenixDive::ResetPlayerOnCancelHelper()
+{
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetOwner());
 	Player->GetCharacterMovement()->GravityScale = CachedGravityScale;
 	Player->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
@@ -265,6 +275,7 @@ void APhoenixDive::UpdateGroundTargetPosition()
 	FVector targetPosition;
 	if (CalculateGroundTargetPosition(targetPosition))
 	{
+		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Emerald, targetPosition.ToString());
 		GroundTarget->SetActorLocation(targetPosition);
 	}
 }
@@ -279,7 +290,10 @@ bool APhoenixDive::CalculateGroundTargetPosition(FVector& TargetPosition)
 
 	if (Character->GetIsTopdown())
 	{
-		TargetPosition = ABlindEyePlayerController::GetMouseAimLocationHelper(AimLocation, AimRotation, Character, World);
+		FVector aimLocation;
+		FVector aimRotation;
+		Character->GetMouseValues(aimLocation, aimRotation);
+		TargetPosition = ABlindEyePlayerController::GetMouseAimLocationHelper(aimLocation, aimRotation.Rotation(), Character, World);
 		return true;
 	} else
 	{
@@ -378,6 +392,11 @@ void APhoenixDive::EndAbilityLogic()
 
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
 	Character->GetCapsuleComponent()->OnComponentHit.Remove(this, "MULT_CollisionWithGround");
+
+	if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	{
+		Player->GetCharacterMovement()->bServerAcceptClientAuthoritativePosition = true;
+	}
 }
 
 // **** States *******
@@ -393,6 +412,10 @@ void FStartAbilityState::TryEnterState(EAbilityInputTypes abilityUsageType, cons
 	if (APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability))
 	{
 		if (!PhoenixDive->TryConsumeBirdMeter(PhoenixDive->CostPercent)) return;
+		if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PhoenixDive->GetOwner()))
+		{
+			Player->GetCharacterMovement()->bServerAcceptClientAuthoritativePosition = true;
+		}
 	}
 	RunState();
 }
@@ -526,6 +549,7 @@ bool FInAirState::CancelState()
 	// Update player's state back to normal
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Ability->GetOwner());
 	PhoenixDive->MULT_ResetPlayerOnCancel();
+	PhoenixDive->ResetPlayerOnCancelHelper();
 	Player->MULT_StopAnimMontage(PhoenixDive->DiveAbilityAnim);
 	return true;
 }
@@ -587,9 +611,14 @@ bool FHangingState::CancelState()
 		APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability);
 		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Ability->GetInstigator());
 		PhoenixDive->MULT_ResetPlayerOnCancel();
+		PhoenixDive->ResetPlayerOnCancelHelper();
 		
 		Player->MULT_StopAnimMontage(PhoenixDive->DiveAbilityAnim);
-		PhoenixDive->StopGroundTarget();
+		if (Ability->GetOwner()->GetLocalRole() == ROLE_AutonomousProxy || Ability->GetOwner()->GetRemoteRole() == ROLE_SimulatedProxy)
+		{
+			PhoenixDive->StopGroundTarget();
+		}
+		
 		UWorld* World = Ability->GetWorld();
 		if (World)
 		{
