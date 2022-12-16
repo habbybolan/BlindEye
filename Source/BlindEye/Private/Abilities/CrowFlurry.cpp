@@ -61,7 +61,7 @@ void ACrowFlurry::PlayAnimationHelper()
 {
 	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
-		PlayerCharacter->MULT_PlayAnimMontage(CrowFlurryAnimation);
+		PlayerCharacter->PlayAnimMontage(CrowFlurryAnimation);
 	}
 }
 
