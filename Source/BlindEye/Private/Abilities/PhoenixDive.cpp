@@ -33,14 +33,29 @@ void APhoenixDive::BeginPlay()
 
 void APhoenixDive::LaunchPlayerUpwards()
 {
+	LaunchPlayerUpwardsHelper();
+	MULT_LaunchPlayerUpwards();
+	
+	UWorld* world = GetWorld();
+	if (!world) return;
+	world->GetTimerManager().SetTimer(MaxHangingTimerHandle, this, &APhoenixDive::hangingInAirExpired, MaxTimeHanging, false);
+}
+
+void APhoenixDive::MULT_LaunchPlayerUpwards_Implementation()
+{
+	// Run on remote clients
+	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		LaunchPlayerUpwardsHelper();
+	}
+}
+
+void APhoenixDive::LaunchPlayerUpwardsHelper()
+{
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
 	Character->GetCharacterMovement()->StopMovementImmediately();
 	Character->GetCharacterMovement()->AddImpulse(FVector::UpVector * LaunchUpForcePower);
 	Character->GetCharacterMovement()->SetMovementMode(MOVE_Falling);
-
-	UWorld* world = GetWorld();
-	if (!world) return;
-	world->GetTimerManager().SetTimer(MaxHangingTimerHandle, this, &APhoenixDive::hangingInAirExpired, MaxTimeHanging, false);
 }
 
 void APhoenixDive::hangingInAirExpired()
@@ -215,7 +230,7 @@ void APhoenixDive::PlayAbilityAnimationHelper()
 {
 	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
-		PlayerCharacter->MULT_PlayAnimMontage(DiveAbilityAnim);
+		PlayerCharacter->PlayAnimMontage(DiveAbilityAnim);
 	}
 }
 

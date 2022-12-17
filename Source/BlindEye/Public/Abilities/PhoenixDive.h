@@ -174,6 +174,10 @@ protected:
 
 	FVector CalculateDownwardVectorImpulse(FVector TargetPosition, float Angle);
 
+	UFUNCTION(NetMulticast, Unreliable)
+	void MULT_LaunchPlayerUpwards();
+	void LaunchPlayerUpwardsHelper();
+
 	void PlayLandingSectionOfAnimHelper();
 	UFUNCTION(NetMulticast, Unreliable)
 	void MULT_PlayLandingSectionOfAnim();
