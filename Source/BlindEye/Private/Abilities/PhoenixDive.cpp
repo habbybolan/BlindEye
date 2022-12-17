@@ -168,7 +168,7 @@ void APhoenixDive::LaunchToGround()
 	world->GetTimerManager().ClearTimer(MaxHangingTimerHandle);
 	
 	// Setup ground collision
-	Character->GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &APhoenixDive::MULT_CollisionWithGround);
+	Character->GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &APhoenixDive::CollisionWithGround);
 
 	if (GetOwner()->GetLocalRole() == ROLE_AutonomousProxy || GetOwner()->GetRemoteRole() == ROLE_SimulatedProxy)
 	{
@@ -191,6 +191,48 @@ void APhoenixDive::LaunchToGroundHelper(FVector LaunchForce)
 
 	Character->GetCharacterMovement()->GravityScale = CachedGravityScale;
 	Character->GetCharacterMovement()->Velocity = LaunchForce;
+}
+
+void APhoenixDive::CollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	UWorld* world = GetWorld();
+	if (!world) return;
+
+	BP_AbilityInnerState(3);
+
+	// Apply damage to self for detonation effect
+	UGameplayStatics::ApplyPointDamage(GetInstigator(), Damage, FVector::ZeroVector, FHitResult(),
+		GetInstigator()->GetController(), GetInstigator(), DamageType);
+
+	// Apply damage to rest of enemies
+	TArray<FHitResult> OutHits;
+	if (UKismetSystemLibrary::SphereTraceMultiForObjects(world, Hit.Location, Hit.Location + FVector::UpVector * -10, Radius, EnemyObjectTypes,
+		false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true))
+	{
+		for (FHitResult CollisionHit : OutHits)
+		{
+			UGameplayStatics::ApplyPointDamage(CollisionHit.Actor.Get(), Damage, CollisionHit.Location, CollisionHit, GetInstigator()->GetController(),
+				GetInstigator(), DamageType);
+		}
+	}
+	UnsubscribeToGroundCollision();
+
+	CollisionWithGroundHelper();
+	MULT_CollisionWithGround();
+}
+
+void APhoenixDive::CollisionWithGroundHelper()
+{
+	ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+	PlayerCharacter->GetCharacterMovement()->GravityScale = CachedGravityScale;
+}
+
+void APhoenixDive::MULT_CollisionWithGround_Implementation()
+{
+	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		CollisionWithGroundHelper();
+	}
 }
 
 FVector APhoenixDive::CalculateDownwardVectorImpulse(FVector TargetPosition, float Angle)
@@ -226,7 +268,7 @@ FVector APhoenixDive::CalculateDownwardVectorImpulse(FVector TargetPosition, flo
 void APhoenixDive::PlayAbilityAnimation()
 {
 	PlayAbilityAnimationHelper();
-	AnimNotifyDelegate.BindUFunction( this, TEXT("UseAnimNotifyExecuted"));
+	AnimNotifyDelegate.BindDynamic( this, &APhoenixDive::UseAnimNotifyExecuted);
 }
 
 void APhoenixDive::MULT_PlayAbilityAnimation_Implementation()
@@ -255,14 +297,14 @@ void APhoenixDive::PlayLandingSectionOfAnim()
 {
 	PlayLandingSectionOfAnimHelper();
 	MULT_PlayLandingSectionOfAnim();
-	AnimNotifyDelegate.BindUFunction( this, TEXT("UseAnimNotifyExecuted"));
+	AnimNotifyDelegate.BindDynamic( this,  &APhoenixDive::UseAnimNotifyExecuted);
 }
 
 void APhoenixDive::PlayLandingSectionOfAnimHelper()
 {
 	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
-		PlayerCharacter->MULT_SetNextMontageSection(DiveAbilityAnim, "Land"); 
+		PlayerCharacter->GetMesh()->GetAnimInstance()->Montage_JumpToSection("Land", DiveAbilityAnim); 
 	}
 }
 
@@ -358,37 +400,6 @@ void APhoenixDive::EndLaunchUp()
 	// immediately enter new state
 	UseAbility(EAbilityInputTypes::None);
 }
- 
-void APhoenixDive::MULT_CollisionWithGround_Implementation(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{
-	ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetInstigator());
-	PlayerCharacter->GetCharacterMovement()->GravityScale = CachedGravityScale;
-
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		UWorld* world = GetWorld();
-		if (!world) return;
-
-		BP_AbilityInnerState(3);
-
-		// Apply damage to self for detonation effect
-		UGameplayStatics::ApplyPointDamage(GetInstigator(), Damage, FVector::ZeroVector, FHitResult(),
-			GetInstigator()->GetController(), GetInstigator(), DamageType);
-
-		// Apply damage to rest of enemies
-		TArray<FHitResult> OutHits;
-		if (UKismetSystemLibrary::SphereTraceMultiForObjects(world, Hit.Location, Hit.Location + FVector::UpVector * -10, Radius, EnemyObjectTypes,
-			false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true))
-		{
-			for (FHitResult CollisionHit : OutHits)
-			{
-				UGameplayStatics::ApplyPointDamage(CollisionHit.Actor.Get(), Damage, CollisionHit.Location, CollisionHit, GetInstigator()->GetController(),
-					GetInstigator(), DamageType);
-			}
-		}
-		UnsubscribeToGroundCollision();
-	}
-}
 
 void APhoenixDive::UnsubscribeToGroundCollision()
 {
@@ -396,7 +407,7 @@ void APhoenixDive::UnsubscribeToGroundCollision()
 	if (!Character) return;
 	
 	// unbind delegate
-	Character->GetCapsuleComponent()->OnComponentHit.Remove(this, TEXT("MULT_CollisionWithGround"));
+	Character->GetCapsuleComponent()->OnComponentHit.RemoveDynamic(this, &APhoenixDive::CollisionWithGround);
 	AbilityStates[CurrState]->ExitState();
 }
 
@@ -405,11 +416,12 @@ void APhoenixDive::EndAbilityLogic()
 	Super::EndAbilityLogic();
 
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
-	Character->GetCapsuleComponent()->OnComponentHit.Remove(this, "MULT_CollisionWithGround");
+	Character->GetCapsuleComponent()->OnComponentHit.RemoveDynamic(this, &APhoenixDive::CollisionWithGround);
 
 	if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
-		Player->GetCharacterMovement()->bServerAcceptClientAuthoritativePosition = true;
+		Player->GetCharacterMovement()->bServerAcceptClientAuthoritativePosition = false;
+		Player->GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = false;
 	}
 }
 
@@ -429,6 +441,7 @@ void FStartAbilityState::TryEnterState(EAbilityInputTypes abilityUsageType, cons
 		if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(PhoenixDive->GetOwner()))
 		{
 			Player->GetCharacterMovement()->bServerAcceptClientAuthoritativePosition = true;
+			Player->GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = true;
 		}
 	}
 	RunState();

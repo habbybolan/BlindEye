@@ -196,8 +196,11 @@ protected:
 	void LandingAnimationFinishExecuted();
 	
 	void EndLaunchUp();
+	UFUNCTION()
+	void CollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	void CollisionWithGroundHelper();
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_CollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	void MULT_CollisionWithGround();
 	void UnsubscribeToGroundCollision();
 	virtual void EndAbilityLogic() override;
 };
