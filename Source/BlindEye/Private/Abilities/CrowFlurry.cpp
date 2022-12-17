@@ -181,7 +181,8 @@ FRotator ACrowFlurry::CalcTopDownFlurryRotation()
 		FVector MouseLocation;
 		FVector MouseRotation;
 		BlindEyePlayerCharacter->GetMouseValues(MouseLocation, MouseRotation);
-		FVector TargetLocation = ABlindEyePlayerController::GetMouseAimLocationHelper(MouseLocation, MouseRotation.Rotation(), BlindEyePlayerCharacter, GetWorld());
+		FVector TargetLocation;
+		ABlindEyePlayerController::GetMouseAimLocationHelper(OUT TargetLocation, MouseLocation, MouseRotation.Rotation(), BlindEyePlayerCharacter, GetWorld());
 		return (TargetLocation - BlindEyePlayerCharacter->GetActorLocation()).Rotation();
 	}
 	return FRotator::ZeroRotator;

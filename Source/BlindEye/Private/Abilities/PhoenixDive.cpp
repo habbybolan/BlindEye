@@ -112,6 +112,17 @@ void APhoenixDive::SpawnGroundTarget()
 	world->GetTimerManager().SetTimer(UpdateGroundTargetPositionTimerHandle, this, &APhoenixDive::UpdateGroundTargetPosition, 0.02, true);
 }
 
+void APhoenixDive::UpdateGroundTargetPosition()
+{
+	if (GroundTarget == nullptr) return;
+	FVector targetPosition;
+	if (CalculateGroundTargetPosition(targetPosition))
+	{
+		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Emerald, targetPosition.ToString());
+		GroundTarget->SetActorLocation(targetPosition);
+	}
+}
+
 void APhoenixDive::LaunchToGround()
 {
 	UWorld* world = GetWorld();
@@ -284,17 +295,6 @@ void APhoenixDive::ResetPlayerOnCancelHelper()
 	Player->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 }
 
-void APhoenixDive::UpdateGroundTargetPosition()
-{
-	if (GroundTarget == nullptr) return;
-	FVector targetPosition;
-	if (CalculateGroundTargetPosition(targetPosition))
-	{
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Emerald, targetPosition.ToString());
-		GroundTarget->SetActorLocation(targetPosition);
-	}
-}
-
 bool APhoenixDive::CalculateGroundTargetPosition(FVector& TargetPosition)
 {
 	UWorld* World = GetWorld();
@@ -308,8 +308,7 @@ bool APhoenixDive::CalculateGroundTargetPosition(FVector& TargetPosition)
 		FVector aimLocation;
 		FVector aimRotation;
 		Character->GetMouseValues(aimLocation, aimRotation);
-		TargetPosition = ABlindEyePlayerController::GetMouseAimLocationHelper(aimLocation, aimRotation.Rotation(), Character, World);
-		return true;
+		return ABlindEyePlayerController::GetMouseAimLocationHelper(OUT TargetPosition, aimLocation, aimRotation.Rotation(), Character, World);
 	} else
 	{
 		FVector ViewportLocation;

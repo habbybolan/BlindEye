@@ -120,7 +120,7 @@ FVector ACrowRush::CalculateTargetPosition()
 			ABlindEyePlayerController* PlayerController = Cast<ABlindEyePlayerController>(Player->GetController());
 			PlayerController->DeprojectMousePositionToWorld(OUT MouseLocation, OUT MouseRotation);
 			GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Red, MouseLocation.ToString());
-			TargetPosition =  ABlindEyePlayerController::GetMouseAimLocationHelper(MouseLocation, MouseRotation.Rotation(), Player, World);
+			ABlindEyePlayerController::GetMouseAimLocationHelper(OUT TargetPosition, MouseLocation, MouseRotation.Rotation(), Player, World);
 		}
 	} else
 	{
@@ -230,7 +230,7 @@ void ACrowRush::StartMovementHelper()
 	if (Player->GetIsTopdown())
 	{
 		StartingPosition = GetInstigator()->GetActorLocation();;
-		EndPosition = ABlindEyePlayerController::GetMouseAimLocationHelper(AimLocation, AimRotation, Player, World);
+		ABlindEyePlayerController::GetMouseAimLocationHelper(OUT EndPosition, AimLocation, AimRotation, Player, World);
 	} else
 	{
 		FVector CalcEndPos = CalculateTargetPosition();

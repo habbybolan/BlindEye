@@ -33,7 +33,7 @@ public:
 
 	FRotator GetDesiredRotationFromMouse();
 
-	static FVector GetMouseAimLocationHelper(FVector MouseLocation, FRotator MouseRotation, ACharacter* Character,
+	static bool GetMouseAimLocationHelper(FVector& TargetLocation, FVector MouseLocation, FRotator MouseRotation, ACharacter* Character,
 		UWorld* World, TArray<TEnumAsByte<EObjectTypeQuery>> HitObjectType = TArray<TEnumAsByte<EObjectTypeQuery>>());
 	FVector GetMouseAimLocation();
 

@@ -146,13 +146,15 @@ FRotator ABlindEyePlayerController::GetDesiredRotationFromMouse()
 
 /**
  * Static helper for calculating the hit location of a mouse from its location and rotation
+ * @param TargetLocation	OUT hit location from mouse position and rotation. If no surface hit, then position extended in air horizontally aligned to player
  * @param MouseLocation		Location of the mouse in world space
  * @param MouseRotation		Rotation of mouse in World Space
  * @param Character			Player Character's mouse
  * @param World				World
  * @param HitObjectType		Objects trace will hit. If left empty, then defaults will be WorldStatic and WorldDynamic
+ * @return					True if trace from mouse hit a surface 
  */
-FVector ABlindEyePlayerController::GetMouseAimLocationHelper(FVector MouseLocation, FRotator MouseRotation, ACharacter* Character,
+bool ABlindEyePlayerController::GetMouseAimLocationHelper(FVector& TargetLocation, FVector MouseLocation, FRotator MouseRotation, ACharacter* Character,
 		UWorld* World, TArray<TEnumAsByte<EObjectTypeQuery>> HitObjectType)
 {
 	// If no Object types added, set as defaults of WorldStatic and WorldDynamic
@@ -167,14 +169,16 @@ FVector ABlindEyePlayerController::GetMouseAimLocationHelper(FVector MouseLocati
 	if (UKismetSystemLibrary::LineTraceSingleForObjects(World, MouseLocation, MouseLocation + MouseRotation.Vector() * 5000, HitObjectType,
 		false, TArray<AActor*>(), EDrawDebugTrace::None, OutHit, true))
 	{
-		return OutHit.Location + FVector::UpVector * Character->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+		TargetLocation = OutHit.Location + FVector::UpVector * Character->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+		return true;
 	}
 	// Set mouse hit location from mouse position and at the Z-height of the player
 	else
 	{
 		FVector MouseLocationInAir = MouseLocation + MouseRotation.Vector() * 1000;
 		MouseLocationInAir.Z = Character->GetActorLocation().Z;
-		return MouseLocationInAir + FVector::UpVector * Character->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+		TargetLocation = MouseLocationInAir + FVector::UpVector * Character->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+		return false;
 	}
 }
 
@@ -186,7 +190,9 @@ FVector ABlindEyePlayerController::GetMouseAimLocation()
 
 	if (GetCharacter() && GetWorld())
 	{
-		return GetMouseAimLocationHelper(MouseLocation, MouseRotation.Rotation(), GetCharacter(), GetWorld(), MouseAimingObjectTypes);
+		FVector AimLoc;
+		GetMouseAimLocationHelper(OUT AimLoc, MouseLocation, MouseRotation.Rotation(), GetCharacter(), GetWorld(), MouseAimingObjectTypes);
+		return AimLoc;
 	}
 	return FVector::ZeroVector;
 }

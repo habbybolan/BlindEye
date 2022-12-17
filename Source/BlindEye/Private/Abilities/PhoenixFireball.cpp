@@ -82,7 +82,8 @@ void APhoenixFireball::CastFireball()
 	// If Topdown
 	if (Player->GetIsTopdown())
 	{
-		FVector ShootAtLoc = ABlindEyePlayerController::GetMouseAimLocationHelper(AimLocation, AimRotation, Player, World);
+		FVector ShootAtLoc;
+		ABlindEyePlayerController::GetMouseAimLocationHelper(OUT ShootAtLoc, AimLocation, AimRotation, Player, World);
 		vectorRotation = ShootAtLoc - SpawnLocation;
 	}
 	else

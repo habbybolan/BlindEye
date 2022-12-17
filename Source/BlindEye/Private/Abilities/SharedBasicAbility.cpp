@@ -105,7 +105,9 @@ FVector ASharedBasicAbility::CalcFirstFlockingTarget()
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
 	if (Player->GetIsTopdown())
 	{
-		return ABlindEyePlayerController::GetMouseAimLocationHelper(AimLocation, AimRotation, Player, World);
+		FVector TargetLoc;
+		ABlindEyePlayerController::GetMouseAimLocationHelper(OUT TargetLoc, AimLocation, AimRotation, Player, World);
+		return TargetLoc;
 	}
 	// 3rd person
 	else
