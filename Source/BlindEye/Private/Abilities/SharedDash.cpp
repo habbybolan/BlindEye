@@ -90,8 +90,8 @@ void FDashStartState::TryEnterState(EAbilityInputTypes abilityUsageType, const F
 	{
 		if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Ability->GetOwner()))
 		{
-			Player->GetCharacterMovement()->bServerAcceptClientAuthoritativePosition = false;
-			Player->GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = false;
+			Player->GetCharacterMovement()->bServerAcceptClientAuthoritativePosition = true;
+			Player->GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = true;
 		}
 		RunState();
 	}
