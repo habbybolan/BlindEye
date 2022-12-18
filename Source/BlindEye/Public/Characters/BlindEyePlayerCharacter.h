@@ -300,10 +300,8 @@ public:
 	UFUNCTION(Client, Reliable)
 	void CLI_ResetRotationRateToNormal();
  
-	UFUNCTION(NetMulticast, Reliable)  
-	void MULT_UpdateWalkMovementSpeed(float PercentWalkSpeedChange, float PercentAccelerationChange);
-	UFUNCTION(NetMulticast, Reliable)  
-	void MULT_ResetWalkMovementToNormal();
+	void UpdateWalkMovementSpeed(float PercentWalkSpeedChange, float PercentAccelerationChange);
+	void ResetWalkMovementToNormal();
 
 	// Entrance method when tutorial started
 	void StartTutorial(const TArray<FTutorialInfo>& TutorialsInfoChecklist);

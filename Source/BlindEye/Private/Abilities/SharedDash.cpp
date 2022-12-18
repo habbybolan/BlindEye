@@ -22,17 +22,45 @@ void ASharedDash::AbilityStarted()
 
 void ASharedDash::UpdatePlayerSpeed()
 {
+	UpdatePlayerSpeedHelper();
+	MULT_UpdatePlayerSpeed();
+}
+
+void ASharedDash::UpdatePlayerSpeedHelper()
+{
 	if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
-		BlindEyePlayer->MULT_UpdateWalkMovementSpeed(DashSpeedIncrease, DashAccelerationIncrease);
+		BlindEyePlayer->UpdateWalkMovementSpeed(DashSpeedIncrease, DashAccelerationIncrease);
+	}
+}
+
+void ASharedDash::MULT_UpdatePlayerSpeed_Implementation()
+{
+	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		UpdatePlayerSpeedHelper();
 	}
 }
 
 void ASharedDash::ResetPlayerSpeed()
 {
+	ResetPlayerSpeedHelper();
+	MULT_ResetPlayerSpeed();
+}
+
+void ASharedDash::ResetPlayerSpeedHelper()
+{
 	if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
-		BlindEyePlayer->MULT_ResetWalkMovementToNormal();
+		BlindEyePlayer->ResetWalkMovementToNormal();
+	}
+}
+
+void ASharedDash::MULT_ResetPlayerSpeed_Implementation()
+{
+	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		ResetPlayerSpeedHelper();
 	}
 }
 
@@ -40,6 +68,12 @@ void ASharedDash::EndAbilityLogic()
 {
 	Super::EndAbilityLogic();
 	ResetPlayerSpeed();
+
+	if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	{
+		Player->GetCharacterMovement()->bServerAcceptClientAuthoritativePosition = false;
+		Player->GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = false;
+	}
 }
 
 // **** States *******
@@ -54,6 +88,11 @@ void FDashStartState::TryEnterState(EAbilityInputTypes abilityUsageType, const F
 	// Enter on pressed
 	if (abilityUsageType == EAbilityInputTypes::Pressed)
 	{
+		if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Ability->GetOwner()))
+		{
+			Player->GetCharacterMovement()->bServerAcceptClientAuthoritativePosition = false;
+			Player->GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = false;
+		}
 		RunState();
 	}
 }

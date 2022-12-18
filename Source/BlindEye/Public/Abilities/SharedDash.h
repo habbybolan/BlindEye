@@ -42,8 +42,17 @@ public:
 	virtual void AbilityStarted() override;
 
 	void UpdatePlayerSpeed(); 
+	
 	void ResetPlayerSpeed();
 
 	virtual void EndAbilityLogic() override;
-	
+
+protected:
+	void UpdatePlayerSpeedHelper();
+	UFUNCTION(NetMulticast, Unreliable)
+	void MULT_UpdatePlayerSpeed();
+
+	void ResetPlayerSpeedHelper();
+	UFUNCTION(NetMulticast, Unreliable)
+	void MULT_ResetPlayerSpeed();
 };

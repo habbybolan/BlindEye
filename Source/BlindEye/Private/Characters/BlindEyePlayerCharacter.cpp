@@ -469,13 +469,13 @@ void ABlindEyePlayerCharacter::CLI_ResetRotationRateToNormal_Implementation()
 	GetCharacterMovement()->RotationRate = FRotator(0, CachedRotationRate, 0);
 }
 
-void ABlindEyePlayerCharacter::MULT_UpdateWalkMovementSpeed_Implementation(float PercentWalkSpeedChange, float PercentAccelerationChange)
+void ABlindEyePlayerCharacter::UpdateWalkMovementSpeed(float PercentWalkSpeedChange, float PercentAccelerationChange)
 {
 	GetCharacterMovement()->MaxWalkSpeed = CachedMovementSpeed * PercentWalkSpeedChange;
 	GetCharacterMovement()->MaxAcceleration = CachedAcceleration * PercentAccelerationChange;
 }
 
-void ABlindEyePlayerCharacter::MULT_ResetWalkMovementToNormal_Implementation()
+void ABlindEyePlayerCharacter::ResetWalkMovementToNormal()
 {
 	GetCharacterMovement()->MaxWalkSpeed = CachedMovementSpeed;
 	GetCharacterMovement()->MaxAcceleration = CachedAcceleration;
