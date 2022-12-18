@@ -671,7 +671,7 @@ void ABlindEyePlayerCharacter::DashPressed()
 void ABlindEyePlayerCharacter::DashReleased()
 {
 	if (IsActionsBlocked()) return;
-	AbilityManager->UseAbility(EAbilityTypes::ChargedBasic, EAbilityInputTypes::Released);
+	AbilityManager->UseAbility(EAbilityTypes::Dash, EAbilityInputTypes::Released);
 }
 
 void ABlindEyePlayerCharacter::Unique1Pressed()
