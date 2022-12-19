@@ -347,10 +347,7 @@ bool APhoenixDive::CalculateGroundTargetPosition(FVector& TargetPosition)
 
 	if (Character->GetIsTopdown())
 	{
-		FVector aimLocation;
-		FVector aimRotation;
-		Character->GetMouseValues(aimLocation, aimRotation);
-		return ABlindEyePlayerController::GetMouseAimLocationHelper(OUT TargetPosition, aimLocation, aimRotation.Rotation(), Character, World);
+		return GetMouseTargetLocationHelper(OUT TargetPosition, TArray<TEnumAsByte<EObjectTypeQuery>>(), false);
 	} else
 	{
 		FVector ViewportLocation;
