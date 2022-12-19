@@ -91,6 +91,24 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool GetIsLocallyControlled();
+
+	/**
+	 * Get the target location from the mouse to the world
+	 * @param TargetLocation	Location of mouse cast out value
+	 * @param HitObjectType		Object types for mouse cast. If empty, uses World Dynamic and Static
+	 * @param UseInputValue		If should use mouse Location/Rotation from input values. Otherwise use the value calculated on tick / replicated periodically.
+	 * @return					True if cast from mouse hit a surface, otherwise false
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool GetMouseTargetLocationHelper(FVector& TargetLocation, TArray<TEnumAsByte<EObjectTypeQuery>> HitObjectType, bool UseInputValue = true);
+
+	/**
+	 * Get the target rotation either using player controller rotation or casting from mouse location
+	 * @param UseInputValue	If should use mouse Location/Rotation from input values. Otherwise use the value calculated on tick / replicated periodically.
+	 *						Has no effect if player is not topdown.
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FRotator GetTargetRotationHelper(bool UseInputValue = true);
 	
 protected:
 	// Called when the game starts
@@ -112,7 +130,9 @@ protected:
 	FTimerHandle CooldownTimerHandle;
 	float CooldownTimerDelay = 0.02;
 
+	// Mouse location passed in from ability input
 	FVector AimLocation;
+	// Mouse rotation passed in from ability input
 	FRotator AimRotation;
 	
 	void CalculateCooldown();

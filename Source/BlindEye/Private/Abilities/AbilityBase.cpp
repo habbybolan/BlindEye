@@ -233,6 +233,50 @@ bool AAbilityBase::GetIsLocallyControlled()
 	return GetInstigator()->IsLocallyControlled();
 }
 
+bool AAbilityBase::GetMouseTargetLocationHelper(FVector& TargetLocation, TArray<TEnumAsByte<EObjectTypeQuery>> HitObjectType, bool UseInputValue)
+{
+	ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner());
+	
+	TargetLocation = FVector::ZeroVector;
+	if (GetWorld() && BlindEyePlayerCharacter)
+	{
+		FVector MouseLocation;
+		FVector MouseRotation;
+		// Use mouse values passed in on ability use
+		if (UseInputValue)
+		{
+			MouseLocation = AimLocation;
+			MouseRotation = AimRotation.Vector();
+		} else
+		{
+			BlindEyePlayerCharacter->GetMouseValues(MouseLocation, MouseRotation);
+		}
+		
+		return ABlindEyePlayerController::GetMouseAimLocationHelper(OUT TargetLocation, MouseLocation, MouseRotation.Rotation(),
+			BlindEyePlayerCharacter, GetWorld(), HitObjectType);
+	}
+	return false;
+}
+
+FRotator AAbilityBase::GetTargetRotationHelper(bool UseInputValue)
+{
+	FVector TargetLocation;
+	GetMouseTargetLocationHelper(OUT TargetLocation, TArray<TEnumAsByte<EObjectTypeQuery>>(), UseInputValue);
+	ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner());
+	if (GetWorld() && BlindEyePlayerCharacter)
+	{
+		// use mouse values if topdown
+		if (GetIsTopdown())
+		{
+			return (TargetLocation - BlindEyePlayerCharacter->GetActorLocation()).Rotation();
+		} else
+		{
+			return BlindEyePlayerCharacter->GetControlRotation();
+		}
+	}
+	return FRotator::ZeroRotator;
+}
+
 void AAbilityBase::AbilityInnerStateHelper(uint8 InnerState)
 {
 	BP_AbilityInnerState_CLI(InnerState);
