@@ -106,6 +106,7 @@ public:
 	 * Get the target rotation either using player controller rotation or casting from mouse location
 	 * @param UseInputValue	If should use mouse Location/Rotation from input values. Otherwise use the value calculated on tick / replicated periodically.
 	 *						Has no effect if player is not topdown.
+	 * @return				Mouse target location when casted to world if topdown camera, otherwise player controller rotation
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FRotator GetTargetRotationHelper(bool UseInputValue = true);
