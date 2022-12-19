@@ -34,7 +34,8 @@ bool AAbilityBase::TryConsumeBirdMeter(float BirdMeterAmount)
 
 void AAbilityBase::AbilityStarted()
 {
-	BP_AbilityStarted();
+	AbilityStartedHelper();
+	MULT_AbilityStarted();
 	bIsRunning = true;
 }
 
@@ -187,7 +188,8 @@ void AAbilityBase::EndAbilityLogic()
 	AbilityStates[CurrState]->ResetState();
 	bIsRunning = false;
 	AbilityEndedDelegate.ExecuteIfBound();
-	BP_AbilityEnded();
+	AbilityEndedHelper();
+	MULT_AbilityEnded();
 }
 
 void AAbilityBase::EndCurrState()
@@ -212,6 +214,51 @@ void AAbilityBase::UseAbility(EAbilityInputTypes abilityUsageType, const FVector
 {
 	if (AbilityStates.Num() <= CurrState) return;
 	AbilityStates[CurrState]->HandleInput(abilityUsageType, Location, Rotation);
+}
+
+void AAbilityBase::AbilityInnerState(uint8 InnerState)
+{
+	AbilityInnerStateHelper(InnerState);
+	MULT_AbilityInnerState(InnerState);
+}
+
+void AAbilityBase::AbilityInnerStateHelper(uint8 InnerState)
+{
+	BP_AbilityInnerState_CLI(InnerState);
+}
+
+void AAbilityBase::MULT_AbilityInnerState_Implementation(uint8 InnerState)
+{
+	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		AbilityInnerStateHelper(InnerState);
+	}
+}
+
+void AAbilityBase::AbilityStartedHelper()
+{
+	BP_AbilityStarted_CLI();
+}
+
+void AAbilityBase::MULT_AbilityStarted_Implementation()
+{
+	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		AbilityStartedHelper();
+	}
+}
+
+void AAbilityBase::AbilityEndedHelper()
+{
+	BP_AbilityEnded_CLI();
+}
+
+void AAbilityBase::MULT_AbilityEnded_Implementation()
+{
+	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		AbilityEndedHelper();
+	}
 }
 
 void AAbilityBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

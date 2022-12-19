@@ -72,15 +72,6 @@ public:
 	
 	virtual void AbilityStarted();
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_AbilityStarted();
-
-	UFUNCTION(BlueprintImplementableEvent) 
-	void BP_AbilityEnded();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_AbilityInnerState(uint8 innerStateNum);
-
 	void StartLockRotation(float Duration);
 
 	// Broadcasts a generic anim notify event to be subscribed by child abilities when waiting for anim notify
@@ -92,6 +83,8 @@ public:
 	void RefreshCooldown(float CooldownRefreshAmount);
 
 	void StoreAimData(FVector aimLocation, FRotator aimRotation);
+
+	void AbilityInnerState(uint8 InnerState);
 	
 protected:
 	// Called when the game starts
@@ -137,6 +130,15 @@ protected:
 	virtual void EndAbilityLogic();
 
 	FTimerHandle NextStateDelayTimerHandle;
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_AbilityInnerState_CLI(uint8 innerStateNum);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_AbilityStarted_CLI();
+
+	UFUNCTION(BlueprintImplementableEvent) 
+	void BP_AbilityEnded_CLI();
 
 public:
 
@@ -156,5 +158,18 @@ public:
 
 	UPROPERTY(Replicated)
 	FBlockers Blockers;
+
+private:
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_AbilityInnerState(uint8 InnerState);
+	void AbilityInnerStateHelper(uint8 InnerState);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_AbilityStarted();
+	void AbilityStartedHelper();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_AbilityEnded();
+	void AbilityEndedHelper();
 		
 };

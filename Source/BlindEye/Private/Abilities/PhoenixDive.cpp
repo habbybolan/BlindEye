@@ -74,7 +74,7 @@ void APhoenixDive::HangInAirTimer()
 
 void APhoenixDive::HangInAir()
 {
-	BP_AbilityInnerState(1);
+	AbilityInnerState(1);
 
 	HandInAirHelper();
 	MULT_HandInAirHelper();
@@ -198,7 +198,7 @@ void APhoenixDive::CollisionWithGround(UPrimitiveComponent* HitComponent, AActor
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	BP_AbilityInnerState(3);
+	AbilityInnerState(3);
 
 	// Apply damage to self for detonation effect
 	UGameplayStatics::ApplyPointDamage(GetInstigator(), Damage, FVector::ZeroVector, FHitResult(),
@@ -617,7 +617,7 @@ void FHangingState::RunState(EAbilityInputTypes abilityUsageType, const FVector&
 	Ability->Blockers.IsOtherAbilitiesBlocked = true;
 
 	PhoenixDive->LaunchToGround();
-	Ability->BP_AbilityInnerState(2);
+	Ability->AbilityInnerState(2);
 }
 
 void FHangingState::ExitState()

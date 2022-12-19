@@ -249,7 +249,7 @@ void UFirstAttackState::RunState(EAbilityInputTypes abilityUsageType, const FVec
 	if (!Ability) return;
 	Ability->StartLockRotation(1);
 	Ability->AbilityStarted();
-	Ability->BP_AbilityInnerState(1);
+	Ability->AbilityInnerState(1);
 }
 
 void UFirstAttackState::ExitState()
@@ -296,7 +296,7 @@ void USecondAttackState::RunState(EAbilityInputTypes abilityUsageType, const FVe
 	SharedAbility->Blockers.MovementSlowAmount = SharedAbility->Charge2MovementSlow;
 	SharedAbility->ClearLeaveAbilityTimer();
 	SharedAbility->StartLockRotation(1);
-	SharedAbility->BP_AbilityInnerState(2);
+	SharedAbility->AbilityInnerState(2);
 	SharedAbility->PlayAbilityAnimation();
 	SharedAbility->MULT_PlayAbilityAnimation();
 }
@@ -345,7 +345,7 @@ void ULastAttackState::RunState(EAbilityInputTypes abilityUsageType, const FVect
 	SharedAbility->Blockers.MovementSlowAmount = SharedAbility->Charge3MovementSlow;
 	SharedAbility->ClearLeaveAbilityTimer();
 	SharedAbility->StartLockRotation(2);
-	SharedAbility->BP_AbilityInnerState(3);
+	SharedAbility->AbilityInnerState(3);
 	SharedAbility->PlayAbilityAnimation();
 	SharedAbility->MULT_PlayAbilityAnimation();
 	SharedAbility->SetComboFinished();

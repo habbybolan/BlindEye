@@ -290,7 +290,7 @@ bool ACrowRush::CheckIsLandedHelper()
 
 void ACrowRush::SetAsLanded()
 {
-	BP_AbilityInnerState(2);
+	AbilityInnerState(2);
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
 	if (!Player->GetMesh()->GetAnimInstance()->OnMontageEnded.Contains(this, TEXT("SetLandingAnimFinished")))
 	{
@@ -386,7 +386,7 @@ void FAimingStartState::RunState(EAbilityInputTypes abilityUsageType, const FVec
 	// stop aiming and goto moving state
 	else if (abilityUsageType == EAbilityInputTypes::Released)
 	{
-		Ability->BP_AbilityInnerState(1);
+		Ability->AbilityInnerState(1);
 		ExitState();
 	}
 }
@@ -405,7 +405,7 @@ bool FAimingStartState::CancelState()
 	ACrowRush* Rush = Cast<ACrowRush>(Ability);
 	Rush->RemoveTarget();
 	// resets camera and stops particles
-	Rush->BP_AbilityInnerState(2);
+	Rush->AbilityInnerState(2);
 
 	UWorld* World = Rush->GetWorld();
 	{
@@ -452,7 +452,7 @@ bool FMovingState::CancelState()
 
 	ACrowRush* Rush = Cast<ACrowRush>(Ability);
 	// resets camera and stops particles
-	Rush->BP_AbilityInnerState(2);
+	Rush->AbilityInnerState(2);
 	UWorld* World = Rush->GetWorld();
 	{
 		World->GetTimerManager().ClearTimer(Rush->CheckIsLandedTimerHandle);

@@ -219,7 +219,7 @@ void FStartCastingAbilityState::ExitState()
 {
 	FAbilityState::ExitState();
 	if (Ability == nullptr) return;
-	Ability->BP_AbilityInnerState(1);
+	Ability->AbilityInnerState(1);
 	Ability->EndCurrState();
 	Ability->UseAbility(EAbilityInputTypes::None);
 }

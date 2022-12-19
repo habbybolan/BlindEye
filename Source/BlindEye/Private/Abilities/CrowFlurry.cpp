@@ -29,7 +29,7 @@ void ACrowFlurry::StartCrowFlurry()
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	BP_AbilityInnerState(1);
+	AbilityInnerState(1);
 
 	if (ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
 	{
@@ -82,7 +82,7 @@ void ACrowFlurry::UseAnimNotifyExecuted()
 
 void ACrowFlurry::EndAbilityAnimation()
 {
-	BP_AbilityInnerState(2);
+	AbilityInnerState(2);
 	
 	UWorld* world = GetWorld();
 	if (!world) return;

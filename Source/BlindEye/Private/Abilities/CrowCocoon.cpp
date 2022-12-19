@@ -52,7 +52,7 @@ void ACrowCocoon::PerformPulse()
 		bReachedFinalPulse = true;
 	}
 	
-	BP_AbilityInnerState(pulseIndex + 1);
+	AbilityInnerState(pulseIndex + 1);
 	// perform taunt on first pulse index
 	if (pulseIndex == 0)
 	{
