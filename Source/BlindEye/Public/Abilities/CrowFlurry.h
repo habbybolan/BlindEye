@@ -145,8 +145,6 @@ protected:
 	UFUNCTION()
 	void CalcFlurryRotation();
 
-	FRotator CalcTopDownFlurryRotation();
-
 	UFUNCTION()
 	void UseAnimNotifyExecuted();
 

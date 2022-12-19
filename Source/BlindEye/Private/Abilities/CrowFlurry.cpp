@@ -37,7 +37,7 @@ void ACrowFlurry::StartCrowFlurry()
 	}
 
 	bFlurryActive = true;
-	CurrFlurryRotation = CalcTopDownFlurryRotation();
+	CurrFlurryRotation = GetTargetRotationHelper(false);
 	world->GetTimerManager().SetTimer(CrowFlurryTimerHandle, this, &ACrowFlurry::PerformCrowFlurry, CrowFlurryDamageDelay, true);
 	// Lerp the flurry rotation towards controller rotation
 	world->GetTimerManager().SetTimer(CalculateRotationTimerHandle, this, &ACrowFlurry::CalcFlurryRotation, CalcRotationDelay, true);
@@ -158,34 +158,8 @@ void ACrowFlurry::PerformCrowFlurry()
 
 void ACrowFlurry::CalcFlurryRotation()
 {
-	ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner());
-	if (GetWorld() && BlindEyePlayerCharacter)
-	{
-		FRotator TargetRotation = FRotator::ZeroRotator;
-		if (BlindEyePlayerCharacter->GetIsTopdown())
-		{
-			TargetRotation = CalcTopDownFlurryRotation();
-		} else
-		{
-			TargetRotation = GetInstigator()->GetControlRotation();
-		}
-		CurrFlurryRotation = UKismetMathLibrary::RLerp(CurrFlurryRotation, TargetRotation, CrowFlurryLerpSpeed, true);
-	}
-}
-
-FRotator ACrowFlurry::CalcTopDownFlurryRotation()
-{
-	ABlindEyePlayerCharacter* BlindEyePlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner());
-	if (GetWorld() && BlindEyePlayerCharacter)
-	{
-		FVector MouseLocation;
-		FVector MouseRotation;
-		BlindEyePlayerCharacter->GetMouseValues(MouseLocation, MouseRotation);
-		FVector TargetLocation;
-		ABlindEyePlayerController::GetMouseAimLocationHelper(OUT TargetLocation, MouseLocation, MouseRotation.Rotation(), BlindEyePlayerCharacter, GetWorld());
-		return (TargetLocation - BlindEyePlayerCharacter->GetActorLocation()).Rotation();
-	}
-	return FRotator::ZeroRotator;
+	FRotator TargetRotation = GetTargetRotationHelper(false);
+	CurrFlurryRotation = UKismetMathLibrary::RLerp(CurrFlurryRotation, TargetRotation, CrowFlurryLerpSpeed, true);
 }
 
 void ACrowFlurry::EndAbilityLogic()
