@@ -222,6 +222,17 @@ void AAbilityBase::AbilityInnerState(uint8 InnerState)
 	MULT_AbilityInnerState(InnerState);
 }
 
+bool AAbilityBase::GetIsTopdown()
+{
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+	return Player->GetIsTopdown();
+}
+
+bool AAbilityBase::GetIsLocallyControlled()
+{
+	return GetInstigator()->IsLocallyControlled();
+}
+
 void AAbilityBase::AbilityInnerStateHelper(uint8 InnerState)
 {
 	BP_AbilityInnerState_CLI(InnerState);

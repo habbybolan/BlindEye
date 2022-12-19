@@ -85,6 +85,12 @@ public:
 	void StoreAimData(FVector aimLocation, FRotator aimRotation);
 
 	void AbilityInnerState(uint8 InnerState);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool GetIsTopdown();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool GetIsLocallyControlled();
 	
 protected:
 	// Called when the game starts
