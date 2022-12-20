@@ -118,14 +118,19 @@ void ABlindEyePlayerController::OnPossess(APawn* InPawn)
 	Super::OnPossess(InPawn);
 }
 
+void ABlindEyePlayerController::OnRep_Pawn()
+{
+	Super::OnRep_Pawn();
+	OwningCharacter = Cast<ABlindEyePlayerCharacter>(GetPawn());
+}
+
 FRotator ABlindEyePlayerController::GetDesiredRotationFromMouse()
 {
-	FVector MouseLocation;
-	FVector MouseRotation;
-	DeprojectMousePositionToWorld(OUT MouseLocation, OUT MouseRotation);
-	
-	if (ensure(GetPawn()))
+	if (OwningCharacter)
 	{
+		FVector MouseLocation;
+		FVector MouseRotation;
+		OwningCharacter->GetMouseValues(MouseLocation, MouseRotation);
 		if (UWorld* World = GetWorld())
 		{
 			FVector DirToMouse;

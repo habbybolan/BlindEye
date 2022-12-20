@@ -73,6 +73,7 @@ public:
 	virtual void AbilityStarted();
 
 	void StartLockRotation(float Duration);
+	void StopLockRotation();
 
 	// Broadcasts a generic anim notify event to be subscribed by child abilities when waiting for anim notify
 	void GenericAnimNotify();

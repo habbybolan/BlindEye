@@ -125,10 +125,7 @@ void APhoenixFireball::OnFireballCastHit()
 
 void APhoenixFireball::PlayAbilityAnimation()
 {
-	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
-	{
-		PlayerCharacter->MULT_StartLockRotationToController(1);
-	}
+	StartLockRotation(1);
 	PlayAbilityAnimationHelper();
 	AnimNotifyDelegate.BindUFunction( this, TEXT("UseAnimNotifyExecuted"));
 }
@@ -166,10 +163,7 @@ void APhoenixFireball::EndAnimationNotifyExecuted()
 void APhoenixFireball::EndAbilityLogic()
 {
 	AAbilityBase::EndAbilityLogic();
-	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
-	{
-		PlayerCharacter->MULT_StartLockRotationToController(0);
-	}
+	StopLockRotation();
 	
 	IDsOfHitActors.Empty();
 }

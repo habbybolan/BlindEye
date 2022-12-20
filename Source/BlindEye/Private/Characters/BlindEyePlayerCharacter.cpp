@@ -400,7 +400,8 @@ void ABlindEyePlayerCharacter::MULT_StartLockRotationToController_Implementation
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;
 
-	// TODO:
+	// TODO: Setting Lock rotation indefinitely when duration = 0
+
 	if (bIsTopdown)
 	{
 		UBlindEyePlayerMovementComponent* BlindEyePlayerMC = Cast<UBlindEyePlayerMovementComponent>(GetCharacterMovement());
@@ -416,12 +417,12 @@ void ABlindEyePlayerCharacter::MULT_StartLockRotationToController_Implementation
 	float TimeRemaining = World->GetTimerManager().GetTimerRemaining(RotationalLockTimerHandle);
 	if (Duration + TimerAfterAbilityUsed > TimeRemaining)
 	{
-		World->GetTimerManager().SetTimer(RotationalLockTimerHandle, this, &ABlindEyePlayerCharacter::CLI_StopLockRotationToController,
+		World->GetTimerManager().SetTimer(RotationalLockTimerHandle, this, &ABlindEyePlayerCharacter::MULT_StopLockRotationToController,
 			Duration +  TimerAfterAbilityUsed, false);
 	} 
 }
 
-void ABlindEyePlayerCharacter::CLI_StopLockRotationToController_Implementation()
+void ABlindEyePlayerCharacter::MULT_StopLockRotationToController_Implementation()
 {
 	UWorld* World = GetWorld();
 	if (World == nullptr) return;

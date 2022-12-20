@@ -31,6 +31,8 @@ public:
 
 	virtual void OnPossess(APawn* InPawn) override;
 
+	virtual void OnRep_Pawn() override;
+
 	FRotator GetDesiredRotationFromMouse();
 
 	static bool GetMouseAimLocationHelper(FVector& TargetLocation, FVector MouseLocation, FRotator MouseRotation, ACharacter* Character,

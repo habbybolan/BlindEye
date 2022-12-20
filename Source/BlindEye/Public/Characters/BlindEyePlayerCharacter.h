@@ -280,8 +280,8 @@ public:
 	void MULT_StartLockRotationToController(float Duration);
 
 	// Stops the rotational lock to controller and clears timer
-	UFUNCTION(Client, Reliable)
-	void CLI_StopLockRotationToController();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_StopLockRotationToController();
 
 	UAbilityManager* GetAbilityManager();
 

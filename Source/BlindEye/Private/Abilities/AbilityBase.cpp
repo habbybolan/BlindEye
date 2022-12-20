@@ -47,6 +47,14 @@ void AAbilityBase::StartLockRotation(float Duration)
 	}
 }
 
+void AAbilityBase::StopLockRotation()
+{
+	if (ABlindEyePlayerCharacter* BlindEyeCharacter = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	{
+		BlindEyeCharacter->MULT_StopLockRotationToController();
+	}
+}
+
 void AAbilityBase::GenericAnimNotify()
 {
 	AnimNotifyDelegate.ExecuteIfBound();
