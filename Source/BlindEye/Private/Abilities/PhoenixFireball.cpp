@@ -32,16 +32,24 @@ void APhoenixFireball::CastFireCone()
 	UWorld* world = GetWorld();
 	if (!world) return;
 
-	FVector ViewportLocation;
-	FRotator ViewportRotation;
-	GetInstigator()->GetController()->GetPlayerViewPoint(OUT ViewportLocation, OUT ViewportRotation);
+	FVector EndLocation;
 
-	FVector EndLocation = ViewportLocation + ViewportRotation.Vector() * 1000;
-	FHitResult OutHit;
-	if (UKismetSystemLibrary::LineTraceSingleForObjects(world, ViewportLocation, EndLocation, LineTraceObjectTypes, false,
-		TArray<AActor*>(), EDrawDebugTrace::None, OutHit, true))
+	if (GetIsTopdown())
 	{
-		EndLocation = OutHit.Location;
+		GetMouseTargetLocationHelper(EndLocation, TArray<TEnumAsByte<EObjectTypeQuery>>(), false);
+	} else
+	{
+		FVector ViewportLocation;
+		FRotator ViewportRotation;
+		GetInstigator()->GetController()->GetPlayerViewPoint(OUT ViewportLocation, OUT ViewportRotation);
+
+		EndLocation = ViewportLocation + ViewportRotation.Vector() * 1000;
+		FHitResult OutHit;
+		if (UKismetSystemLibrary::LineTraceSingleForObjects(world, ViewportLocation, EndLocation, LineTraceObjectTypes, false,
+			TArray<AActor*>(), EDrawDebugTrace::None, OutHit, true))
+		{
+			EndLocation = OutHit.Location;
+		}
 	}
 
 	TArray<FHitResult> OutHits;
