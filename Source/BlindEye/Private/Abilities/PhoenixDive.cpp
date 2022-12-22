@@ -171,7 +171,7 @@ void APhoenixDive::LaunchToGround()
 	// Setup ground collision
 	Character->GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &APhoenixDive::CollisionWithGround);
 
-	if (GetOwner()->GetLocalRole() == ROLE_AutonomousProxy || GetOwner()->GetRemoteRole() == ROLE_SimulatedProxy)
+	if (Character->IsLocallyControlled())
 	{
 		StopGroundTarget();
 	}
@@ -639,7 +639,7 @@ bool FHangingState::CancelState()
 		PhoenixDive->ResetPlayerOnCancelHelper();
 		
 		Player->MULT_StopAnimMontage(PhoenixDive->DiveAbilityAnim);
-		if (Ability->GetOwner()->GetLocalRole() == ROLE_AutonomousProxy || Ability->GetOwner()->GetRemoteRole() == ROLE_SimulatedProxy)
+		if (Player->IsLocallyControlled())
 		{
 			PhoenixDive->StopGroundTarget();
 		}

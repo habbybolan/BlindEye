@@ -203,7 +203,8 @@ void ACrowRush::EndAbilityLogic()
 
 void ACrowRush::StartMovement()
 {
-	if (GetOwner()->GetLocalRole() == ROLE_AutonomousProxy || GetRemoteRole() == ROLE_SimulatedProxy)
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+	if (Player->IsLocallyControlled())
 	{
 		RemoveTarget();
 	}
