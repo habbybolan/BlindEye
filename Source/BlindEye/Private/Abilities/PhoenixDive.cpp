@@ -79,8 +79,9 @@ void APhoenixDive::HangInAir()
 	HandInAirHelper();
 	MULT_HandInAirHelper();
 	
-	// Spawn Ground Target only for client
-	if (GetOwner()->GetLocalRole() == ROLE_AutonomousProxy || GetOwner()->GetRemoteRole() == ROLE_SimulatedProxy)
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetOwner());
+	check(Player)
+	if (Player->IsLocallyControlled())
 	{
 		SpawnGroundTarget();
 	}

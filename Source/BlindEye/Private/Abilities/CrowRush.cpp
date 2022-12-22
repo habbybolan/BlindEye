@@ -370,7 +370,9 @@ void FAimingStartState::RunState(EAbilityInputTypes abilityUsageType, const FVec
 	{
 		Ability->AbilityStarted();
 		ACrowRush* Rush = Cast<ACrowRush>(Ability);
-		if (Ability->GetOwner()->GetLocalRole() == ROLE_AutonomousProxy || Ability->GetOwner()->GetRemoteRole() == ROLE_SimulatedProxy)
+		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Ability->GetOwner());
+		check(Player)
+		if (Player->IsLocallyControlled())
 		{
 			Rush->StartAiming();
 		}
