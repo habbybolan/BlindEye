@@ -16,7 +16,9 @@ void UBlindEyePlayerMovementComponent::TickComponent(float DeltaTime, ELevelTick
 	if (PC && PC->AcknowledgedPawn != CharacterOwner){return;}
 	if (PC && PC->Player == nullptr) {return;}
 
-	if (CharacterOwner->GetLocalRole() != ROLE_AutonomousProxy && CharacterOwner->GetRemoteRole() != ROLE_SimulatedProxy) return;
+	// Make sure player is being controlled and not simulated
+	if (!CharacterOwner->IsLocallyControlled()) return;
+	
 	FVector MousePosition;
 	FVector MouseRotation;
 	PC->DeprojectMousePositionToWorld(MousePosition, MouseRotation);
