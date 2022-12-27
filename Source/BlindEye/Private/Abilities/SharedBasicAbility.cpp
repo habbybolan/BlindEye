@@ -40,6 +40,7 @@ void ASharedBasicAbility::PlayAbilityAnimation()
 {
 	bIsAttacking = true;
 	PlayAbilityAnimationHelper(CurrCharge);
+	MULT_PlayAbilityAnimation(CurrCharge);
 	AnimNotifyDelegate.BindDynamic( this, &ASharedBasicAbility::UseAnimNotifyExecuted);
 }
 
@@ -51,12 +52,12 @@ void ASharedBasicAbility::PlayAbilityAnimationHelper(uint8 charge)
 	}
 }
 
-void ASharedBasicAbility::MULT_PlayAbilityAnimation_Implementation()
+void ASharedBasicAbility::MULT_PlayAbilityAnimation_Implementation(uint8 charge)
 {
 	// Play for remote clients
 	if (!GetIsLocallyControlled())
 	{
-		PlayAbilityAnimationHelper(CurrCharge);
+		PlayAbilityAnimationHelper(charge);
 	}
 }
 
@@ -243,7 +244,6 @@ void UFirstAttackState::RunState(EAbilityInputTypes abilityUsageType, const FVec
 		SharedAbility->Blockers.IsMovementSlowBlocked = true;
 		SharedAbility->Blockers.MovementSlowAmount = SharedAbility->Charge1MovementSlow;
 		SharedAbility->PlayAbilityAnimation();
-		SharedAbility->MULT_PlayAbilityAnimation();
 	} 
 	
 	if (!Ability) return;
@@ -298,7 +298,6 @@ void USecondAttackState::RunState(EAbilityInputTypes abilityUsageType, const FVe
 	SharedAbility->StartLockRotation(1);
 	SharedAbility->AbilityInnerState(2);
 	SharedAbility->PlayAbilityAnimation();
-	SharedAbility->MULT_PlayAbilityAnimation();
 }
 
 void USecondAttackState::ExitState()
@@ -347,7 +346,6 @@ void ULastAttackState::RunState(EAbilityInputTypes abilityUsageType, const FVect
 	SharedAbility->StartLockRotation(2);
 	SharedAbility->AbilityInnerState(3);
 	SharedAbility->PlayAbilityAnimation();
-	SharedAbility->MULT_PlayAbilityAnimation();
 	SharedAbility->SetComboFinished();
 }
 

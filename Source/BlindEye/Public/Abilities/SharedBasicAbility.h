@@ -115,7 +115,7 @@ public:
 	void PlayAbilityAnimation();
 	void PlayAbilityAnimationHelper(uint8 charge);
 	UFUNCTION(NetMulticast, Unreliable)
-	void MULT_PlayAbilityAnimation();
+	void MULT_PlayAbilityAnimation(uint8 charge);
 	UFUNCTION()
 	void UseAnimNotifyExecuted();
 
