@@ -137,9 +137,6 @@ void AAbilityBase::SetOffCooldown()
 
 bool AAbilityBase::TryCancelAbility()
 {
-	// TODO: Do functionality later
-	//		Probably add IsCancellable as base state boolean and extra cancel logic in the state (cancel method?)
-
 	// Clean up current state
 	if (AbilityStates[CurrState]->CancelState())
 	{
@@ -193,7 +190,7 @@ void AAbilityBase::EndAbilityLogic()
 	
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, "Ability ended");
 	CurrState = 0;
-	AbilityStates[CurrState]->ResetState();
+	AbilityStates[CurrState]->CancelState();
 	bIsRunning = false;
 	AbilityEndedDelegate.ExecuteIfBound();
 	AbilityEndedHelper();
@@ -238,7 +235,7 @@ bool AAbilityBase::GetIsTopdown()
 
 bool AAbilityBase::GetIsLocallyControlled()
 {
-	return GetInstigator()->IsLocallyControlled();
+	return GetInstigator() && GetInstigator()->IsLocallyControlled();
 }
 
 bool AAbilityBase::GetMouseTargetLocationHelper(FVector& TargetLocation, TArray<TEnumAsByte<EObjectTypeQuery>> HitObjectType, bool UseInputValue)
@@ -292,7 +289,8 @@ void AAbilityBase::AbilityInnerStateHelper(uint8 InnerState)
 
 void AAbilityBase::MULT_AbilityInnerState_Implementation(uint8 InnerState)
 {
-	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	// Play for remote clients
+	if (!GetIsLocallyControlled())
 	{
 		AbilityInnerStateHelper(InnerState);
 	}
@@ -305,7 +303,8 @@ void AAbilityBase::AbilityStartedHelper()
 
 void AAbilityBase::MULT_AbilityStarted_Implementation()
 {
-	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	// Play for remote clients
+	if (!GetIsLocallyControlled())
 	{
 		AbilityStartedHelper();
 	}
@@ -318,7 +317,8 @@ void AAbilityBase::AbilityEndedHelper()
 
 void AAbilityBase::MULT_AbilityEnded_Implementation()
 {
-	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	// Play for remote clients
+	if (!GetIsLocallyControlled())
 	{
 		AbilityEndedHelper();
 	}
