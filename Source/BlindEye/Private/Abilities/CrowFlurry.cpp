@@ -64,7 +64,8 @@ void ACrowFlurry::PlayAnimationHelper()
 
 void ACrowFlurry::MULT_PlayAbilityAnimation_Implementation()
 {
-	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	// Play for remote clients
+	if (!GetIsLocallyControlled())
 	{
 		PlayAnimationHelper();
 	}

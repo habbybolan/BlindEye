@@ -564,7 +564,6 @@ void ABlindEyePlayerCharacter::RegenHealth()
 void ABlindEyePlayerCharacter::TurnAtRate(float Rate)
 {
 	if (bIsTopdown) return;
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0, FColor::Cyan, FString::SanitizeFloat(Rate));
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
