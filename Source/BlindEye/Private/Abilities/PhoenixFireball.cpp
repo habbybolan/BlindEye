@@ -260,11 +260,8 @@ void FCastFireballState::RunState(EAbilityInputTypes abilityUsageType, const FVe
 	PhoenixFireball->Blockers.IsMovementSlowBlocked = true;
 	PhoenixFireball->Blockers.MovementSlowAmount = PhoenixFireball->SlowAmount;
 
-	if (Ability->GetLocalRole() == ROLE_Authority)
-	{
-		PhoenixFireball->CastFireball();
-		PhoenixFireball->CastFireCone();
-	}
+	PhoenixFireball->CastFireball();
+	PhoenixFireball->CastFireCone();
 }
 
 void FCastFireballState::ExitState()
