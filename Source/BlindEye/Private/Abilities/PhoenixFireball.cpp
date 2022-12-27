@@ -149,7 +149,7 @@ void APhoenixFireball::PlayAbilityAnimationHelper()
 void APhoenixFireball::MULT_PlayAbilityAnimation_Implementation()
 {
 	// Play for remote clients
-	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	if (!GetIsLocallyControlled())
 	{
 		PlayAbilityAnimationHelper();
 	}

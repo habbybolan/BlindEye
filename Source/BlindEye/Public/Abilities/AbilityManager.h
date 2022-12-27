@@ -35,6 +35,7 @@ enum class EAbilityInputTypes
 };
 
 class AAbilityBase;
+class ABlindEyePlayerCharacter;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BLINDEYE_API UAbilityManager : public UActorComponent
@@ -97,6 +98,9 @@ protected:
 	AAbilityBase* CurrUsedAbility;
 
 	TArray<AAbilityBase*> AllAbilities;
+
+	UPROPERTY()
+	ABlindEyePlayerCharacter* Player;
 
 	void UseAbilityHelper(AAbilityBase* AbilityToUser, EAbilityInputTypes abilityUsageType,
 		const FVector& Location = FVector::ZeroVector, const FRotator& Rotation = FRotator::ZeroRotator);

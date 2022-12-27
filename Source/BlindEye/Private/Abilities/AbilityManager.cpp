@@ -14,12 +14,22 @@ UAbilityManager::UAbilityManager()
 	PrimaryComponentTick.bCanEverTick = false;
 	UniqueAbilityTypes.SetNum(2);
 }
- 
+
+// Called when the game starts
+void UAbilityManager::BeginPlay()
+{
+	Super::BeginPlay();
+
+	SetupAbilities();
+	Player = Cast<ABlindEyePlayerCharacter>(GetOwner());
+}
+
 void UAbilityManager::UseAbility(EAbilityTypes abilityType, EAbilityInputTypes abilityUsageType, const FVector& MouseLocation, const FRotator& MouseRotation)
 {
 	// Run on owning client for immediate action
 	AAbilityBase* AbilityToUse = GetAbility(abilityType);
-	if (GetOwner()->GetLocalRole() == ROLE_AutonomousProxy && !IsAbilityUnavailable(AbilityToUse))
+	
+	if (Player->IsLocallyControlled() && Player->GetLocalRole() != ROLE_Authority && !IsAbilityUnavailable(AbilityToUse))
 	{
 		UseAbilityHelper(AbilityToUse, abilityUsageType, MouseLocation, MouseRotation);
 	}
@@ -141,15 +151,6 @@ bool UAbilityManager::TryCancelCurrentAbility()
 		return CurrUsedAbility->TryCancelAbility();
 	}
 	return true;
-}
-
-
-// Called when the game starts
-void UAbilityManager::BeginPlay()
-{
-	Super::BeginPlay();
-
-	SetupAbilities();
 }
 
 void UAbilityManager::SetupAbilities()

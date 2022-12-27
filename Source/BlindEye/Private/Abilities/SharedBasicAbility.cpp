@@ -54,7 +54,7 @@ void ASharedBasicAbility::PlayAbilityAnimationHelper(uint8 charge)
 void ASharedBasicAbility::MULT_PlayAbilityAnimation_Implementation()
 {
 	// Play for remote clients
-	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	if (!GetIsLocallyControlled())
 	{
 		PlayAbilityAnimationHelper(CurrCharge);
 	}

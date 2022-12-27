@@ -36,7 +36,8 @@ void ASharedDash::UpdatePlayerSpeedHelper()
 
 void ASharedDash::MULT_UpdatePlayerSpeed_Implementation()
 {
-	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	// Play for remote clients
+	if (!GetIsLocallyControlled())
 	{
 		UpdatePlayerSpeedHelper();
 	}
