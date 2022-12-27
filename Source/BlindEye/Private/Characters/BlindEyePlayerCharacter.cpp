@@ -1288,7 +1288,7 @@ void ABlindEyePlayerCharacter::MoveRight(float Value)
 		// find out which way is right
 		ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(Controller);
 		check(BlindEyeController)
-		const FRotator Rotation = bIsTopdown ? BlindEyeController->GetDesiredRotationFromMouse() : Controller->GetControlRotation(); 
+		const FRotator Rotation = bIsTopdown ? FollowCamera->GetComponentRotation() : Controller->GetControlRotation(); 
 		FRotator YawRotation(0, Rotation.Yaw, 0);
 
 		// rotate to get right vector
