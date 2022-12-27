@@ -83,7 +83,10 @@ void ABlindEyePlayerCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	UpdateTopdownCamera();
+	if (bIsTopdown)
+	{
+		UpdateTopdownCamera();
+	}
 }
 
 void ABlindEyePlayerCharacter::BeginPlay()
@@ -561,14 +564,13 @@ void ABlindEyePlayerCharacter::RegenHealth()
 void ABlindEyePlayerCharacter::TurnAtRate(float Rate)
 {
 	if (bIsTopdown) return;
-	// calculate delta for this frame from the rate information
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0, FColor::Cyan, FString::SanitizeFloat(Rate));
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
 void ABlindEyePlayerCharacter::LookUpAtRate(float Rate)
 {
 	if (bIsTopdown) return;
-	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
  
@@ -1284,8 +1286,14 @@ void ABlindEyePlayerCharacter::MoveRight(float Value)
 		}
 		
 		// find out which way is right
-		const FRotator Rotation = bIsTopdown ? FollowCamera->GetRightVector().Rotation() : Controller->GetControlRotation(); 
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
+		ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(Controller);
+		check(BlindEyeController)
+		const FRotator Rotation = bIsTopdown ? BlindEyeController->GetDesiredRotationFromMouse() : Controller->GetControlRotation(); 
+		FRotator YawRotation(0, Rotation.Yaw, 0);
+
+		// rotate to get right vector
+		FVector YawVec = UKismetMathLibrary::RotateAngleAxis(YawRotation.Vector(), 90, FVector::UpVector);
+		YawRotation = YawVec.Rotation();
 	
 		// get right vector 
 		const FVector Direction = YawRotation.Vector();
@@ -1399,10 +1407,8 @@ void ABlindEyePlayerCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ABlindEyePlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABlindEyePlayerCharacter::MoveRight);
 	
-	//PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("TurnRate", this, &ABlindEyePlayerCharacter::TurnAtRate);
-	//PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis("LookUpRate", this, &ABlindEyePlayerCharacter::LookUpAtRate);
+	PlayerInputComponent->BindAxis("Turn", this, &ABlindEyePlayerCharacter::TurnAtRate);
+	PlayerInputComponent->BindAxis("LookUp", this, &ABlindEyePlayerCharacter::LookUpAtRate);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABlindEyePlayerCharacter::TryJump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
