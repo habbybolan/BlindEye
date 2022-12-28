@@ -79,9 +79,7 @@ void APhoenixDive::HangInAir()
 	HandInAirHelper();
 	MULT_HandInAirHelper();
 	
-	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetOwner());
-	check(Player)
-	if (Player->IsLocallyControlled())
+	if (GetIsLocallyControlled())
 	{
 		SpawnGroundTarget();
 	}
@@ -99,7 +97,7 @@ void APhoenixDive::HandInAirHelper()
 void APhoenixDive::MULT_HandInAirHelper_Implementation()
 {
 	// Run on remote clients
-	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	if (!GetIsLocallyControlled())
 	{
 		HandInAirHelper();
 	}
@@ -220,6 +218,8 @@ void APhoenixDive::CollisionWithGround(UPrimitiveComponent* HitComponent, AActor
 
 	CollisionWithGroundHelper();
 	MULT_CollisionWithGround();
+
+	AbilityStates[CurrState]->ExitState();
 }
 
 void APhoenixDive::CollisionWithGroundHelper()
@@ -230,7 +230,7 @@ void APhoenixDive::CollisionWithGroundHelper()
 
 void APhoenixDive::MULT_CollisionWithGround_Implementation()
 {
-	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	if (!GetIsLocallyControlled())
 	{
 		CollisionWithGroundHelper();
 	}
@@ -312,7 +312,7 @@ void APhoenixDive::PlayLandingSectionOfAnimHelper()
 
 void APhoenixDive::MULT_PlayLandingSectionOfAnim_Implementation()
 {
-	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
+	if (!GetIsLocallyControlled())
 	{
 		PlayLandingSectionOfAnimHelper();
 	}
@@ -407,7 +407,6 @@ void APhoenixDive::UnsubscribeToGroundCollision()
 	
 	// unbind delegate
 	Character->GetCapsuleComponent()->OnComponentHit.RemoveDynamic(this, &APhoenixDive::CollisionWithGround);
-	AbilityStates[CurrState]->ExitState();
 }
 
 void APhoenixDive::EndAbilityLogic()
@@ -467,7 +466,6 @@ void FStartAbilityState::RunState(EAbilityInputTypes abilityUsageType, const FVe
 void FStartAbilityState::ExitState()
 {
 	FAbilityState::ExitState();
-	if (Ability == nullptr) return;
 	Ability->EndCurrState();
 	// goto next state
 	Ability->UseAbility(EAbilityInputTypes::None);
