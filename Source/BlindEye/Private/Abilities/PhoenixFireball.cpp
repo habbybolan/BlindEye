@@ -152,7 +152,7 @@ void APhoenixFireball::PlayAbilityAnimation()
 	StartLockRotation(1);
 	PlayAbilityAnimationHelper();
 	MULT_PlayAbilityAnimation();
-	AnimNotifyDelegate.BindUFunction( this, TEXT("UseAnimNotifyExecuted"));
+	AnimNotifyDelegate.BindDynamic(this, &APhoenixFireball::UseAnimNotifyExecuted);
 }
 
 void APhoenixFireball::PlayAbilityAnimationHelper()
