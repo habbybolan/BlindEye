@@ -77,10 +77,6 @@ void APhoenixFireball::CastFireball()
 	UWorld* World = GetWorld();
 	if (!World) return;
 
-	FActorSpawnParameters params;
-	params.Instigator = GetInstigator();
-	params.Owner = this;
-
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
 	FVector SpawnLocation = Player->GetMesh()->GetBoneLocation("RightHand") + Player->GetActorForwardVector() * 25;
 
@@ -108,9 +104,29 @@ void APhoenixFireball::CastFireball()
 			vectorRotation = (ViewportLocation + ViewportRotation.Vector() * 10000) - SpawnLocation;
 		}
 	}
-	
-	FireballCast = World->SpawnActor<APhoenixFireballCast>(FireballCastType, SpawnLocation, vectorRotation.Rotation(), params);
-	FireballCast->CustomCollisionDelegate.BindDynamic(this, &APhoenixFireball::OnFireballCastHit);
+	SpawnFireballHelper(SpawnLocation, vectorRotation.Rotation());
+	MULT_SpawnFireball(SpawnLocation, vectorRotation.Rotation());
+}
+
+void APhoenixFireball::SpawnFireballHelper(FVector Location, FRotator Rotation)
+{
+	if (UWorld* World = GetWorld())
+	{
+		FActorSpawnParameters params;
+		params.Instigator = GetInstigator();
+		params.Owner = this;
+		
+		FireballCast = World->SpawnActor<APhoenixFireballCast>(FireballCastType, Location, Rotation, params);
+		FireballCast->CustomCollisionDelegate.BindDynamic(this, &APhoenixFireball::OnFireballCastHit);
+	}
+}
+
+void APhoenixFireball::MULT_SpawnFireball_Implementation(FVector Location, FRotator Rotation)
+{
+	if (!GetIsLocallyControlled())
+	{
+		SpawnFireballHelper(Location, Rotation);
+	}
 }
 
 void APhoenixFireball::OnFireballCastHit()
@@ -135,6 +151,7 @@ void APhoenixFireball::PlayAbilityAnimation()
 {
 	StartLockRotation(1);
 	PlayAbilityAnimationHelper();
+	MULT_PlayAbilityAnimation();
 	AnimNotifyDelegate.BindUFunction( this, TEXT("UseAnimNotifyExecuted"));
 }
 
@@ -212,7 +229,6 @@ void FStartCastingAbilityState::RunState(EAbilityInputTypes abilityUsageType, co
 	PhoenixFireball->Blockers.MovementSlowAmount = PhoenixFireball->SlowAmount;
 	
 	PhoenixFireball->PlayAbilityAnimation();
-	PhoenixFireball->MULT_PlayAbilityAnimation();
 }
 
 void FStartCastingAbilityState::ExitState()

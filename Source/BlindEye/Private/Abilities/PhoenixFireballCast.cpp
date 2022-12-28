@@ -13,7 +13,7 @@ APhoenixFireballCast::APhoenixFireballCast()
 	PrimaryActorTick.bCanEverTick = false;
 	InitialLifeSpan = 0; // infinite lifespan
 	
-	bReplicates = true;
+	bReplicates = false;
 
 	SphereComponent = CreateDefaultSubobject<USphereComponent>("SphereComponent");
 	SphereComponent->SetEnableGravity(false);

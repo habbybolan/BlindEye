@@ -103,6 +103,10 @@ protected:
 	UPROPERTY()
 	APhoenixFireballCast* FireballCast;
 
+	UFUNCTION(NetMulticast, Unreliable)
+	void MULT_SpawnFireball(FVector Location, FRotator Rotation);
+	void SpawnFireballHelper(FVector Location, FRotator Rotation);
+
 	void PlayAbilityAnimationHelper();
 
 	virtual void EndAbilityLogic() override;
