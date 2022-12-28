@@ -31,6 +31,9 @@ void UAbilityManager::UseAbility(EAbilityTypes abilityType, EAbilityInputTypes a
 {
 	// Run on owning client for immediate action
 	AAbilityBase* AbilityToUse = GetAbility(abilityType);
+
+	// prevent client using ability before it's replicated
+	if (AbilityToUse == nullptr) return;
 	
 	if (Player->IsLocallyControlled() && Player->GetLocalRole() != ROLE_Authority && !IsAbilityUnavailable(AbilityToUse))
 	{
