@@ -13,9 +13,6 @@ void UGenericAbilityAnimNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
 
 	if (ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(MeshComp->GetOwner()))
 	{
-		if (PlayerCharacter->IsLocallyControlled())
-		{
-			PlayerCharacter->GetAbilityManager()->PerformGenericAbilityNotify();
-		}
+		PlayerCharacter->GetAbilityManager()->PerformGenericAbilityNotify();
 	}
 }
