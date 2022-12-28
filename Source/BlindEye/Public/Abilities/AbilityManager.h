@@ -86,7 +86,7 @@ protected:
 	TArray<TSubclassOf<AAbilityBase>> UniqueAbilityTypes;
 
 	// Created Abilities
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, ReplicatedUsing="OnRep_Basic")
 	AAbilityBase* BasicAttack;
 	UPROPERTY(Replicated)
 	AAbilityBase* Dash; 
@@ -96,6 +96,13 @@ protected:
 	TArray<AAbilityBase*> UniqueAbilities;
 	UPROPERTY(Replicated)
 	AAbilityBase* CurrUsedAbility;
+
+	UFUNCTION()
+	void OnRep_Basic();
+	UFUNCTION()
+	void OnRep_Dash();
+	UFUNCTION()
+	void OnRep_UniqueAbility();
 
 	TArray<AAbilityBase*> AllAbilities;
 

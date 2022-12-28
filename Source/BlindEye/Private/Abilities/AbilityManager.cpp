@@ -19,9 +19,12 @@ UAbilityManager::UAbilityManager()
 void UAbilityManager::BeginPlay()
 {
 	Super::BeginPlay();
-
-	SetupAbilities();
+	
 	Player = Cast<ABlindEyePlayerCharacter>(GetOwner());
+	if (GetOwner()->GetLocalRole() == ROLE_Authority)
+	{
+		SetupAbilities();
+	}
 }
 
 void UAbilityManager::UseAbility(EAbilityTypes abilityType, EAbilityInputTypes abilityUsageType, const FVector& MouseLocation, const FRotator& MouseRotation)
@@ -31,10 +34,40 @@ void UAbilityManager::UseAbility(EAbilityTypes abilityType, EAbilityInputTypes a
 	
 	if (Player->IsLocallyControlled() && Player->GetLocalRole() != ROLE_Authority && !IsAbilityUnavailable(AbilityToUse))
 	{
+		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Cyan, UEnum::GetValueAsString(abilityType));
 		UseAbilityHelper(AbilityToUse, abilityUsageType, MouseLocation, MouseRotation);
 	}
 	
 	SER_UseAbility(abilityType, abilityUsageType, MouseLocation, MouseRotation);
+}
+
+void UAbilityManager::OnRep_Basic()
+{
+	BasicAttack->AbilityEndedDelegate.BindUObject(this, &UAbilityManager::AbilityEnded);
+	BasicAttack->AbilityEnteredRunState.BindUObject(this, &UAbilityManager::SetAbilityInUse);
+}
+
+void UAbilityManager::OnRep_Dash()
+{
+	Dash->AbilityEndedDelegate.BindUObject(this, &UAbilityManager::AbilityEnded);
+	Dash->AbilityEnteredRunState.BindUObject(this, &UAbilityManager::SetAbilityInUse);
+}
+
+void UAbilityManager::OnRep_UniqueAbility()
+{
+	// Unique abilities delegates
+	for (AAbilityBase* uniqueAbility : UniqueAbilities)
+	{
+		if (!uniqueAbility) continue;
+		if (!uniqueAbility->AbilityEndedDelegate.IsBound())
+		{
+			uniqueAbility->AbilityEndedDelegate.BindUObject(this, &UAbilityManager::AbilityEnded);
+		}
+		if (!uniqueAbility->AbilityEnteredRunState.IsBound())
+		{
+			uniqueAbility->AbilityEnteredRunState.BindUObject(this, &UAbilityManager::SetAbilityInUse);
+		}
+	}
 }
 
 void UAbilityManager::UseAbilityHelper(AAbilityBase* AbilityToUser, EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
@@ -176,26 +209,18 @@ void UAbilityManager::SetupAbilities()
 	// Basic attack delegates
 	if (BasicAttack)
 	{
-		BasicAttack->AbilityEndedDelegate.BindUObject(this, &UAbilityManager::AbilityEnded);
-		BasicAttack->AbilityEnteredRunState.BindUObject(this, &UAbilityManager::SetAbilityInUse);
 		AllAbilities.Add(BasicAttack);
+		OnRep_Basic();
 	}
 
 	// Dash attack delegates
 	if (Dash)
 	{
-		Dash->AbilityEndedDelegate.BindUObject(this, &UAbilityManager::AbilityEnded);
-		Dash->AbilityEnteredRunState.BindUObject(this, &UAbilityManager::SetAbilityInUse);
 		AllAbilities.Add(Dash);
+		OnRep_Dash();
 	}
-	
-	// Unique abilities delegates
-	for (AAbilityBase* uniqueAbility : UniqueAbilities)
-	{
-		if (!uniqueAbility) continue;
-		uniqueAbility->AbilityEndedDelegate.BindUObject(this, &UAbilityManager::AbilityEnded);
-		uniqueAbility->AbilityEnteredRunState.BindUObject(this, &UAbilityManager::SetAbilityInUse);
-	}
+
+	OnRep_UniqueAbility();
 }
 
 void UAbilityManager::AbilityEnded()
