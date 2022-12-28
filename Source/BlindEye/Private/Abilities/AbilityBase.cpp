@@ -212,7 +212,7 @@ void AAbilityBase::EndCurrState()
 
 void AAbilityBase::AbilityCancelInput()
 {
-	TryCancelAbility(); 
+	TryCancelAbility();
 }
 
 void AAbilityBase::UseAbility(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)

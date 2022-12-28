@@ -41,6 +41,7 @@ void ASharedBasicAbility::PlayAbilityAnimation()
 	bIsAttacking = true;
 	PlayAbilityAnimationHelper(CurrCharge);
 	MULT_PlayAbilityAnimation(CurrCharge);
+
 	AnimNotifyDelegate.BindDynamic( this, &ASharedBasicAbility::UseAnimNotifyExecuted);
 }
 
@@ -63,20 +64,18 @@ void ASharedBasicAbility::MULT_PlayAbilityAnimation_Implementation(uint8 charge)
 
 void ASharedBasicAbility::UseAnimNotifyExecuted()
 {
-	AnimNotifyDelegate.Unbind();
+	//AnimNotifyDelegate.Unbind();
 	SpawnFlock();
 	WaitForEndAbilityNotify();
 }
 
 void ASharedBasicAbility::WaitForEndAbilityNotify()
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Blue, UEnum::GetValueAsString(GetOwner()->GetLocalRole()));
 	AnimNotifyDelegate.BindDynamic( this, &ASharedBasicAbility::EndAnimNotifyExecuted);
 }
 
 void ASharedBasicAbility::EndAnimNotifyExecuted()
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Blue, UEnum::GetValueAsString(GetOwner()->GetLocalRole()));
 	bIsAttacking = false;
 	AnimNotifyDelegate.Unbind();
 	AbilityStates[CurrState]->ExitState();
@@ -246,7 +245,6 @@ void UFirstAttackState::RunState(EAbilityInputTypes abilityUsageType, const FVec
 		SharedAbility->PlayAbilityAnimation();
 	} 
 	
-	if (!Ability) return;
 	Ability->StartLockRotation(1);
 	Ability->AbilityStarted();
 	Ability->AbilityInnerState(1);
@@ -285,7 +283,6 @@ void USecondAttackState::TryEnterState(EAbilityInputTypes abilityUsageType, cons
 void USecondAttackState::RunState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	FAbilityState::RunState(abilityUsageType, Location, Rotation);
-	if (!Ability) return;
 	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
 	if (!SharedAbility) return;
 
@@ -333,7 +330,6 @@ void ULastAttackState::TryEnterState(EAbilityInputTypes abilityUsageType, const 
 void ULastAttackState::RunState(EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	FAbilityState::RunState(abilityUsageType, Location, Rotation);
-	if (!Ability) return;
 	ASharedBasicAbility* SharedAbility = Cast<ASharedBasicAbility>(Ability);
 	if (SharedAbility == nullptr) return;
 
