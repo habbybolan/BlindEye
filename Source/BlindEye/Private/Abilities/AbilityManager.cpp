@@ -72,6 +72,14 @@ void UAbilityManager::OnRep_UniqueAbility()
 	}
 }
 
+void UAbilityManager::OnRep_CurrUsedAbility(AAbilityBase* PrevCurrUsedAbility)
+{
+	if (PrevCurrUsedAbility != nullptr)
+	{
+		PrevCurrUsedAbility->TryCancelAbility();
+	}
+}
+
 void UAbilityManager::UseAbilityHelper(AAbilityBase* AbilityToUser, EAbilityInputTypes abilityUsageType, const FVector& Location, const FRotator& Rotation)
 {
 	AbilityToUser->UseAbility(abilityUsageType, Location, Rotation);

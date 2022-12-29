@@ -106,9 +106,7 @@ public:
 	uint8 CurrCharge = 0;
 	
 	void SpawnFlock();
-
 	
-	UPROPERTY(Replicated)
 	bool bIsAttacking = false;
 
 	// Wait for ability use animation notify to send out flock

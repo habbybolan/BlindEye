@@ -94,7 +94,7 @@ protected:
 	AAbilityBase* ChargedBasicAttack;
 	UPROPERTY(Replicated)
 	TArray<AAbilityBase*> UniqueAbilities;
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, ReplicatedUsing="OnRep_CurrUsedAbility")
 	AAbilityBase* CurrUsedAbility;
 
 	UFUNCTION()
@@ -103,6 +103,9 @@ protected:
 	void OnRep_Dash();
 	UFUNCTION()
 	void OnRep_UniqueAbility();
+	// If the Curr ability is updated on server, notify client to cancel it to sync it up
+	UFUNCTION()
+	void OnRep_CurrUsedAbility(AAbilityBase* PrevCurrUsedAbility);
 
 	TArray<AAbilityBase*> AllAbilities;
 

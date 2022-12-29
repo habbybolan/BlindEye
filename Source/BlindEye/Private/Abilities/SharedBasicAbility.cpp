@@ -136,12 +136,6 @@ void ASharedBasicAbility::TryCancelAbilityHelper()
 	TryCancelAbility();
 }
 
-void ASharedBasicAbility::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ASharedBasicAbility, bIsAttacking);
-}
-
 void ASharedBasicAbility::SpawnFlock()
 {
 	UWorld* world = GetWorld();
@@ -211,6 +205,11 @@ void ASharedBasicAbility::ClearLeaveAbilityTimer()
 	if (!world) return;
 
 	world->GetTimerManager().ClearTimer(ResetAbilityTimerHandle);
+}
+
+void ASharedBasicAbility::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
 // **** States *******
