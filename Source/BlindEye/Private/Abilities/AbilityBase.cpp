@@ -290,7 +290,7 @@ void AAbilityBase::AbilityInnerStateHelper(uint8 InnerState)
 void AAbilityBase::MULT_AbilityInnerState_Implementation(uint8 InnerState)
 {
 	// Play for remote clients
-	if (!GetIsLocallyControlled())
+	if (!GetIsLocallyControlled() && GetInstigator()->GetLocalRole() != ROLE_Authority)
 	{
 		AbilityInnerStateHelper(InnerState);
 	}
@@ -304,7 +304,7 @@ void AAbilityBase::AbilityStartedHelper()
 void AAbilityBase::MULT_AbilityStarted_Implementation()
 {
 	// Play for remote clients
-	if (!GetIsLocallyControlled())
+	if (!GetIsLocallyControlled() && GetInstigator()->GetLocalRole() != ROLE_Authority)
 	{
 		AbilityStartedHelper();
 	}
@@ -318,7 +318,7 @@ void AAbilityBase::AbilityEndedHelper()
 void AAbilityBase::MULT_AbilityEnded_Implementation()
 {
 	// Play for remote clients
-	if (!GetIsLocallyControlled())
+	if (!GetIsLocallyControlled() && GetInstigator()->GetLocalRole() != ROLE_Authority)
 	{
 		AbilityEndedHelper();
 	}

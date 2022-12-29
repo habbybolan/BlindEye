@@ -37,7 +37,6 @@ void UAbilityManager::UseAbility(EAbilityTypes abilityType, EAbilityInputTypes a
 	
 	if (Player->IsLocallyControlled() && Player->GetLocalRole() != ROLE_Authority && !IsAbilityUnavailable(AbilityToUse))
 	{
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.0f, FColor::Cyan, UEnum::GetValueAsString(abilityType));
 		UseAbilityHelper(AbilityToUse, abilityUsageType, MouseLocation, MouseRotation);
 	}
 	

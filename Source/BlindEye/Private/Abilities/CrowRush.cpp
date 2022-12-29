@@ -302,7 +302,7 @@ void ACrowRush::SetAsLandedHelper()
 void ACrowRush::MULT_SetAsLanded_Implementation()
 {
 	// Play for remote clients
-	if (!GetIsLocallyControlled())
+	if (!GetIsLocallyControlled() && GetInstigator()->GetLocalRole() != ROLE_Authority)
 	{
 		SetAsLandedHelper();
 	}

@@ -56,7 +56,7 @@ void ASharedBasicAbility::PlayAbilityAnimationHelper(uint8 charge)
 void ASharedBasicAbility::MULT_PlayAbilityAnimation_Implementation(uint8 charge)
 {
 	// Play for remote clients
-	if (!GetIsLocallyControlled())
+	if (!GetIsLocallyControlled() && GetInstigator()->GetLocalRole() != ROLE_Authority)
 	{
 		PlayAbilityAnimationHelper(charge);
 	}

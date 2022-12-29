@@ -97,7 +97,7 @@ void APhoenixDive::HandInAirHelper()
 void APhoenixDive::MULT_HandInAirHelper_Implementation()
 {
 	// Run on remote clients
-	if (!GetIsLocallyControlled())
+	if (!GetIsLocallyControlled() && GetInstigator()->GetLocalRole() != ROLE_Authority)
 	{
 		HandInAirHelper();
 	}
@@ -230,7 +230,7 @@ void APhoenixDive::CollisionWithGroundHelper()
 
 void APhoenixDive::MULT_CollisionWithGround_Implementation()
 {
-	if (!GetIsLocallyControlled())
+	if (!GetIsLocallyControlled() && GetInstigator()->GetLocalRole() != ROLE_Authority)
 	{
 		CollisionWithGroundHelper();
 	}
@@ -275,7 +275,7 @@ void APhoenixDive::PlayAbilityAnimation()
 void APhoenixDive::MULT_PlayAbilityAnimation_Implementation()
 {
 	// Play for remote clients
-	if (!GetIsLocallyControlled())
+	if (!GetIsLocallyControlled() && GetInstigator()->GetLocalRole() != ROLE_Authority)
 	{
 		PlayAbilityAnimationHelper();
 	}
@@ -312,7 +312,7 @@ void APhoenixDive::PlayLandingSectionOfAnimHelper()
 
 void APhoenixDive::MULT_PlayLandingSectionOfAnim_Implementation()
 {
-	if (!GetIsLocallyControlled())
+	if (!GetIsLocallyControlled() && GetInstigator()->GetLocalRole() != ROLE_Authority)
 	{
 		PlayLandingSectionOfAnimHelper();
 	}

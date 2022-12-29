@@ -123,7 +123,7 @@ void APhoenixFireball::SpawnFireballHelper(FVector Location, FRotator Rotation)
 
 void APhoenixFireball::MULT_SpawnFireball_Implementation(FVector Location, FRotator Rotation)
 {
-	if (!GetIsLocallyControlled())
+	if (!GetIsLocallyControlled() && GetInstigator()->GetLocalRole() != ROLE_Authority)
 	{
 		SpawnFireballHelper(Location, Rotation);
 	}
@@ -166,7 +166,7 @@ void APhoenixFireball::PlayAbilityAnimationHelper()
 void APhoenixFireball::MULT_PlayAbilityAnimation_Implementation()
 {
 	// Play for remote clients
-	if (!GetIsLocallyControlled())
+	if (!GetIsLocallyControlled() && GetInstigator()->GetLocalRole() != ROLE_Authority)
 	{
 		PlayAbilityAnimationHelper();
 	}

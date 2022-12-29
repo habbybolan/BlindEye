@@ -37,7 +37,7 @@ void ASharedDash::UpdatePlayerSpeedHelper()
 void ASharedDash::MULT_UpdatePlayerSpeed_Implementation()
 {
 	// Play for remote clients
-	if (!GetIsLocallyControlled())
+	if (!GetIsLocallyControlled() && GetInstigator()->GetLocalRole() != ROLE_Authority)
 	{
 		UpdatePlayerSpeedHelper();
 	}
