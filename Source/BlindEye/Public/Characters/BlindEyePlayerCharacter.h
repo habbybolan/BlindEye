@@ -14,6 +14,7 @@
 #include "Interfaces/AbilityUserInterface.h"
 #include "HUD/TextPopupWidget.h"
 #include "BlindEyeUtils.h"
+#include "TopdownCameraManager.h"
 #include "Components/IndicatorManagerComponent.h"
 #include "Components/ScaleBox.h"
 #include "Components/SizeBox.h"
@@ -64,6 +65,9 @@ class ABlindEyePlayerCharacter : public ABlindEyeBaseCharacter, public IAbilityU
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UIndicatorManagerComponent* IndicatorManagerComponent;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UTopdownCameraManager* TopdownCameraManager;
+
 	UPROPERTY(EditDefaultsOnly, meta=(ClampMin=0, ClampMax=1))
 	float HunterMarkMovementAlter = 0;
 
@@ -89,13 +93,6 @@ public:
 	ABlindEyePlayerCharacter(const FObjectInitializer& ObjectInitializer);
 
 	virtual void Tick(float DeltaSeconds) override;
-
-	UPROPERTY(EditDefaultsOnly, Category="Camera|Topdown")
-	float StartingCameraHeightOffset = 500.f;
-	UPROPERTY(EditDefaultsOnly, Category="Camera|Topdown")
-	float StartingCameraOutOffset = 50.f;
-	UPROPERTY(EditDefaultsOnly, Category="Camera|Topdown")
-	float StartingWorldZAngleOfCamera = 0;
 
 	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
 
@@ -533,8 +530,5 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-
-private:
-	void UpdateTopdownCamera();
 };
 

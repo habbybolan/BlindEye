@@ -72,8 +72,8 @@ ABlindEyePlayerCharacter::ABlindEyePlayerCharacter(const FObjectInitializer& Obj
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 	
 	AbilityManager = CreateDefaultSubobject<UAbilityManager>(TEXT("AbilityManager"));
-
 	IndicatorManagerComponent = CreateDefaultSubobject<UIndicatorManagerComponent>("IndicatorManager");
+	TopdownCameraManager = CreateDefaultSubobject<UTopdownCameraManager>("TopdownCameraManager");
 	
 	PlayerType = EPlayerType::CrowPlayer;
 	Team = TEAMS::Player;
@@ -82,11 +82,6 @@ ABlindEyePlayerCharacter::ABlindEyePlayerCharacter(const FObjectInitializer& Obj
 void ABlindEyePlayerCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	if (bIsTopdown)
-	{
-		UpdateTopdownCamera();
-	}
 }
 
 void ABlindEyePlayerCharacter::BeginPlay()
@@ -124,8 +119,7 @@ void ABlindEyePlayerCharacter::BeginPlay()
 
 		if (bIsTopdown)
 		{
-			const FDetachmentTransformRules DetachmentRules(EDetachmentRule::KeepWorld, false);
-			FollowCamera->DetachFromComponent(DetachmentRules);
+			TopdownCameraManager->InitializeTopdownCamera(FollowCamera);
 
 			ABlindEyePlayerController* BlindEyeController = Cast<ABlindEyePlayerController>(GetController());
 			BlindEyeController->bShowMouseCursor = true;
@@ -145,8 +139,6 @@ void ABlindEyePlayerCharacter::BeginPlay()
 	HealthComponent->MarkedRemovedDelegate.AddDynamic(this, &ABlindEyePlayerCharacter::MULT_OnUnMarked);
 
 	GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &ABlindEyePlayerCharacter::AnimMontageEnded);
-
-	UE_LOG(LogTemp, Warning, TEXT("[ABlindEyePlayerCharacter::BeginPlay] %s beginPlay finished"), *GetName());
 }
 
 void ABlindEyePlayerCharacter::OnGameEnded()
@@ -1379,20 +1371,6 @@ void ABlindEyePlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	DOREPLIFETIME(ABlindEyePlayerCharacter, bIsTopdown);
 	DOREPLIFETIME(ABlindEyePlayerCharacter, MouseLocation);
 	DOREPLIFETIME(ABlindEyePlayerCharacter, MouseRotation);
-}
-
-void ABlindEyePlayerCharacter::UpdateTopdownCamera()
-{
-	// Camera location
-	FRotator WorldRotationCameraOutOffset = FRotator(0, StartingWorldZAngleOfCamera, 0);
-	FVector CameraPos = GetActorLocation() +
-						FVector::UpVector * StartingCameraHeightOffset +
-						WorldRotationCameraOutOffset.Vector() * StartingCameraOutOffset;
-	FollowCamera->SetWorldLocation(CameraPos);
-
-	// camera rotation
-	FRotator CameraRot = UKismetMathLibrary::FindLookAtRotation(CameraPos, GetActorLocation());
-	FollowCamera->SetWorldRotation(CameraRot);
 }
 
 //////////////////////////////////////////////////////////////////////////
