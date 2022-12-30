@@ -226,8 +226,7 @@ void ACrowRush::LerpMovementCalculation()
 		{
 			World->GetTimerManager().ClearTimer(LerpMovementTimerHandle);
 		}
-		Player->StopAnimMontage(MovementAnim);
-		
+		ResetMovementState();
 		if (GetIsLocallyControlled() || GetInstigator()->GetLocalRole() == ROLE_Authority)
 		{
 			OnMovementEnded();
@@ -318,7 +317,7 @@ void ACrowRush::SetAsLandedHelper()
 {
 	if (ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator()))
 	{
-		Player->PlayAnimMontage(LandingAnim);
+		Player->GetMesh()->GetAnimInstance()->Montage_JumpToSection("Landed");
 	}
 }
 
@@ -344,7 +343,6 @@ void ACrowRush::SetLandingAnimFinishedHelper()
  	Player->GetMesh()->GetAnimInstance()->OnMontageEnded.Remove(this, TEXT("SetLandingAnimFinished"));
  	// Called in case animation being cancelled
  	Player->GetMesh()->GetAnimInstance()->StopAllMontages(0);
-	ResetMovementState();
  }
 
 // *** Landing Logic End ***

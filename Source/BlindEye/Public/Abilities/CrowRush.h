@@ -126,9 +126,6 @@ public:
 	TArray<TEnumAsByte<EObjectTypeQuery>> GroundObjectTypes;
 
 	UPROPERTY(EditDefaultsOnly)
-	UAnimMontage* LandingAnim;
-
-	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* MovementAnim;
 	
 	void ApplyDamage();
