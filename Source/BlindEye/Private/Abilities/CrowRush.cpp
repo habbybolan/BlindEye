@@ -190,8 +190,7 @@ void ACrowRush::StartMovementHelper()
 	Player->GetCharacterMovement()->bServerAcceptClientAuthoritativePosition = true;
 	Player->GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = true;
 	Player->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	Player->GetCharacterMovement()->PrimaryComponentTick.bCanEverTick = false;
-	Player->GetCharacterMovement()->Deactivate();
+	Player->GetCapsuleComponent()->SetEnableGravity(false);
 	
 	World->GetTimerManager().SetTimer(LerpMovementTimerHandle, this, &ACrowRush::LerpMovementCalculation, UpdateMovementDelay, true);
 }
@@ -235,7 +234,6 @@ void ACrowRush::LerpMovementCalculation()
 void ACrowRush::OnMovementEnded()
 {
 	ApplyDamage();
-	ResetMovementState();
 	
 	// If Already on the ground, then dont play landing montage
 	if (CheckIsLandedHelper())
@@ -265,8 +263,7 @@ void ACrowRush::ResetMovementStateHelper()
 	Player->GetCharacterMovement()->bServerAcceptClientAuthoritativePosition = false;
 	Player->GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = false;
 	Player->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	Player->GetCharacterMovement()->PrimaryComponentTick.bCanEverTick = true;
-	Player->GetCharacterMovement()->Activate();
+	Player->GetCapsuleComponent()->SetEnableGravity(true);
 }
 
 void ACrowRush::MULT_ResetPlayerState_Implementation()
@@ -342,6 +339,7 @@ void ACrowRush::SetLandingAnimFinishedHelper()
  	Player->GetMesh()->GetAnimInstance()->OnMontageEnded.Remove(this, TEXT("SetLandingAnimFinished"));
  	// Called in case animation being cancelled
  	Player->GetMesh()->GetAnimInstance()->StopAllMontages(0);
+	ResetMovementState();
  }
 
 // *** Landing Logic End ***
@@ -413,7 +411,7 @@ void ACrowRush::EndAbilityLogic()
 void ACrowRush::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ACrowRush, CurrDuration);
+	DOREPLIFETIME_CONDITION(ACrowRush, CurrDuration, COND_SkipOwner);
 }
 
 
