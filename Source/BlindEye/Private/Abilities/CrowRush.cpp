@@ -299,8 +299,7 @@ void ACrowRush::OnMovementEnded()
 	// If Already on the ground, then dont play landing montage
 	if (CheckIsLandedHelper())
 	{
-		SetAsLandedHelper();
-		SetAsLanded();
+		CheckIsLanded();
 	}
 	// Otherwise, wait to land to play anim
 	else
@@ -347,12 +346,11 @@ void ACrowRush::CheckIsLanded()
 	if (World && CheckIsLandedHelper())
 	{
 		World->GetTimerManager().ClearTimer(CheckIsLandedTimerHandle);
-		SetAsLandedHelper();
+		
 		SetAsLanded();
-		if (GetOwner()->GetLocalRole() == ROLE_Authority)
-		{
-			MULT_SetAsLanded();
-		}
+		// play animation
+		SetAsLandedHelper();
+		MULT_SetAsLanded();
 	}
 }
 
