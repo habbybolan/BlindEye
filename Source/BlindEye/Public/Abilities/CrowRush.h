@@ -35,6 +35,19 @@ public:
 	virtual bool CancelState() override;
 };
 
+// Landing state
+class BLINDEYE_API FLandingState : public FAbilityState
+{
+public:
+	FLandingState(AAbilityBase* ability);
+	virtual void TryEnterState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None,
+		const FVector& Location = FVector::ZeroVector, const FRotator& Rotation = FRotator::ZeroRotator) override;
+	virtual void RunState(EAbilityInputTypes abilityUsageType = EAbilityInputTypes::None,
+		const FVector& Location = FVector::ZeroVector, const FRotator& Rotation = FRotator::ZeroRotator) override;
+	virtual void ExitState() override;
+	virtual bool CancelState() override;
+};
+
 /**
  * 
  */
@@ -120,17 +133,19 @@ public:
 	void StartAiming();
 
 	void StartMovement();
-	void StartMovementHelper();
-	UFUNCTION(NetMulticast, Reliable)
-	void MULT_StartMovementHelper();
+	void ResetMovementState();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MULT_ResetPlayerState();
 	
 	void RemoveTarget();
 
+	// Called when landing animation finished or landing state cancelled
+	void SetLandingAnimFinishedHelper();
+
 	FTimerHandle UpdateTargetTimerHandle;
 	FTimerHandle CheckIsLandedTimerHandle;
+	FTimerHandle LerpMovementTimerHandle;
 
 protected:
 
@@ -143,12 +158,19 @@ protected:
 	UFUNCTION()
 	void CheckIsLanded(); 
 	bool CheckIsLandedHelper();
-	
 
-	FVector CalculateTargetPosition();
+	void CalcMovementValues();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULT_StartMovementHelper(FVector startPos, FVector endPos, float duration);
+	void StartMovementHelper();
+	void ResetMovementStateHelper();
 
 	UFUNCTION()
-	void UpdatePlayerMovement();
+	void LerpMovementCalculation();
+
+	void OnMovementEnded();
+	
+	FVector CalculateTargetPosition();
 	
 	FTimerHandle UpdatePlayerTimerHandle; 
 	float CurrDuration = 0;
