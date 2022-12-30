@@ -9,6 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 ACrowRush::ACrowRush()
 {
@@ -404,6 +405,12 @@ void ACrowRush::SetLandingAnimFinishedHelper()
  }
 
 // *** Landing Logic End ***
+
+void ACrowRush::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ACrowRush, CurrDuration);
+}
 
 // **** States *******
 

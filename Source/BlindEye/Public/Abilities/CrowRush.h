@@ -172,7 +172,8 @@ protected:
 	
 	FVector CalculateTargetPosition();
 	
-	FTimerHandle UpdatePlayerTimerHandle; 
+	FTimerHandle UpdatePlayerTimerHandle;
+	UPROPERTY(Replicated)
 	float CurrDuration = 0;
 
 	void SetAsLanded();
@@ -185,6 +186,8 @@ protected:
 	virtual void EndAbilityLogic() override;
 
 	bool FindValidTargetLocation(FVector& CurrLoc, FVector EndLoc, FVector DirBackAlongLine, uint8 StepNum);
+
+	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
 
 	UPROPERTY()
 	ACrowRushTarget* Target;
