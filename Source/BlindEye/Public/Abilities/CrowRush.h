@@ -121,6 +121,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category=Movement)
 	TEnumAsByte<EEasingFunc::Type> EasingFunction;
+	
+	UPROPERTY(EditDefaultsOnly, Category=Movement)
+	float DeltaRotationToTarget = 280;
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<TEnumAsByte<EObjectTypeQuery>> GroundObjectTypes;
@@ -145,13 +148,17 @@ public:
 
 	FTimerHandle UpdateTargetTimerHandle;
 	FTimerHandle CheckIsLandedTimerHandle;
-	FTimerHandle LerpMovementTimerHandle;
 
 protected:
+
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 
 	FVector StartingPosition; 
 	FVector EndPosition;
 	float CalculatedDuration;
+
+	bool bMovementStarted = false;
 
 	void UpdateTargetPosition();
 	

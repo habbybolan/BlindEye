@@ -17,6 +17,24 @@ ACrowRush::ACrowRush()
 	AbilityStates.Add(new FMovingState(this));
 	AbilityStates.Add(new FLandingState(this));
 	AbilityType = EAbilityTypes::Unique2;
+
+	PrimaryActorTick.bCanEverTick = true;
+}
+
+void ACrowRush::BeginPlay()
+{
+	Super::BeginPlay();
+	SetActorTickEnabled(true);
+}
+
+void ACrowRush::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (bMovementStarted)
+	{
+		LerpMovementCalculation();
+	}
 }
 
 // *** Aiming start ***
@@ -193,8 +211,8 @@ void ACrowRush::StartMovementHelper()
 	Player->GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = true;
 	Player->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	Player->GetCapsuleComponent()->SetEnableGravity(false);
-	
-	World->GetTimerManager().SetTimer(LerpMovementTimerHandle, this, &ACrowRush::LerpMovementCalculation, UpdateMovementDelay, true);
+
+	bMovementStarted = true;
 }
 
 void ACrowRush::MULT_StartMovementHelper_Implementation(FVector startPos, FVector endPos, float duration) 
@@ -214,19 +232,24 @@ void ACrowRush::MULT_StartMovementHelper_Implementation(FVector startPos, FVecto
 
 void ACrowRush::LerpMovementCalculation()
 {
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+	
+	float DeltaSeconds = World->DeltaTimeSeconds;
+	
 	FVector Ease = UKismetMathLibrary::VEase(StartingPosition, EndPosition, CurrDuration / CalculatedDuration, EasingFunction);
-	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
 	GetInstigator()->SetActorLocation(Ease, false, nullptr, ETeleportType::ResetPhysics);
-	CurrDuration += UpdateMovementDelay;
+	CurrDuration += DeltaSeconds;
+
+	FRotator TargetRotation = (EndPosition - StartingPosition).Rotation();
+	float YawRot = FMath::FixedTurn(GetInstigator()->GetActorRotation().Yaw, TargetRotation.Yaw, DeltaRotationToTarget * DeltaSeconds);
+	GetInstigator()->SetActorRotation(FRotator(0, YawRot, 0));
 	
 	// If finished movement
 	if (CurrDuration >= CalculatedDuration)
 	{
-		if (UWorld* World = GetWorld())
-		{
-			World->GetTimerManager().ClearTimer(LerpMovementTimerHandle);
-		}
 		ResetMovementState();
+		bMovementStarted = false;
 		if (GetIsLocallyControlled() || GetInstigator()->GetLocalRole() == ROLE_Authority)
 		{
 			OnMovementEnded();
@@ -407,7 +430,7 @@ void ACrowRush::ApplyDamage()
 void ACrowRush::EndAbilityLogic()
 {
 	Super::EndAbilityLogic();
-
+	bMovementStarted = false;
 	MULT_ResetPlayerState();
 }
 
@@ -525,7 +548,6 @@ bool FMovingState::CancelState()
 	UWorld* World = Rush->GetWorld();
 	{
 		World->GetTimerManager().ClearTimer(Rush->CheckIsLandedTimerHandle);
-		World->GetTimerManager().ClearTimer(Rush->LerpMovementTimerHandle);
 	}
 	Rush->ResetMovementState();
 	return true;
