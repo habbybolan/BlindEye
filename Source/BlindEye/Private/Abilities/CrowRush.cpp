@@ -19,62 +19,7 @@ ACrowRush::ACrowRush()
 	AbilityType = EAbilityTypes::Unique2;
 }
 
-void ACrowRush::ApplyDamage()
-{
-	UWorld* World = GetWorld();
-	if (World == nullptr) return;
-
-	if (GetOwner()->GetLocalRole() < ROLE_Authority) return;
-	
-	if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
-	{
-		FVector EndLocation = BlindEyePlayer->GetActorLocation();
-
-		TArray<FHitResult> OutHits;
-		if (UKismetSystemLibrary::SphereTraceMultiForObjects(World, StartingPosition, EndLocation, PullSphereRadius, EnemyObjectTypes,
-			false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true))
-		{
-			for (FHitResult OutHit : OutHits)
-			{
-				// calculate knockBack force from center of dash
-				FVector ClosestPoint = UKismetMathLibrary::FindClosestPointOnLine(OutHit.Location, StartingPosition, EndLocation - StartingPosition);
-				float distToCenter = FVector::Distance(ClosestPoint, OutHit.Location);
-				float KnockBackToCenterPercent = distToCenter / PullSphereRadius;
-				FVector VecToCenter = ClosestPoint - OutHit.Location;
-				VecToCenter.Normalize();
-				VecToCenter *= UKismetMathLibrary::Lerp(MinKnockTowardsCenterForce, MaxKnockTowardsCenterForce, KnockBackToCenterPercent);
-				VecToCenter += FVector::UpVector * UKismetMathLibrary::Lerp(MinKnockUpToCenterForce, MaxKnockUpToCenterForce, KnockBackToCenterPercent);
-				
-				// Calculate knock force to end of dash
-				float distToEndOfRush = FVector::Distance(EndLocation, OutHit.Location);
-				float KnockBackToEndPercent = distToEndOfRush / FVector::Distance(StartingPosition, EndLocation);
-				FVector VecToEnd = EndLocation - OutHit.Location;
-				VecToEnd.Normalize();
-				VecToEnd *= UKismetMathLibrary::Lerp(MinKnockUpToEndForce, MaxKnockTowardsEndForce, KnockBackToEndPercent);
-				VecToEnd += FVector::UpVector * UKismetMathLibrary::Lerp(MinKnockUpToEndForce, MaxKnockUpToEndForce, KnockBackToEndPercent);
-
-				FVector ForceVecToApply = VecToEnd + VecToCenter;
-
-				UGameplayStatics::ApplyPointDamage(OutHit.Actor.Get(), DamageAmount, OutHit.Location, OutHit, GetInstigatorController(),
-					GetInstigator(), DamageType);
-
-				// prevent knockback on other player
-				if (Cast<ABlindEyePlayerCharacter>(OutHit.Actor))
-				{
-					continue;
-				}
-
-				if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(OutHit.Actor))
-				{
-					if (UHealthComponent* HealthComponent = HealthInterface->GetHealthComponent())
-					{
-						HealthComponent->KnockBack(ForceVecToApply, GetInstigator());
-					}
-				}
-			}
-		}
-	}
-}
+// *** Aiming start ***
 
 void ACrowRush::StartAiming()
 {
@@ -186,13 +131,6 @@ bool ACrowRush::FindValidTargetLocation(FVector& CurrLoc, FVector EndLoc, FVecto
 	}
 }
 
-void ACrowRush::EndAbilityLogic()
-{
-	Super::EndAbilityLogic();
-
-	MULT_ResetPlayerState();
-}
-
 void ACrowRush::RemoveTarget()
 {
 	if (Target)
@@ -200,6 +138,8 @@ void ACrowRush::RemoveTarget()
 		Target->Destroy();
 	}
 }
+
+// *** Aiming end ***
 
 // *** Movement Logic start ***
 
@@ -325,8 +265,8 @@ void ACrowRush::ResetMovementStateHelper()
 	Player->GetCharacterMovement()->bServerAcceptClientAuthoritativePosition = false;
 	Player->GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = false;
 	Player->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	Player->GetCharacterMovement()->PrimaryComponentTick.bCanEverTick = false;
-	Player->GetCharacterMovement()->Deactivate();
+	Player->GetCharacterMovement()->PrimaryComponentTick.bCanEverTick = true;
+	Player->GetCharacterMovement()->Activate();
 }
 
 void ACrowRush::MULT_ResetPlayerState_Implementation()
@@ -406,11 +346,78 @@ void ACrowRush::SetLandingAnimFinishedHelper()
 
 // *** Landing Logic End ***
 
+void ACrowRush::ApplyDamage()
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr) return;
+
+	if (GetOwner()->GetLocalRole() < ROLE_Authority) return;
+	
+	if (ABlindEyePlayerCharacter* BlindEyePlayer = Cast<ABlindEyePlayerCharacter>(GetOwner()))
+	{
+		FVector EndLocation = BlindEyePlayer->GetActorLocation();
+
+		TArray<FHitResult> OutHits;
+		if (UKismetSystemLibrary::SphereTraceMultiForObjects(World, StartingPosition, EndLocation, PullSphereRadius, EnemyObjectTypes,
+			false, TArray<AActor*>(), EDrawDebugTrace::None, OutHits, true))
+		{
+			for (FHitResult OutHit : OutHits)
+			{
+				// calculate knockBack force from center of dash
+				FVector ClosestPoint = UKismetMathLibrary::FindClosestPointOnLine(OutHit.Location, StartingPosition, EndLocation - StartingPosition);
+				float distToCenter = FVector::Distance(ClosestPoint, OutHit.Location);
+				float KnockBackToCenterPercent = distToCenter / PullSphereRadius;
+				FVector VecToCenter = ClosestPoint - OutHit.Location;
+				VecToCenter.Normalize();
+				VecToCenter *= UKismetMathLibrary::Lerp(MinKnockTowardsCenterForce, MaxKnockTowardsCenterForce, KnockBackToCenterPercent);
+				VecToCenter += FVector::UpVector * UKismetMathLibrary::Lerp(MinKnockUpToCenterForce, MaxKnockUpToCenterForce, KnockBackToCenterPercent);
+				
+				// Calculate knock force to end of dash
+				float distToEndOfRush = FVector::Distance(EndLocation, OutHit.Location);
+				float KnockBackToEndPercent = distToEndOfRush / FVector::Distance(StartingPosition, EndLocation);
+				FVector VecToEnd = EndLocation - OutHit.Location;
+				VecToEnd.Normalize();
+				VecToEnd *= UKismetMathLibrary::Lerp(MinKnockUpToEndForce, MaxKnockTowardsEndForce, KnockBackToEndPercent);
+				VecToEnd += FVector::UpVector * UKismetMathLibrary::Lerp(MinKnockUpToEndForce, MaxKnockUpToEndForce, KnockBackToEndPercent);
+
+				FVector ForceVecToApply = VecToEnd + VecToCenter;
+
+				UGameplayStatics::ApplyPointDamage(OutHit.Actor.Get(), DamageAmount, OutHit.Location, OutHit, GetInstigatorController(),
+					GetInstigator(), DamageType);
+
+				// prevent knockback on other player
+				if (Cast<ABlindEyePlayerCharacter>(OutHit.Actor))
+				{
+					continue;
+				}
+
+				if (IHealthInterface* HealthInterface = Cast<IHealthInterface>(OutHit.Actor))
+				{
+					if (UHealthComponent* HealthComponent = HealthInterface->GetHealthComponent())
+					{
+						HealthComponent->KnockBack(ForceVecToApply, GetInstigator());
+					}
+				}
+			}
+		}
+	}
+}
+
+void ACrowRush::EndAbilityLogic()
+{
+	Super::EndAbilityLogic();
+
+	MULT_ResetPlayerState();
+}
+
 void ACrowRush::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ACrowRush, CurrDuration);
 }
+
+
+
 
 // **** States *******
 
