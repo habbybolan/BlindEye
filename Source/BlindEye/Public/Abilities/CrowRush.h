@@ -127,6 +127,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* LandingAnim;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* MovementAnim;
 	
 	void ApplyDamage();
 

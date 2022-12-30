@@ -184,8 +184,10 @@ void ACrowRush::StartMovementHelper()
 	check(World);
 	
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+	Player->PlayAnimMontage(MovementAnim);
+	
 	Player->GetMovementComponent()->StopMovementImmediately();
-	Player->GetCharacterMovement()->SetMovementMode(MOVE_Falling);
+	Player->GetCharacterMovement()->SetMovementMode(MOVE_None);
 	
 	Player->GetCharacterMovement()->bServerAcceptClientAuthoritativePosition = true;
 	Player->GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = true;
@@ -213,9 +215,10 @@ void ACrowRush::MULT_StartMovementHelper_Implementation(FVector startPos, FVecto
 void ACrowRush::LerpMovementCalculation()
 {
 	FVector Ease = UKismetMathLibrary::VEase(StartingPosition, EndPosition, CurrDuration / CalculatedDuration, EasingFunction);
-	GetInstigator()->SetActorLocation(Ease);
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+	GetInstigator()->SetActorLocation(Ease, false, nullptr, ETeleportType::ResetPhysics);
 	CurrDuration += UpdateMovementDelay;
-
+	
 	// If finished movement
 	if (CurrDuration >= CalculatedDuration)
 	{
@@ -223,7 +226,8 @@ void ACrowRush::LerpMovementCalculation()
 		{
 			World->GetTimerManager().ClearTimer(LerpMovementTimerHandle);
 		}
-
+		Player->StopAnimMontage(MovementAnim);
+		
 		if (GetIsLocallyControlled() || GetInstigator()->GetLocalRole() == ROLE_Authority)
 		{
 			OnMovementEnded();
@@ -260,6 +264,7 @@ void ACrowRush::ResetMovementState()
 void ACrowRush::ResetMovementStateHelper()
 {
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+	Player->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 	Player->GetCharacterMovement()->bServerAcceptClientAuthoritativePosition = false;
 	Player->GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = false;
 	Player->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
