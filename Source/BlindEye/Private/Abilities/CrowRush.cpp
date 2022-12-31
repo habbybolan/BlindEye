@@ -291,6 +291,7 @@ void ACrowRush::ResetMovementStateHelper()
 	Player->GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = false;
 	Player->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	Player->GetCapsuleComponent()->SetEnableGravity(true);
+	bMovementStarted = false;
 }
 
 void ACrowRush::MULT_ResetPlayerState_Implementation()
@@ -430,7 +431,6 @@ void ACrowRush::ApplyDamage()
 void ACrowRush::EndAbilityLogic()
 {
 	Super::EndAbilityLogic();
-	bMovementStarted = false;
 	MULT_ResetPlayerState();
 }
 
