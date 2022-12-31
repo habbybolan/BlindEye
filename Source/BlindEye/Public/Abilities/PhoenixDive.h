@@ -84,6 +84,7 @@ public:
 	APhoenixDive();
 
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Damage = 50;
@@ -106,6 +107,9 @@ public:
  
 	UPROPERTY(EditDefaultsOnly) 
 	float LaunchUpForcePower = 100000;
+
+	UPROPERTY(EditDefaultsOnly)
+	float DeltaRotationToTarget = 1000;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AGroundTarget> GroundTargetType;
@@ -155,8 +159,8 @@ public:
 	float CachedGravityScale = 1;
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_ResetPlayerOnCancel();
-	void ResetPlayerOnCancelHelper();
+	void MULT_ResetPlayerState();
+	void ResetPlayerState();
 
 protected:
 
@@ -168,6 +172,14 @@ protected:
 
 	void hangingInAirExpired();
 
+	// Rotate player towards ground during launching downward
+	void RotateOnLaunchDown();
+	FVector StartingPosition;
+	FVector EndPosition;
+	UPROPERTY(Replicated)
+	bool bIsLaunchingDown = false;
+
+	FRotator CachedMeshRelativeRotation;
 	bool CalculateGroundTargetPosition(FVector& TargetPosition);
 
 	FRotator CalculateLaunchViewPoint(FVector& ViewportLocation, FRotator& ViewportRotation);
@@ -183,7 +195,7 @@ protected:
 	void MULT_PlayLandingSectionOfAnim();
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MULT_LaunchToGround(FVector LaunchForce);
+	void MULT_LaunchToGround(FVector LaunchForce, FVector startPosition, FVector endPosition);
 	void LaunchToGroundHelper(FVector LaunchForce);
 
 	UFUNCTION(NetMulticast, Reliable)
@@ -203,4 +215,6 @@ protected:
 	void MULT_CollisionWithGround();
 	void UnsubscribeToGroundCollision();
 	virtual void EndAbilityLogic() override;
+
+	virtual void GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const override;
 };

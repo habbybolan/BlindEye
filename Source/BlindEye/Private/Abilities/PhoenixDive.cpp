@@ -11,6 +11,7 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 APhoenixDive::APhoenixDive() : AAbilityBase()
 {
@@ -20,6 +21,7 @@ APhoenixDive::APhoenixDive() : AAbilityBase()
 	AbilityStates.Add(new FHangingState(this));
 	AbilityStates.Add(new FHitGroundState(this));
 	AbilityType = EAbilityTypes::Unique2;
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 void APhoenixDive::BeginPlay()
@@ -28,7 +30,20 @@ void APhoenixDive::BeginPlay()
 
 	if (!ensure(GetInstigator())) return;
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
+	CachedMeshRelativeRotation = Character->GetMesh()->GetRelativeRotation();
 	CachedGravityScale = Character->GetCharacterMovement()->GravityScale;
+	SetActorTickEnabled(true);
+}
+
+void APhoenixDive::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	// Set rotation to launch down location
+	if (bIsLaunchingDown)
+	{
+		RotateOnLaunchDown();
+	}
 }
 
 // *** Launch Up start ***
@@ -106,9 +121,11 @@ void APhoenixDive::HangInAir()
 
 void APhoenixDive::HandInAirHelper()
 {
-	ACharacter* Character = Cast<ACharacter>(GetInstigator());
-	Character->GetCharacterMovement()->GravityScale = 0.f;
-	Character->GetCharacterMovement()->StopMovementImmediately();
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+	Player->GetCharacterMovement()->GravityScale = 0.f;
+	Player->GetCharacterMovement()->StopMovementImmediately();
+
+	Player->MULT_StartLockRotationToController(0);
 }
 
 void APhoenixDive::MULT_HandInAirHelper_Implementation()
@@ -150,15 +167,16 @@ bool APhoenixDive::CalculateGroundTargetPosition(FVector& TargetPosition)
 	if (Character->GetIsTopdown())
 	{
 		return GetMouseTargetLocationHelper(OUT TargetPosition, TArray<TEnumAsByte<EObjectTypeQuery>>(), false);
-	} else
+	}
+	else
 	{
 		FVector ViewportLocation;
 		FRotator ViewportRotation;
 		CalculateLaunchViewPoint(ViewportLocation, ViewportRotation);
 
-		FVector EndPosition = ViewportLocation + ViewportRotation.Vector() * 10000;
+		FVector GroundTargetPos = ViewportLocation + ViewportRotation.Vector() * 10000;
 		FHitResult OutHit;
-		if (UKismetSystemLibrary::LineTraceSingleForObjects(World, Character->GetActorLocation(), EndPosition, GroundObjectTypes,
+		if (UKismetSystemLibrary::LineTraceSingleForObjects(World, Character->GetActorLocation(), GroundTargetPos, GroundObjectTypes,
 			false, TArray<AActor*>(), EDrawDebugTrace::None, OutHit, true))
 		{
 			TargetPosition = OutHit.Location;
@@ -200,10 +218,11 @@ void APhoenixDive::LaunchToGround()
  
 	SetOnCooldown(); 
 
-	ACharacter* Character = Cast<ACharacter>(GetInstigator());
-	if (Character == nullptr) return;
+	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+	if (Player == nullptr) return;
 
-	Character->GetCharacterMovement()->GravityScale = CachedGravityScale;
+	Player->MULT_StopLockRotationToController();
+	Player->GetCharacterMovement()->GravityScale = CachedGravityScale;
 	
 	FVector position;	// Position of ground target
 	FVector ImpulseVec;	// Force vector to apply to player
@@ -229,8 +248,11 @@ void APhoenixDive::LaunchToGround()
 		}
 	}
 
+	StartingPosition = Player->GetActorLocation();
+	EndPosition = position;
+
 	LaunchToGroundHelper(ImpulseVec);
-	MULT_LaunchToGround_Implementation(ImpulseVec);
+	MULT_LaunchToGround_Implementation(ImpulseVec, StartingPosition, EndPosition);
 	
 	// prevent hanging in air
 	world->GetTimerManager().ClearTimer(HangInAirTimerHandle);
@@ -238,16 +260,18 @@ void APhoenixDive::LaunchToGround()
 	world->GetTimerManager().ClearTimer(MaxHangingTimerHandle);
 	
 	// Setup ground collision
-	Character->GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &APhoenixDive::CollisionWithGround);
+	Player->GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &APhoenixDive::CollisionWithGround);
 
-	if (Character->IsLocallyControlled())
+	if (Player->IsLocallyControlled())
 	{
 		StopGroundTarget();
 	}
 }
 
-void APhoenixDive::MULT_LaunchToGround_Implementation(FVector LaunchForce)
+void APhoenixDive::MULT_LaunchToGround_Implementation(FVector LaunchForce, FVector startPosition, FVector endPosition)
 {
+	StartingPosition = startPosition;
+	EndPosition = endPosition;
 	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
 	{
 		LaunchToGroundHelper(LaunchForce);
@@ -261,11 +285,8 @@ void APhoenixDive::LaunchToGroundHelper(FVector LaunchForce)
 
 	Character->GetCharacterMovement()->GravityScale = CachedGravityScale;
 	Character->GetCharacterMovement()->Velocity = LaunchForce;
+	bIsLaunchingDown = true;
 }
-
-// *** Launch to ground End ***
-
-// *** Landed start ***
 
 void APhoenixDive::CollisionWithGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
@@ -301,6 +322,7 @@ void APhoenixDive::CollisionWithGroundHelper()
 {
 	ABlindEyePlayerCharacter* PlayerCharacter = Cast<ABlindEyePlayerCharacter>(GetInstigator());
 	PlayerCharacter->GetCharacterMovement()->GravityScale = CachedGravityScale;
+	ResetPlayerState();
 }
 
 void APhoenixDive::MULT_CollisionWithGround_Implementation()
@@ -340,6 +362,40 @@ FVector APhoenixDive::CalculateDownwardVectorImpulse(FVector TargetPosition, flo
 	
 	return finalVelocity;
 }
+
+void APhoenixDive::RotateOnLaunchDown()
+{
+	// TODO: Rotate Up Vec towards target location
+	
+	// UWorld* World = GetWorld();
+	// if (World == nullptr) return;
+	// ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetInstigator());
+	//
+	// float DeltaSeconds = World->DeltaTimeSeconds;
+	// FRotator RotationVec = (EndPosition - StartingPosition).Rotation();
+	//
+	//
+	//
+	// // FRotator ComposeRotation = UKismetMathLibrary::MakeRotFromZ(RotationVec);
+	// // if (ComposeRotation.Roll != 0)
+	// // {
+	// // 	ComposeRotation.Pitch = ComposeRotation.Roll;
+	// // }
+	// //ComposeRotation = UKismetMathLibrary::ComposeRotators(ComposeRotation,FRotator(90, 0, 0));
+	//
+	// // FVector TargetRotationVec = RotationVec;
+	// //RotationVec = UKismetMathLibrary::RotateAngleAxis(RotationVec, -90, Player->GetRootComponent()->GetUpVector());
+	// //TargetRotationVec = UKismetMathLibrary::RotateAngleAxis(TargetRotationVec, -90, FVector::RightVector);
+	//
+	// float YawRot = FMath::FixedTurn(Player->GetMesh()->GetComponentRotation().Yaw, RotationVec.Yaw - 90, DeltaRotationToTarget * DeltaSeconds);
+	// float PitchRot = FMath::FixedTurn(Player->GetMesh()->GetComponentRotation().Pitch, RotationVec.Pitch, DeltaRotationToTarget * DeltaSeconds);
+	// FRotator RotationToTarget = FRotator(PitchRot, YawRot, 0);
+	// Player->GetMesh()->SetWorldRotation(RotationToTarget);
+}
+
+// *** Launch to ground End ***
+
+// *** Landed start ***
 
 void APhoenixDive::PlayLandingSectionOfAnim() 
 {
@@ -410,24 +466,27 @@ void APhoenixDive::UseAnimNotifyExecuted()
 	AbilityStates[CurrState]->ExitState();
 }
 
-void APhoenixDive::MULT_ResetPlayerOnCancel_Implementation()
+void APhoenixDive::MULT_ResetPlayerState_Implementation()
 {
 	if (GetOwner()->GetLocalRole() == ROLE_SimulatedProxy)
 	{
-		ResetPlayerOnCancelHelper();
+		ResetPlayerState();
 	}
 }
 
-void APhoenixDive::ResetPlayerOnCancelHelper()
+void APhoenixDive::ResetPlayerState()
 {
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(GetOwner());
 	Player->GetCharacterMovement()->GravityScale = CachedGravityScale;
 	Player->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+	Player->GetMesh()->SetRelativeRotation(CachedMeshRelativeRotation);
+	bIsLaunchingDown = false;
 }
 
 void APhoenixDive::EndAbilityLogic()
 {
 	Super::EndAbilityLogic();
+	ResetPlayerState();
 
 	ACharacter* Character = Cast<ACharacter>(GetInstigator());
 	Character->GetCapsuleComponent()->OnComponentHit.RemoveDynamic(this, &APhoenixDive::CollisionWithGround);
@@ -436,7 +495,14 @@ void APhoenixDive::EndAbilityLogic()
 	{
 		Player->GetCharacterMovement()->bServerAcceptClientAuthoritativePosition = false;
 		Player->GetCharacterMovement()->bIgnoreClientMovementErrorChecksAndCorrection = false;
+		Player->MULT_StopLockRotationToController();
 	}
+}
+
+void APhoenixDive::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(APhoenixDive, bIsLaunchingDown);
 }
 
 // **** States *******
@@ -588,8 +654,8 @@ bool FInAirState::CancelState()
 	}
 	// Update player's state back to normal
 	ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Ability->GetOwner());
-	PhoenixDive->MULT_ResetPlayerOnCancel();
-	PhoenixDive->ResetPlayerOnCancelHelper();
+	PhoenixDive->MULT_ResetPlayerState();
+	PhoenixDive->ResetPlayerState();
 	Player->MULT_StopAnimMontage(PhoenixDive->DiveAbilityAnim);
 	return true;
 }
@@ -650,8 +716,8 @@ bool FHangingState::CancelState()
 		
 		APhoenixDive* PhoenixDive = Cast<APhoenixDive>(Ability);
 		ABlindEyePlayerCharacter* Player = Cast<ABlindEyePlayerCharacter>(Ability->GetInstigator());
-		PhoenixDive->MULT_ResetPlayerOnCancel();
-		PhoenixDive->ResetPlayerOnCancelHelper();
+		PhoenixDive->MULT_ResetPlayerState();
+		PhoenixDive->ResetPlayerState();
 		
 		Player->MULT_StopAnimMontage(PhoenixDive->DiveAbilityAnim);
 		if (Player->IsLocallyControlled())
