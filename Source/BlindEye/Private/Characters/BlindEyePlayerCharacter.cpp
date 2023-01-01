@@ -1382,8 +1382,8 @@ void ABlindEyePlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	DOREPLIFETIME(ABlindEyePlayerCharacter, CurrRevivePercent);
 	DOREPLIFETIME(ABlindEyePlayerCharacter, TutorialActionBlockers);
 	DOREPLIFETIME(ABlindEyePlayerCharacter, bIsTopdown);
-	DOREPLIFETIME(ABlindEyePlayerCharacter, MouseLocation);
-	DOREPLIFETIME(ABlindEyePlayerCharacter, MouseRotation);
+	DOREPLIFETIME_CONDITION(ABlindEyePlayerCharacter, MouseLocation, COND_SimulatedOnly);
+	DOREPLIFETIME_CONDITION(ABlindEyePlayerCharacter, MouseRotation, COND_SimulatedOnly);
 }
 
 //////////////////////////////////////////////////////////////////////////
