@@ -577,17 +577,18 @@ bool AHunterEnemy::IsTargetOnNavigableGround()
 	return false;
 }
 
-void AHunterEnemy::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(AHunterEnemy, IsVisible)
-	DOREPLIFETIME_CONDITION(AHunterEnemy, StartingHealth, COND_InitialOnly);
-}
-
 void AHunterEnemy::TimelineInvisUpdate(float Value)
 {
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0.5f, FColor::Blue, FString::SanitizeFloat(Value));
 	Material->SetScalarParameterValue("Opacity", Value);
+}
+
+void AHunterEnemy::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AHunterEnemy, IsVisible)
+	DOREPLIFETIME(AHunterEnemy, CurrTimeOfChargedJump)
+	DOREPLIFETIME_CONDITION(AHunterEnemy, StartingHealth, COND_InitialOnly);
 }
 
 

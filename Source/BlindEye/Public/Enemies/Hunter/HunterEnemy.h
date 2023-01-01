@@ -283,6 +283,7 @@ protected:
 	void SetChargedJumpOffCooldown();
 	FTimerHandle ChargedJumpCooldownTimerHandle;
 
+	UPROPERTY(Replicated)
 	float CurrTimeOfChargedJump = 0;	// Keeps track of how long of the jump the charged attack has been performed for
 	FVector ChargedJumpTargetLocation;
 	FVector ChargedJumpStartLocation;
