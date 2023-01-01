@@ -1345,8 +1345,21 @@ bool ABlindEyePlayerCharacter::GetIsTopdown()
 
 void ABlindEyePlayerCharacter::GetMouseValues(FVector& mouseLocation, FVector& mouseRotation)
 {
-	mouseLocation = MouseLocation;
-	mouseRotation = MouseRotation;
+	// Calc mouse values directly if locally controlled
+	if (IsLocallyControlled())
+	{
+		if (Controller)
+		{
+			APlayerController* PlayerController = Cast<APlayerController>(Controller);
+			PlayerController->DeprojectMousePositionToWorld(mouseLocation, mouseRotation);
+		}
+	}
+	// Otherwise use values send from remote client
+	else
+	{
+		mouseLocation = MouseLocation;
+		mouseRotation = MouseRotation;
+	}
 }
 
 void ABlindEyePlayerCharacter::SER_UpdateMouse_Implementation(FVector mousePosition, FVector mouseRotation)

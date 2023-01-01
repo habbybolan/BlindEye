@@ -151,7 +151,6 @@ void APhoenixDive::UpdateGroundTargetPosition()
 	FVector targetPosition;
 	if (CalculateGroundTargetPosition(targetPosition))
 	{
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.0f, FColor::Emerald, targetPosition.ToString());
 		GroundTarget->SetActorLocation(targetPosition);
 	}
 }

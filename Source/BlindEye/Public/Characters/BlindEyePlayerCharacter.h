@@ -390,10 +390,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool GetIsTopdown();
 
+	void GetMouseValues(FVector& mouseLocation, FVector& mouseRotation);
 	UFUNCTION(Server, Unreliable)
 	void SER_UpdateMouse(FVector mousePosition, FVector mouseRotation);
-
-	void GetMouseValues(FVector& mouseLocation, FVector& mouseRotation);
 
 protected:
 
