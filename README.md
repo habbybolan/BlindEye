@@ -15,41 +15,15 @@ Blind Eye is a two player, 3D, third person, cooperative battle arena defense ga
 * Hunter and Hunted - The player gets a sense of being a powerful hunter, easily defeating groups of weaker enemies while tracking down the one spawning them. On the other hand, the player has a powerful Hunter enemy that is trying to stop the player’s efforts protecting the realm.
 * Birds - Instead of using the traditional point and shoot style of combat with abilities, we wanted to give the player bird-themed attacks to defeat the enemies with.
 
-### Documents
-
-[Game Design Document](<https://docs.google.com/document/d/1v6Kb8D5iBFX2CARsvLRC01mK8gDOMmLfhdmhwX2aG-E/edit?usp=sharing>)
-
-[Level Design Document](<https://docs.google.com/document/d/1roQ3wO4u3DfY_e0xRNNjT790BjSBD0Q3b03pxDe3Muc/edit?usp=sharing>)
-
-[Level Design Factors](<https://docs.google.com/document/d/1ATU7krTRZixEQwd1cCI7gx1cGhSRb6L6npKrDVWEvss/edit?usp=sharing>)
-
-[Fresh Eyes Playtest Feedback Form](<https://docs.google.com/forms/d/e/1FAIpQLSdNNzGahPK0Pr8U_5arUTuBf6J3kEpPAI5OYpb1MMlBAThgdA/viewform?usp=sharing>)
-
-[Meda Design Document](<https://miro.com/app/board/uXjVOpPOsmM=/?share_link_id=994276187786>)
-
-[Paint Over Proxy](<https://miro.com/app/board/uXjVOUxW1fA=/>)
-
-[Milestone Report](<https://drive.google.com/drive/folders/1mTu6PSImfDcKb2nPDynDUwmrNeKOh2ed?usp=sharing>)
-
-[ClickUp](<https://sharing.clickup.com/36275028/l/h/7-36275028-1/c9451079576f585>)
-
-[ClickUp Bug Tracking](<https://sharing.clickup.com/36275028/l/h/4-66055448-1/f02f6ce478cad62>)
-
-[Task List](<https://docs.google.com/spreadsheets/d/1aE1CwJExc6e-ufWwJ5Wjcxcs_S_H9AzUSZRLkWGL6Ek/edit?usp=sharing>)
-
-[Milestone Build](<https://drive.vfs.com/index.php/apps/files/?dir=/VFSSTORAGE10%20Dropbox%20GDPGSD/Builds/GD66PG22/BlindEye/M1&fileid=75792717>)
-
-No Script or Dialogue required
-
 ### Controls
 
-Action               | Keyboard Control  | Gamepad Control
----                  |---                |---
-Movement             | AWSD              | Left stick
-Direction Aim        | Mouse position    | Right stick
-Basic attack         | Left mouse click  | A
-Ability 1            | Q                 | X
-Ability 2            | E                 | B
+Action               | Keyboard Control  
+---                  |---               
+Movement             | AWSD            
+Direction Aim        | Mouse position    
+Basic attack         | Left mouse click  
+Ability 1            | Q                 
+Ability 2            | E                
 
 
 ### Debug tools/controls
@@ -66,13 +40,6 @@ Ability 2            | E                 | B
 * Spawn Burrower
 * Spawn Hunter
 * Increase time by one minute
-
-
-### Known Issues
-
-* Music volume stays past menus
-* Fire stays on the floor
-* Crow flurry not working properly. Mesh particle doesn't appear and streaks are wrong material
 
 ### Team:
 
