@@ -48,6 +48,7 @@ Ability 2            | E
 * Nial Petzold - Level Designer
 * Pablo Castro - Artist
 * Cameron Clark - Artist
+* Steven Sang - Animator
 
 ### Images
 ![session image](https://user-images.githubusercontent.com/38893736/213821363-81c6d028-38be-4e77-a2b4-12e41209608b.png)
